@@ -177,7 +177,7 @@ a.aa-account-card:focus-visible {
   color: var(--aa-color-foreground);
 }
 
-.woocommerce-account .woocommerce-MyAccount-navigation li.is-active a {
+.woocommerce-account .woocommerce-MyAccount-navigation li.woocommerce-MyAccount-navigation-link.is-active a {
   border-color: var(--aa-color-accent);
   background-color: var(--aa-account-card-bg);
   color: var(--aa-color-foreground);
@@ -213,7 +213,7 @@ a.aa-account-card:focus-visible {
     border-radius: 0 var(--aa-radius-md) var(--aa-radius-md) 0;
   }
 
-  .woocommerce-account .woocommerce-MyAccount-navigation li.is-active a {
+  .woocommerce-account .woocommerce-MyAccount-navigation li.woocommerce-MyAccount-navigation-link.is-active a {
     border-inline-start-color: var(--aa-color-accent);
   }
 

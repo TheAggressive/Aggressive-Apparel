@@ -94,6 +94,14 @@
       "type": "string",
       "default": "left",
       "enum": ["left", "center", "right"]
+    },
+    "icon": {
+      "type": "string",
+      "default": ""
+    },
+    "savedIcon": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "aggressive-apparel",

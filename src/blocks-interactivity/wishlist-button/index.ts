@@ -10,6 +10,8 @@ import Edit from './edit';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
 type WishlistButtonAttributes = {
+  icon: string;
+  savedIcon: string;
   label: string;
   showLabel: boolean;
   showIcon: boolean;

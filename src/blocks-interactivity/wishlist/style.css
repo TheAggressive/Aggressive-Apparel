@@ -1,77 +1,121 @@
-/* ============================================================
- * Wishlist Block — Frontend Styles
- * Covers the outer grid shell, card wrapper, and all inner blocks.
- * ============================================================ */
-
-/* ── Block wrapper — container context for the grid ───────────────────────── */
-
+/* Shared wishlist presentation: account pages and the editable page block. */
 .wp-block-aggressive-apparel-wishlist {
-	container-type: inline-size;
-	container-name: wishlist;
+	container: wishlist / inline-size;
+	color: var(--aa-color-foreground);
 }
 
-/* ── Grid ──────────────────────────────────────────────────────────────────── */
+.aa-wishlist-page__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wp--preset--spacing--4);
+	padding-bottom: var(--wp--preset--spacing--6);
+	margin-bottom: var(--wp--preset--spacing--6);
+	border-bottom: 1px solid var(--aa-color-border-subtle);
+}
+
+.aa-wishlist-page__intro > * {
+	margin: 0;
+}
+
+.aa-wishlist-page__eyebrow {
+	color: color-mix(in oklch, currentcolor 70%, transparent);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.aa-wishlist-page__title {
+	margin-block: var(--wp--preset--spacing--2);
+	font-family: var(--wp--preset--font-family--bebas-neue);
+	font-size: var(--wp--preset--font-size--fluid-xxx-large);
+	font-weight: 400;
+	line-height: 1;
+}
+
+.aa-wishlist-page__description {
+	color: color-mix(in oklch, currentcolor 70%, transparent);
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.5;
+}
+
+.aa-wishlist-page__count {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	gap: var(--wp--preset--spacing--2);
+	margin: 0;
+	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--3);
+	border: 1px solid var(--aa-color-border-subtle);
+	border-radius: var(--aa-radius-full);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	white-space: nowrap;
+}
 
 .aa-wishlist-page__grid {
 	display: grid;
-	grid-template-columns: repeat(var(--aa-wl-columns-mobile, 1), 1fr);
-	gap: var(--aa-wl-gap, 1.5rem);
+	grid-template-columns: repeat(var(--aa-wl-columns-mobile, 2), minmax(0, 1fr));
+	align-items: stretch;
+	gap: var(--aa-wl-gap, var(--wp--preset--spacing--5));
 	width: 100%;
+}
 
-	&[hidden] { display: none; }
+@container wishlist (width < 340px) {
+
+	.aa-wishlist-page__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.aa-wishlist-page__header {
+		flex-wrap: wrap;
+	}
 }
 
 @container wishlist (width >= 640px) {
 
 	.aa-wishlist-page__grid {
-		grid-template-columns: repeat(var(--aa-wl-columns, 3), 1fr);
+		grid-template-columns: repeat(var(--aa-wl-columns-tablet, 2), minmax(0, 1fr));
 	}
 }
 
-/* ── Card wrapper ──────────────────────────────────────────────────────────── */
+@container wishlist (width >= 900px) {
+
+	.aa-wishlist-page__grid {
+		grid-template-columns: repeat(var(--aa-wl-columns, 4), minmax(0, 1fr));
+	}
+}
 
 .aa-wishlist-page__card {
+	container: wishlist-card / inline-size;
+	position: relative;
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	min-width: 0;
+	gap: var(--wp--preset--spacing--2);
+	padding-bottom: var(--wp--preset--spacing--4);
+	overflow: hidden;
+	border: 1px solid var(--aa-color-border-subtle);
+	border-radius: var(--aa-radius-card);
+	background: var(--aa-color-surface-muted);
+	transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
+
+	&:hover,
+	&:focus-within {
+		border-color: var(--aa-color-border-strong);
+	}
+
+	& > :not(.aa-wl-item-image) {
+		margin-inline: var(--wp--preset--spacing--4);
+	}
 }
 
-/* ── State messages ────────────────────────────────────────────────────────── */
-
-.aa-wishlist-page__loading,
-.aa-wishlist-page__empty {
-	font-size: var(--wp--preset--font-size--small);
-	opacity: 0.65;
-	margin: 0;
-
-	&[hidden] { display: none; }
-}
-
-.aa-wishlist-page__count {
-	font-size: var(--wp--preset--font-size--small);
-	font-weight: 600;
-	opacity: 0.7;
-	margin: 0 0 1rem;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
-
-	&[hidden] { display: none; }
-}
-
-/* ── Inner block: image ────────────────────────────────────────────────────── */
-
-.aa-wl-item-image {
-	display: block;
-}
-
+.aa-wl-item-image,
 .aa-wl-item-image__link {
 	display: block;
+	min-width: 0;
 	overflow: hidden;
-
-	&:focus-visible {
-		outline: 2px solid var(--aa-color-accent);
-		outline-offset: 2px;
-	}
 }
 
 .aa-wl-item-image__img {
@@ -79,72 +123,208 @@
 	width: 100%;
 	height: auto;
 	object-fit: cover;
-	transition: transform 0.3s ease;
+	background: var(--aa-color-surface);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 
 	.aa-wl-item-image__link:hover & {
-		transform: scale(1.04);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
+		transform: scale(1.025);
 	}
 }
 
-/* ── Inner block: name ─────────────────────────────────────────────────────── */
-
 .aa-wl-item-name {
-	display: block;
-	font-size: var(--wp--preset--font-size--small);
-	font-weight: 600;
-	line-height: 1.3;
+	margin-top: var(--wp--preset--spacing--1);
+	font-family: var(--wp--preset--font-family--space-grotesk);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 500;
+	line-height: 1.35;
+	overflow-wrap: anywhere;
 }
 
 .aa-wl-item-name__link {
 	display: block;
-	font-size: inherit;
-	font-weight: inherit;
-	line-height: inherit;
 	color: inherit;
+	font: inherit;
 	text-decoration: none;
 
 	&:hover {
 		text-decoration: underline;
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--aa-color-accent);
-		outline-offset: 2px;
+		text-underline-offset: 0.2em;
 	}
 }
 
-/* ── Inner block: price ────────────────────────────────────────────────────── */
-
 .aa-wl-item-price {
-	display: block;
 	font-size: var(--wp--preset--font-size--small);
+	font-weight: 400;
+	line-height: 1.4;
 }
 
 .aa-wl-item-price__text {
-	display: block;
-	font-size: inherit;
-	opacity: 0.75;
+	color: color-mix(in oklch, currentcolor 75%, transparent);
 }
 
-/* ── Inner block: actions ──────────────────────────────────────────────────── */
+.aa-wl-item-price__storage {
+	display: block;
+	margin-top: var(--wp--preset--spacing--2);
+	color: color-mix(in oklch, currentcolor 70%, transparent);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 400;
+	line-height: 1.5;
+}
 
 .aa-wl-item-actions {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
 	flex-wrap: wrap;
+	gap: var(--wp--preset--spacing--2);
+	order: 1;
+	margin-top: auto;
+	padding-top: var(--wp--preset--spacing--2);
 }
 
-.aa-wl-item-actions__atc {
+.aa-wl-item-actions__atc,
+.aa-wl-item-actions__view {
 	flex: 1;
+	min-width: 0;
+	gap: var(--wp--preset--spacing--2);
+	text-align: center;
 	text-decoration: none;
 }
 
-.aa-wl-item-actions__remove {
-	font-size: var(--wp--preset--font-size--x-small);
-	font-weight: 700;
+.aa-wl-item-actions .aa-wl-item-actions__view.aggressive-apparel-button {
+	min-height: var(--aa-control-min);
+	padding-inline: var(--wp--preset--spacing--3);
+	border-width: 1px;
+	border-color: var(--aa-color-border-strong);
+	font-family: var(--wp--preset--font-family--space-grotesk);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	letter-spacing: 0;
+	text-transform: none;
+	white-space: nowrap;
+}
+
+.aa-wl-item-actions__view svg {
+	flex: none;
+	width: 1em;
+	height: 1em;
+}
+
+/* The visible chip is smaller than its unchanged touch target. */
+.aa-wishlist-page__card .aa-wl-item-actions__remove:not(.aa-wl-item-actions__remove--labeled) {
+	--aa-icon-button-background: transparent;
+	--aa-icon-button-border: transparent;
+	--aa-icon-button-color: var(--aa-color-foreground);
+
+	position: absolute;
+	top: var(--wp--preset--spacing--2);
+	inset-inline-end: var(--wp--preset--spacing--2);
+	z-index: 1;
+
+	&::before {
+		position: absolute;
+		inset: var(--wp--preset--spacing--1);
+		border: 1px solid var(--aa-color-border-default);
+		border-radius: inherit;
+		background: var(--aa-color-surface);
+		content: "";
+		pointer-events: none;
+	}
+
+	& svg {
+		position: relative;
+		width: var(--wp--preset--font-size--small);
+		height: var(--wp--preset--font-size--small);
+	}
+}
+
+@container wishlist-card (width < 240px) {
+
+	.aa-wl-item-name,
+	.aa-wl-item-price,
+	.aa-wl-item-actions {
+		margin-inline: var(--wp--preset--spacing--3);
+	}
+
+	.aa-wl-item-name {
+		font-size: var(--wp--preset--font-size--small);
+	}
+}
+
+@container wishlist-card (width < 180px) {
+
+	.aa-wl-item-actions__view svg {
+		display: none;
+	}
+}
+
+.aa-wishlist-page__continue {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wp--preset--spacing--2);
+	min-height: var(--aa-control-min);
+	margin-top: var(--wp--preset--spacing--6);
+	color: inherit;
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 0.25em;
+}
+
+.aa-wishlist-page__empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wp--preset--spacing--4);
+	padding: var(--wp--preset--spacing--12) var(--wp--preset--spacing--5);
+	border: 1px dashed var(--aa-color-border-default);
+	border-radius: var(--aa-radius-card);
+	background: var(--aa-color-surface-muted);
+	text-align: center;
+
+	& > * {
+		margin: 0;
+	}
+
+	& h3 {
+		font-family: var(--wp--preset--font-family--bebas-neue);
+		font-size: var(--wp--preset--font-size--fluid-xx-large);
+		font-weight: 400;
+	}
+
+	& p {
+		color: color-mix(in oklch, currentcolor 70%, transparent);
+	}
+}
+
+.aa-wishlist-page__empty-icon {
+	display: grid;
+	place-items: center;
+	width: var(--wp--preset--spacing--16);
+	height: var(--wp--preset--spacing--16);
+	border: 1px solid var(--aa-color-border-subtle);
+	border-radius: var(--aa-radius-full);
+}
+
+.aa-wishlist-page__loading {
+	padding-block: var(--wp--preset--spacing--8);
+	color: color-mix(in oklch, currentcolor 70%, transparent);
+}
+
+.wp-block-aggressive-apparel-wishlist [hidden] {
+	display: none;
+}
+
+.aa-wl-item-image__link:focus-visible,
+.aa-wl-item-name__link:focus-visible,
+.aa-wishlist-page__continue:focus-visible {
+	outline: 2px solid var(--aa-color-accent);
+	outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-wishlist-page__card,
+	.aa-wl-item-image__img {
+		transition: none;
+	}
 }

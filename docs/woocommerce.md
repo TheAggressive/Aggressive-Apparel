@@ -44,7 +44,7 @@ The catalog is engineered to scale, but two infrastructure pieces are
 into server HTML or `wp_interactivity_state` and trust it — a page cache serves
 the priming visitor's copy to everyone. Personalized fragments must rehydrate
 client-side (cart count → Store API `refreshCartCount()` on load, gated on the
-`woocommerce_items_in_cart` cookie; wishlist → localStorage). Seeding **config,
+`woocommerce_items_in_cart` cookie; guest wishlist → localStorage; account wishlist → Shopper Lists Store API). Seeding **config,
 i18n, and default flags** into interactivity state is fine; seeding a live count,
 geo, or membership value is not. Nonces baked into cached HTML expire after
 12–24h, so nothing may depend on one: guests get no REST nonce (the catalog

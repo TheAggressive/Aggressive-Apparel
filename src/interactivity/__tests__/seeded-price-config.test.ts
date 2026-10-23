@@ -12,7 +12,11 @@ import path from 'node:path';
  * instead). They must stay omitted from the literal and be read from the
  * server-provided state. See the interactivity-server-state-clobber note.
  */
-const SEEDED_KEYS = ['collapseVariablePrice', 'priceStartingPrefix'];
+const SEEDED_KEYS = [
+  'collapseVariablePrice',
+  'priceStartingPrefix',
+  'productsApiUrl',
+];
 const STORES = ['quick-view.ts', 'wishlist.ts'];
 
 describe('interactivity stores do not clobber PHP-seeded price config', () => {

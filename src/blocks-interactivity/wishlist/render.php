@@ -35,10 +35,12 @@ Wishlist::ensure_assets();
 
 // ── Attributes ────────────────────────────────────────────────────────────────
 
-$columns        = max( 1, (int) ( $attributes['columns'] ?? 3 ) );
-$mobile_columns = max( 1, (int) ( $attributes['mobileColumns'] ?? 1 ) );
+$columns        = min( 6, max( 1, (int) ( $attributes['columns'] ?? 4 ) ) );
+$mobile_columns = min( 3, max( 1, (int) ( $attributes['mobileColumns'] ?? 2 ) ) );
 $gap            = sanitize_text_field( $attributes['gap'] ?? '' );
-$show_count     = ! empty( $attributes['showCount'] );
+$show_count     = ! isset( $attributes['showCount'] ) || (bool) $attributes['showCount'];
+$show_header    = ! isset( $attributes['showHeader'] ) || (bool) $attributes['showHeader'];
+$shop_url       = wc_get_page_permalink( 'shop' );
 $empty_message  = sanitize_text_field( $attributes['emptyMessage'] ?? __( 'Your wishlist is empty.', 'aggressive-apparel' ) );
 
 // ── CSS vars (grid layout only — card design lives on inner blocks) ───────────
@@ -46,6 +48,7 @@ $empty_message  = sanitize_text_field( $attributes['emptyMessage'] ?? __( 'Your 
 $css_vars = array(
 	'--aa-wl-columns'        => (string) $columns,
 	'--aa-wl-columns-mobile' => (string) $mobile_columns,
+	'--aa-wl-columns-tablet' => (string) min( 2, $columns ),
 );
 if ( $gap ) {
 	$css_vars['--aa-wl-gap'] = $gap;
@@ -75,11 +78,32 @@ $inline_style = implode(
 	?>
 >
 
-	<?php if ( $show_count ) : ?>
-	<p class="aa-wishlist-page__count" data-wp-bind--hidden="!state.hasWishlistItems" hidden>
-		<span data-wp-text="state.items.length"></span>
-		<?php echo esc_html__( 'items saved', 'aggressive-apparel' ); ?>
-	</p>
+	<?php if ( $show_header || $show_count ) : ?>
+	<header class="aa-wishlist-page__header">
+		<div class="aa-wishlist-page__intro">
+			<?php if ( $show_header ) : ?>
+			<p class="aa-wishlist-page__eyebrow"><?php esc_html_e( 'Saved for later', 'aggressive-apparel' ); ?></p>
+			<h2 class="aa-wishlist-page__title"><?php esc_html_e( 'Your wishlist', 'aggressive-apparel' ); ?></h2>
+			<p class="aa-wishlist-page__description"><?php esc_html_e( 'Your favorite pieces, all in one place.', 'aggressive-apparel' ); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php if ( $show_count ) : ?>
+		<p class="aa-wishlist-page__count" data-wp-bind--hidden="!state.hasWishlistItems" hidden>
+			<?php
+			echo aggressive_apparel_get_icon(
+				'heart-outline',
+				array(
+					'width'       => 16,
+					'height'      => 16,
+					'aria-hidden' => 'true',
+				)
+			);
+			?>
+			<span data-wp-text="state.wishlistProducts.length"></span>
+			<?php esc_html_e( 'saved', 'aggressive-apparel' ); ?>
+		</p>
+		<?php endif; ?>
+	</header>
 	<?php endif; ?>
 
 	<?php /* Shown while fetch is in-flight */ ?>
@@ -87,13 +111,32 @@ $inline_style = implode(
 		<?php esc_html_e( 'Loading wishlist…', 'aggressive-apparel' ); ?>
 	</p>
 
-	<?php /* Shown when loaded and nothing in the list */ ?>
-	<p class="aa-wishlist-page__empty" data-wp-bind--hidden="state.hasWishlistItems" hidden>
-		<?php echo esc_html( $empty_message ); ?>
+	<p class="aa-wishlist-page__loading" data-wp-bind--hidden="!state.loadFailed" hidden>
+		<?php esc_html_e( 'Some wishlist items could not be loaded.', 'aggressive-apparel' ); ?>
+		<button type="button" data-wp-on--click="actions.retryLoad"><?php esc_html_e( 'Try again', 'aggressive-apparel' ); ?></button>
 	</p>
 
-	<?php /* Grid — hidden until loaded, then data-wp-each populates it */ ?>
-	<div class="aa-wishlist-page__grid" data-wp-bind--hidden="!context.loaded" hidden>
+	<?php /* Shown when loaded and nothing in the list */ ?>
+	<div class="aa-wishlist-page__empty" data-wp-bind--hidden="!state.isEmpty" hidden>
+		<span class="aa-wishlist-page__empty-icon">
+		<?php
+		echo aggressive_apparel_get_icon(
+			'heart-outline',
+			array(
+				'width'       => 32,
+				'height'      => 32,
+				'aria-hidden' => 'true',
+			)
+		);
+		?>
+		</span>
+		<h3><?php echo esc_html( $empty_message ); ?></h3>
+		<p><?php esc_html_e( 'Tap the heart on any product to keep it here.', 'aggressive-apparel' ); ?></p>
+		<a class="aggressive-apparel-button aggressive-apparel-button--primary" href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'Explore the collection', 'aggressive-apparel' ); ?></a>
+	</div>
+
+	<?php /* Grid — show each healthy source as its products arrive */ ?>
+	<div class="aa-wishlist-page__grid" data-wp-bind--hidden="!state.hasWishlistItems" hidden>
 		<template data-wp-each="state.wishlistProducts">
 			<div class="aa-wishlist-page__card">
 				<?php echo aggressive_apparel_trusted_html( $content ); ?>
@@ -101,4 +144,17 @@ $inline_style = implode(
 		</template>
 	</div>
 
+	<a class="aa-wishlist-page__continue" data-wp-bind--hidden="state.isEmpty" href="<?php echo esc_url( $shop_url ); ?>">
+		<?php esc_html_e( 'Continue shopping', 'aggressive-apparel' ); ?>
+		<?php
+		echo aggressive_apparel_get_icon(
+			'arrow-right',
+			array(
+				'width'       => 18,
+				'height'      => 18,
+				'aria-hidden' => 'true',
+			)
+		);
+		?>
+	</a>
 </div>

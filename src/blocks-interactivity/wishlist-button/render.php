@@ -29,6 +29,7 @@ declare(strict_types=1);
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Context;
 use Aggressive_Apparel\WooCommerce\Wishlist;
+use Aggressive_Apparel\WooCommerce\Wishlist_Integration;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -48,7 +49,7 @@ if ( Feature_Settings::quick_view_includes_wishlist() && Product_Context::is_pro
 }
 
 $product_id = Wishlist::get_current_product_id();
-if ( $product_id <= 0 ) {
+if ( $product_id <= 0 || Wishlist_Integration::uses_native_button( $product_id ) ) {
 	return;
 }
 
@@ -57,6 +58,7 @@ Wishlist::ensure_assets();
 // Prevent duplicate automatic placement for this product only.
 Wishlist::mark_button_block_rendered( $product_id );
 
+$product       = wc_get_product( $product_id );
 $default_label = Feature_Settings::get_wishlist_button_text();
 $label         = isset( $attributes['label'] ) ? (string) $attributes['label'] : $default_label;
 if ( __( 'Add to Wishlist', 'aggressive-apparel' ) === $label ) {
@@ -79,7 +81,7 @@ $button_classes .= 'large' === $size ? ' aggressive-apparel-wishlist__toggle--la
 
 $icon_html = '';
 if ( $show_icon ) {
-	$icon_html = Wishlist::get_toggle_icon_html();
+	$icon_html = Wishlist::get_toggle_icon_html( (string) ( $attributes['icon'] ?? '' ), (string) ( $attributes['savedIcon'] ?? '' ) );
 }
 
 $trimmed_label = trim( $label );
@@ -107,10 +109,11 @@ printf(
 	'<button %1$s>%2$s%3$s</button>',
 	get_block_wrapper_attributes(
 		array(
-			'class'              => $button_classes,
-			'type'               => 'button',
-			'data-aa-product-id' => (string) $product_id,
-			'aria-pressed'       => 'false',
+			'class'                => $button_classes,
+			'type'                 => 'button',
+			'data-aa-product-id'   => (string) $product_id,
+			'data-aa-product-type' => $product instanceof \WC_Product ? $product->get_type() : '',
+			'aria-pressed'         => 'false',
 		)
 	),
 	aggressive_apparel_trusted_html( $icon_html ),

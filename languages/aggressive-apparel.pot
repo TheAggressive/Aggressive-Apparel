@@ -2,16 +2,16 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.199.0\n"
+"Project-Id-Version: Aggressive Apparel\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T05:52:21+00:00\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.12.0\n"
+"X-Generator: WP-CLI\n"
 "X-Domain: aggressive-apparel\n"
 
 #. Theme Name of the theme
@@ -484,6 +484,7 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
+#: src/blocks-interactivity/wishlist/render.php:116
 msgid "Try again"
 msgstr ""
 
@@ -994,17 +995,17 @@ msgstr ""
 msgid "Placed on %s"
 msgstr ""
 
-#: includes/WooCommerce/class-account-page.php:123
+#: includes/WooCommerce/class-account-page.php:125
 msgid "Profile"
 msgstr ""
 
-#: includes/WooCommerce/class-account-page.php:221
-#: includes/WooCommerce/class-account-page.php:226
+#: includes/WooCommerce/class-account-page.php:223
+#: includes/WooCommerce/class-account-page.php:228
 msgid "Items"
 msgstr ""
 
 #. translators: %d: number of further items in the order.
-#: includes/WooCommerce/class-account-page.php:278
+#: includes/WooCommerce/class-account-page.php:280
 #, php-format
 msgid "and %d more item"
 msgid_plural "and %d more items"
@@ -2482,7 +2483,7 @@ msgid "Wishlist"
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:510
-msgid "Save-for-later with heart icon toggle and dedicated wishlist page."
+msgid "Save products for guests and sync signed-in wishlists with WooCommerce."
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:514
@@ -3810,7 +3811,7 @@ msgstr ""
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
 #: includes/WooCommerce/class-quick-view-card-actions.php:75
-#: includes/WooCommerce/class-wishlist.php:468
+#: includes/WooCommerce/class-wishlist.php:476
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -4244,8 +4245,8 @@ msgid "Simple Product Button Text"
 msgstr ""
 
 #: includes/WooCommerce/class-store-copy.php:85
-#: src/blocks-interactivity/wishlist-item-actions/render.php:19
-#: src/blocks-interactivity/wishlist-item-actions/render.php:21
+#: src/blocks-interactivity/wishlist-item-actions/render.php:20
+#: src/blocks-interactivity/wishlist-item-actions/render.php:22
 msgid "Add to Cart"
 msgstr ""
 
@@ -4354,7 +4355,7 @@ msgid "Wishlist Button Text"
 msgstr ""
 
 #: includes/WooCommerce/class-store-copy.php:145
-#: src/blocks-interactivity/wishlist-button/render.php:62
+#: src/blocks-interactivity/wishlist-button/render.php:64
 msgid "Add to Wishlist"
 msgstr ""
 
@@ -4492,9 +4493,47 @@ msgstr ""
 msgid "Fabric Composition"
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:310
-#: src/blocks-interactivity/wishlist-item-actions/render.php:32
+#: includes/WooCommerce/class-wishlist-integration.php:52
+msgid "Wishlist Unsaved Icon"
+msgstr ""
+
+#: includes/WooCommerce/class-wishlist-integration.php:52
+msgid "Wishlist Saved Icon"
+msgstr ""
+
+#: includes/WooCommerce/class-wishlist-integration.php:76
+msgid "Applies to product cards, Quick View and the WooCommerce product-page button. Individual Wishlist Button blocks can override these icons."
+msgstr ""
+
+#: includes/WooCommerce/class-wishlist.php:312
+#: src/blocks-interactivity/wishlist-item-actions/render.php:33
 msgid "Remove from wishlist"
+msgstr ""
+
+#. translators: %s: Product name.
+#: includes/WooCommerce/class-wishlist.php:314
+#, php-format
+msgid "Remove %s from wishlist"
+msgstr ""
+
+#: includes/WooCommerce/class-wishlist.php:315
+msgid "Your wishlist could not be updated. Please try again."
+msgstr ""
+
+#: includes/WooCommerce/class-wishlist.php:316
+msgid "Choose options"
+msgstr ""
+
+#: includes/WooCommerce/class-wishlist.php:317
+#: patterns/stacked-feature-products.php:42
+#: patterns/stacked-feature-products.php:116
+#: src/blocks-interactivity/lookbook/render.php:129
+#: src/blocks-interactivity/wishlist-item-actions/render.php:39
+msgid "View product"
+msgstr ""
+
+#: includes/WooCommerce/class-wishlist.php:318
+msgid "Saved on this device"
 msgstr ""
 
 #: patterns/about-page.php
@@ -7181,12 +7220,6 @@ msgstr ""
 msgid "Swap the featured collection below for your hero SKU. Keep the story short — this section sells by pacing, not density."
 msgstr ""
 
-#: patterns/stacked-feature-products.php:42
-#: patterns/stacked-feature-products.php:116
-#: src/blocks-interactivity/lookbook/render.php:129
-msgid "View product"
-msgstr ""
-
 #: patterns/stacked-feature-products.php:102
 msgid "Core staple"
 msgstr ""
@@ -7845,16 +7878,44 @@ msgstr ""
 msgid "Store notifications"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:42
+#: src/blocks-interactivity/wishlist/render.php:44
 msgid "Your wishlist is empty."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:81
-msgid "items saved"
+#: src/blocks-interactivity/wishlist/render.php:85
+msgid "Saved for later"
+msgstr ""
+
+#: src/blocks-interactivity/wishlist/render.php:86
+msgid "Your wishlist"
 msgstr ""
 
 #: src/blocks-interactivity/wishlist/render.php:87
+msgid "Your favorite pieces, all in one place."
+msgstr ""
+
+#: src/blocks-interactivity/wishlist/render.php:103
+msgid "saved"
+msgstr ""
+
+#: src/blocks-interactivity/wishlist/render.php:111
 msgid "Loading wishlist…"
+msgstr ""
+
+#: src/blocks-interactivity/wishlist/render.php:115
+msgid "Some wishlist items could not be loaded."
+msgstr ""
+
+#: src/blocks-interactivity/wishlist/render.php:134
+msgid "Tap the heart on any product to keep it here."
+msgstr ""
+
+#: src/blocks-interactivity/wishlist/render.php:135
+msgid "Explore the collection"
+msgstr ""
+
+#: src/blocks-interactivity/wishlist/render.php:148
+msgid "Continue shopping"
 msgstr ""
 
 #: src/blocks/dark-mode-toggle/render.php:36

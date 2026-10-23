@@ -24,10 +24,14 @@ import {
   Notice,
 } from '@wordpress/components';
 
+import { IconComboboxControl } from '../../utils/icon-combobox-control';
+import { IconEditorPreview } from '../../utils/icon-editor-preview';
 import { HeartIcon } from '../../utils/heart-icon';
 import './editor.css';
 
 type WishlistButtonAttributes = {
+  icon: string;
+  savedIcon: string;
   label: string;
   showLabel: boolean;
   showIcon: boolean;
@@ -45,7 +49,16 @@ export default function Edit({
   attributes,
   setAttributes,
 }: EditProps): JSX.Element {
-  const { label, showLabel, showIcon, iconOnly, size, alignment } = attributes;
+  const {
+    label,
+    showLabel,
+    showIcon,
+    iconOnly,
+    size,
+    alignment,
+    icon,
+    savedIcon,
+  } = attributes;
 
   const effectiveShowIcon = iconOnly ? true : showIcon;
   const effectiveShowLabel = iconOnly ? false : showLabel;
@@ -86,12 +99,32 @@ export default function Edit({
 
       <InspectorControls>
         <PanelBody title={__('Wishlist Button Settings', 'aggressive-apparel')}>
+          <IconComboboxControl
+            label={__('Unsaved Icon', 'aggressive-apparel')}
+            value={icon}
+            onChange={value => setAttributes({ icon: value })}
+            allowNone
+            help={__(
+              'Leave empty to use the store default.',
+              'aggressive-apparel'
+            )}
+          />
+          <IconComboboxControl
+            label={__('Saved Icon', 'aggressive-apparel')}
+            value={savedIcon}
+            onChange={value => setAttributes({ savedIcon: value })}
+            allowNone
+            help={__(
+              'Leave empty to use the store default.',
+              'aggressive-apparel'
+            )}
+          />
           <ToggleControl
             label={__('Icon Only', 'aggressive-apparel')}
             checked={iconOnly}
             onChange={value => setAttributes({ iconOnly: value })}
             help={__(
-              'Render a label-less heart button. The label text is still used as the accessible name.',
+              'Render an icon-only button. The label text is still used as the accessible name.',
               'aggressive-apparel'
             )}
           />
@@ -105,7 +138,7 @@ export default function Edit({
                     'Used as the screen-reader label only.',
                     'aggressive-apparel'
                   )
-                : __('Text shown beside the heart.', 'aggressive-apparel')
+                : __('Text shown beside the icon.', 'aggressive-apparel')
             }
           />
           {!iconOnly && (
@@ -152,7 +185,7 @@ export default function Edit({
         >
           <Notice status='info' isDismissible={false}>
             {__(
-              'This button binds to the current product context. Place it inside a Single Product template, or inside a Query Loop / Product Collection block. On pages without a product context it renders nothing. The Wishlist feature must be enabled in Theme Settings.',
+              'This button binds to the current product context. Place it inside a Single Product template, or inside a Query Loop / Product Collection block. On pages without a product context it renders nothing. Product pages using Add to Cart + Options use WooCommerce’s variation-aware wishlist button and store-wide icon settings automatically. The Wishlist feature must be enabled in Theme Settings.',
               'aggressive-apparel'
             )}
           </Notice>
@@ -166,9 +199,16 @@ export default function Edit({
           onClick={e => e.preventDefault()}
           aria-pressed='false'
         >
-          {effectiveShowIcon && (
-            <HeartIcon className='aggressive-apparel-wishlist__icon' />
-          )}
+          {effectiveShowIcon &&
+            (icon ? (
+              <IconEditorPreview
+                slug={icon}
+                size={22}
+                className='aggressive-apparel-wishlist__icon'
+              />
+            ) : (
+              <HeartIcon className='aggressive-apparel-wishlist__icon' />
+            ))}
           {effectiveShowLabel && label.trim() !== '' && (
             <span className='aggressive-apparel-wishlist__label'>{label}</span>
           )}

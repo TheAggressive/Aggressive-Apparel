@@ -3,5 +3,6 @@ export type WishlistPageAttributes = {
   mobileColumns: number;
   gap: string;
   showCount: boolean;
+  showHeader: boolean;
   emptyMessage: string;
 };

@@ -507,7 +507,7 @@ class Feature_Settings {
 			// ── Customer Engagement ─────────────────────────────.
 			'wishlist'                   => array(
 				'label'       => __( 'Wishlist', 'aggressive-apparel' ),
-				'description' => __( 'Save-for-later with heart icon toggle and dedicated wishlist page.', 'aggressive-apparel' ),
+				'description' => __( 'Save products for guests and sync signed-in wishlists with WooCommerce.', 'aggressive-apparel' ),
 				'section'     => 'engagement',
 			),
 			'social_proof'               => array(

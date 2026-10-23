@@ -33,11 +33,11 @@
   "attributes": {
     "columns": {
       "type": "number",
-      "default": 3
+      "default": 4
     },
     "mobileColumns": {
       "type": "number",
-      "default": 1
+      "default": 2
     },
     "gap": {
       "type": "string",
@@ -45,11 +45,15 @@
     },
     "showCount": {
       "type": "boolean",
-      "default": false
+      "default": true
     },
     "emptyMessage": {
       "type": "string",
       "default": "Your wishlist is empty."
+    },
+    "showHeader": {
+      "type": "boolean",
+      "default": true
     }
   }
 }

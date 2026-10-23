@@ -40,7 +40,7 @@ A separate **Store Copy** tab controls storefront microcopy (button labels, filt
 | Stock Status               | Product                     | Availability indicator in Quick View                                                                                         |
 | Quick View                 | Product                     | Product modal with add-to-cart from archives                                                                                 |
 | Frequently Bought Together | Product                     | Bundling with combined add-to-cart on product pages                                                                          |
-| Wishlist                   | Engagement                  | Heart-icon toggle with localStorage and Store API                                                                            |
+| Wishlist                   | Engagement                  | Customizable icons; guest browser saves and WooCommerce account wishlists                                                    |
 | Social Proof               | Engagement                  | Recent purchase toast notifications                                                                                          |
 | Back in Stock              | Engagement                  | Email alerts for out-of-stock products, with double opt-in and one-click unsubscribe                                         |
 | Swatch Tooltips            | Mobile & UI                 | Fabric name and composition on swatch hover                                                                                  |

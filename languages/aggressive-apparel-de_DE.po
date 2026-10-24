@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2026-10-24T03:52:19+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2044,121 +2044,151 @@ msgid "Low Stock"
 msgstr "Geringer Lagerbestand"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:101
+#: includes/WooCommerce/class-card-display-settings.php:113
 #, aa-mt
 msgid "Card Buttons on Touch Devices"
 msgstr "Karten-Schaltflächen auf Touch-Geräten"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:103
+#: includes/WooCommerce/class-card-display-settings.php:115
+#, aa-mt
+msgid "Wishlist heart only — one tap saves the product"
+msgstr "Wishlist Nur Herz – ein Fingertipp reicht aus, um das Produkt zu speichern"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:116
 #, aa-mt
 msgid "Behind one small chip — tap it to show the actions"
 msgstr "Hinter einem kleinen Symbol – tippe darauf, um die Aktionen anzuzeigen"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:104
+#: includes/WooCommerce/class-card-display-settings.php:117
 #, aa-mt
 msgid "Always visible"
 msgstr "Immer sichtbar"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:105
+#: includes/WooCommerce/class-card-display-settings.php:118
 #, aa-mt
 msgid "Hidden (tap the product to open it)"
 msgstr "Ausgeblendet (zum Öffnen auf das Produkt tippen)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:107
+#: includes/WooCommerce/class-card-display-settings.php:120
 #, aa-mt
-msgid "Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover."
-msgstr "Da Smartphones und Tablets keine Hover-Funktion unterstützen, würden die Schaltflächen Quick View und Wishlist andernfalls auf jedem Produktbild angezeigt werden. Durch Antippen des Bildes wird das Produkt immer geöffnet. Nutzer, die mit der Maus navigieren, sehen die Schaltflächen weiterhin beim Darüberfahren mit der Maus."
+msgid "Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product, so Quick View adds little there. The heart needs Wishlist in the card buttons."
+msgstr "Da Smartphones und Tablets nicht mit der Maus darüberfahren können, würden die Schaltflächen Quick View und Wishlist andernfalls auf jedem Produktbild erscheinen. Da ein Tippen auf das Bild immer das Produkt öffnet, bringt Quick View hier kaum einen Mehrwert. Das Herz benötigt Wishlist in den Kartenschaltflächen."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:111
+#: includes/WooCommerce/class-card-display-settings.php:124
+#, aa-mt
+msgid "Wishlist Heart with a Mouse"
+msgstr "Wishlist Herz mit einer Maus"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:126
+#, aa-mt
+msgid "Always visible — Quick View appears on hover"
+msgstr "Immer sichtbar – Quick View wird beim Darüberfahren mit der Maus angezeigt"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:127
+#, aa-mt
+msgid "On hover, with Quick View"
+msgstr "Beim Überfahren mit der Maus, mit Quick View"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:129
+#, aa-mt
+msgid "How the card buttons behave for mouse and trackpad users when Wishlist is in the card buttons."
+msgstr "Wie sich die Kartentasten für Maus- und Trackpad-Benutzer verhalten, wenn Wishlist in den Kartentasten enthalten ist."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:133
 #, aa-mt
 msgid "Badges per Product on Phones"
 msgstr "Anzeigen pro Produkt auf Smartphones"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:113
+#: includes/WooCommerce/class-card-display-settings.php:135
 #, aa-mt
 msgid "One badge (highest priority)"
 msgstr "Ein Abzeichen (höchste Priorität)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:114
+#: includes/WooCommerce/class-card-display-settings.php:136
 #, aa-mt
 msgid "Up to two badges"
 msgstr "Bis zu zwei Abzeichen"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:115
+#: includes/WooCommerce/class-card-display-settings.php:137
 #, aa-mt
 msgid "Up to three badges"
 msgstr "Bis zu drei Abzeichen"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:116
+#: includes/WooCommerce/class-card-display-settings.php:138
 #, aa-mt
 msgid "All badges"
 msgstr "Alle Abzeichen"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:118
+#: includes/WooCommerce/class-card-display-settings.php:140
 #, aa-mt
 msgid "On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge."
 msgstr "Auf Bildschirmen mit einer Breite von weniger als 600 px werden pro Produkt nur so viele Badges angezeigt, wie durch die Priorität der einzelnen Badges festgelegt ist (Produkte → Badges). Auf größeren Bildschirmen werden alle Badges angezeigt."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:122
+#: includes/WooCommerce/class-card-display-settings.php:144
 #, aa-mt
 msgid "Sale Badge on Phones"
 msgstr "Sonderangebots-Badge auf Smartphones"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:124
+#: includes/WooCommerce/class-card-display-settings.php:146
 #, aa-mt
 msgid "Hide — the price already shows the sale"
 msgstr "Ausblenden – der Preis spiegelt bereits den Sonderpreis wider"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:125
+#: includes/WooCommerce/class-card-display-settings.php:147
 #, aa-mt
 msgid "Show"
 msgstr "Anzeigen"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:127
+#: includes/WooCommerce/class-card-display-settings.php:149
 #, aa-mt
 msgid "Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge."
 msgstr "Die Aktionspreise werden durchgestrichen neben dem neuen Preis angezeigt. Um dort auch den Prozentsatz anzuzeigen, aktivieren Sie die „Smart Price Display“-Funktion. Ein ausgeblendetes Aktionssymbol macht Platz für das nächste Symbol."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:131
+#: includes/WooCommerce/class-card-display-settings.php:153
 #, aa-mt
 msgid "Badge Size on Phones"
 msgstr "Größe der Badges auf Smartphones"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:133
+#: includes/WooCommerce/class-card-display-settings.php:155
 #, aa-mt
 msgid "Compact (85%)"
 msgstr "Kompakt (85 %)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:134
+#: includes/WooCommerce/class-card-display-settings.php:156
 #, aa-mt
 msgid "Smallest (75%)"
 msgstr "Kleinste (75 %)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:135
+#: includes/WooCommerce/class-card-display-settings.php:157
 #, aa-mt
 msgid "Same as large screens"
 msgstr "Genau wie bei großen Bildschirmen"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-card-display-settings.php:137
+#: includes/WooCommerce/class-card-display-settings.php:159
 #, aa-mt
 msgid "Scales every badge on screens under 600px wide, keeping each badge’s own design."
 msgstr "Passt die Größe aller Badges auf Bildschirmen mit einer Breite von weniger als 600 px an, wobei das jeweilige Design der einzelnen Badges beibehalten wird."
@@ -2877,12 +2907,12 @@ msgid "Save Changes"
 msgstr "Änderungen speichern"
 
 #. translators: 1: Store Copy field label. 2: comma-separated list of unrecognised placeholders. 3: comma-separated list of supported placeholders, or a "none" notice.
-#: includes/WooCommerce/class-feature-settings-sanitizer.php:288
+#: includes/WooCommerce/class-feature-settings-sanitizer.php:298
 #, php-format, aa-mt
 msgid "%1$s was not saved: %2$s is not a placeholder this field understands. Supported here: %3$s"
 msgstr "%1$s wurde nicht gespeichert: %2$s ist kein Platzhalter, den dieses Feld versteht. Hier unterstützt: %3$s"
 
-#: includes/WooCommerce/class-feature-settings-sanitizer.php:292
+#: includes/WooCommerce/class-feature-settings-sanitizer.php:302
 #, aa-mt
 msgid "none — this field cannot contain a placeholder"
 msgstr "keine — dieses Feld darf keinen Platzhalter enthalten"
@@ -4689,14 +4719,14 @@ msgstr "Produktinformationen"
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
-#: includes/WooCommerce/class-quick-view-card-actions.php:108
+#: includes/WooCommerce/class-quick-view-card-actions.php:117
 #, aa-mt
 msgid "Product actions"
 msgstr "Produktmaßnahmen"
 
 #. translators: %s: product name.
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-quick-view-card-actions.php:169
+#: includes/WooCommerce/class-quick-view-card-actions.php:176
 #, php-format, aa-mt
 msgid "Product actions: %s"
 msgstr "Produktaktionen: %s"

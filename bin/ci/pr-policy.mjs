@@ -73,7 +73,7 @@ const HIGH_RISK_PATHS = [
   /^includes\/Blocks\/class-icon-block\.php$/u,
   /^includes\/Core\/class-(?:security-hardening|client-ip|rate-limiter|theme-update.*)\.php$/u,
   /^includes\/Core\/class-(?:legal-identity|search-rest|search-visibility|theme-features)\.php$/u,
-  /^includes\/WooCommerce\/class-(?:advanced-sorting|back-in-stock(?:-admin)?|badge-rules-admin|badge-studio-rest|color-admin-ui|color-data-manager|color-pattern-admin|custom-badge-taxonomy|feature-settings-page|load-more-controller|product-context|product-tabs-admin|quick-view|size-guide|social-proof(?:-purchase)?|store-api-extension|swatch-tooltips|wishlist)\.php$/u,
+  /^includes\/WooCommerce\/class-(?:advanced-sorting|back-in-stock(?:-links|-migration|-native)?|badge-rules-admin|badge-studio-rest|color-admin-ui|color-data-manager|color-pattern-admin|custom-badge-taxonomy|feature-settings-page|load-more-controller|product-context|product-tabs-admin|quick-view|size-guide|social-proof(?:-purchase)?|store-api-extension|swatch-tooltips|wishlist)\.php$/u,
 ];
 
 const DEPENDENCY_PATHS = {

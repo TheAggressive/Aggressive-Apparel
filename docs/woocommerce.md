@@ -201,25 +201,59 @@ unconverted minimum logs a `WP_DEBUG` diagnostic instead of guessing.
 
 ## Back in Stock
 
-Signups are **double opt-in**. A signup is stored as `pending` and emails a
-confirm link (WooCommerce → Settings → Emails → _Back in Stock confirmation_);
-only confirmed (`active`) rows receive the restock email. Unconfirmed rows are
-deleted after 7 days, and pending rows count toward the per-address cap.
+The waitlist is **WooCommerce's own Back in Stock Notifications** (11.2+):
+storage, double opt-in, the verify / restock / unsubscribe emails, Action
+Scheduler sending, the admin list (WooCommerce → Notifications), My Account
+management, retention and erasure. The theme's **Back in Stock** toggle adds
+only what a block product page lacks. Setup takes both switches:
 
-- **Mail must work.** If the confirmation email can't be sent, the signup is
-  rolled back and the shopper sees an error, rather than being left pending
-  with no way to confirm.
-- **Disabling the confirmation email** makes signups single opt-in: they
-  activate immediately.
-- **Email links act on POST only.** Opening the confirm or unsubscribe link
-  shows a page with a button. Mail security scanners (Safe Links, Mimecast)
-  fetch every link, so a GET that changed state would confirm or unsubscribe on
-  the reader's behalf. Restock emails also carry RFC 8058
-  `List-Unsubscribe` / `List-Unsubscribe-Post` headers for the mail client's
-  native one-click unsubscribe.
-- **No nonce for guests.** A nonce baked into a page-cached copy expires, so
-  guest signups are protected by rate limits and the consent box instead;
-  logged-in signups are still nonce-checked.
+1. WooCommerce → Settings → Advanced → Features → _Back in Stock
+   Notifications_ (experimental, off by default).
+2. WooCommerce → Settings → Products → Customer stock notifications → allow
+   signups (and pick double opt-in / account-only there).
+
+Until both are on, the theme renders nothing and shows an admin notice.
+
+- **The form.** WooCommerce's form skips `woocommerce/add-to-cart-with-options`,
+  so the theme renders one: in place of add-to-cart when the whole product is
+  sold out, and after it for a sold-out **size** of an in-stock variable
+  product. The variation form follows the shopper's choice through the same
+  `woocommerce/products::state.productVariationInContext` bindings WooCommerce's
+  own markup uses (hidden until a variation is chosen, shown only while it is
+  out of stock, posting its ID). Theme JS never reads WooCommerce's private
+  store. If the store hides out-of-stock items, sold-out sizes can't be chosen,
+  so only whole-product signups remain.
+- **One adapter.** Every call into WooCommerce's `Internal` namespace goes
+  through `Back_In_Stock_Native`. That namespace has no compatibility promise:
+  its surface is listed in `stubs/woocommerce-stock-notifications.php` (for
+  PHPStan) and `TestBackInStockNativeContract` checks every symbol against the
+  pinned WooCommerce, so an upstream rename fails CI, not checkout. Bump the
+  CI pin (`bin/ci/.wp-env.json`) before trusting a new WooCommerce release.
+- **Email links act on POST only.** WooCommerce's verify and unsubscribe links
+  act on GET, and mail security scanners (Safe Links, Mimecast) fetch every
+  link — they would confirm a double opt-in, or cancel a waitlist entry, for
+  the reader. `Back_In_Stock_Links` answers that GET with a page whose button
+  POSTs to the same URL, which WooCommerce then processes. Restock emails gain
+  RFC 8058 `List-Unsubscribe` / `List-Unsubscribe-Post` headers built from the
+  body's own single-use link. PHPMailer's `mail()` transport RFC 2047-encodes
+  headers over ~45 characters, which clients don't decode there; send through
+  SMTP or a mail service for one-click unsubscribe to work.
+- **Throttling.** Guests need no nonce (a page-cached one expires); logged-in
+  signups are nonce-checked. Guests are limited per real client IP by the
+  theme's `Rate_Limiter`; WooCommerce's own per-client delay keys on raw
+  `REMOTE_ADDR` (one shared address behind a proxy), so it is turned off for
+  the theme's endpoint only, while its per-email and per-account delays stay.
+  An address can hold at most three open signups.
+- **Privacy.** WooCommerce registers an eraser and deletes unverified signups
+  after its configured days; the theme adds the personal-data exporter and
+  the suggested privacy-policy text. The consent checkbox is required to
+  submit but isn't stored per signup — with double opt-in, the verified
+  address is the consent record.
+- **Migration.** Waitlists from the theme's old `aa_stock_subscribers` table
+  move into WooCommerce in Action Scheduler batches from an admin visit, once
+  WooCommerce's feature is on (`Back_In_Stock_Migration`). Only confirmed rows
+  move; the table is dropped after every row moved, and kept (retrying hourly)
+  if any failed.
 
 ## Collection vs Fit
 

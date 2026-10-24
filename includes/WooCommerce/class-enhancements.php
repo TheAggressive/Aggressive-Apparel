@@ -84,11 +84,10 @@ class Enhancements {
 	 */
 	private const SPECIAL_SERVICES = array(
 		Sale_Category::class,
-		Back_In_Stock_Installer::class,
+		Back_In_Stock_Migration::class,
 		Back_In_Stock::class,
 		Back_In_Stock_Links::class,
 		Back_In_Stock_Privacy::class,
-		Back_In_Stock_Admin::class,
 	);
 
 	/**
@@ -178,21 +177,16 @@ class Enhancements {
 		$this->container->register( Product_Tabs::class, static fn() => new Product_Tabs() );
 		$this->container->get( Product_Tabs::class )->init_admin_only();
 
-		// Back in Stock: install schema, boot frontend, then admin (admin-only).
+		// Back in Stock: WooCommerce owns the waitlist (Back_In_Stock_Native);
+		// the theme adds the block form, scanner-safe links and an exporter.
+		// The old table's move runs whatever the toggle says — its
+		// subscribers outlive the setting.
+		$this->container->get( Back_In_Stock_Migration::class )->init();
 		if ( Feature_Settings::is_enabled( 'back_in_stock' ) ) {
-			$installer = $this->container->get( Back_In_Stock_Installer::class );
-			$installer->init();
-
-			// Fail closed while a schema migration is pending. The admin_init hook
-			// above completes it without adding database maintenance to customer
-			// requests; the feature resumes automatically on the next request.
-			if ( $installer->is_current() ) {
-				$this->container->get( Back_In_Stock::class )->init();
+			$this->container->get( Back_In_Stock::class )->init();
+			if ( Back_In_Stock_Native::is_supported() ) {
 				$this->container->get( Back_In_Stock_Links::class )->init();
 				$this->container->get( Back_In_Stock_Privacy::class )->init();
-				if ( is_admin() ) {
-					$this->container->get( Back_In_Stock_Admin::class )->init();
-				}
 			}
 		}
 	}

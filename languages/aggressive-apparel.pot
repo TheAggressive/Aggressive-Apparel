@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T08:02:32+00:00\n"
+"POT-Creation-Date: 2026-10-24T09:19:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -458,7 +458,6 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:200
 #: includes/Core/class-search-modal.php:202
-#: includes/WooCommerce/class-back-in-stock-admin.php:95
 #: includes/WooCommerce/class-mobile-bottom-nav.php:147
 #: includes/WooCommerce/class-mobile-bottom-nav.php:153
 #: src/blocks-interactivity/search/render.php:28
@@ -815,8 +814,6 @@ msgstr ""
 
 #: includes/helpers.php:254
 #: includes/helpers.php:256
-#: includes/WooCommerce/class-back-in-stock-admin.php:393
-#: includes/WooCommerce/class-back-in-stock-admin.php:448
 msgid "Active"
 msgstr ""
 
@@ -1033,286 +1030,169 @@ msgstr ""
 msgid "Name: Z-A"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock-admin.php:48
-#: includes/WooCommerce/class-back-in-stock-admin.php:49
-msgid "Stock Subscribers"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:63
-#: includes/WooCommerce/class-back-in-stock-admin.php:120
-msgid "Sorry, you are not allowed to manage stock subscribers."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:72
-msgid "Stock Notification Subscribers"
-msgstr ""
-
-#. translators: %d: number of items deleted.
-#: includes/WooCommerce/class-back-in-stock-admin.php:84
-#, php-format
-msgid "%d subscriber deleted."
-msgid_plural "%d subscribers deleted."
-msgstr[0] ""
-msgstr[1] ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:195
-#: patterns/contact-page.php:32
-msgid "Email"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:196
-#: includes/WooCommerce/class-back-in-stock-privacy.php:162
-msgid "Product"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:197
-#: includes/WooCommerce/class-back-in-stock-privacy.php:166
-msgid "Status"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:198
-#: includes/WooCommerce/class-back-in-stock-privacy.php:170
-msgid "Subscribed"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:199
-#: includes/WooCommerce/class-back-in-stock-admin.php:394
-#: includes/WooCommerce/class-back-in-stock-admin.php:449
-msgid "Notified"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:223
-#: patterns/design-system-preview.php:87
-msgid "Delete"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:392
-#: includes/WooCommerce/class-back-in-stock-admin.php:447
-msgid "Awaiting confirmation"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:395
-#: includes/WooCommerce/class-back-in-stock-admin.php:450
-#: includes/WooCommerce/class-back-in-stock-links.php:154
-#: includes/WooCommerce/class-back-in-stock-links.php:161
-msgid "Unsubscribed"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:446
-msgid "All statuses"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:452
-#: includes/WooCommerce/class-store-copy.php:97
-#: src/blocks-interactivity/filter-toggle/render.php:56
-msgid "Filter"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-admin.php:463
-msgid "No subscribers found."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:43
-msgid "Back in Stock confirmation"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:44
-msgid "Asks shoppers to confirm a back-in-stock signup before they are notified. Disable to activate signups without confirmation."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:123
-msgid "Confirm your back-in-stock alert"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:132
-msgid "Confirm your alert for {product_name}"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-email.php:48
-msgid "Back in Stock"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-email.php:49
-msgid "Sent to customers who subscribed to out-of-stock product notifications."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-email.php:50
-#: includes/WooCommerce/class-back-in-stock-email.php:162
-msgid "Good news — {product_name} is back!"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-email.php:51
-#: includes/WooCommerce/class-back-in-stock-email.php:171
-msgid "{product_name} is back in stock!"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:91
-msgid "Link expired"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:92
-msgid "This confirmation link is invalid or has expired. Please sign up again from the product page."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:102
-msgid "Already confirmed"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:103
-msgid "You are already on the list. We will email you when it is back in stock."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:110
+#: includes/WooCommerce/class-back-in-stock-links.php:73
 msgid "Confirm your alert"
 msgstr ""
 
-#. translators: %s: product name.
-#: includes/WooCommerce/class-back-in-stock-links.php:113
-#, php-format
-msgid "Confirm that you want an email when %s is back in stock."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:114
+#: includes/WooCommerce/class-back-in-stock-links.php:74
 msgid "Confirm that you want an email when this product is back in stock."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock-links.php:117
+#: includes/WooCommerce/class-back-in-stock-links.php:75
 msgid "Confirm"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock-links.php:124
-msgid "You are on the list"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:126
-msgid "Good news: it is already back in stock."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:127
-msgid "Thanks for confirming. We will email you when it is back in stock."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:155
-msgid "You will not receive back-in-stock emails for this product."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:162
-msgid "You are not subscribed to back-in-stock emails for this product."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-links.php:167
-#: includes/WooCommerce/class-back-in-stock-links.php:171
-#: templates/emails/back-in-stock.php:67
+#: includes/WooCommerce/class-back-in-stock-links.php:80
+#: includes/WooCommerce/class-back-in-stock-links.php:82
 msgid "Unsubscribe"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock-links.php:168
+#: includes/WooCommerce/class-back-in-stock-links.php:81
 msgid "Stop back-in-stock emails for this product?"
 msgstr ""
 
-#. translators: %s: product name.
-#: includes/WooCommerce/class-back-in-stock-links.php:266
-#, php-format
-msgid "View %s"
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-privacy.php:72
-#: includes/WooCommerce/class-back-in-stock-privacy.php:86
+#: includes/WooCommerce/class-back-in-stock-privacy.php:51
 msgid "Back in Stock Subscriptions"
 msgstr ""
 
-#. translators: %d: retention period in days.
-#: includes/WooCommerce/class-back-in-stock-privacy.php:106
-#, php-format
-msgid "After a notification is sent or you unsubscribe, related back-in-stock records are retained for up to %d days for support, abuse prevention, and delivery troubleshooting, then deleted."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock-privacy.php:109
-msgid "After a notification is sent or you unsubscribe, related back-in-stock records are retained until they are manually deleted by the store."
-msgstr ""
-
 #. translators: %d: days an unconfirmed request is kept.
-#: includes/WooCommerce/class-back-in-stock-privacy.php:113
+#: includes/WooCommerce/class-back-in-stock-privacy.php:73
 #, php-format
 msgid "We email you once to confirm each request, and only confirmed requests are notified; unconfirmed requests are deleted after %d days."
 msgstr ""
 
+#: includes/WooCommerce/class-back-in-stock-privacy.php:76
+msgid "We email you once to confirm each request, and only confirmed requests are notified."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock-privacy.php:78
+msgid "After a notification is sent or you unsubscribe, related back-in-stock records are retained until they are manually deleted by the store."
+msgstr ""
+
 #. translators: %s: retention policy sentence.
-#: includes/WooCommerce/class-back-in-stock-privacy.php:121
+#: includes/WooCommerce/class-back-in-stock-privacy.php:84
 #, php-format
 msgid "We use your email address to notify you when a requested product, size, or color is available again. Because some products are produced through print-on-demand suppliers, availability may depend on supplier stock, production capacity, or product status. Active notification requests are kept until the item becomes available, you unsubscribe, or the product is discontinued. %s"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock-privacy.php:128
+#: includes/WooCommerce/class-back-in-stock-privacy.php:91
 msgid "Aggressive Apparel Back in Stock Notifications"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock-privacy.php:158
+#: includes/WooCommerce/class-back-in-stock-privacy.php:112
 msgid "Stock Notification Subscriptions"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:163
-#: includes/WooCommerce/class-back-in-stock.php:197
+#: includes/WooCommerce/class-back-in-stock-privacy.php:116
+msgid "Product"
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock-privacy.php:120
+msgid "Status"
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock-privacy.php:124
+msgid "Subscribed"
+msgstr ""
+
+#. translators: %s: minimum WooCommerce version.
+#: includes/WooCommerce/class-back-in-stock.php:103
+#, php-format
+msgid "Back in Stock Notifications needs WooCommerce %s or later; the signup form is hidden until then."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:106
+msgid "Back in Stock Notifications uses WooCommerce's own waitlist. Turn on \"Back in Stock Notifications\" under WooCommerce → Settings → Advanced → Features to show the signup form."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:109
+msgid "Back in Stock Notifications is on, but WooCommerce is not accepting signups. Allow signups under WooCommerce → Settings → Products → Customer stock notifications to show the form."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:116
+msgid "Open settings"
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:195
+#: includes/WooCommerce/class-back-in-stock.php:237
+#: includes/WooCommerce/class-back-in-stock.php:275
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:164
-#: includes/WooCommerce/class-back-in-stock.php:210
+#: includes/WooCommerce/class-back-in-stock.php:196
+#: includes/WooCommerce/class-back-in-stock.php:245
 msgid "You must agree to receive the notification."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:165
+#: includes/WooCommerce/class-back-in-stock.php:197
 msgid "Thanks! Check your inbox for next steps."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:166
-#: includes/WooCommerce/class-back-in-stock.php:279
+#: includes/WooCommerce/class-back-in-stock.php:198
+#: includes/WooCommerce/class-back-in-stock.php:281
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:191
-msgid "Too many requests. Please wait a few minutes and try again."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock.php:201
-msgid "Invalid product."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock.php:206
+#: includes/WooCommerce/class-back-in-stock.php:226
+#: includes/WooCommerce/class-back-in-stock.php:277
+#: includes/WooCommerce/class-back-in-stock.php:278
 msgid "This product is not available for stock notifications."
 msgstr ""
 
+#: includes/WooCommerce/class-back-in-stock.php:231
+#: includes/WooCommerce/class-back-in-stock.php:274
+msgid "Too many requests. Please wait a few minutes and try again."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:241
+msgid "Invalid product."
+msgstr ""
+
 #. translators: %d: max subscriptions.
-#: includes/WooCommerce/class-back-in-stock.php:233
+#: includes/WooCommerce/class-back-in-stock.php:253
 #, php-format
 msgid "You can only subscribe to %d products at a time."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:287
-msgid "We could not send the confirmation email. Please try again."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock.php:350
-msgid "Almost done! Check your inbox and confirm to get your alert."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock.php:351
+#: includes/WooCommerce/class-back-in-stock.php:264
+#: includes/WooCommerce/class-back-in-stock.php:265
 msgid "We'll email you when this product is back in stock!"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:602
+#: includes/WooCommerce/class-back-in-stock.php:266
+#: includes/WooCommerce/class-back-in-stock.php:267
+msgid "Almost done! Check your inbox and confirm to get your alert."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:276
+msgid "Please log in to get back-in-stock alerts."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:407
+msgid "This option is currently out of stock."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:408
 msgid "This product is currently out of stock."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:607
+#: includes/WooCommerce/class-back-in-stock.php:414
+msgid "Log in to get an email when it is back in stock."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:422
+msgid "We'll email the address on your account."
+msgstr ""
+
+#: includes/WooCommerce/class-back-in-stock.php:426
 msgid "Email address"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:613
+#: includes/WooCommerce/class-back-in-stock.php:432
 msgid "Enter your email"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:621
+#: includes/WooCommerce/class-back-in-stock.php:440
 msgid "I agree to receive a one-time email when this product is restocked."
 msgstr ""
 
@@ -2519,7 +2399,7 @@ msgid "Back in Stock Notifications"
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:520
-msgid "Let customers subscribe to out-of-stock products and get notified when restocked."
+msgid "Show a signup form on out-of-stock products and sizes. The waitlist and emails are WooCommerce's own Back in Stock Notifications, which must be turned on."
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:526
@@ -4286,6 +4166,11 @@ msgstr ""
 msgid "Filter Toggle Text"
 msgstr ""
 
+#: includes/WooCommerce/class-store-copy.php:97
+#: src/blocks-interactivity/filter-toggle/render.php:56
+msgid "Filter"
+msgstr ""
+
 #: includes/WooCommerce/class-store-copy.php:98
 msgid "Visible text for the automatic product-filter trigger and default Filter Toggle block label."
 msgstr ""
@@ -4750,7 +4635,6 @@ msgstr ""
 #: patterns/lookbook-grid.php:85
 #: patterns/lookbook-grid.php:135
 #: patterns/lookbook-grid.php:158
-#: templates/emails/back-in-stock.php:56
 msgid "Shop Now"
 msgstr ""
 
@@ -5107,6 +4991,10 @@ msgstr ""
 msgid "Order questions, sizing help, or wholesale — reach out and we'll get back within one business day."
 msgstr ""
 
+#: patterns/contact-page.php:32
+msgid "Email"
+msgstr ""
+
 #: patterns/contact-page.php:36
 #: patterns/return-policy.php:134
 msgid "support@aggressiveapparel.com"
@@ -5266,6 +5154,10 @@ msgstr ""
 
 #: patterns/design-system-preview.php:82
 msgid "Tone and shape variants"
+msgstr ""
+
+#: patterns/design-system-preview.php:87
+msgid "Delete"
 msgstr ""
 
 #: patterns/design-system-preview.php:89
@@ -7963,41 +7855,6 @@ msgid "(%s customer review)"
 msgid_plural "(%s customer reviews)"
 msgstr[0] ""
 msgstr[1] ""
-
-#. translators: %s: product name.
-#: templates/emails/back-in-stock-confirmation-plain.php:19
-#: templates/emails/back-in-stock-confirmation.php:22
-#, php-format
-msgid "You asked us to email you when %s is back in stock. Please confirm this was you:"
-msgstr ""
-
-#: templates/emails/back-in-stock-confirmation-plain.php:24
-#: templates/emails/back-in-stock-confirmation.php:38
-msgid "If you did not sign up, ignore this email and you will not hear from us about this product."
-msgstr ""
-
-#: templates/emails/back-in-stock-confirmation.php:33
-msgid "Confirm my alert"
-msgstr ""
-
-#: templates/emails/back-in-stock-plain.php:18
-#: templates/emails/back-in-stock.php:26
-msgid "Great news! A product you were waiting for is back in stock:"
-msgstr ""
-
-#: templates/emails/back-in-stock-plain.php:23
-msgid "Shop now:"
-msgstr ""
-
-#: templates/emails/back-in-stock-plain.php:28
-msgid "Unsubscribe:"
-msgstr ""
-
-#. translators: %s: unsubscribe link.
-#: templates/emails/back-in-stock.php:66
-#, php-format
-msgid "You received this email because you asked to be notified. %s"
-msgstr ""
 
 #: src/blocks-interactivity/countdown-timer/block.json
 msgctxt "block title"

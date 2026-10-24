@@ -42,7 +42,7 @@ A separate **Store Copy** tab controls storefront microcopy (button labels, filt
 | Frequently Bought Together | Product                     | Bundling with combined add-to-cart on product pages                                                                          |
 | Wishlist                   | Engagement                  | Customizable icons; guest browser saves and WooCommerce account wishlists                                                    |
 | Social Proof               | Engagement                  | Recent purchase toast notifications                                                                                          |
-| Back in Stock              | Engagement                  | Email alerts for out-of-stock products, with double opt-in and one-click unsubscribe                                         |
+| Back in Stock              | Engagement                  | Signup form for sold-out products and sizes on WooCommerce's native Back in Stock Notifications                              |
 | Swatch Tooltips            | Mobile & UI                 | Fabric name and composition on swatch hover                                                                                  |
 | Mobile Bottom Navigation   | Mobile & UI                 | Fixed bottom nav on mobile (Home, Search, Cart, Account)                                                                     |
 | Adaptive Colors            | Appearance → Theme Features | Per-block light/dark overrides and adaptive palette via CSS `light-dark()`                                                   |

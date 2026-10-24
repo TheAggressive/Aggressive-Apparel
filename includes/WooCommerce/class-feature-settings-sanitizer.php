@@ -158,6 +158,16 @@ class Feature_Settings_Sanitizer {
 	}
 
 	/**
+	 * Sanitize the wishlist heart behaviour on hover devices.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_card_wishlist_hover( $input ): string {
+		return $this->sanitize_card_display_choice( Feature_Settings::CARD_WISHLIST_HOVER_OPTION, $input );
+	}
+
+	/**
 	 * Sanitize the badges-per-card limit on small screens.
 	 *
 	 * @param mixed $input Raw input.

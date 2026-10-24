@@ -91,13 +91,12 @@
 	padding-top: 2.5rem;
 }
 
-/* Shared product-card action contract (Quick View + Wishlist). */
+/* Shared product-card action contract (Quick View + Wishlist). Near-solid
+   surface chips with no outline and a soft two-layer shadow, so they read on
+   light and dark photos without a heavy ring; hover brightens the icon. */
 .aggressive-apparel-card-actions .aggressive-apparel-card-action {
-	--aa-icon-button-background: var(
-		--aa-color-surface-80,
-		color-mix(in oklch, var(--aa-color-surface) 80%, transparent)
-	);
-	--aa-icon-button-border: color-mix(in oklch, var(--aa-color-border) 70%, transparent);
+	--aa-icon-button-background: color-mix(in oklch, var(--aa-color-surface) 92%, transparent);
+	--aa-icon-button-border: transparent;
 	--aa-icon-button-color: var(--aa-color-foreground);
 	--aa-icon-button-hover-background: var(--aa-icon-button-background);
 	--aa-icon-button-hover-border: var(--aa-icon-button-border);
@@ -105,10 +104,40 @@
 
 	width: var(--aa-card-action-size);
 	height: var(--aa-card-action-size);
-	box-shadow: var(--aa-shadow-sm, 0 1px 2px color-mix(in oklch, var(--aa-color-black) 12%, transparent));
+	box-shadow:
+		0 1px 2px color-mix(in oklch, var(--aa-color-black) 10%, transparent),
+		0 6px 16px -6px color-mix(in oklch, var(--aa-color-black) 35%, transparent);
+	transition:
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		border-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default),
+		opacity var(--aa-duration-fast) var(--aa-ease-default),
+		transform var(--aa-duration-fast) var(--aa-ease-default);
 
+	/* The chip shadow above would otherwise replace the base focus ring. */
 	&:focus-visible {
 		opacity: 1;
+		box-shadow: var(--aa-focus-ring);
+	}
+}
+
+/* Bottom bar: Quick View sits left of the heart, so a pinned heart holds the
+   corner instead of floating beside an invisible trigger. */
+.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger {
+	order: -1;
+}
+
+/* A crisper stroke than the standalone heart, which is drawn larger. */
+.aggressive-apparel-card-actions .aggressive-apparel-wishlist__icon-stroke {
+	stroke-width: 1.6;
+}
+
+/* Narrow cards (two-up phone grids): a tighter inset keeps the photo clear;
+   the chips keep the shared 44px target. */
+@container product-card (width < 320px) {
+
+	.aggressive-apparel-card-actions--corner {
+		padding: 0.375rem;
 	}
 }
 
@@ -179,6 +208,17 @@
 		transform: translateY(0);
 	}
 
+	/* The second chip follows the first a beat later on reveal; only the
+	   reveal (opacity, transform) waits, so hover colours stay instant. */
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action + .aggressive-apparel-card-action {
+		transition-delay: 0s, 0s, 0s, 40ms, 40ms;
+	}
+
+	/* Wishlist Heart with a Mouse → Always visible. */
+	.aggressive-apparel-card-actions--wishlist-pinned .aggressive-apparel-card-action.aggressive-apparel-wishlist__toggle--card-media {
+		opacity: 1;
+		transform: none;
+	}
 }
 
 /* Touch / no-hover: always-visible chips — never full-bleed image hijack. */
@@ -188,6 +228,21 @@
 		position: relative;
 		opacity: 1;
 		transform: none;
+	}
+
+	/* No hover to brighten them, so icons sit at full strength. */
+	.aggressive-apparel-card-action
+		> :is(
+			.aggressive-apparel-quick-view__trigger-icon,
+			.aggressive-apparel-wishlist__icon
+		) {
+		opacity: 1;
+	}
+
+	/* Card Buttons on Touch Devices → Wishlist heart only. Tapping the
+	   image opens the product, so Quick View stays a mouse feature. */
+	.aggressive-apparel-card-actions--touch-wishlist .aggressive-apparel-quick-view__trigger {
+		display: none;
 	}
 }
 

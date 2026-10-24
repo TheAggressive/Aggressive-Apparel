@@ -2,16 +2,16 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel\n"
+"Project-Id-Version: Aggressive Apparel 1.201.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2026-10-24T00:36:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
 
 #. Theme Name of the theme
@@ -1697,83 +1697,103 @@ msgstr ""
 msgid "Low Stock"
 msgstr ""
 
-#: includes/WooCommerce/class-card-display-settings.php:101
+#: includes/WooCommerce/class-card-display-settings.php:113
 msgid "Card Buttons on Touch Devices"
 msgstr ""
 
-#: includes/WooCommerce/class-card-display-settings.php:103
-msgid "Behind one small chip — tap it to show the actions"
-msgstr ""
-
-#: includes/WooCommerce/class-card-display-settings.php:104
-msgid "Always visible"
-msgstr ""
-
-#: includes/WooCommerce/class-card-display-settings.php:105
-msgid "Hidden (tap the product to open it)"
-msgstr ""
-
-#: includes/WooCommerce/class-card-display-settings.php:107
-msgid "Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover."
-msgstr ""
-
-#: includes/WooCommerce/class-card-display-settings.php:111
-msgid "Badges per Product on Phones"
-msgstr ""
-
-#: includes/WooCommerce/class-card-display-settings.php:113
-msgid "One badge (highest priority)"
-msgstr ""
-
-#: includes/WooCommerce/class-card-display-settings.php:114
-msgid "Up to two badges"
-msgstr ""
-
 #: includes/WooCommerce/class-card-display-settings.php:115
-msgid "Up to three badges"
+msgid "Wishlist heart only — one tap saves the product"
 msgstr ""
 
 #: includes/WooCommerce/class-card-display-settings.php:116
-msgid "All badges"
+msgid "Behind one small chip — tap it to show the actions"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:117
+msgid "Always visible"
 msgstr ""
 
 #: includes/WooCommerce/class-card-display-settings.php:118
-msgid "On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge."
+msgid "Hidden (tap the product to open it)"
 msgstr ""
 
-#: includes/WooCommerce/class-card-display-settings.php:122
-msgid "Sale Badge on Phones"
+#: includes/WooCommerce/class-card-display-settings.php:120
+msgid "Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product, so Quick View adds little there. The heart needs Wishlist in the card buttons."
 msgstr ""
 
 #: includes/WooCommerce/class-card-display-settings.php:124
-msgid "Hide — the price already shows the sale"
+msgid "Wishlist Heart with a Mouse"
 msgstr ""
 
-#: includes/WooCommerce/class-card-display-settings.php:125
-msgid "Show"
+#: includes/WooCommerce/class-card-display-settings.php:126
+msgid "Always visible — Quick View appears on hover"
 msgstr ""
 
 #: includes/WooCommerce/class-card-display-settings.php:127
-msgid "Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge."
+msgid "On hover, with Quick View"
 msgstr ""
 
-#: includes/WooCommerce/class-card-display-settings.php:131
-msgid "Badge Size on Phones"
+#: includes/WooCommerce/class-card-display-settings.php:129
+msgid "How the card buttons behave for mouse and trackpad users when Wishlist is in the card buttons."
 msgstr ""
 
 #: includes/WooCommerce/class-card-display-settings.php:133
-msgid "Compact (85%)"
-msgstr ""
-
-#: includes/WooCommerce/class-card-display-settings.php:134
-msgid "Smallest (75%)"
+msgid "Badges per Product on Phones"
 msgstr ""
 
 #: includes/WooCommerce/class-card-display-settings.php:135
-msgid "Same as large screens"
+msgid "One badge (highest priority)"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:136
+msgid "Up to two badges"
 msgstr ""
 
 #: includes/WooCommerce/class-card-display-settings.php:137
+msgid "Up to three badges"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:138
+msgid "All badges"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:140
+msgid "On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge."
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:144
+msgid "Sale Badge on Phones"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:146
+msgid "Hide — the price already shows the sale"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:147
+msgid "Show"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:149
+msgid "Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge."
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:153
+msgid "Badge Size on Phones"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:155
+msgid "Compact (85%)"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:156
+msgid "Smallest (75%)"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:157
+msgid "Same as large screens"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:159
 msgid "Scales every badge on screens under 600px wide, keeping each badge’s own design."
 msgstr ""
 
@@ -2356,12 +2376,12 @@ msgid "Save Changes"
 msgstr ""
 
 #. translators: 1: Store Copy field label. 2: comma-separated list of unrecognised placeholders. 3: comma-separated list of supported placeholders, or a "none" notice.
-#: includes/WooCommerce/class-feature-settings-sanitizer.php:288
+#: includes/WooCommerce/class-feature-settings-sanitizer.php:298
 #, php-format
 msgid "%1$s was not saved: %2$s is not a placeholder this field understands. Supported here: %3$s"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-sanitizer.php:292
+#: includes/WooCommerce/class-feature-settings-sanitizer.php:302
 msgid "none — this field cannot contain a placeholder"
 msgstr ""
 
@@ -3816,12 +3836,12 @@ msgstr ""
 msgid "%1$s: %2$s"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-card-actions.php:108
+#: includes/WooCommerce/class-quick-view-card-actions.php:113
 msgid "Product actions"
 msgstr ""
 
 #. translators: %s: product name.
-#: includes/WooCommerce/class-quick-view-card-actions.php:169
+#: includes/WooCommerce/class-quick-view-card-actions.php:172
 #, php-format
 msgid "Product actions: %s"
 msgstr ""

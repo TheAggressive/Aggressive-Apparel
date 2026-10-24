@@ -45,12 +45,16 @@
 		transform var(--aa-duration-fast) var(--aa-ease-default);
 }
 
-.wp-block-woocommerce-product-template.is-style-commerce-cards > li:hover,
-.wp-block-woocommerce-product-collection.is-style-commerce-grid .wp-block-woocommerce-product-template > li:hover,
-.is-style-commerce-cards .wc-block-grid__product:hover {
-	border-color: var(--aa-color-border-input);
-	box-shadow: var(--aa-shadow-md);
-	transform: translateY(-2px);
+/* Hover devices only — on touch a tap leaves the card stuck lifted. */
+@media (hover: hover) and (pointer: fine) {
+
+	.wp-block-woocommerce-product-template.is-style-commerce-cards > li:hover,
+	.wp-block-woocommerce-product-collection.is-style-commerce-grid .wp-block-woocommerce-product-template > li:hover,
+	.is-style-commerce-cards .wc-block-grid__product:hover {
+		border-color: var(--aa-color-border-input);
+		box-shadow: var(--aa-shadow-md);
+		transform: translateY(-2px);
+	}
 }
 
 /* Product media. */
@@ -88,10 +92,13 @@
 	object-fit: cover;
 }
 
-.wp-block-woocommerce-product-template > li:hover .wp-block-post-featured-image img,
-.wp-block-woocommerce-product-template > li:hover .wp-block-woocommerce-product-image img,
-.wc-block-grid__product:hover .wc-block-grid__product-image img {
-	transform: scale(1.03);
+@media (hover: hover) and (pointer: fine) {
+
+	.wp-block-woocommerce-product-template > li:hover .wp-block-post-featured-image img,
+	.wp-block-woocommerce-product-template > li:hover .wp-block-woocommerce-product-image img,
+	.wc-block-grid__product:hover .wc-block-grid__product-image img {
+		transform: scale(1.03);
+	}
 }
 
 /* Product text hierarchy. Defaults remain specificity-free for editor styles. */

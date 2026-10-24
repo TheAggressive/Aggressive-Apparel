@@ -71,13 +71,20 @@ class TestCardDisplaySettings extends WP_UnitTestCase {
 
 	/**
 	 * The toggle chip renders only in the "toggle" touch mode, and the stack
-	 * carries the mode as a modifier class.
+	 * carries the mode as a modifier class. The heart-only default is CSS
+	 * over the same markup, so no chip and no popover.
 	 */
 	public function test_touch_mode_reaches_the_card_action_stack(): void {
 		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1' ) );
 		$product  = $this->create_product( 'Touch Mode Tee' );
 		$renderer = new Quick_View_Renderer();
 
+		$wishlist = $renderer->build_card_actions_markup( $product );
+		$this->assertStringContainsString( 'aggressive-apparel-card-actions--touch-wishlist', $wishlist );
+		$this->assertStringContainsString( 'aggressive-apparel-quick-view__trigger', $wishlist );
+		$this->assertStringNotContainsString( 'popover', $wishlist );
+
+		update_option( Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION, 'toggle' );
 		$toggle = $renderer->build_card_actions_markup( $product );
 		$this->assertStringContainsString( 'aggressive-apparel-card-actions--touch-toggle', $toggle );
 		$this->assertMatchesRegularExpression( '/popovertarget="(aa-card-actions-' . $product->get_id() . '-\d+)".*id="\1"[^>]*popover="auto"/s', $toggle );
@@ -87,6 +94,30 @@ class TestCardDisplaySettings extends WP_UnitTestCase {
 		$always = $renderer->build_card_actions_markup( $product );
 		$this->assertStringContainsString( 'aggressive-apparel-card-actions--touch-always', $always );
 		$this->assertStringNotContainsString( 'popover', $always );
+	}
+
+	/**
+	 * The heart stays visible for mouse users by default, only when the stack
+	 * holds a heart, and joins Quick View on hover when that's chosen.
+	 */
+	public function test_wishlist_heart_pins_on_hover_devices(): void {
+		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1' ) );
+		$product  = $this->create_product( 'Pinned Heart Tee' );
+		$renderer = new Quick_View_Renderer();
+
+		$this->assertStringNotContainsString( '--wishlist-pinned', $renderer->build_card_actions_markup( $product ) );
+
+		update_option(
+			Feature_Settings::OPTION_KEY,
+			array(
+				'quick_view' => '1',
+				'wishlist'   => '1',
+			)
+		);
+		$this->assertStringContainsString( 'aggressive-apparel-card-actions--wishlist-pinned', $renderer->build_card_actions_markup( $product ) );
+
+		update_option( Feature_Settings::CARD_WISHLIST_HOVER_OPTION, 'hover' );
+		$this->assertStringNotContainsString( '--wishlist-pinned', $renderer->build_card_actions_markup( $product ) );
 	}
 
 	/**

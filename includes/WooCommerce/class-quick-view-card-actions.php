@@ -104,15 +104,18 @@ trait Quick_View_Card_Actions {
 			);
 		}
 
+		$modifiers = array( $style, $position, 'touch-' . $touch_mode );
+		if ( $include_wishlist && Feature_Settings::pins_card_wishlist_on_hover_devices() ) {
+			$modifiers[] = 'wishlist-pinned';
+		}
+
 		$group_label = $include_wishlist
 			? __( 'Product actions', 'aggressive-apparel' )
 			: $quick_view_text;
 
 		$stack = sprintf(
-			'<div class="aggressive-apparel-card-actions aggressive-apparel-card-actions--%1$s aggressive-apparel-card-actions--%2$s aggressive-apparel-card-actions--touch-%3$s" role="group" aria-label="%4$s">%5$s</div>',
-			esc_attr( $style ),
-			esc_attr( $position ),
-			esc_attr( $touch_mode ),
+			'<div class="aggressive-apparel-card-actions %1$s" role="group" aria-label="%2$s">%3$s</div>',
+			esc_attr( implode( ' ', array_map( static fn ( string $modifier ): string => 'aggressive-apparel-card-actions--' . $modifier, $modifiers ) ) ),
 			esc_attr( $group_label ),
 			$stack_inner
 		);

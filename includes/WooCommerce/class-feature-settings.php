@@ -517,7 +517,7 @@ class Feature_Settings {
 			),
 			'back_in_stock'              => array(
 				'label'       => __( 'Back in Stock Notifications', 'aggressive-apparel' ),
-				'description' => __( 'Let customers subscribe to out-of-stock products and get notified when restocked.', 'aggressive-apparel' ),
+				'description' => __( 'Show a signup form on out-of-stock products and sizes. The waitlist and emails are WooCommerce\'s own Back in Stock Notifications, which must be turned on.', 'aggressive-apparel' ),
 				'section'     => 'engagement',
 			),
 

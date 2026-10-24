@@ -12,8 +12,14 @@
  * ----------------------------------------------- */
 
 .aa-bis {
-	max-width: 28rem;
 	margin-block: var(--wp--preset--spacing--5, 1.25rem);
+}
+
+/* The width cap sits on the inner wrapper: a constrained-layout parent centres
+ * its direct children (core's margin-inline: auto !important), which would
+ * centre a narrow .aa-bis instead of aligning it with the column. */
+.aa-bis > * {
+	max-width: 28rem;
 }
 
 /* -----------------------------------------------
@@ -33,6 +39,12 @@
 
 .aa-bis__field {
 	display: flex;
+}
+
+.aa-bis__account,
+.aa-bis__login {
+	margin: 0;
+	font-size: 0.875rem;
 }
 
 /* -----------------------------------------------
@@ -67,37 +79,4 @@
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
-}
-
-/* -----------------------------------------------
- * Admin status marks
- * ----------------------------------------------- */
-
-.aa-bis-status {
-	display: inline-block;
-	padding: 0.125rem 0.5rem;
-	border-radius: 0.25rem;
-	font-size: 0.75rem;
-	font-weight: 600;
-	background-color: var(--aa-color-neutral-bg);
-}
-
-.aa-bis-status--pending {
-	background-color: var(--aa-color-warning-bg);
-	color: var(--aa-color-warning);
-}
-
-.aa-bis-status--active {
-	background-color: var(--aa-color-info-bg);
-	color: var(--aa-color-info);
-}
-
-.aa-bis-status--notified {
-	background-color: var(--aa-color-success-bg);
-	color: var(--aa-color-success);
-}
-
-.aa-bis-status--unsubscribed {
-	background-color: var(--aa-color-neutral-bg);
-	color: var(--aa-color-neutral-muted);
 }

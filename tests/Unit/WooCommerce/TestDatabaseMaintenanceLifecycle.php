@@ -10,8 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use Aggressive_Apparel\Service_Container;
-use Aggressive_Apparel\WooCommerce\Back_In_Stock;
-use Aggressive_Apparel\WooCommerce\Back_In_Stock_Installer;
+use Aggressive_Apparel\WooCommerce\Back_In_Stock_Migration;
 use Aggressive_Apparel\WooCommerce\Custom_Badge_Taxonomy;
 use Aggressive_Apparel\WooCommerce\Enhancements;
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
@@ -24,41 +23,21 @@ use WP_UnitTestCase;
 class TestDatabaseMaintenanceLifecycle extends WP_UnitTestCase {
 
 	/**
-	 * Back-in-stock schema checks should be admin-only.
+	 * The back-in-stock table move should be admin-only, and registered even
+	 * with the theme feature off: the subscribers it rescues outlive the toggle.
 	 */
-	public function test_back_in_stock_installer_uses_admin_lifecycle(): void {
-		$installer = new Back_In_Stock_Installer();
-		$installer->init();
-
-		$this->assertFalse( has_action( 'init', array( $installer, 'maybe_install' ) ) );
-		$this->assertSame( 5, has_action( 'admin_init', array( $installer, 'maybe_install' ) ) );
-
-		remove_action( 'admin_init', array( $installer, 'maybe_install' ), 5 );
-	}
-
-	/**
-	 * A pending schema migration must pause the frontend feature safely.
-	 */
-	public function test_back_in_stock_feature_fails_closed_until_schema_is_current(): void {
-		delete_option( 'aggressive_apparel_bis_db_version' );
-		update_option(
-			Feature_Settings::OPTION_KEY,
-			array(
-				'back_in_stock' => true,
-			)
-		);
+	public function test_back_in_stock_migration_uses_admin_lifecycle(): void {
+		delete_option( Feature_Settings::OPTION_KEY );
 
 		$container    = new Service_Container();
 		$enhancements = new Enhancements( $container );
 		$enhancements->init();
-		$installer     = $container->get( Back_In_Stock_Installer::class );
-		$back_in_stock = $container->get( Back_In_Stock::class );
+		$migration = $container->get( Back_In_Stock_Migration::class );
 
-		$this->assertSame( 5, has_action( 'admin_init', array( $installer, 'maybe_install' ) ) );
-		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( $back_in_stock, 'enqueue_assets' ) ) );
+		$this->assertFalse( has_action( 'init', array( $migration, 'maybe_run' ) ) );
+		$this->assertSame( 10, has_action( 'admin_init', array( $migration, 'maybe_run' ) ) );
 
-		remove_action( 'admin_init', array( $installer, 'maybe_install' ), 5 );
-		delete_option( Feature_Settings::OPTION_KEY );
+		remove_action( 'admin_init', array( $migration, 'maybe_run' ) );
 	}
 
 	/**

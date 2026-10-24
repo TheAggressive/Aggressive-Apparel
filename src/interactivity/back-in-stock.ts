@@ -1,7 +1,12 @@
 /**
  * Back in Stock — Interactivity API Store
  *
- * Handles the email subscription form for out-of-stock products.
+ * Handles the email subscription form for out-of-stock products. Signups go
+ * to WooCommerce's native Back in Stock Notifications via the theme's AJAX
+ * endpoint. On a variable product the form posts the chosen variation, read
+ * from a hidden input WooCommerce's own `woocommerce/products` binding fills
+ * (see Back_In_Stock::render_form), so this store never touches WooCommerce's
+ * private store.
  *
  * @package Aggressive_Apparel
  * @since 1.18.0
@@ -72,9 +77,12 @@ const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {
       if (state.isSubmitting) return;
 
       const form = event.target as HTMLFormElement;
-      const email = (
-        form.querySelector('.aa-bis__input') as HTMLInputElement | null
-      )?.value?.trim();
+      // Logged-in shoppers get no email field: WooCommerce signs them up with
+      // their account address.
+      const emailInput = form.querySelector(
+        '.aa-bis__input'
+      ) as HTMLInputElement | null;
+      const email = emailInput?.value?.trim() ?? '';
       const consent = (
         form.querySelector(
           '.aa-bis__consent input[type="checkbox"]'
@@ -83,7 +91,7 @@ const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {
 
       const i18n = state.i18n ?? {};
 
-      if (!email) {
+      if (emailInput && !email) {
         state.hasError = true;
         state.errorMessage =
           i18n.invalidEmail ?? 'Please enter a valid email address.';
@@ -98,6 +106,16 @@ const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {
       }
 
       const ctx = getContext<BackInStockContext>();
+      const variationId = parseInt(
+        (
+          form.querySelector(
+            'input[name="variation_id"]'
+          ) as HTMLInputElement | null
+        )?.value ?? '',
+        10
+      );
+      const productId =
+        variationId > 0 ? String(variationId) : String(ctx.productId);
 
       state.isSubmitting = true;
       state.isSuccess = false;
@@ -108,7 +126,7 @@ const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {
       body.append('action', 'aa_stock_subscribe');
       body.append('nonce', state.nonce);
       body.append('email', email);
-      body.append('product_id', ctx.productId);
+      body.append('product_id', productId);
       body.append('consent', '1');
 
       try {

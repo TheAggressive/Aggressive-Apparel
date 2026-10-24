@@ -113,12 +113,16 @@ class Catalog_Hover_Image {
 			'aggressive-apparel-product-thumbnail',
 			false,
 			array(
-				'class'       => 'aa-hover-img__secondary',
-				'aria-hidden' => 'true',
-				'alt'         => '',
+				'class'         => 'aa-hover-img__secondary',
+				'aria-hidden'   => 'true',
+				'alt'           => '',
 				// Match the grid layout so the browser picks the right srcset
 				// entry rather than defaulting to the 300px woocommerce_thumbnail.
-				'sizes'       => '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+				'sizes'         => '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+				// Hidden until hover (never shown on touch), so it must not
+				// take an eager slot or compete with the LCP image.
+				'loading'       => 'lazy',
+				'fetchpriority' => 'low',
 			)
 		);
 

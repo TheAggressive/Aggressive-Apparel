@@ -92,10 +92,10 @@
 }
 
 /* Shared product-card action contract (Quick View + Wishlist). Near-solid
-   surface chips with no outline and a soft two-layer shadow, so they read on
+   surface chips with no outline and a soft shadow, so they read on
    light and dark photos without a heavy ring; hover brightens the icon. */
 .aggressive-apparel-card-actions .aggressive-apparel-card-action {
-	--aa-icon-button-background: color-mix(in oklch, var(--aa-color-surface) 92%, transparent);
+	--aa-icon-button-background: var(--aa-color-surface-90);
 	--aa-icon-button-border: transparent;
 	--aa-icon-button-color: var(--aa-color-foreground);
 	--aa-icon-button-hover-background: var(--aa-icon-button-background);
@@ -104,15 +104,7 @@
 
 	width: var(--aa-card-action-size);
 	height: var(--aa-card-action-size);
-	box-shadow:
-		0 1px 2px color-mix(in oklch, var(--aa-color-black) 10%, transparent),
-		0 6px 16px -6px color-mix(in oklch, var(--aa-color-black) 35%, transparent);
-	transition:
-		background-color var(--aa-duration-fast) var(--aa-ease-default),
-		border-color var(--aa-duration-fast) var(--aa-ease-default),
-		color var(--aa-duration-fast) var(--aa-ease-default),
-		opacity var(--aa-duration-fast) var(--aa-ease-default),
-		transform var(--aa-duration-fast) var(--aa-ease-default);
+	box-shadow: var(--aa-shadow-sm);
 
 	/* The chip shadow above would otherwise replace the base focus ring. */
 	&:focus-visible {
@@ -121,9 +113,9 @@
 	}
 }
 
-/* Bottom bar: Quick View sits left of the heart, so a pinned heart holds the
+/* Bottom bar: Quick View sits left of a pinned heart, so the heart holds the
    corner instead of floating beside an invisible trigger. */
-.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger {
+.aggressive-apparel-card-actions--bottom-bar.aggressive-apparel-card-actions--wishlist-pinned .aggressive-apparel-quick-view__trigger {
 	order: -1;
 }
 
@@ -209,9 +201,12 @@
 	}
 
 	/* The second chip follows the first a beat later on reveal; only the
-	   reveal (opacity, transform) waits, so hover colours stay instant. */
+	   reveal (opacity, transform) waits, so hover colours stay instant.
+	   Positional: matches the `.aa-icon-button` transition list in
+	   components/buttons.css (opacity, background-color, border-color, color,
+	   transform). Delay only, so reduced motion's `transition: none` wins. */
 	.aggressive-apparel-card-actions .aggressive-apparel-card-action + .aggressive-apparel-card-action {
-		transition-delay: 0s, 0s, 0s, 40ms, 40ms;
+		transition-delay: 40ms, 0s, 0s, 0s, 40ms;
 	}
 
 	/* Wishlist Heart with a Mouse → Always visible. */

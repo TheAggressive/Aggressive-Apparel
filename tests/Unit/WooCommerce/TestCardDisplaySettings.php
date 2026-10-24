@@ -72,13 +72,25 @@ class TestCardDisplaySettings extends WP_UnitTestCase {
 	/**
 	 * The toggle chip renders only in the "toggle" touch mode, and the stack
 	 * carries the mode as a modifier class. The heart-only default is CSS
-	 * over the same markup, so no chip and no popover.
+	 * over the same markup, so no chip and no popover; without a heart it
+	 * falls back to hidden rather than leave an empty stack.
 	 */
 	public function test_touch_mode_reaches_the_card_action_stack(): void {
 		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1' ) );
 		$product  = $this->create_product( 'Touch Mode Tee' );
 		$renderer = new Quick_View_Renderer();
 
+		$no_heart = $renderer->build_card_actions_markup( $product );
+		$this->assertStringContainsString( 'aggressive-apparel-card-actions--touch-hidden', $no_heart );
+		$this->assertStringNotContainsString( '--touch-wishlist', $no_heart );
+
+		update_option(
+			Feature_Settings::OPTION_KEY,
+			array(
+				'quick_view' => '1',
+				'wishlist'   => '1',
+			)
+		);
 		$wishlist = $renderer->build_card_actions_markup( $product );
 		$this->assertStringContainsString( 'aggressive-apparel-card-actions--touch-wishlist', $wishlist );
 		$this->assertStringContainsString( 'aggressive-apparel-quick-view__trigger', $wishlist );

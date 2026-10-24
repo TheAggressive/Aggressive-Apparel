@@ -125,7 +125,11 @@ code.
 
 - **Card Buttons on Touch Devices** (Quick View sub-option): devices that
   can't hover would otherwise show Quick View and Wishlist on every image.
-  The default puts them behind one chip that opens a native popover
+  The default shows only the wishlist heart: tapping the image already opens
+  the product, so Quick View adds little on a phone, and saving takes one tap.
+  CSS hides the Quick View trigger on touch; the markup is the same for every
+  device, so pages stay cache-safe. The "behind one chip" option opens the
+  buttons as a native popover
   (`popover="auto"`, CSS anchor positioning), so the browser handles
   tap-outside, Escape, one-open-at-a-time and the expanded state, with no
   JavaScript. Quick View closes the popover before opening (`view.ts`), since
@@ -133,6 +137,9 @@ code.
   without anchor positioning, get the buttons inline as before. Popover ids
   include the product id because each Load More page is a separate render.
   The other options are "always visible" and "hidden".
+- **Wishlist Heart with a Mouse** (Quick View sub-option): by default the heart
+  stays visible on hover devices (`--wishlist-pinned`) and Quick View appears
+  on hover; "on hover" reveals both together.
 - **Badges on phones** (Product Badges sub-options, under 600px wide): hide the
   sale badge (the crossed-out price already shows it), cap the badges per
   product by badge priority across every position, and scale them with

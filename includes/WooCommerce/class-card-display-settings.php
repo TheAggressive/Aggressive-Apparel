@@ -23,12 +23,22 @@ trait Card_Display_Settings {
 	/**
 	 * Option key for the card action stack on touch devices.
 	 *
-	 * `always` → chips stay visible. `toggle` → one chip reveals them.
-	 * `hidden` → no card actions on touch devices.
+	 * `wishlist` → only the wishlist heart shows. `toggle` → one chip reveals
+	 * them. `always` → every chip stays visible. `hidden` → no card actions on
+	 * touch devices.
 	 *
 	 * @var string
 	 */
 	public const QUICK_VIEW_TOUCH_MODE_OPTION = 'aggressive_apparel_quick_view_touch_mode';
+
+	/**
+	 * Option key for the wishlist heart on hover devices (`always` / `hover`).
+	 *
+	 * `always` keeps the heart visible while Quick View waits for hover.
+	 *
+	 * @var string
+	 */
+	public const CARD_WISHLIST_HOVER_OPTION = 'aggressive_apparel_card_wishlist_hover';
 
 	/**
 	 * Option key for how many badges a card shows on small screens (`all` or a count).
@@ -57,7 +67,8 @@ trait Card_Display_Settings {
 	 * @var array<string, list<string>>
 	 */
 	public const CARD_DISPLAY_CHOICES = array(
-		self::QUICK_VIEW_TOUCH_MODE_OPTION    => array( 'toggle', 'always', 'hidden' ),
+		self::QUICK_VIEW_TOUCH_MODE_OPTION    => array( 'wishlist', 'toggle', 'always', 'hidden' ),
+		self::CARD_WISHLIST_HOVER_OPTION      => array( 'always', 'hover' ),
 		self::BADGE_SMALL_SCREEN_LIMIT_OPTION => array( 'one', 'two', 'three', 'all' ),
 		self::BADGE_SMALL_SCREEN_SALE_OPTION  => array( 'hide', 'show' ),
 		self::BADGE_SMALL_SCREEN_SIZE_OPTION  => array( 'compact', 'smallest', 'standard' ),
@@ -71,6 +82,7 @@ trait Card_Display_Settings {
 	public static function get_card_display_option_schema(): array {
 		$sanitizers = array(
 			self::QUICK_VIEW_TOUCH_MODE_OPTION    => 'sanitize_quick_view_touch_mode',
+			self::CARD_WISHLIST_HOVER_OPTION      => 'sanitize_card_wishlist_hover',
 			self::BADGE_SMALL_SCREEN_LIMIT_OPTION => 'sanitize_badge_small_screen_limit',
 			self::BADGE_SMALL_SCREEN_SALE_OPTION  => 'sanitize_badge_small_screen_sale',
 			self::BADGE_SMALL_SCREEN_SIZE_OPTION  => 'sanitize_badge_small_screen_size',
@@ -100,11 +112,21 @@ trait Card_Display_Settings {
 				'feature'     => 'quick_view',
 				'title'       => __( 'Card Buttons on Touch Devices', 'aggressive-apparel' ),
 				'choices'     => array(
-					'toggle' => __( 'Behind one small chip — tap it to show the actions', 'aggressive-apparel' ),
-					'always' => __( 'Always visible', 'aggressive-apparel' ),
-					'hidden' => __( 'Hidden (tap the product to open it)', 'aggressive-apparel' ),
+					'wishlist' => __( 'Wishlist heart only — one tap saves the product', 'aggressive-apparel' ),
+					'toggle'   => __( 'Behind one small chip — tap it to show the actions', 'aggressive-apparel' ),
+					'always'   => __( 'Always visible', 'aggressive-apparel' ),
+					'hidden'   => __( 'Hidden (tap the product to open it)', 'aggressive-apparel' ),
 				),
-				'description' => __( 'Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover.', 'aggressive-apparel' ),
+				'description' => __( 'Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product, so Quick View adds little there. The heart needs Wishlist in the card buttons.', 'aggressive-apparel' ),
+			),
+			self::CARD_WISHLIST_HOVER_OPTION      => array(
+				'feature'     => 'quick_view',
+				'title'       => __( 'Wishlist Heart with a Mouse', 'aggressive-apparel' ),
+				'choices'     => array(
+					'always' => __( 'Always visible — Quick View appears on hover', 'aggressive-apparel' ),
+					'hover'  => __( 'On hover, with Quick View', 'aggressive-apparel' ),
+				),
+				'description' => __( 'How the card buttons behave for mouse and trackpad users when Wishlist is in the card buttons.', 'aggressive-apparel' ),
 			),
 			self::BADGE_SMALL_SCREEN_LIMIT_OPTION => array(
 				'feature'     => 'product_badges',
@@ -155,10 +177,19 @@ trait Card_Display_Settings {
 	/**
 	 * Card action stack behaviour on touch devices.
 	 *
-	 * @return string `always`, `toggle`, or `hidden`.
+	 * @return string `wishlist`, `toggle`, `always`, or `hidden`.
 	 */
 	public static function get_quick_view_touch_mode(): string {
 		return self::get_card_display_setting( self::QUICK_VIEW_TOUCH_MODE_OPTION );
+	}
+
+	/**
+	 * Whether the wishlist heart stays visible on hover devices.
+	 *
+	 * @return bool
+	 */
+	public static function pins_card_wishlist_on_hover_devices(): bool {
+		return 'always' === self::get_card_display_setting( self::CARD_WISHLIST_HOVER_OPTION );
 	}
 
 	/**

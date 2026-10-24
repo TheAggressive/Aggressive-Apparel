@@ -92,7 +92,11 @@ trait Quick_View_Card_Actions {
 			Wishlist::mark_button_block_rendered( $product_id );
 		}
 
-		$touch_mode  = Feature_Settings::get_quick_view_touch_mode();
+		$touch_mode = Feature_Settings::get_quick_view_touch_mode();
+		// Heart-only without a heart would leave an empty stack on touch.
+		if ( 'wishlist' === $touch_mode && ! $include_wishlist ) {
+			$touch_mode = 'hidden';
+		}
 		$stack_inner = $wishlist_html . $trigger;
 		if ( 'toggle' === $touch_mode ) {
 			$stack_inner = $this->wrap_in_touch_popover( $product, $stack_inner );

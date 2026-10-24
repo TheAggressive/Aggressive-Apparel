@@ -6,7 +6,9 @@
  *
  * Hover devices only. On touch, a tap fires :hover first, and iOS treats a
  * hover that reveals content as the whole tap, so the link needed a second
- * tap. Touch cards keep the primary image and never render the secondary.
+ * tap. Touch cards keep the primary image; the secondary stays in the markup
+ * (one cached page serves every device) but is hidden and lazy, so it is
+ * never fetched.
  */
 
 @media (hover: none), (pointer: coarse) {

@@ -19,6 +19,7 @@ const TOGGLE = '.aggressive-apparel-card-actions__toggle';
 const HEART = '.aggressive-apparel-wishlist__toggle--card-media';
 const QUICK_VIEW = '.aggressive-apparel-quick-view__trigger';
 const TOUCH_MODE_OPTION = 'aggressive_apparel_quick_view_touch_mode';
+const WISHLIST_HOVER_OPTION = 'aggressive_apparel_card_wishlist_hover';
 const ACTIONS =
   '.aggressive-apparel-card-action:not(.aggressive-apparel-card-actions__toggle)';
 
@@ -37,24 +38,28 @@ async function expectActions(stack: Locator, visible: boolean): Promise<void> {
 // Workers are capped at 1, so a describe-scoped option can't leak into a
 // concurrently running spec. The previous value is restored, since local runs
 // share the developer's Studio site.
-function useTouchMode(mode: string): void {
+function useOption(option: string, value: string): void {
   let previous: string | null = null;
 
   test.beforeAll(() => {
     try {
-      previous = wpCli(['option', 'get', TOUCH_MODE_OPTION]);
+      previous = wpCli(['option', 'get', option]);
     } catch {
       previous = null;
     }
-    wpCli(['option', 'update', TOUCH_MODE_OPTION, mode]);
+    wpCli(['option', 'update', option, value]);
   });
   test.afterAll(() => {
     if (previous === null) {
-      wpCli(['option', 'delete', TOUCH_MODE_OPTION]);
+      wpCli(['option', 'delete', option]);
     } else {
-      wpCli(['option', 'update', TOUCH_MODE_OPTION, previous]);
+      wpCli(['option', 'update', option, previous]);
     }
   });
+}
+
+function useTouchMode(mode: string): void {
+  useOption(TOUCH_MODE_OPTION, mode);
 }
 
 test.describe('card buttons on touch devices, heart only', () => {
@@ -155,6 +160,7 @@ test.describe('card buttons on touch devices, appended cards', () => {
 
 test.describe('card buttons with a mouse', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
+  useOption(WISHLIST_HOVER_OPTION, 'always');
 
   test('the heart shows without hovering and Quick View joins on hover', async ({
     page,

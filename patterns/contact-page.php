@@ -26,7 +26,7 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
 			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
-				<!-- wp:aggressive-apparel/icon {"icon":"info","iconSize":32,"textAlign":"center","textColor":"accent"} /-->
+				<!-- wp:aggressive-apparel/icon {"icon":"info","iconSize":32,"textColor":"accent","style":{"typography":{"textAlign":"center"}}} /-->
 
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.06em"}},"fontSize":"small"} -->
 				<h3 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"><?php echo esc_html__( 'Email', 'aggressive-apparel' ); ?></h3>
@@ -48,7 +48,7 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
 			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
-				<!-- wp:aggressive-apparel/icon {"icon":"user","iconSize":32,"textAlign":"center","textColor":"accent"} /-->
+				<!-- wp:aggressive-apparel/icon {"icon":"user","iconSize":32,"textColor":"accent","style":{"typography":{"textAlign":"center"}}} /-->
 
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.06em"}},"fontSize":"small"} -->
 				<h3 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"><?php echo esc_html__( 'Phone', 'aggressive-apparel' ); ?></h3>
@@ -70,7 +70,7 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
 			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
-				<!-- wp:aggressive-apparel/icon {"icon":"home","iconSize":32,"textAlign":"center","textColor":"accent"} /-->
+				<!-- wp:aggressive-apparel/icon {"icon":"home","iconSize":32,"textColor":"accent","style":{"typography":{"textAlign":"center"}}} /-->
 
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.06em"}},"fontSize":"small"} -->
 				<h3 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"><?php echo esc_html__( 'Studio', 'aggressive-apparel' ); ?></h3>

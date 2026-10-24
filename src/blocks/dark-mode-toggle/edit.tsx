@@ -6,8 +6,6 @@
 
 import { __ } from '@wordpress/i18n';
 import {
-  AlignmentControl,
-  BlockControls,
   InspectorControls,
   useBlockProps,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -40,7 +38,6 @@ type DarkModeToggleAttributes = {
   labelDark?: string;
   showLabel?: boolean;
   size?: 'small' | 'medium' | 'large';
-  alignment?: 'left' | 'center' | 'right';
   iconStyle?: 'solid' | 'outline';
   iconStrokeWidth?: number;
   iconColor?: string;
@@ -159,7 +156,6 @@ export default function Edit({
     labelDark = '',
     showLabel = false,
     size = 'medium',
-    alignment = 'left',
     iconStyle = 'solid',
     iconStrokeWidth = 1.75,
   } = attributes;
@@ -171,24 +167,13 @@ export default function Edit({
   const displayLabel = label || __('Dark Mode', 'aggressive-apparel');
 
   const blockProps = useBlockProps({
-    className: `is-size-${size} has-text-align-${alignment} is-icon-style-${iconStyle}`,
+    // Alignment comes from native `typography.textAlign` support.
+    className: `is-size-${size} is-icon-style-${iconStyle}`,
     style: getToggleStyles(attributes),
   });
 
   return (
     <>
-      <BlockControls group='block'>
-        <AlignmentControl
-          value={alignment}
-          onChange={value =>
-            setAttributes({
-              alignment: (value ||
-                'left') as DarkModeToggleAttributes['alignment'],
-            })
-          }
-        />
-      </BlockControls>
-
       <InspectorControls>
         <PanelBody title={__('Settings', 'aggressive-apparel')}>
           <ToggleControl

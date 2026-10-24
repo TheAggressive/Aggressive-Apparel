@@ -111,6 +111,14 @@ if ( '' !== $accent_color ) {
 	$root_style .= '--aa-pi-accent:' . $accent_color . ';';
 }
 
+// There is no separate wrapper, so the renderer's root element carries the
+// block supports (colours, spacing, extra classes) that
+// get_block_wrapper_attributes() would otherwise add.
+$block_supports = WP_Block_Supports::get_instance()->apply_block_supports();
+if ( ! empty( $block_supports['style'] ) ) {
+	$root_style .= rtrim( $block_supports['style'], '; ' ) . ';';
+}
+
 $renderer->set_root_style( safecss_filter_attr( $root_style ) );
 
 $renderable_tabs = $renderer->get_renderable_woocommerce_tabs( array() );
@@ -120,12 +128,22 @@ if ( empty( $renderable_tabs ) ) {
 }
 
 // Render without a wrapper so the Product_Tabs_Renderer controls the root element.
-echo aggressive_apparel_trusted_html(
-	$renderer->render_tabs_by_style(
-		$renderable_tabs,
-		'',
-		$hide_content_titles,
-		$accordion_exclusive,
-		$display_style
-	)
+$tabs_html = $renderer->render_tabs_by_style(
+	$renderable_tabs,
+	'',
+	$hide_content_titles,
+	$accordion_exclusive,
+	$display_style
 );
+
+if ( ! empty( $block_supports['class'] ) ) {
+	$root = new WP_HTML_Tag_Processor( $tabs_html );
+	if ( $root->next_tag() ) {
+		foreach ( array_filter( explode( ' ', $block_supports['class'] ) ) as $support_class ) {
+			$root->add_class( $support_class );
+		}
+		$tabs_html = $root->get_updated_html();
+	}
+}
+
+echo aggressive_apparel_trusted_html( $tabs_html );

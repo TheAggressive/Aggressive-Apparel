@@ -83,7 +83,7 @@
     "typography": {
       "fontSize": true,
       "lineHeight": true,
-      "fontFamily": true
+      "__experimentalFontFamily": true
     },
     "spacing": {
       "padding": true,

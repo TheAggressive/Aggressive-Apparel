@@ -18,9 +18,9 @@
     "typography": {
       "fontSize": true,
       "lineHeight": true,
-      "fontWeight": true,
-      "letterSpacing": true,
-      "textTransform": true
+      "__experimentalFontWeight": true,
+      "__experimentalLetterSpacing": true,
+      "__experimentalTextTransform": true
     },
     "spacing": {
       "margin": true,

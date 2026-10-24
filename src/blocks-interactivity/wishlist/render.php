@@ -37,11 +37,17 @@ Wishlist::ensure_assets();
 
 $columns        = min( 6, max( 1, (int) ( $attributes['columns'] ?? 4 ) ) );
 $mobile_columns = min( 3, max( 1, (int) ( $attributes['mobileColumns'] ?? 2 ) ) );
-$gap            = sanitize_text_field( $attributes['gap'] ?? '' );
 $show_count     = ! isset( $attributes['showCount'] ) || (bool) $attributes['showCount'];
 $show_header    = ! isset( $attributes['showHeader'] ) || (bool) $attributes['showHeader'];
 $shop_url       = wc_get_page_permalink( 'shop' );
 $empty_message  = sanitize_text_field( $attributes['emptyMessage'] ?? __( 'Your wishlist is empty.', 'aggressive-apparel' ) );
+
+// Block spacing from the Dimensions panel; legacy `gap` covers blocks saved
+// before it moved there and never reopened in the editor.
+$gap = aggressive_apparel_get_nav_block_gap( $attributes );
+if ( '' === $gap ) {
+	$gap = sanitize_text_field( $attributes['gap'] ?? '' );
+}
 
 // ── CSS vars (grid layout only — card design lives on inner blocks) ───────────
 

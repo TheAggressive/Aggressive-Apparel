@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T03:52:19+00:00\n"
+"POT-Creation-Date: 2026-10-24T05:18:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -414,7 +414,7 @@ msgid "Aggressive Apparel search index"
 msgstr ""
 
 #: includes/Core/class-search-index.php:429
-#: includes/helpers.php:216
+#: includes/helpers.php:243
 msgid "State"
 msgstr ""
 
@@ -484,7 +484,7 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
-#: src/blocks-interactivity/wishlist/render.php:116
+#: src/blocks-interactivity/wishlist/render.php:122
 msgid "Try again"
 msgstr ""
 
@@ -745,196 +745,196 @@ msgstr ""
 msgid "Update now"
 msgstr ""
 
-#: includes/helpers.php:209
+#: includes/helpers.php:236
 msgid "Parallax Debug"
 msgstr ""
 
-#: includes/helpers.php:210
+#: includes/helpers.php:237
 msgid "Animate On Scroll Debug"
 msgstr ""
 
-#: includes/helpers.php:211
+#: includes/helpers.php:238
 msgid "Collapse debug panel"
 msgstr ""
 
-#: includes/helpers.php:212
+#: includes/helpers.php:239
 msgid "Expand debug panel"
 msgstr ""
 
-#: includes/helpers.php:213
+#: includes/helpers.php:240
 msgid "Live state"
 msgstr ""
 
-#: includes/helpers.php:214
+#: includes/helpers.php:241
 msgid "Details"
 msgstr ""
 
-#: includes/helpers.php:215
+#: includes/helpers.php:242
 msgid "Legend"
 msgstr ""
 
-#: includes/helpers.php:217
+#: includes/helpers.php:244
 msgid "Visibility"
 msgstr ""
 
-#: includes/helpers.php:218
+#: includes/helpers.php:245
 msgid "Progress"
 msgstr ""
 
-#: includes/helpers.php:219
+#: includes/helpers.php:246
 msgid "Scroll direction"
 msgstr ""
 
-#: includes/helpers.php:220
+#: includes/helpers.php:247
 msgid "Threshold"
 msgstr ""
 
-#: includes/helpers.php:221
+#: includes/helpers.php:248
 msgid "Frame rate"
 msgstr ""
 
-#: includes/helpers.php:222
+#: includes/helpers.php:249
 msgid "Element size"
 msgstr ""
 
-#: includes/helpers.php:223
+#: includes/helpers.php:250
 msgid "Boundary"
 msgstr ""
 
-#: includes/helpers.php:224
+#: includes/helpers.php:251
 msgid "Observer"
 msgstr ""
 
-#: includes/helpers.php:225
+#: includes/helpers.php:252
 msgid "Waiting"
 msgstr ""
 
-#: includes/helpers.php:226
+#: includes/helpers.php:253
 msgid "Approaching"
 msgstr ""
 
-#: includes/helpers.php:227
-#: includes/helpers.php:229
+#: includes/helpers.php:254
+#: includes/helpers.php:256
 #: includes/WooCommerce/class-back-in-stock-admin.php:393
 #: includes/WooCommerce/class-back-in-stock-admin.php:448
 msgid "Active"
 msgstr ""
 
-#: includes/helpers.php:228
+#: includes/helpers.php:255
 msgid "Engine"
 msgstr ""
 
-#: includes/helpers.php:230
+#: includes/helpers.php:257
 msgid "Idle"
 msgstr ""
 
-#: includes/helpers.php:231
+#: includes/helpers.php:258
 msgid "Animation"
 msgstr ""
 
-#: includes/helpers.php:232
+#: includes/helpers.php:259
 msgid "Shown"
 msgstr ""
 
-#: includes/helpers.php:233
+#: includes/helpers.php:260
 msgid "Hidden"
 msgstr ""
 
-#: includes/helpers.php:234
+#: includes/helpers.php:261
 msgid "Reverse on scroll back"
 msgstr ""
 
-#: includes/helpers.php:235
+#: includes/helpers.php:262
 msgid "Yes"
 msgstr ""
 
-#: includes/helpers.php:236
+#: includes/helpers.php:263
 #: includes/WooCommerce/class-product-tabs-config.php:264
 msgid "No"
 msgstr ""
 
-#: includes/helpers.php:237
+#: includes/helpers.php:264
 msgid "↓ Down"
 msgstr ""
 
-#: includes/helpers.php:238
+#: includes/helpers.php:265
 msgid "↑ Up"
 msgstr ""
 
-#: includes/helpers.php:239
+#: includes/helpers.php:266
 msgid "— measuring…"
 msgstr ""
 
 #. translators: {pct} is replaced with a percentage number.
-#: includes/helpers.php:241
+#: includes/helpers.php:268
 msgid "{pct}% entry"
 msgstr ""
 
 #. translators: {entry} and {exit} are replaced with percentage numbers.
-#: includes/helpers.php:243
+#: includes/helpers.php:270
 msgid "{entry}% entry · {exit}% exit"
 msgstr ""
 
-#: includes/helpers.php:244
+#: includes/helpers.php:271
 msgid "Detection boundary"
 msgstr ""
 
-#: includes/helpers.php:245
+#: includes/helpers.php:272
 msgid "Observer boundary (incl. engine buffer)"
 msgstr ""
 
-#: includes/helpers.php:246
+#: includes/helpers.php:273
 msgid "· extends beyond viewport"
 msgstr ""
 
 #. translators: {pct} is replaced with a percentage number.
-#: includes/helpers.php:248
+#: includes/helpers.php:275
 msgid "Entry (bottom) {pct}%"
 msgstr ""
 
 #. translators: {pct} is replaced with a percentage number.
-#: includes/helpers.php:250
+#: includes/helpers.php:277
 msgid "Entry (top) {pct}%"
 msgstr ""
 
 #. translators: {pct} is replaced with a percentage number.
-#: includes/helpers.php:252
+#: includes/helpers.php:279
 msgid "Exit ≤ {pct}%"
 msgstr ""
 
-#: includes/helpers.php:253
+#: includes/helpers.php:280
 msgid "Detection boundary — area the observer watches (viewport ± your margins)"
 msgstr ""
 
-#: includes/helpers.php:254
+#: includes/helpers.php:281
 msgid "Observer boundary — detection boundary plus the engine’s pre-activation buffer"
 msgstr ""
 
-#: includes/helpers.php:255
+#: includes/helpers.php:282
 msgid "This block’s element — outlined even while its content is hidden"
 msgstr ""
 
 #. translators: {pct} is replaced with a percentage number.
-#: includes/helpers.php:257
+#: includes/helpers.php:284
 msgid "Entry line — triggers at {pct}% visible when scrolling down"
 msgstr ""
 
 #. translators: {pct} is replaced with a percentage number.
-#: includes/helpers.php:259
+#: includes/helpers.php:286
 msgid "Entry line for scrolling up (same {pct}%, measured from the bottom)"
 msgstr ""
 
 #. translators: {pct} is replaced with a percentage number.
-#: includes/helpers.php:261
+#: includes/helpers.php:288
 msgid "Exit line — reverses once visibility falls below {pct}%"
 msgstr ""
 
-#: includes/helpers.php:262
+#: includes/helpers.php:289
 msgid "Entry zone — tinted band the boundary edge must reach to trigger"
 msgstr ""
 
 #. translators: Four brace-delimited placeholders are replaced with measurements.
-#: includes/helpers.php:264
+#: includes/helpers.php:291
 msgid "Entry threshold {pct}% is unreachable: the element ({elem}px) is taller than the detection area ({root}px). Max visibility ≈ {max}%."
 msgstr ""
 
@@ -7822,49 +7822,49 @@ msgstr ""
 msgid "Back from %s"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:132
+#: src/blocks-interactivity/navigation-panel/render.php:140
 msgid "Navigation menu opened"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:133
+#: src/blocks-interactivity/navigation-panel/render.php:141
 msgid "Navigation menu closed"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:134
+#: src/blocks-interactivity/navigation-panel/render.php:142
 #: src/blocks-interactivity/navigation/render.php:65
 msgid "Submenu opened"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:135
+#: src/blocks-interactivity/navigation-panel/render.php:143
 #: src/blocks-interactivity/navigation/render.php:66
 msgid "Submenu closed"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:136
+#: src/blocks-interactivity/navigation-panel/render.php:144
 msgid "submenu"
 msgstr ""
 
 #. translators: 1: submenu label, 2: drilldown level number.
-#: src/blocks-interactivity/navigation-panel/render.php:138
+#: src/blocks-interactivity/navigation-panel/render.php:146
 #, php-format
 msgid "Opened %1$s, level %2$s"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:139
+#: src/blocks-interactivity/navigation-panel/render.php:147
 msgid "Back to main menu"
 msgstr ""
 
 #. translators: %s: drilldown level number.
-#: src/blocks-interactivity/navigation-panel/render.php:141
+#: src/blocks-interactivity/navigation-panel/render.php:149
 #, php-format
 msgid "Back to level %s"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:230
+#: src/blocks-interactivity/navigation-panel/render.php:241
 msgid "Close menu"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:296
+#: src/blocks-interactivity/navigation-panel/render.php:307
 msgid "Navigation menu"
 msgstr ""
 
@@ -7898,66 +7898,66 @@ msgstr ""
 msgid "Store notifications"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:44
+#: src/blocks-interactivity/wishlist/render.php:43
 msgid "Your wishlist is empty."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:85
+#: src/blocks-interactivity/wishlist/render.php:91
 msgid "Saved for later"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:86
+#: src/blocks-interactivity/wishlist/render.php:92
 msgid "Your wishlist"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:87
+#: src/blocks-interactivity/wishlist/render.php:93
 msgid "Your favorite pieces, all in one place."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:103
+#: src/blocks-interactivity/wishlist/render.php:109
 msgid "saved"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:111
+#: src/blocks-interactivity/wishlist/render.php:117
 msgid "Loading wishlist…"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:115
+#: src/blocks-interactivity/wishlist/render.php:121
 msgid "Some wishlist items could not be loaded."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:134
+#: src/blocks-interactivity/wishlist/render.php:140
 msgid "Tap the heart on any product to keep it here."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:135
+#: src/blocks-interactivity/wishlist/render.php:141
 msgid "Explore the collection"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:148
+#: src/blocks-interactivity/wishlist/render.php:154
 msgid "Continue shopping"
 msgstr ""
 
+#: src/blocks/dark-mode-toggle/render.php:31
 #: src/blocks/dark-mode-toggle/render.php:36
-#: src/blocks/dark-mode-toggle/render.php:41
 msgid "Dark Mode"
 msgstr ""
 
-#: src/blocks/dark-mode-toggle/render.php:42
+#: src/blocks/dark-mode-toggle/render.php:37
 msgid "Light Mode"
 msgstr ""
 
+#: src/blocks/dark-mode-toggle/render.php:92
 #: src/blocks/dark-mode-toggle/render.php:93
-#: src/blocks/dark-mode-toggle/render.php:94
 msgid "Switch to dark mode"
 msgstr ""
 
-#: src/blocks/dark-mode-toggle/render.php:95
+#: src/blocks/dark-mode-toggle/render.php:94
 msgid "Switch to light mode"
 msgstr ""
 
 #. translators: %s: number of customer reviews.
-#: src/blocks/product-rating/render.php:47
+#: src/blocks/product-rating/render.php:46
 #, php-format
 msgid "(%s customer review)"
 msgid_plural "(%s customer reviews)"

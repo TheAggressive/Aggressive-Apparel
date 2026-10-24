@@ -18,7 +18,6 @@ type FilterToggleAttributes = {
   showIcon: boolean;
   iconOnly: boolean;
   mobileOnly: 'auto' | 'always' | 'never';
-  alignment: 'left' | 'center' | 'right';
 };
 
 registerThemeBlock<FilterToggleAttributes>(metadata, {

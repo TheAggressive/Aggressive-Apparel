@@ -9,12 +9,7 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import {
-  useBlockProps,
-  InspectorControls,
-  BlockControls,
-  AlignmentToolbar,
-} from '@wordpress/block-editor';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import {
   PanelBody,
   TextControl,
@@ -29,7 +24,6 @@ type FilterToggleAttributes = {
   showIcon: boolean;
   iconOnly: boolean;
   mobileOnly: 'auto' | 'always' | 'never';
-  alignment: 'left' | 'center' | 'right';
 };
 
 interface EditProps {
@@ -57,8 +51,7 @@ export default function Edit({
   attributes,
   setAttributes,
 }: EditProps): JSX.Element {
-  const { label, showLabel, showIcon, iconOnly, mobileOnly, alignment } =
-    attributes;
+  const { label, showLabel, showIcon, iconOnly, mobileOnly } = attributes;
 
   const effectiveShowIcon = iconOnly ? true : showIcon;
   const effectiveShowLabel = iconOnly ? false : showLabel;
@@ -67,30 +60,11 @@ export default function Edit({
     className: `aa-filter-toggle${
       iconOnly ? ' aa-filter-toggle--icon-only' : ''
     }`,
-    style: {
-      display: 'inline-flex',
-      justifyContent:
-        alignment === 'center'
-          ? 'center'
-          : alignment === 'right'
-            ? 'flex-end'
-            : 'flex-start',
-    },
+    style: { display: 'inline-flex' },
   });
 
   return (
     <>
-      <BlockControls>
-        <AlignmentToolbar
-          value={alignment}
-          onChange={value =>
-            setAttributes({
-              alignment: (value as 'left' | 'center' | 'right') || 'left',
-            })
-          }
-        />
-      </BlockControls>
-
       <InspectorControls>
         <PanelBody title={__('Trigger Settings', 'aggressive-apparel')}>
           <ToggleControl

@@ -102,6 +102,33 @@ function aggressive_apparel_icon_block_svg( string $slug, int|float $size = 48 )
 }
 
 /**
+ * Text-alignment class for blocks migrated to native `typography.textAlign`.
+ *
+ * Native support emits `has-text-align-*` from `style.typography.textAlign`.
+ * Blocks saved before the migration and never reopened in the editor still
+ * carry the legacy attribute, so map it to the same class until re-saved.
+ *
+ * @param array<string, mixed> $attributes     Block attributes.
+ * @param string               ...$legacy_keys Legacy attribute names, checked in order.
+ * @return string `has-text-align-{value}`, or empty when native support applies.
+ */
+function aggressive_apparel_legacy_text_align_class( array $attributes, string ...$legacy_keys ): string {
+	$style = $attributes['style'] ?? null;
+	if ( is_array( $style ) && is_array( $style['typography'] ?? null ) && isset( $style['typography']['textAlign'] ) ) {
+		return '';
+	}
+
+	foreach ( $legacy_keys as $key ) {
+		$value = $attributes[ $key ] ?? '';
+		if ( in_array( $value, array( 'left', 'center', 'right' ), true ) ) {
+			return 'has-text-align-' . $value;
+		}
+	}
+
+	return '';
+}
+
+/**
  * Free-shipping threshold for the current customer's zone, in the active currency.
  *
  * @return float Threshold amount, or 0 when the customer's zone has none.

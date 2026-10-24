@@ -14,7 +14,6 @@ declare(strict_types=1);
 $icon_slug     = sanitize_key( $attributes['icon'] ?? 'shipping-box' );
 $is_decorative = (bool) ( $attributes['isDecorative'] ?? true );
 $label         = sanitize_text_field( $attributes['label'] ?? '' );
-$text_align    = sanitize_key( $attributes['textAlign'] ?? '' );
 
 // Shared with the editor preview so the two render identically.
 $svg_markup = aggressive_apparel_icon_block_svg( $icon_slug, $attributes['iconSize'] ?? 48 );
@@ -23,11 +22,8 @@ if ( '' === $svg_markup ) {
 	return;
 }
 
-$wrapper_class = 'aggressive-apparel-icon';
-
-if ( in_array( $text_align, array( 'left', 'center', 'right' ), true ) ) {
-	$wrapper_class .= ' has-text-align-' . $text_align;
-}
+// Native `typography.textAlign` adds its own class; this covers legacy blocks.
+$wrapper_class = trim( 'aggressive-apparel-icon ' . aggressive_apparel_legacy_text_align_class( $attributes, 'textAlign' ) );
 
 $wrapper_attrs = array(
 	'class' => $wrapper_class,

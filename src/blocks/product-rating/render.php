@@ -39,7 +39,6 @@ if ( $aa_rating <= 0 ) {
 }
 
 $aa_count     = (int) $aa_product->get_review_count();
-$aa_align     = sanitize_text_field( $attributes['textAlign'] ?? '' );
 $aa_on_single = (bool) ( $attributes['isDescendentOfSingleProductTemplate'] ?? false );
 
 $aa_count_text = sprintf(
@@ -64,7 +63,8 @@ printf(
 	'<div %1$s><div class="aa-product-rating__container">%2$s<span class="aa-product-rating__count">%3$s</span></div></div>',
 	get_block_wrapper_attributes(
 		array(
-			'class' => 'aa-product-rating' . ( '' !== $aa_align ? ' has-text-align-' . $aa_align : '' ),
+			// Native `typography.textAlign` adds its own class; this covers legacy blocks.
+			'class' => trim( 'aa-product-rating ' . aggressive_apparel_legacy_text_align_class( $attributes, 'textAlign' ) ),
 		)
 	),
 	aggressive_apparel_rating_stars( $aa_rating ),

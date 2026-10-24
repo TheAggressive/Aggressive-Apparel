@@ -24,6 +24,7 @@ import { __ } from '@wordpress/i18n';
 import type { CSSProperties } from 'react';
 import './editor.css';
 import type { WishlistPageAttributes } from './types';
+import { resolveBlockGap } from '../nav-shared/spacing';
 
 const ALLOWED_BLOCKS = [
   'aggressive-apparel/wishlist-item-image',
@@ -50,7 +51,6 @@ export default function Edit({
   const {
     columns = 4,
     mobileColumns = 2,
-    gap = '',
     showCount = true,
     showHeader = true,
     emptyMessage = 'Your wishlist is empty.',
@@ -61,7 +61,9 @@ export default function Edit({
     style: {
       '--aa-wl-columns': columns,
       '--aa-wl-columns-mobile': mobileColumns,
-      '--aa-wl-gap': gap || '1.5rem',
+      // Block spacing from the Dimensions panel (no layout support to print it).
+      '--aa-wl-gap':
+        resolveBlockGap(attributes as Record<string, unknown>) ?? '1.5rem',
     } as CSSProperties,
   });
 
@@ -86,15 +88,6 @@ export default function Edit({
             onChange={value => setAttributes({ mobileColumns: value })}
             min={1}
             max={3}
-            __nextHasNoMarginBottom
-          />
-          <TextControl
-            label={__('Gap', 'aggressive-apparel')}
-            value={gap}
-            placeholder='1.5rem'
-            onChange={value => setAttributes({ gap: value })}
-            help={__('e.g. 1.5rem, 24px', 'aggressive-apparel')}
-            __next40pxDefaultSize
             __nextHasNoMarginBottom
           />
         </PanelBody>

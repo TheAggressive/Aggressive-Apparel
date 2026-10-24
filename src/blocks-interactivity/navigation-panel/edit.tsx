@@ -14,12 +14,9 @@ import {
   InspectorControls,
   useBlockProps,
   useInnerBlocksProps,
-  useSettings,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
-  BaseControl,
-  ColorPalette,
   PanelBody,
   RangeControl,
   SelectControl,
@@ -28,8 +25,11 @@ import {
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
   __experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {
+  AdaptiveColorPanelHeader,
+  AdaptiveCssValueSettingsDropdown,
+} from '../../utils/adaptive-color-controls';
 import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 import { resolveBlockGap, resolvePresetValue } from '../nav-shared/spacing';
 import { usePanelAllowedBlocks } from '../nav-shared/use-panel-allowed-blocks';
@@ -51,6 +51,7 @@ const TEMPLATE: [string, Record<string, unknown>?][] = [
 export default function Edit({
   attributes,
   setAttributes,
+  clientId,
 }: BlockEditProps<NavigationPanelAttributes>) {
   const {
     panelSlug,
@@ -65,14 +66,6 @@ export default function Edit({
     overlayOpacity,
     indicatorColor,
   } = attributes;
-
-  const [allColors] = useSettings('color.palette') as [
-    Array<{ name: string; slug: string; color: string }> | undefined,
-  ];
-  const colors = useMemo(
-    () => allColors?.filter(c => !c.color.startsWith('light-dark(')),
-    [allColors]
-  );
 
   // WordPress block-support attributes — set by the standard Color / Typography
   // / Dimensions sidebars. Cast needed because these aren't in our typed
@@ -220,57 +213,64 @@ export default function Edit({
         <PanelBody
           title={__('Panel Colors', 'aggressive-apparel')}
           initialOpen={false}
+          className='aa-adaptive-color-panel-body'
         >
-          <BaseControl
-            id='panel-link-hover'
-            label={__('Link Hover Color', 'aggressive-apparel')}
-          >
-            <ColorPalette
-              colors={colors}
-              value={panelLinkHoverColor}
-              onChange={value => setAttributes({ panelLinkHoverColor: value })}
-              clearable
+          <div className='aa-adaptive-color-panel'>
+            <AdaptiveColorPanelHeader
+              description={__(
+                'Choose Light or Dark, then set panel colors with the standard WordPress color picker.',
+                'aggressive-apparel'
+              )}
             />
-          </BaseControl>
-          <BaseControl
-            id='panel-link-hover-bg'
-            label={__('Link Hover Background', 'aggressive-apparel')}
-          >
-            <ColorPalette
-              colors={colors}
-              value={panelLinkHoverBg}
-              onChange={value => setAttributes({ panelLinkHoverBg: value })}
-              clearable
+            <AdaptiveCssValueSettingsDropdown
+              panelId={`${clientId}-nav-panel-colors`}
+              settings={[
+                {
+                  id: 'panelLinkHover',
+                  label: __('Link Hover Text', 'aggressive-apparel'),
+                  value: panelLinkHoverColor,
+                  onChange: v => setAttributes({ panelLinkHoverColor: v }),
+                },
+                {
+                  id: 'panelLinkHoverBg',
+                  label: __('Link Hover Background', 'aggressive-apparel'),
+                  value: panelLinkHoverBg,
+                  onChange: v => setAttributes({ panelLinkHoverBg: v }),
+                },
+                {
+                  id: 'panelIndicator',
+                  label: __('Indicator', 'aggressive-apparel'),
+                  value: indicatorColor,
+                  onChange: v => setAttributes({ indicatorColor: v }),
+                },
+              ]}
             />
-          </BaseControl>
-          <BaseControl
-            id='panel-indicator'
-            label={__('Indicator Color', 'aggressive-apparel')}
-          >
-            <ColorPalette
-              colors={colors}
-              value={indicatorColor}
-              onChange={value => setAttributes({ indicatorColor: value })}
-              clearable
-            />
-          </BaseControl>
+          </div>
         </PanelBody>
 
         <PanelBody
           title={__('Overlay', 'aggressive-apparel')}
           initialOpen={false}
         >
-          <BaseControl
-            id='overlay-color'
-            label={__('Overlay Color', 'aggressive-apparel')}
-          >
-            <ColorPalette
-              colors={colors}
-              value={overlayColor}
-              onChange={value => setAttributes({ overlayColor: value })}
-              clearable
+          <div className='aa-adaptive-color-panel'>
+            <AdaptiveColorPanelHeader
+              description={__(
+                'Overlay color can differ in light and dark mode.',
+                'aggressive-apparel'
+              )}
             />
-          </BaseControl>
+            <AdaptiveCssValueSettingsDropdown
+              panelId={`${clientId}-nav-panel-overlay`}
+              settings={[
+                {
+                  id: 'overlay',
+                  label: __('Overlay Color', 'aggressive-apparel'),
+                  value: overlayColor,
+                  onChange: v => setAttributes({ overlayColor: v }),
+                },
+              ]}
+            />
+          </div>
           <RangeControl
             label={__('Overlay Opacity', 'aggressive-apparel')}
             value={overlayOpacity ?? 50}

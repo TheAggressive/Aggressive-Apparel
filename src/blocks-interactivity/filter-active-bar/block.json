@@ -31,7 +31,7 @@
     "typography": {
       "fontSize": true,
       "lineHeight": true,
-      "fontWeight": true,
+      "__experimentalFontWeight": true,
       "__experimentalDefaultControls": {
         "fontSize": true
       }

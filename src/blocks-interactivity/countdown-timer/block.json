@@ -24,7 +24,7 @@
       "fontSize": true,
       "lineHeight": true
     },
-    "border": {
+    "__experimentalBorder": {
       "color": true,
       "radius": true,
       "style": true,

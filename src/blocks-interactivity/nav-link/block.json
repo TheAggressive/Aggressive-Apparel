@@ -48,9 +48,9 @@
     },
     "typography": {
       "fontSize": true,
-      "fontWeight": true,
-      "textDecoration": true,
-      "letterSpacing": true
+      "__experimentalFontWeight": true,
+      "__experimentalTextDecoration": true,
+      "__experimentalLetterSpacing": true
     },
     "spacing": {
       "padding": true

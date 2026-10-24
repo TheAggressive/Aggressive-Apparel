@@ -4,12 +4,7 @@
  * @package Aggressive_Apparel
  */
 
-import {
-  AlignmentControl,
-  BlockControls,
-  InspectorControls,
-  useBlockProps,
-} from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
   Notice,
@@ -31,30 +26,21 @@ export type IconBlockAttributes = {
   iconSize: number;
   label: string;
   isDecorative: boolean;
-  textAlign?: string;
 };
 
 export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<IconBlockAttributes>) {
-  const { icon, iconSize, label, isDecorative, textAlign } = attributes;
+  const { icon, iconSize, label, isDecorative } = attributes;
 
-  const blockProps = useBlockProps({
-    className: `aggressive-apparel-icon${textAlign ? ` has-text-align-${textAlign}` : ''}`,
-  });
+  // Text alignment comes from native `typography.textAlign` support.
+  const blockProps = useBlockProps({ className: 'aggressive-apparel-icon' });
 
   const showLabelNotice = !isDecorative && !label.trim();
 
   return (
     <>
-      <BlockControls>
-        <AlignmentControl
-          onChange={value => setAttributes({ textAlign: value ?? '' })}
-          value={textAlign || undefined}
-        />
-      </BlockControls>
-
       <InspectorControls>
         <PanelBody title={__('Icon', 'aggressive-apparel')} initialOpen>
           <IconComboboxControl

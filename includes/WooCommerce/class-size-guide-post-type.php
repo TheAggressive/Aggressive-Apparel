@@ -57,7 +57,7 @@ class Size_Guide_Post_Type {
 		unset( $server );
 		$route = untrailingslashit( $request->get_route() );
 		$base  = '/wp/v2/' . self::POST_TYPE;
-		if ( null !== $result || ( $base !== $route && ! str_starts_with( $route, $base . '/' ) ) || current_user_can( 'edit_posts' ) ) {
+		if ( null !== $result || ( $base !== $route && ! str_starts_with( $route, $base . '/' ) ) || current_user_can( 'edit_products' ) ) {
 			return $result;
 		}
 
@@ -84,7 +84,9 @@ class Size_Guide_Post_Type {
 				'show_in_menu'        => false, // Managed on Products → Size & Specs (Product_Specs_Settings).
 				'show_in_rest'        => true,
 				'supports'            => array( 'title', 'editor', 'revisions' ),
-				'capability_type'     => 'post',
+				// Product caps, not post caps: guides are store data, so authors and
+				// editors (edit_posts) must not create or change them via REST/wp-admin.
+				'capability_type'     => array( 'product', 'products' ),
 				'map_meta_cap'        => true,
 				'has_archive'         => false,
 				'rewrite'             => false,

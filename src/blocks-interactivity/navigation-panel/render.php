@@ -24,7 +24,8 @@ $panel_slug      = ! empty( $attributes['panelSlug'] ) ? (string) $attributes['p
 $position        = $attributes['position'] ?? 'right';
 $animation_style = $attributes['animationStyle'] ?? 'slide';
 $menu_style      = $attributes['menuStyle'] ?? 'panel';
-$panel_width     = 'fullscreen' === $menu_style ? '100vw' : ( $attributes['panelWidth'] ?? 'min(320px, 85vw)' );
+$panel_width     = 'fullscreen' === $menu_style ? '100vw' : aggressive_apparel_safe_css_value( $attributes['panelWidth'] ?? '' );
+$panel_width     = '' !== $panel_width ? $panel_width : 'min(320px, 85vw)';
 $show_overlay    = $attributes['showOverlay'] ?? true;
 
 $panel_hover_color = $attributes['panelLinkHoverColor'] ?? '';

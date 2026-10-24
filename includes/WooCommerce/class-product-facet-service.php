@@ -25,6 +25,9 @@ final class Product_Facet_Service {
 	/** Facet transient lifetime. */
 	private const CACHE_TTL = 300;
 
+	/** Most selected terms a facet response is cached for. */
+	private const MAX_CACHED_TERMS = 4;
+
 	/**
 	 * Catalog query policy used for the public taxonomy allow-list.
 	 *
@@ -84,7 +87,8 @@ final class Product_Facet_Service {
 		// than each writing a transient. The taxonomy list is part of the key so
 		// a changed list (a deploy or a filter) never serves an old shape.
 		$cache_key = self::CACHE_PREFIX . $this->version->current() . '_' . md5( (string) wp_json_encode( array( $filters, $taxonomy, $term, $facet_taxonomies ) ) );
-		$cached    = get_transient( $cache_key );
+		$cacheable = self::is_cacheable( $filters );
+		$cached    = $cacheable ? get_transient( $cache_key ) : false;
 		if ( is_array( $cached ) ) {
 			return $cached;
 		}
@@ -105,9 +109,61 @@ final class Product_Facet_Service {
 			$facets[ $facet ] = $this->query_slugs( $facet, $facet_filters, $taxonomy, $term );
 		}
 
-		set_transient( $cache_key, $facets, self::CACHE_TTL );
+		if ( $cacheable ) {
+			set_transient( $cache_key, $facets, self::CACHE_TTL );
+		}
 
 		return $facets;
+	}
+
+	/**
+	 * Whether a canonical selection is worth a transient.
+	 *
+	 * This is a public endpoint, so the key space is caller-controlled: free-form
+	 * prices and made-up slugs would each write a new row (to wp_options without
+	 * a persistent object cache). Only cache selections the filter UI actually
+	 * repeats — a few real terms, no price bounds; the rest compute uncached
+	 * under the endpoint's rate limit.
+	 *
+	 * @param array<string, mixed> $filters Canonical filters.
+	 * @return bool
+	 */
+	private static function is_cacheable( array $filters ): bool {
+		if ( $filters['min_price'] > 0 || $filters['max_price'] > 0 ) {
+			return false;
+		}
+
+		$selected = array( 'product_cat' => (string) $filters['category'] );
+		foreach ( (array) $filters['attributes'] as $taxonomy => $slugs ) {
+			$selected[ (string) $taxonomy ] = (string) $slugs;
+		}
+
+		$total = 0;
+		foreach ( $selected as $taxonomy => $list ) {
+			$slugs = array_filter( explode( ',', $list ) );
+			if ( empty( $slugs ) ) {
+				continue;
+			}
+
+			$total += count( $slugs );
+			if ( $total > self::MAX_CACHED_TERMS ) {
+				return false;
+			}
+
+			$known = get_terms(
+				array(
+					'taxonomy'   => $taxonomy,
+					'slug'       => $slugs,
+					'fields'     => 'slugs',
+					'hide_empty' => false,
+				)
+			);
+			if ( ! is_array( $known ) || count( $known ) !== count( $slugs ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

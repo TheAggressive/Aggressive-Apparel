@@ -190,7 +190,11 @@ class Search_Rest {
 			'viewAll' => add_query_arg( 's', rawurlencode( $query ), home_url( '/' ) ),
 		);
 
-		set_transient( $cache_key, $response, self::CACHE_TTL );
+		// Queries are caller-controlled; caching misses would let junk queries
+		// write unbounded rows (to wp_options without a persistent object cache).
+		if ( $total > 0 ) {
+			set_transient( $cache_key, $response, self::CACHE_TTL );
+		}
 
 		return rest_ensure_response( $response );
 	}

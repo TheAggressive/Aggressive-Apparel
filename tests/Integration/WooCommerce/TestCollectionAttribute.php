@@ -255,6 +255,15 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 	 * cannot write a transient per variant.
 	 */
 	public function test_facet_cache_is_keyed_on_the_normalized_selection(): void {
+		( new Migration() )->run( false ); // Creates pa_collection + terms.
+		foreach ( array( 'tank-tops', 'hoodies' ) as $slug ) {
+			self::factory()->term->create(
+				array(
+					'taxonomy' => 'product_cat',
+					'slug'     => $slug,
+				)
+			);
+		}
 		$service = new Product_Facet_Service( new Product_Collection_Query(), new Catalog_Cache_Version() );
 		$service->compute(
 			array(
@@ -271,7 +280,7 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 				++$writes;
 			}
 		};
-		add_action( 'setted_transient', $count );
+		add_action( 'set_transient', $count );
 		$service->compute(
 			array(
 				'category'   => 'Hoodies,tank-tops,hoodies',
@@ -284,9 +293,39 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 			'not_a_taxonomy',
 			'term'
 		);
-		remove_action( 'setted_transient', $count );
+		remove_action( 'set_transient', $count );
 
 		$this->assertSame( 0, $writes, 'The variant was served from the first entry.' );
+	}
+
+	/**
+	 * Only selections the filter UI repeats are cached: made-up slugs and
+	 * free-form prices compute uncached so callers can't mint a transient each.
+	 */
+	public function test_facet_cache_skips_unbounded_selections(): void {
+		( new Migration() )->run( false ); // Creates pa_collection + terms.
+		self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'tank-tops',
+			)
+		);
+		$service = new Product_Facet_Service( new Product_Collection_Query(), new Catalog_Cache_Version() );
+		$writes  = 0;
+		$count   = static function ( string $transient ) use ( &$writes ): void {
+			if ( str_starts_with( $transient, 'aa_pf_facets_' ) ) {
+				++$writes;
+			}
+		};
+		add_action( 'set_transient', $count );
+
+		$service->compute( array( 'attributes' => array( 'pa_collection' => 'not-a-real-term' ) ), '', '' );
+		$service->compute( array( 'min_price' => 12.34 ), '', '' );
+		$this->assertSame( 0, $writes );
+
+		$service->compute( array( 'category' => 'tank-tops' ), '', '' );
+		remove_action( 'set_transient', $count );
+		$this->assertSame( 1, $writes );
 	}
 
 	/** The Fit spec scale stays a silhouette scale with no attribute source. */

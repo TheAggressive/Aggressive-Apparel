@@ -47,6 +47,28 @@ class TestClientIP extends WP_UnitTestCase {
 		$this->assertSame( '', Client_IP::get() );
 	}
 
+	/**
+	 * When INPUT_SERVER lacks the key (FastCGI, or a runtime-set value as here),
+	 * $_SERVER is read so the rate limiter still gets an address.
+	 */
+	public function test_server_superglobal_is_read_when_filter_input_is_empty(): void {
+		$original                = $_SERVER['REMOTE_ADDR'] ?? null;
+		$_SERVER['REMOTE_ADDR']  = '203.0.113.9';
+
+		try {
+			$this->assertSame( '203.0.113.9', Client_IP::get() );
+
+			$_SERVER['REMOTE_ADDR'] = 'not-an-ip';
+			$this->assertSame( '', Client_IP::get() );
+		} finally {
+			if ( null === $original ) {
+				unset( $_SERVER['REMOTE_ADDR'] );
+			} else {
+				$_SERVER['REMOTE_ADDR'] = $original;
+			}
+		}
+	}
+
 	/** Install deterministic request metadata for one test. */
 	private function set_server_values( string $remote, string $forwarded ): void {
 		$this->server_filter = static function ( string $value, string $key ) use ( $remote, $forwarded ): string {

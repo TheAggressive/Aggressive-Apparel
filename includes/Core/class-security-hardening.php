@@ -50,6 +50,10 @@ class Security_Hardening {
 		// Username enumeration via the REST API.
 		add_filter( 'rest_endpoints', array( $this, 'restrict_rest_user_endpoints' ) );
 
+		// Username enumeration via wp-sitemap-users-*.xml and oEmbed author fields.
+		add_filter( 'wp_sitemaps_add_provider', array( $this, 'remove_users_sitemap' ), 10, 2 );
+		add_filter( 'oembed_response_data', array( $this, 'strip_oembed_author' ) );
+
 		// Information disclosure.
 		remove_action( 'wp_head', 'wp_generator' );
 		add_filter( 'the_generator', '__return_empty_string' );
@@ -119,6 +123,29 @@ class Security_Hardening {
 		unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
 
 		return $endpoints;
+	}
+
+	/**
+	 * Drop the core users sitemap, which lists every author archive URL.
+	 *
+	 * @param \WP_Sitemaps_Provider|false $provider Sitemap provider.
+	 * @param string                      $name     Provider name.
+	 * @return \WP_Sitemaps_Provider|false
+	 */
+	public function remove_users_sitemap( $provider, string $name ) {
+		return 'users' === $name ? false : $provider;
+	}
+
+	/**
+	 * Remove the author name and archive URL from oEmbed responses.
+	 *
+	 * @param array<string, mixed> $data oEmbed response data.
+	 * @return array<string, mixed>
+	 */
+	public function strip_oembed_author( array $data ): array {
+		unset( $data['author_name'], $data['author_url'] );
+
+		return $data;
 	}
 
 	// -------------------------------------------------------------------------

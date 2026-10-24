@@ -93,21 +93,17 @@
 
 /* Shared product-card action contract (Quick View + Wishlist). Near-solid
    surface chips with no outline and a soft two-layer shadow, so they read on
-   light and dark photos without a heavy ring; hover inverts them to solid
-   foreground. */
+   light and dark photos without a heavy ring; hover brightens the icon. */
 .aggressive-apparel-card-actions .aggressive-apparel-card-action {
 	--aa-icon-button-background: color-mix(in oklch, var(--aa-color-surface) 92%, transparent);
 	--aa-icon-button-border: transparent;
 	--aa-icon-button-color: var(--aa-color-foreground);
-	--aa-icon-button-hover-background: var(--aa-color-foreground);
-	--aa-icon-button-hover-border: transparent;
-	--aa-icon-button-hover-color: var(--aa-color-surface);
+	--aa-icon-button-hover-background: var(--aa-icon-button-background);
+	--aa-icon-button-hover-border: var(--aa-icon-button-border);
+	--aa-icon-button-hover-color: var(--aa-icon-button-color);
 
-	/* The icon-button base sets a 44px minimum; cards set their own size. */
 	width: var(--aa-card-action-size);
-	min-width: var(--aa-card-action-size);
 	height: var(--aa-card-action-size);
-	min-height: var(--aa-card-action-size);
 	box-shadow:
 		0 1px 2px color-mix(in oklch, var(--aa-color-black) 10%, transparent),
 		0 6px 16px -6px color-mix(in oklch, var(--aa-color-black) 35%, transparent);
@@ -136,17 +132,12 @@
 	stroke-width: 1.6;
 }
 
-/* Narrow cards (two-up phone grids): a smaller chip and tighter inset keep
-   the photo clear; 36px is still well above the 24px minimum target. */
+/* Narrow cards (two-up phone grids): a tighter inset keeps the photo clear;
+   the chips keep the shared 44px target. */
 @container product-card (width < 320px) {
 
-	.aggressive-apparel-card-actions {
-		--aa-card-action-size: 2.25rem;
-		--aa-card-action-icon: 1rem;
-
-		&.aggressive-apparel-card-actions--corner {
-			padding: 0.375rem;
-		}
+	.aggressive-apparel-card-actions--corner {
+		padding: 0.375rem;
 	}
 }
 

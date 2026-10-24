@@ -471,11 +471,26 @@ function aggressive_apparel_get_nav_block_gap( array $attributes ): string {
 	if ( is_array( $gap ) ) {
 		$gap = $gap['top'] ?? '';
 	}
-	if ( ! is_string( $gap ) || ! preg_match( '/^[\w\s().,%+*\/|:-]+$/', $gap ) ) {
+	$gap = aggressive_apparel_safe_css_value( $gap );
+
+	return (string) preg_replace( '/^var:preset\|([^|]+)\|(.+)$/', 'var(--wp--preset--$1--$2)', $gap );
+}
+
+/**
+ * A single CSS value safe to interpolate into an inline `style` declaration.
+ *
+ * Rejects anything that could end the declaration or open a new one (`;`,
+ * braces, quotes), so a block attribute can't smuggle extra properties in.
+ *
+ * @param mixed $value Candidate value, e.g. `min(320px, 85vw)`.
+ * @return string Trimmed value, or '' when unsafe.
+ */
+function aggressive_apparel_safe_css_value( $value ): string {
+	if ( ! is_string( $value ) || ! preg_match( '/^[\w\s().,%+*\/|:-]+$/', $value ) ) {
 		return '';
 	}
 
-	return (string) preg_replace( '/^var:preset\|([^|]+)\|(.+)$/', 'var(--wp--preset--$1--$2)', trim( $gap ) );
+	return trim( $value );
 }
 
 /**

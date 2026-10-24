@@ -424,9 +424,10 @@ class Theme_Updates {
 		$changelog = '';
 
 		// Add version header.
-		$version    = ltrim( $release_data['tag_name'], 'v' );
-		$date       = gmdate( 'F j, Y', strtotime( $release_data['published_at'] ) );
-		$changelog .= "<h4>{$version} - {$date}</h4>\n";
+		$version = ltrim( $release_data['tag_name'], 'v' );
+		$date    = gmdate( 'F j, Y', strtotime( $release_data['published_at'] ) );
+		// Git tag names may contain `<`, `>` and quotes; escape like the body.
+		$changelog .= '<h4>' . esc_html( $version . ' - ' . $date ) . "</h4>\n";
 
 		// Add release body/notes.
 		if ( ! empty( $release_data['body'] ) && is_string( $release_data['body'] ) ) {

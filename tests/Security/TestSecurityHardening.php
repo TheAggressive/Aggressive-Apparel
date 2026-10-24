@@ -151,6 +151,35 @@ class TestSecurityHardening extends WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// Sitemaps / oEmbed
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Only the users sitemap provider is dropped.
+	 */
+	public function test_users_sitemap_is_removed() {
+		$provider = new \WP_Sitemaps_Posts();
+
+		$this->assertFalse( $this->hardening->remove_users_sitemap( $provider, 'users' ) );
+		$this->assertSame( $provider, $this->hardening->remove_users_sitemap( $provider, 'posts' ) );
+	}
+
+	/**
+	 * oEmbed responses keep everything except the author fields.
+	 */
+	public function test_oembed_author_is_stripped() {
+		$data = $this->hardening->strip_oembed_author(
+			array(
+				'title'       => 'Hello',
+				'author_name' => 'admin',
+				'author_url'  => 'https://example.com/author/admin/',
+			)
+		);
+
+		$this->assertSame( array( 'title' => 'Hello' ), $data );
+	}
+
+	// -------------------------------------------------------------------------
 	// Display names
 	// -------------------------------------------------------------------------
 
@@ -239,6 +268,8 @@ class TestSecurityHardening extends WP_UnitTestCase {
 
 		$this->assertNotFalse( has_action( 'template_redirect', array( $hardening, 'block_author_archives' ) ) );
 		$this->assertNotFalse( has_filter( 'rest_endpoints', array( $hardening, 'restrict_rest_user_endpoints' ) ) );
+		$this->assertNotFalse( has_filter( 'wp_sitemaps_add_provider', array( $hardening, 'remove_users_sitemap' ) ) );
+		$this->assertNotFalse( has_filter( 'oembed_response_data', array( $hardening, 'strip_oembed_author' ) ) );
 		$this->assertNotFalse( has_filter( 'login_errors', array( $hardening, 'generic_login_error' ) ) );
 		$this->assertNotFalse( has_action( 'user_register', array( $hardening, 'set_default_display_name' ) ) );
 		$this->assertNotFalse( has_action( 'profile_update', array( $hardening, 'set_default_display_name' ) ) );
@@ -247,6 +278,8 @@ class TestSecurityHardening extends WP_UnitTestCase {
 		// Leave global hook state clean for other tests.
 		remove_action( 'template_redirect', array( $hardening, 'block_author_archives' ) );
 		remove_filter( 'rest_endpoints', array( $hardening, 'restrict_rest_user_endpoints' ) );
+		remove_filter( 'wp_sitemaps_add_provider', array( $hardening, 'remove_users_sitemap' ) );
+		remove_filter( 'oembed_response_data', array( $hardening, 'strip_oembed_author' ) );
 		remove_filter( 'login_errors', array( $hardening, 'generic_login_error' ) );
 		remove_action( 'user_register', array( $hardening, 'set_default_display_name' ) );
 		remove_action( 'profile_update', array( $hardening, 'set_default_display_name' ) );

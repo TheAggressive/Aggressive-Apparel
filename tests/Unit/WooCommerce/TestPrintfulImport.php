@@ -513,6 +513,27 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$this->assertSame( 401, $one->get_status() );
 	}
 
+	/** Guides use product caps, so an editor can't change them; a shop manager can. */
+	public function test_guides_require_product_capabilities(): void {
+		$type       = new \Aggressive_Apparel\WooCommerce\Size_Guide_Post_Type();
+		$registered = post_type_exists( 'aa_size_guide' );
+		if ( ! $registered ) {
+			$type->register();
+		}
+		$guide = self::factory()->post->create( array( 'post_type' => 'aa_size_guide' ) );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$editor_can = current_user_can( 'edit_post', $guide ) || current_user_can( get_post_type_object( 'aa_size_guide' )->cap->create_posts );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'shop_manager' ) ) );
+		$manager_can = current_user_can( 'edit_post', $guide );
+		if ( ! $registered ) {
+			unregister_post_type( 'aa_size_guide' );
+		}
+
+		$this->assertFalse( $editor_can );
+		$this->assertTrue( $manager_can );
+	}
+
 	/**
 	 * A JSON REST request.
 	 *

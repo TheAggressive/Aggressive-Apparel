@@ -36,7 +36,7 @@ class Back_In_Stock_Privacy {
 	 *
 	 * @var int
 	 */
-	private const PENDING_CONFIRMATION_DAYS = 7;
+	public const PENDING_CONFIRMATION_DAYS = 7;
 
 	/**
 	 * Initialize hooks.

@@ -108,6 +108,11 @@ class Client_IP {
 	 */
 	private static function server_value( string $key ): string {
 		$value = filter_input( INPUT_SERVER, $key, FILTER_VALIDATE_IP );
+		// Some FastCGI SAPIs leave INPUT_SERVER empty (null, not false = invalid).
+		// Read $_SERVER then, or the rate limiter would see no IP and fail open.
+		if ( null === $value && isset( $_SERVER[ $key ] ) && is_string( $_SERVER[ $key ] ) ) {
+			$value = filter_var( wp_unslash( $_SERVER[ $key ] ), FILTER_VALIDATE_IP );
+		}
 		$value = is_string( $value ) ? $value : '';
 
 		/**

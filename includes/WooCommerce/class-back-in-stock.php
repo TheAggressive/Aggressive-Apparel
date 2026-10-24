@@ -37,6 +37,13 @@ class Back_In_Stock {
 	private const MAX_SUBSCRIPTIONS_PER_EMAIL = 3;
 
 	/**
+	 * Confirmation resends allowed per pending signup, over its lifetime.
+	 *
+	 * @var int
+	 */
+	private const MAX_CONFIRMATION_RESENDS = 2;
+
+	/**
 	 * Maximum subscribe attempts during the rate-limit window.
 	 *
 	 * @var int
@@ -242,11 +249,13 @@ class Back_In_Stock {
 		);
 
 		if ( is_array( $existing ) ) {
-			// Resend a pending confirmation (the attempt counter above throttles
-			// this). Either way, answer exactly as for a new signup so the
-			// response can't reveal whether an email is on a product's waitlist.
-			if ( 'pending' === ( $existing['status'] ?? '' ) && null !== $confirmation ) {
-				$confirmation->trigger( $product_id, $email, (string) ( $existing['unsubscribe_token'] ?? '' ) );
+			// Resend a pending confirmation, a few times per signup at most so the
+			// form can't be used to flood someone else's inbox. Either way, answer
+			// exactly as for a new signup so the response can't reveal whether an
+			// email is on a product's waitlist.
+			$existing_token = (string) ( $existing['unsubscribe_token'] ?? '' );
+			if ( 'pending' === ( $existing['status'] ?? '' ) && null !== $confirmation && self::claim_confirmation_resend( $existing_token ) ) {
+				$confirmation->trigger( $product_id, $email, $existing_token );
 			}
 			wp_send_json_success( array( 'message' => $this->subscription_message( null !== $confirmation ) ) );
 		}
@@ -279,6 +288,32 @@ class Back_In_Stock {
 		}
 
 		wp_send_json_success( array( 'message' => $this->subscription_message( null !== $confirmation ) ) );
+	}
+
+	/**
+	 * Count one confirmation resend for a pending signup, if any remain.
+	 *
+	 * Lives as long as an unconfirmed signup can, so the cap can't be reset by
+	 * waiting. With the per-email subscription cap this bounds how many emails
+	 * one inbox can be sent without ever confirming.
+	 *
+	 * @param string $token Signup token.
+	 * @return bool Whether a resend may be sent.
+	 */
+	private static function claim_confirmation_resend( string $token ): bool {
+		if ( '' === $token ) {
+			return false;
+		}
+
+		$key  = 'aa_bis_resend_' . hash( 'sha256', $token );
+		$sent = (int) get_transient( $key );
+		if ( $sent >= self::MAX_CONFIRMATION_RESENDS ) {
+			return false;
+		}
+
+		set_transient( $key, $sent + 1, Back_In_Stock_Privacy::PENDING_CONFIRMATION_DAYS * DAY_IN_SECONDS );
+
+		return true;
 	}
 
 	/**

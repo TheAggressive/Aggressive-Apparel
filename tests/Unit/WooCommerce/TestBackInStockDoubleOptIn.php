@@ -303,6 +303,25 @@ class TestBackInStockDoubleOptIn extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Repeat signups stop resending after the per-signup cap, so the form can't
+	 * flood someone else's inbox, yet still answer exactly like a new signup.
+	 *
+	 * @return void
+	 */
+	public function test_confirmation_resends_are_capped(): void {
+		$email = $this->new_email();
+		$first = $this->subscribe( $email );
+		$this->subscribe( $email );
+		$this->subscribe( $email );
+		reset_phpmailer_instance();
+
+		$capped = $this->subscribe( $email );
+
+		$this->assertSame( $first['data']['message'] ?? null, $capped['data']['message'] ?? null );
+		$this->assertFalse( tests_retrieve_phpmailer_instance()->get_sent() );
+	}
+
+	/**
 	 * Opening the confirm link (a GET, as a mail scanner would) changes nothing.
 	 *
 	 * @return void

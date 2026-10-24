@@ -18,7 +18,8 @@
     },
     "spacing": {
       "margin": true,
-      "padding": true
+      "padding": true,
+      "blockGap": true
     },
     "typography": {
       "fontSize": true,
@@ -38,10 +39,6 @@
     "mobileColumns": {
       "type": "number",
       "default": 2
-    },
-    "gap": {
-      "type": "string",
-      "default": ""
     },
     "showCount": {
       "type": "boolean",

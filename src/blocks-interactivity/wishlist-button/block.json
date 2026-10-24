@@ -52,10 +52,10 @@
     "typography": {
       "fontSize": true,
       "lineHeight": true,
-      "fontWeight": true,
+      "__experimentalFontWeight": true,
       "__experimentalDefaultControls": {
         "fontSize": true,
-        "fontWeight": true
+        "__experimentalFontWeight": true
       }
     },
     "color": {
@@ -89,11 +89,6 @@
       "type": "string",
       "default": "default",
       "enum": ["default", "large"]
-    },
-    "alignment": {
-      "type": "string",
-      "default": "left",
-      "enum": ["left", "center", "right"]
     },
     "icon": {
       "type": "string",

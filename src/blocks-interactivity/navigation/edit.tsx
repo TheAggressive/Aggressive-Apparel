@@ -12,13 +12,13 @@ import {
   InspectorControls,
   useBlockProps,
   useInnerBlocksProps,
-  useSettings,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Core radius control (theme units + presets)
+  __experimentalBorderRadiusControl as BorderRadiusControl,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
   BaseControl,
   Button,
-  ColorPalette,
   PanelBody,
   SelectControl,
   TextControl,
@@ -39,6 +39,7 @@ import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 import { __ } from '@wordpress/i18n';
 import { useUniqueBlockId } from '../nav-shared/use-unique-block-id';
 import type { BorderStyle, NavigationAttributes } from './types';
+import { controlValueToRadius, radiusToControlValue } from './border-radius';
 
 const ALLOWED_BLOCKS = [
   'aggressive-apparel/nav-link',
@@ -83,10 +84,6 @@ export default function Edit({
     submenuBorderColor,
     submenuBorderStyle,
   } = attributes;
-
-  const [colors] = useSettings('color.palette') as [
-    Array<{ name: string; slug: string; color: string }> | undefined,
-  ];
 
   // Active theme stylesheet, needed to build the Site Editor link to the mobile
   // navigation template part (template part IDs are "<stylesheet>//<slug>").
@@ -208,18 +205,25 @@ export default function Edit({
               'aggressive-apparel'
             )}
           </p>
-          <BaseControl
-            id='indicator-color'
-            label={__('Color', 'aggressive-apparel')}
-          >
-            <ColorPalette
-              colors={colors}
-              value={indicatorColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ indicatorColor: value })
-              }
+          <div className='aa-adaptive-color-panel'>
+            <AdaptiveColorPanelHeader
+              description={__(
+                'Indicator color can differ in light and dark mode.',
+                'aggressive-apparel'
+              )}
             />
-          </BaseControl>
+            <AdaptiveCssValueSettingsDropdown
+              panelId={`${clientId}-nav-indicator`}
+              settings={[
+                {
+                  id: 'indicator',
+                  label: __('Color', 'aggressive-apparel'),
+                  value: indicatorColor,
+                  onChange: v => setAttributes({ indicatorColor: v }),
+                },
+              ]}
+            />
+          </div>
         </PanelBody>
 
         <PanelBody
@@ -284,21 +288,27 @@ export default function Edit({
         </PanelBody>
 
         <PanelBody
-          title={__('Submenu Border', 'aggressive-apparel')}
+          title={__('Submenu Panel Border', 'aggressive-apparel')}
           initialOpen={false}
         >
-          <UnitControl
-            label={__('Border Radius', 'aggressive-apparel')}
-            value={submenuBorderRadius}
-            onChange={(value: string | undefined) =>
-              setAttributes({ submenuBorderRadius: value })
+          <p
+            style={{
+              ...EDITOR_HELP_TEXT_STYLE,
+              marginBottom: '12px',
+            }}
+          >
+            {__(
+              "Applies to every submenu panel. A submenu block's own Border setting styles its menu item instead.",
+              'aggressive-apparel'
+            )}
+          </p>
+          <BorderRadiusControl
+            values={radiusToControlValue(submenuBorderRadius)}
+            onChange={value =>
+              setAttributes({
+                submenuBorderRadius: controlValueToRadius(value),
+              })
             }
-            units={[
-              { value: 'px', label: 'px', default: 0 },
-              { value: 'em', label: 'em', default: 0 },
-              { value: 'rem', label: 'rem', default: 0 },
-              { value: '%', label: '%', default: 0 },
-            ]}
           />
           <UnitControl
             label={__('Border Width', 'aggressive-apparel')}

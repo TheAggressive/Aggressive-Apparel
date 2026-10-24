@@ -13,14 +13,14 @@
     }
   },
   "supports": {
-    "align": ["left", "center", "right"],
     "spacing": {
       "margin": true,
       "padding": true
     },
     "typography": {
       "fontSize": true,
-      "lineHeight": true
+      "lineHeight": true,
+      "textAlign": true
     },
     "color": {
       "text": true,
@@ -47,11 +47,6 @@
       "type": "string",
       "default": "medium",
       "enum": ["small", "medium", "large"]
-    },
-    "alignment": {
-      "type": "string",
-      "default": "left",
-      "enum": ["left", "center", "right"]
     },
     "iconStyle": {
       "type": "string",

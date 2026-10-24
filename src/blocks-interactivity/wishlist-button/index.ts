@@ -17,7 +17,6 @@ type WishlistButtonAttributes = {
   showIcon: boolean;
   iconOnly: boolean;
   size: 'default' | 'large';
-  alignment: 'left' | 'center' | 'right';
 };
 
 registerThemeBlock<WishlistButtonAttributes>(metadata, {

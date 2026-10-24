@@ -8,17 +8,11 @@
  * @package Aggressive_Apparel
  */
 
-import {
-  AlignmentControl,
-  BlockControls,
-  useBlockProps,
-} from '@wordpress/block-editor';
-import type { BlockEditProps } from '@wordpress/blocks';
+import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
 export type ProductRatingAttributes = {
   isDescendentOfSingleProductTemplate: boolean;
-  textAlign: string;
 };
 
 const MARK_COUNT = 5;
@@ -35,46 +29,33 @@ function Marks() {
   );
 }
 
-export default function Edit({
-  attributes,
-  setAttributes,
-}: BlockEditProps<ProductRatingAttributes>) {
-  const { textAlign } = attributes;
-  const blockProps = useBlockProps({
-    className: `aa-product-rating${textAlign ? ` has-text-align-${textAlign}` : ''}`,
-  });
+// Text alignment comes from native `typography.textAlign` support.
+export default function Edit() {
+  const blockProps = useBlockProps({ className: 'aa-product-rating' });
 
   return (
-    <>
-      <BlockControls>
-        <AlignmentControl
-          value={textAlign}
-          onChange={value => setAttributes({ textAlign: value ?? '' })}
-        />
-      </BlockControls>
-      <div {...blockProps}>
-        <div className='aa-product-rating__container'>
+    <div {...blockProps}>
+      <div className='aa-product-rating__container'>
+        <span
+          className='aa-rating'
+          role='img'
+          aria-label={__('Rated 3.5 out of 5', 'aggressive-apparel')}
+        >
+          <span className='aa-rating__track' aria-hidden='true'>
+            <Marks />
+          </span>
           <span
-            className='aa-rating'
-            role='img'
-            aria-label={__('Rated 3.5 out of 5', 'aggressive-apparel')}
+            className='aa-rating__fill'
+            aria-hidden='true'
+            style={{ width: PREVIEW_FILL }}
           >
-            <span className='aa-rating__track' aria-hidden='true'>
-              <Marks />
-            </span>
-            <span
-              className='aa-rating__fill'
-              aria-hidden='true'
-              style={{ width: PREVIEW_FILL }}
-            >
-              <Marks />
-            </span>
+            <Marks />
           </span>
-          <span className='aa-product-rating__count'>
-            {__('(2 customer reviews)', 'aggressive-apparel')}
-          </span>
-        </div>
+        </span>
+        <span className='aa-product-rating__count'>
+          {__('(2 customer reviews)', 'aggressive-apparel')}
+        </span>
       </div>
-    </>
+    </div>
   );
 }

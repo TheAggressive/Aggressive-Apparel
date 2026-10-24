@@ -22,20 +22,20 @@
     "spacing": {
       "padding": true
     },
-    "border": {
+    "__experimentalBorder": {
       "color": true,
       "radius": true,
       "style": true,
       "width": true
     },
     "typography": {
-      "fontFamily": true,
+      "__experimentalFontFamily": true,
       "fontSize": true,
-      "fontStyle": true,
-      "fontWeight": true,
-      "letterSpacing": true,
+      "__experimentalFontStyle": true,
+      "__experimentalFontWeight": true,
+      "__experimentalLetterSpacing": true,
       "lineHeight": true,
-      "textTransform": true
+      "__experimentalTextTransform": true
     }
   },
   "render": "file:./render.php",

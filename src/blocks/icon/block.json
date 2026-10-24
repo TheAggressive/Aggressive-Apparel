@@ -24,10 +24,6 @@
     "isDecorative": {
       "type": "boolean",
       "default": true
-    },
-    "textAlign": {
-      "type": "string",
-      "default": ""
     }
   },
   "supports": {
@@ -39,6 +35,9 @@
     "spacing": {
       "margin": true,
       "padding": true
+    },
+    "typography": {
+      "textAlign": true
     },
     "className": true
   },

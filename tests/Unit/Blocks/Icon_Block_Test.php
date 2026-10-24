@@ -225,6 +225,39 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Native typography.textAlign support emits the alignment class once.
+	 */
+	public function test_frontend_renders_native_text_align_once(): void {
+		$html = $this->render_icon_block(
+			array(
+				'icon'  => 'shipping-box',
+				'style' => array( 'typography' => array( 'textAlign' => 'right' ) ),
+			)
+		);
+
+		$this->assertSame( 1, substr_count( $html, 'has-text-align-right' ) );
+	}
+
+	/**
+	 * The legacy fallback defers to native support and ignores invalid values.
+	 */
+	public function test_legacy_text_align_class_helper(): void {
+		$this->assertSame( 'has-text-align-center', aggressive_apparel_legacy_text_align_class( array( 'alignment' => 'center' ), 'alignment', 'align' ) );
+		$this->assertSame( 'has-text-align-right', aggressive_apparel_legacy_text_align_class( array( 'align' => 'right' ), 'alignment', 'align' ) );
+		$this->assertSame( '', aggressive_apparel_legacy_text_align_class( array( 'align' => 'wide' ), 'align' ) );
+		$this->assertSame(
+			'',
+			aggressive_apparel_legacy_text_align_class(
+				array(
+					'textAlign' => 'center',
+					'style'     => array( 'typography' => array( 'textAlign' => 'left' ) ),
+				),
+				'textAlign'
+			)
+		);
+	}
+
+	/**
 	 * Meaningful icons expose one accessible image label on the wrapper.
 	 */
 	public function test_frontend_renders_meaningful_icon_accessibly(): void {

@@ -70,6 +70,14 @@ if ( ! empty( $attributes['fontSize'] ) ) {
 	$panel_font_size = $resolve_wp_value( (string) $attributes['style']['typography']['fontSize'] );
 }
 
+// Font family from the Typography sidebar.
+$panel_font_family = '';
+if ( ! empty( $attributes['fontFamily'] ) ) {
+	$panel_font_family = 'var(--wp--preset--font-family--' . sanitize_html_class( $attributes['fontFamily'] ) . ')';
+} elseif ( isset( $attributes['style']['typography']['fontFamily'] ) ) {
+	$panel_font_family = $resolve_wp_value( (string) $attributes['style']['typography']['fontFamily'] );
+}
+
 // Padding from the Dimensions sidebar — applied to the scrollable panel body.
 $panel_body_style = '';
 $block_padding    = isset( $attributes['style']['spacing']['padding'] )
@@ -188,6 +196,9 @@ if ( $panel_text_color ) {
 if ( $panel_font_size ) {
 	$panel_style_parts[] = sprintf( 'font-size: %s', esc_attr( $panel_font_size ) );
 	$panel_style_parts[] = sprintf( '--aa-nav-panel-item-font-size: %s', esc_attr( $panel_font_size ) );
+}
+if ( $panel_font_family ) {
+	$panel_style_parts[] = sprintf( 'font-family: %s', esc_attr( $panel_font_family ) );
 }
 if ( $panel_hover_color ) {
 	$panel_style_parts[] = sprintf( '--panel-link-hover-color: %s', esc_attr( $panel_hover_color ) );

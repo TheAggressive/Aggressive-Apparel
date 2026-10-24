@@ -12,16 +12,11 @@ $label      = isset( $attributes['label'] ) ? sanitize_text_field( (string) $att
 $label_dark = isset( $attributes['labelDark'] ) ? sanitize_text_field( (string) $attributes['labelDark'] ) : '';
 $show_label = isset( $attributes['showLabel'] ) ? (bool) $attributes['showLabel'] : false;
 $size       = isset( $attributes['size'] ) ? sanitize_key( (string) $attributes['size'] ) : 'medium';
-$alignment  = isset( $attributes['alignment'] ) ? sanitize_key( (string) $attributes['alignment'] ) : 'left';
 $icon_style = isset( $attributes['iconStyle'] ) ? sanitize_key( (string) $attributes['iconStyle'] ) : 'solid';
 $stroke     = isset( $attributes['iconStrokeWidth'] ) ? (float) $attributes['iconStrokeWidth'] : 1.75;
 
 if ( ! in_array( $size, array( 'small', 'medium', 'large' ), true ) ) {
 	$size = 'medium';
-}
-
-if ( ! in_array( $alignment, array( 'left', 'center', 'right' ), true ) ) {
-	$alignment = 'left';
 }
 
 if ( ! in_array( $icon_style, array( 'solid', 'outline' ), true ) ) {
@@ -73,11 +68,15 @@ foreach ( $color_style_variables as $attribute_name => $css_variable ) {
 
 $color_style        = safecss_filter_attr( $color_style );
 $wrapper_attributes = array(
-	'class' => sprintf(
-		'is-size-%s has-text-align-%s is-icon-style-%s',
-		$size,
-		$alignment,
-		$icon_style
+	// Native `typography.textAlign` adds its own class; this covers legacy
+	// blocks that still carry `alignment` or the removed `align` support.
+	'class' => trim(
+		sprintf(
+			'is-size-%s is-icon-style-%s %s',
+			$size,
+			$icon_style,
+			aggressive_apparel_legacy_text_align_class( $attributes, 'alignment', 'align' )
+		)
 	),
 );
 

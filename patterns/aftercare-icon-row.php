@@ -24,7 +24,7 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:aggressive-apparel/icon {"icon":"info","iconSize":36,"textAlign":"center","textColor":"accent"} /-->
+			<!-- wp:aggressive-apparel/icon {"icon":"info","iconSize":36,"textColor":"accent","style":{"typography":{"textAlign":"center"}}} /-->
 
 			<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700","letterSpacing":"0.06em"}},"fontSize":"large"} -->
 			<h3 class="wp-block-heading has-text-align-center has-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-style:normal;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"><?php echo esc_html__( 'Wash cold', 'aggressive-apparel' ); ?></h3>
@@ -38,7 +38,7 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:aggressive-apparel/icon {"icon":"check","iconSize":36,"textAlign":"center","textColor":"accent"} /-->
+			<!-- wp:aggressive-apparel/icon {"icon":"check","iconSize":36,"textColor":"accent","style":{"typography":{"textAlign":"center"}}} /-->
 
 			<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700","letterSpacing":"0.06em"}},"fontSize":"large"} -->
 			<h3 class="wp-block-heading has-text-align-center has-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-style:normal;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"><?php echo esc_html__( 'Hang dry', 'aggressive-apparel' ); ?></h3>
@@ -52,7 +52,7 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:aggressive-apparel/icon {"icon":"heart","iconSize":36,"textAlign":"center","textColor":"accent"} /-->
+			<!-- wp:aggressive-apparel/icon {"icon":"heart","iconSize":36,"textColor":"accent","style":{"typography":{"textAlign":"center"}}} /-->
 
 			<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700","letterSpacing":"0.06em"}},"fontSize":"large"} -->
 			<h3 class="wp-block-heading has-text-align-center has-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-style:normal;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"><?php echo esc_html__( 'Wear it out', 'aggressive-apparel' ); ?></h3>

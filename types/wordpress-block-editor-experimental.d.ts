@@ -53,6 +53,25 @@ declare module '@wordpress/block-editor' {
 
   export const __experimentalColorGradientControl: ComponentType<ColorGradientControlProps>;
 
+  /**
+   * Core Border → Radius control (linked / per-corner, theme units + presets).
+   * Runtime export; missing from `@types/wordpress__block-editor`.
+   */
+  export type BorderRadiusValue =
+    | string
+    | {
+        topLeft?: string;
+        topRight?: string;
+        bottomRight?: string;
+        bottomLeft?: string;
+      };
+
+  export const __experimentalBorderRadiusControl: ComponentType<{
+    values: BorderRadiusValue | undefined;
+    onChange: (value: BorderRadiusValue | undefined) => void;
+    presets?: unknown;
+  }>;
+
   export function __experimentalUseMultipleOriginColorsAndGradients(): Record<
     string,
     unknown

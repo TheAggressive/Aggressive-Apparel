@@ -163,11 +163,8 @@ class Price_Display {
 	/**
 	 * Resolve the consistent active + regular "from" amounts, or null when N/A.
 	 *
-	 * Both amounts are derived from a single `get_variation_prices()` snapshot so
-	 * they always agree: applicability is judged on the active (displayed) range,
-	 * and the regular amount is the regular price of the same cheapest variation
-	 * the active minimum represents (falling back to the active minimum when that
-	 * variation carries no regular price, which keeps `regular >= active`).
+	 * Both come from Sale_Pricing::cheapest_variation_prices(), the same pair
+	 * the "Save X%" line and the sale badge describe.
 	 *
 	 * @param \WC_Product $product Product object.
 	 * @return array{price: float, regular: float}|null Consistent pair, or null to keep the default.
@@ -177,40 +174,17 @@ class Price_Display {
 			return null;
 		}
 
-		$variation_prices = $product->get_variation_prices( true );
-		$active           = isset( $variation_prices['price'] ) && is_array( $variation_prices['price'] )
-			? array_map( 'floatval', $variation_prices['price'] )
-			: array();
-
-		if ( empty( $active ) ) {
-			return null;
-		}
-
-		$min = min( $active );
-		$max = max( $active );
+		$cheapest = Sale_Pricing::cheapest_variation_prices( $product );
 
 		// No spread between variations: WooCommerce already renders a single,
 		// exact price — prefixing it with "From" would misrepresent it.
-		if ( $min === $max ) {
+		if ( null === $cheapest || $cheapest['price'] === $cheapest['max'] ) {
 			return null;
 		}
 
-		// Regular price of the cheapest variation(s) — the honest "was" figure
-		// for the "From" price. Among any variations tied at the active minimum,
-		// take the lowest regular so the implied discount is never overstated.
-		$regular_prices    = isset( $variation_prices['regular_price'] ) && is_array( $variation_prices['regular_price'] )
-			? $variation_prices['regular_price']
-			: array();
-		$cheapest_regulars = array();
-		foreach ( $active as $variation_id => $amount ) {
-			if ( $amount === $min && isset( $regular_prices[ $variation_id ] ) && '' !== $regular_prices[ $variation_id ] ) {
-				$cheapest_regulars[] = (float) $regular_prices[ $variation_id ];
-			}
-		}
-
 		return array(
-			'price'   => $min,
-			'regular' => empty( $cheapest_regulars ) ? $min : min( $cheapest_regulars ),
+			'price'   => $cheapest['price'],
+			'regular' => $cheapest['regular'],
 		);
 	}
 

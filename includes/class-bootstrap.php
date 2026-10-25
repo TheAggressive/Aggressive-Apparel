@@ -344,8 +344,7 @@ class Bootstrap {
 		if ( class_exists( 'WooCommerce' ) ) {
 			$classes[] = 'woocommerce-active';
 
-			if ( \function_exists( 'is_shop' ) && \function_exists( 'is_product_category' ) && \function_exists( 'is_product_tag' ) &&
-				( \is_shop() || \is_product_category() || \is_product_tag() ) ) {
+			if ( WooCommerce\Product_Context::is_product_archive() ) {
 				$classes[] = 'woocommerce-shop-page';
 			}
 

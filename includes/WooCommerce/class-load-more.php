@@ -419,10 +419,7 @@ class Load_More {
 	 * @return bool
 	 */
 	private function is_shop_page(): bool {
-		// Shop, plus any product taxonomy archive — category, tag, brand and
-		// product-attribute (pa_*) archives all render a product grid.
-		return Product_Context::is_product_archive()
-			|| ( function_exists( 'is_product_taxonomy' ) && \is_product_taxonomy() );
+		return Product_Context::is_product_archive();
 	}
 
 	/**

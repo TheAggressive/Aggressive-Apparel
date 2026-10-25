@@ -29,16 +29,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Product_Context {
 
 	/**
-	 * Whether the current request is a product archive (shop, category, or tag).
+	 * Whether the current request is a product archive.
+	 *
+	 * The shop plus every product taxonomy archive WooCommerce recognises —
+	 * categories, tags, brands and public attribute archives (`pa_*`, e.g.
+	 * /collection/womens/). WooCommerce renders all of them through the same
+	 * product-catalog template family, so storefront features must too.
 	 *
 	 * @return bool
 	 */
 	public static function is_product_archive(): bool {
-		if ( ! function_exists( 'is_shop' ) ) {
+		if ( ! function_exists( 'is_shop' ) || ! function_exists( 'is_product_taxonomy' ) ) {
 			return false;
 		}
 
-		return is_shop() || is_product_category() || is_product_tag();
+		return is_shop() || is_product_taxonomy();
 	}
 
 	/**

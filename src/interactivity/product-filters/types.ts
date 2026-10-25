@@ -72,6 +72,12 @@ export const ATTRIBUTE_FILTERS: readonly AttributeFilterConfig[] = [
   },
 ];
 
+export interface ArchiveTerm {
+  taxonomy: string;
+  slug: string;
+  link: string;
+}
+
 export interface ProductFiltersState {
   selectedCategories: string[];
   selectedColors: string[];
@@ -98,6 +104,8 @@ export interface ProductFiltersState {
   collectionTerms: CollectionTerm[];
   selectedCollections: string[];
   currentCategorySlug: string;
+  /** Tag / brand / attribute archive being browsed; empty strings elsewhere. */
+  archiveTerm: ArchiveTerm;
   salesCategorySlug: string;
   i18n: {
     filtersAppliedSingular: string;

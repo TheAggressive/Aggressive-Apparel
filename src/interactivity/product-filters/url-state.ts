@@ -1,4 +1,8 @@
-import { ATTRIBUTE_FILTERS, type ProductFiltersState } from './types';
+import {
+  ATTRIBUTE_FILTERS,
+  type AttributeFilterConfig,
+  type ProductFiltersState,
+} from './types';
 
 /**
  * WooCommerce `orderby` values the server applies (mirrors
@@ -108,6 +112,61 @@ export function getCategorySlugFromPath(
   return null;
 }
 
+/** Pathname of the tag / brand / attribute archive the page was loaded on. */
+export function getArchivePath(state: ProductFiltersState): string | null {
+  if (!state.archiveTerm.link) return null;
+  try {
+    return new URL(state.archiveTerm.link, window.location.origin).pathname;
+  } catch {
+    return null;
+  }
+}
+
+/** The attribute filter an attribute archive's own term belongs to. */
+function getArchiveAttribute(
+  state: ProductFiltersState
+): AttributeFilterConfig | undefined {
+  return ATTRIBUTE_FILTERS.find(
+    filter => filter.taxonomy === state.archiveTerm.taxonomy
+  );
+}
+
+/** Whether the current pathname is the archive (any page of it). */
+function isOnArchivePath(state: ProductFiltersState): boolean {
+  const archivePath = getArchivePath(state);
+  if (!archivePath) return false;
+  const path = window.location.pathname.replace(/page\/\d+\/?$/, '');
+  return path === archivePath;
+}
+
+/**
+ * The archive path when it can still carry the selection: no category or
+ * Sales route applies, and on an attribute archive (e.g. /collection/womens/)
+ * its term is that attribute's only pick — deselecting it or adding a sibling
+ * widens the result beyond the archive, so those go through the shop.
+ */
+function getScopingArchivePath(
+  state: ProductFiltersState,
+  salesPath: string | null
+): string | null {
+  const archivePath = getArchivePath(state);
+  if (
+    !archivePath ||
+    state.selectedCategories.length > 0 ||
+    (state.onSaleOnly && salesPath)
+  ) {
+    return null;
+  }
+
+  const attribute = getArchiveAttribute(state);
+  if (!attribute) return archivePath;
+
+  const selected = state[attribute.stateKey];
+  return selected.length === 1 && selected[0] === state.archiveTerm.slug
+    ? archivePath
+    : null;
+}
+
 /** Build the canonical shareable URL for the current filter state. */
 export function buildFilterUrl(
   state: ProductFiltersState,
@@ -115,9 +174,14 @@ export function buildFilterUrl(
 ): string {
   const params = new URLSearchParams();
   const salesPath = getSalesCategoryPath(state);
+  const archivePath = getScopingArchivePath(state, salesPath);
+  // The archive path already names its own term; don't repeat it as a param.
+  const archiveAttribute = archivePath ? getArchiveAttribute(state) : undefined;
   let basePath: string;
 
-  if (state.onSaleOnly && salesPath) {
+  if (archivePath) {
+    basePath = archivePath;
+  } else if (state.onSaleOnly && salesPath) {
     basePath = salesPath;
     if (visibleCategories.length > 0) {
       params.set('cat', visibleCategories.join(','));
@@ -138,6 +202,7 @@ export function buildFilterUrl(
   }
 
   for (const filter of ATTRIBUTE_FILTERS) {
+    if (filter === archiveAttribute) continue;
     const selected = state[filter.stateKey];
     if (selected.length > 0) params.set(filter.urlParam, selected.join(','));
   }
@@ -177,6 +242,14 @@ export function applyUrlState(
     state[filter.stateKey] = (params.get(filter.urlParam) || '')
       .split(',')
       .filter(Boolean);
+  }
+  // An attribute archive's own term, from the path (/collection/womens/ →
+  // collection 'womens'), so its chip shows selected and facets stay scoped.
+  const archiveAttribute = getArchiveAttribute(state);
+  if (archiveAttribute && isOnArchivePath(state)) {
+    state[archiveAttribute.stateKey] = [
+      ...new Set([state.archiveTerm.slug, ...state[archiveAttribute.stateKey]]),
+    ];
   }
   state.priceMin = Math.max(
     parseInt(params.get('min_price') || '0', 10) || 0,

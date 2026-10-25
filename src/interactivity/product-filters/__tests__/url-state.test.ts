@@ -14,6 +14,7 @@ function state(
     priceRange: { min: 0, max: 100 },
     salesCategorySlug: 'sales',
     currentCategorySlug: '',
+    archiveTerm: { taxonomy: '', slug: '', link: '' },
     inStockOnly: false,
     onSaleOnly: false,
     orderby: '',
@@ -187,5 +188,125 @@ describe('applyUrlState', () => {
     expect(buildFilterUrl(state({ selectedSizes: ['m'] }), [])).toBe(
       '/shop/?size=m'
     );
+  });
+});
+
+describe('attribute and tag archives', () => {
+  const womens = {
+    archiveTerm: {
+      taxonomy: 'pa_collection',
+      slug: 'womens',
+      link: 'https://example.com/collection/womens/',
+    },
+  };
+
+  beforeEach(() => window.history.replaceState({}, '', '/collection/womens/'));
+
+  it('pre-selects the collection archive term from the path', () => {
+    const s = state(womens);
+
+    applyUrlState(s, new URLSearchParams(''));
+
+    expect(s.selectedCollections).toEqual(['womens']);
+    expect(s.selectedCategories).toEqual([]);
+  });
+
+  it('pre-selects the term on paginated archive pages', () => {
+    window.history.replaceState({}, '', '/collection/womens/page/2/');
+    const s = state(womens);
+
+    applyUrlState(s, new URLSearchParams(''));
+
+    expect(s.selectedCollections).toEqual(['womens']);
+  });
+
+  it('keeps the collection path when refining it', () => {
+    expect(
+      buildFilterUrl(
+        state({
+          ...womens,
+          selectedCollections: ['womens'],
+          selectedColors: ['black'],
+          orderby: 'price',
+        }),
+        []
+      )
+    ).toBe('/collection/womens/?color=black&orderby=price');
+  });
+
+  it('round-trips a refined collection archive', () => {
+    const url = buildFilterUrl(
+      state({
+        ...womens,
+        selectedCollections: ['womens'],
+        selectedSizes: ['m'],
+      }),
+      []
+    );
+    window.history.replaceState({}, '', url);
+    const restored = state(womens);
+
+    applyUrlState(restored, new URLSearchParams(window.location.search));
+
+    expect(restored.selectedCollections).toEqual(['womens']);
+    expect(restored.selectedSizes).toEqual(['m']);
+  });
+
+  it('leaves the archive when its term is deselected or widened', () => {
+    expect(
+      buildFilterUrl(
+        state({ ...womens, selectedCollections: [], selectedColors: ['red'] }),
+        []
+      )
+    ).toBe('/shop/?color=red');
+    expect(
+      buildFilterUrl(
+        state({ ...womens, selectedCollections: ['womens', 'mens'] }),
+        []
+      )
+    ).toBe('/shop/?collection=womens%2Cmens');
+  });
+
+  it('keeps the collection as a parameter on a category route', () => {
+    expect(
+      buildFilterUrl(
+        state({
+          ...womens,
+          selectedCategories: ['shirts'],
+          selectedCollections: ['womens'],
+        }),
+        ['shirts']
+      )
+    ).toBe('/shop/shirts/?collection=womens');
+  });
+
+  it('clearing everything on a collection archive returns to the shop', () => {
+    expect(buildFilterUrl(state(womens), [])).toBe('/shop/');
+  });
+
+  it('keeps a tag archive path while refining it', () => {
+    window.history.replaceState({}, '', '/tag/summer/');
+    const tag = {
+      archiveTerm: {
+        taxonomy: 'product_tag',
+        slug: 'summer',
+        link: 'https://example.com/tag/summer/',
+      },
+    };
+    const s = state(tag);
+
+    applyUrlState(s, new URLSearchParams('color=black'));
+
+    expect(s.selectedCollections).toEqual([]);
+    expect(buildFilterUrl(s, [])).toBe('/tag/summer/?color=black');
+  });
+
+  it('ignores the archive term away from its path', () => {
+    window.history.replaceState({}, '', '/shop/');
+    const s = state(womens);
+
+    applyUrlState(s, new URLSearchParams(''));
+
+    expect(s.selectedCollections).toEqual([]);
   });
 });

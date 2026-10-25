@@ -64,11 +64,10 @@ export interface StoreApiVariationAttribute {
   taxonomy?: string;
 }
 
+/** An entry in a parent product's `variations` list: id + attributes only. */
 export interface StoreApiVariation {
   id: number;
   attributes?: StoreApiVariationAttribute[];
-  image?: StoreApiImage;
-  prices?: Record<string, unknown>;
 }
 
 export interface StoreApiProduct {
@@ -117,7 +116,7 @@ export interface ResolvedVariation {
   }>;
   image: string;
   imageAlt: string;
-  prices: Record<string, unknown> | null;
+  prices: StoreApiPrices;
   inStock: boolean;
 }
 

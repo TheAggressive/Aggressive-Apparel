@@ -22,8 +22,9 @@ import {
   decodeEntities,
   storeApiPost,
 } from '@aggressive-apparel/helpers';
-import type { PriceResult, StoreApiPrices } from '@aggressive-apparel/helpers';
+import type { PriceResult } from '@aggressive-apparel/helpers';
 import { calculateSalePercentage } from './product-data';
+import { fetchVariations } from './variations';
 import {
   applyProductResponse,
   applyVariationImage,
@@ -52,7 +53,6 @@ let triggerElement: HTMLElement | null = null;
 // when the user opens a different product before the previous one loads.
 let fetchController: AbortController | null = null;
 
-// Cache fetched variation image data so repeated selections don't refetch.
 /** Store API nonce accessors for storeApiPost (read at request time). */
 const cartNonce = {
   get: (): string => state.cartNonce,
@@ -60,11 +60,6 @@ const cartNonce = {
     state.cartNonce = value;
   },
 };
-
-const variationImageCache = new Map<
-  number,
-  { src: string; alt: string } | null
->();
 
 store<QuickViewStore>('aggressive-apparel/quick-view', {
   actions: {
@@ -135,7 +130,6 @@ store<QuickViewStore>('aggressive-apparel/quick-view', {
       state.availableOptions = {};
       state.quantity = 1;
       state.cartError = '';
-      variationImageCache.clear();
       state.productImages = [];
       state._originalImages = [];
       state.activeImageIndex = 0;
@@ -168,14 +162,20 @@ store<QuickViewStore>('aggressive-apparel/quick-view', {
       const base = state.restBase || '/wp-json/wc/store/v1/products/';
       const url = `${base}${productId}`;
 
-      fetch(url, { signal: fetchController.signal })
-        .then((res: Response) => {
+      const { signal } = fetchController;
+      // The product and its variations load in parallel.
+      Promise.all([
+        fetch(url, { signal }).then((res: Response) => {
           if (!res.ok) {
             throw new Error(`HTTP ${res.status}`);
           }
-          return res.json();
-        })
-        .then(applyProductResponse)
+          return res.json() as Promise<StoreApiProduct>;
+        }),
+        fetchVariations(base, productId, signal),
+      ])
+        .then(([product, variations]) =>
+          applyProductResponse(product, variations)
+        )
         .catch((err: Error) => {
           // Aborted fetches are expected (user opened a different product).
           if (err?.name === 'AbortError') return;
@@ -353,7 +353,7 @@ store<QuickViewStore>('aggressive-apparel/quick-view', {
       // Re-dim options that the new selection makes impossible / sold out.
       state.availableOptions = computeAvailableOptions();
 
-      // Deep-copy variations out of the Interactivity API proxy so
+      // Deep-copy the match keys out of the Interactivity API proxy so
       // matchVariation sees plain objects (avoids potential proxy
       // iteration edge cases with nested arrays/objects).
       const plainVariations = state.productVariations.map(
@@ -365,51 +365,33 @@ store<QuickViewStore>('aggressive-apparel/quick-view', {
             value: a.value,
             taxonomy: a.taxonomy,
           })),
-          prices: v.prices
-            ? {
-                price: (v.prices as Record<string, unknown>).price,
-                regular_price: (v.prices as Record<string, unknown>)
-                  .regular_price,
-                sale_price: (v.prices as Record<string, unknown>).sale_price,
-                currency_minor_unit: (v.prices as Record<string, unknown>)
-                  .currency_minor_unit,
-                currency_prefix: (v.prices as Record<string, unknown>)
-                  .currency_prefix,
-                currency_suffix: (v.prices as Record<string, unknown>)
-                  .currency_suffix,
-              }
-            : null,
-          image: v.image,
-          imageAlt: v.imageAlt,
         })
       );
 
       // Try to match a variation.
       const match = matchVariation(plainVariations, newSelected);
+      const matched = match
+        ? state.productVariations.find(
+            (v: ResolvedVariation) => v.id === match.id
+          )
+        : undefined;
 
-      if (match) {
-        state.matchedVariationId = match.id;
+      if (matched) {
+        state.matchedVariationId = matched.id;
 
         // Update price from the variation's own pricing data.
-        if (match.prices) {
-          const priceData: PriceResult = parsePrice(
-            match.prices as StoreApiPrices
-          );
+        const { prices } = matched;
+        if (prices) {
+          const priceData: PriceResult = parsePrice(prices);
           state.productPrice = priceData.current;
           state.productRegularPrice = priceData.regular;
           state.productOnSale = priceData.onSale;
 
           // Update sale badge.
           if (priceData.onSale) {
-            const regular = parseInt(
-              String((match.prices as Record<string, unknown>).regular_price),
-              10
-            );
+            const regular = parseInt(String(prices.regular_price), 10);
             const sale = parseInt(
-              String(
-                (match.prices as Record<string, unknown>).sale_price ||
-                  (match.prices as Record<string, unknown>).price
-              ),
+              String(prices.sale_price || prices.price),
               10
             );
             state.salePercentage = calculateSalePercentage(regular, sale);
@@ -423,34 +405,10 @@ store<QuickViewStore>('aggressive-apparel/quick-view', {
         // doesn't trigger (e.g. inside drawers or after populateModalDOM).
         syncPriceDOM();
 
-        // Fetch the variation's own image from the Store API.
-        const vid = match.id;
-        if (variationImageCache.has(vid)) {
-          applyVariationImage(variationImageCache.get(vid) || null);
-        } else {
-          const base = state.restBase || '/wp-json/wc/store/v1/products/';
-          fetch(`${base}${vid}`)
-            .then((res: Response) => (res.ok ? res.json() : null))
-            .then((data: StoreApiProduct | null) => {
-              if (!data) return;
-              const rawSrc =
-                data.images && data.images.length > 0 ? data.images[0].src : '';
-              const img =
-                rawSrc && /^https?:\/\//i.test(rawSrc)
-                  ? {
-                      src: rawSrc,
-                      alt:
-                        (data.images?.[0]?.alt as string) || state.productName,
-                    }
-                  : null;
-              variationImageCache.set(vid, img);
-              // Only apply if this variation is still the active match.
-              if (state.matchedVariationId === vid) {
-                applyVariationImage(img);
-              }
-            })
-            .catch(() => {});
-        }
+        // The variation's own image arrived with the variations request.
+        applyVariationImage(
+          matched.image ? { src: matched.image, alt: matched.imageAlt } : null
+        );
       } else {
         state.matchedVariationId = 0;
 

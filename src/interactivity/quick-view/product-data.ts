@@ -250,35 +250,33 @@ export function buildAttributes(
  * name (e.g. "Size") but no taxonomy slug. The `nameToSlug` map
  * (built from resolved product attributes) lets us add the taxonomy
  * slug so matchVariation() can find the correct selectedAttributes key.
+ *
+ * The parent's `variations` list carries only id + attributes. Prices,
+ * stock and image come from `details`: the same variations fetched from
+ * the Store API itself (`?type=variation&parent=…`), so prices follow the
+ * store's tax-display setting exactly as WooCommerce shows them elsewhere.
+ * A variation missing from `details` (e.g. that request failed) falls back
+ * to the parent's prices and stays selectable rather than falsely dimmed.
  */
 export function buildVariations(
   product: StoreApiProduct,
-  nameToSlug: Record<string, string> = {}
+  nameToSlug: Record<string, string> = {},
+  details: StoreApiProduct[] = []
 ): ResolvedVariation[] {
   if (!product.variations || product.variations.length === 0) {
     return [];
   }
 
-  // Per-variation prices provided by our PHP ExtendSchema extension.
-  const varPrices: Record<string, Record<string, unknown>> = (product
-    .extensions?.['aggressive-apparel/variation-prices'] as Record<
-    string,
-    Record<string, unknown>
-  >) || {};
+  const byId = new Map<number, StoreApiProduct>();
+  for (const detail of details) {
+    if (detail && typeof detail.id === 'number') {
+      byId.set(detail.id, detail);
+    }
+  }
 
   return product.variations.map((v: StoreApiVariation) => {
-    // Merge per-variation prices with parent currency metadata so
-    // parsePrice() has everything it needs.
-    const extPrices = varPrices[String(v.id)];
-    const prices = extPrices
-      ? { ...product.prices, ...extPrices }
-      : v.prices || product.prices;
-
-    // Per-variation stock from our PHP extension; default in-stock when the
-    // extension didn't run (keeps options selectable rather than falsely dim).
-    const inStock = extPrices
-      ? (extPrices as Record<string, unknown>).is_in_stock !== false
-      : true;
+    const detail = byId.get(v.id);
+    const rawSrc = detail?.images?.[0]?.src || '';
 
     return {
       id: v.id,
@@ -293,15 +291,12 @@ export function buildVariations(
             '',
         })
       ),
-      image:
-        v.image && v.image.src
-          ? v.image.src
-          : product.images && product.images.length > 0
-            ? product.images[0].src
-            : '',
-      imageAlt: v.image && v.image.alt ? v.image.alt : product.name || '',
-      prices: prices as Record<string, unknown>,
-      inStock,
+      // The variation's own image (WooCommerce falls back to the parent's),
+      // applied to the gallery when this variation is matched.
+      image: /^https?:\/\//i.test(rawSrc) ? rawSrc : '',
+      imageAlt: (detail?.images?.[0]?.alt as string) || product.name || '',
+      prices: detail?.prices || product.prices,
+      inStock: detail ? detail.is_in_stock !== false : true,
     };
   });
 }

@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use Automattic\WooCommerce\Internal\StockNotifications\Emails\EmailManager;
-use Automattic\WooCommerce\Internal\StockNotifications\Enums\NotificationStatus;
 use Automattic\WooCommerce\Internal\StockNotifications\NotificationQuery;
 use Automattic\WooCommerce\Internal\StockNotifications\StockNotifications;
 use WP_UnitTestCase;
@@ -155,14 +154,5 @@ abstract class BackInStockTestCase extends WP_UnitTestCase {
 		}
 
 		return array_map( 'intval', NotificationQuery::get_notifications( $args ) );
-	}
-
-	/**
-	 * Active (verified) notification statuses.
-	 *
-	 * @return array<int, string>
-	 */
-	protected static function active(): array {
-		return array( NotificationStatus::ACTIVE );
 	}
 }

@@ -529,8 +529,14 @@ document.addEventListener('click', (e: MouseEvent) => {
 /**
  * Apply a fetched Store API product to the Quick View store state.
  * Extracted from actions.open()'s fetch handler.
+ *
+ * @param data       The product.
+ * @param variations Its variations, fetched from the Store API alongside it.
  */
-export function applyProductResponse(data: StoreApiProduct): void {
+export function applyProductResponse(
+  data: StoreApiProduct,
+  variations: StoreApiProduct[] = []
+): void {
   if (!data || !data.name) {
     state.hasError = true;
     return;
@@ -617,7 +623,7 @@ export function applyProductResponse(data: StoreApiProduct): void {
     for (const attr of resolvedAttrs) {
       nameToSlug[attr.name.toLowerCase()] = attr.slug;
     }
-    state.productVariations = buildVariations(data, nameToSlug);
+    state.productVariations = buildVariations(data, nameToSlug, variations);
 
     // Initialise selectedAttributes with empty values.
     const sel: Record<string, string> = {};

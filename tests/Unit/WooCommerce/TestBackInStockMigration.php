@@ -114,7 +114,7 @@ class TestBackInStockMigration extends BackInStockTestCase {
 
 		Back_In_Stock_Migration::move_batch( false );
 
-		$moved = $this->notifications_for( $confirmed, self::active() );
+		$moved = $this->notifications_for( $confirmed, array( NotificationStatus::ACTIVE ) );
 		$this->assertCount( 1, $moved, 'The confirmed row moves, its address normalized.' );
 		$notification = Factory::get_notification( $moved[0] );
 		$this->assertNotFalse( $notification );

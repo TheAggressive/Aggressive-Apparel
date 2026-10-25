@@ -32,30 +32,71 @@ final class Sale_Pricing {
 	/**
 	 * Calculate the whole-number sale discount for a product.
 	 *
-	 * Variable products usually carry no price of their own, so the minimum
-	 * variation prices stand in. That deliberately understates a catalog where
-	 * the cheapest variation is not the discounted one: such a product returns
-	 * 0 and its wording falls back to a phrase with no number.
+	 * A variable product describes the discount on its cheapest variation —
+	 * the one its "From $X" price shows — never a minimum sale price set
+	 * against a minimum regular price taken from another variation. When that
+	 * cheapest variation isn't discounted the result is 0, and the wording
+	 * falls back to a phrase with no number.
 	 *
 	 * @param \WC_Product $product Product object.
 	 * @return int Percentage 1-100, or 0 when no single figure applies.
 	 */
 	public static function get_discount_percentage( \WC_Product $product ): int {
-		$regular = (float) $product->get_regular_price();
-		$sale    = (float) $product->get_sale_price();
-
-		if ( $regular <= 0 || $sale <= 0 ) {
-			if ( $product instanceof \WC_Product_Variable ) {
-				$regular = (float) $product->get_variation_regular_price( 'min' );
-				$sale    = (float) $product->get_variation_sale_price( 'min' );
-			}
+		if ( $product instanceof \WC_Product_Variable ) {
+			$cheapest = self::cheapest_variation_prices( $product );
+			$regular  = null !== $cheapest ? $cheapest['regular'] : 0.0;
+			$sale     = null !== $cheapest ? $cheapest['price'] : 0.0;
+		} else {
+			$regular = (float) $product->get_regular_price();
+			$sale    = (float) $product->get_sale_price();
 		}
 
-		if ( $regular <= 0 || $sale >= $regular ) {
+		if ( $regular <= 0 || $sale <= 0 || $sale >= $regular ) {
 			return 0;
 		}
 
 		return (int) round( ( ( $regular - $sale ) / $regular ) * 100 );
+	}
+
+	/**
+	 * The cheapest variation's displayed price and its own regular price,
+	 * plus the highest displayed price, all from one `get_variation_prices()`
+	 * snapshot so they always agree.
+	 *
+	 * Among variations tied at the lowest price, the lowest regular price is
+	 * taken, so the implied discount is never overstated. A variation with no
+	 * regular price falls back to its active price, which keeps
+	 * `regular >= price`.
+	 *
+	 * @param \WC_Product_Variable $product Variable product.
+	 * @return array{price: float, regular: float, max: float}|null Null when no variation has a price.
+	 */
+	public static function cheapest_variation_prices( \WC_Product_Variable $product ): ?array {
+		$variation_prices = $product->get_variation_prices( true );
+		$active           = isset( $variation_prices['price'] ) && is_array( $variation_prices['price'] )
+			? array_map( 'floatval', $variation_prices['price'] )
+			: array();
+
+		if ( empty( $active ) ) {
+			return null;
+		}
+
+		$min            = min( $active );
+		$regular_prices = isset( $variation_prices['regular_price'] ) && is_array( $variation_prices['regular_price'] )
+			? $variation_prices['regular_price']
+			: array();
+		$regulars       = array();
+		foreach ( $active as $variation_id => $amount ) {
+			if ( $amount === $min && isset( $regular_prices[ $variation_id ] ) && '' !== $regular_prices[ $variation_id ] ) {
+				$regulars[] = (float) $regular_prices[ $variation_id ];
+			}
+		}
+
+		return array(
+			'price'   => $min,
+			'regular' => empty( $regulars ) ? $min : min( $regulars ),
+			'max'     => max( $active ),
+		);
 	}
 
 	/**

@@ -100,7 +100,7 @@ class TestBackInStockSignup extends BackInStockTestCase {
 		$reply = $this->subscribe( $product, $email );
 
 		$this->assertTrue( $reply['success'] ?? false, wp_json_encode( $reply ) );
-		$ids = $this->notifications_for( $email, self::active() );
+		$ids = $this->notifications_for( $email, array( NotificationStatus::ACTIVE ) );
 		$this->assertCount( 1, $ids );
 		$notification = Factory::get_notification( $ids[0] );
 		$this->assertNotFalse( $notification );

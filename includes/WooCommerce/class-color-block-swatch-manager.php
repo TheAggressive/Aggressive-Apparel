@@ -2,7 +2,7 @@
 /**
  * Color Block Swatch Manager Class
  *
- * Handles color swatch display in WooCommerce blocks using DOM manipulation
+ * Styles WooCommerce's native colour swatches in the variation selector.
  *
  * @package Aggressive_Apparel
  * @since 1.0.0
@@ -12,38 +12,74 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use WP_Term;
-
 /**
  * Color Block Swatch Manager Class
  *
- * Manages the display of color swatches in WooCommerce Add to Cart with Options blocks
- * by directly modifying the HTML to replace text labels with colored span elements.
+ * WooCommerce draws the swatches itself once `pa_color` is a "Color / image"
+ * attribute (Color_Swatch_Migration): each option is a chip button holding a
+ * `wc-block-product-filter-chips__swatch` span painted from the term's
+ * `color` / `image` meta. This only adds attributes to that markup — never
+ * elements — so the theme's color-swatches.css styles it: the chip and swatch
+ * classes, the colour name the hover tooltip shows (Swatch_Tooltips extends
+ * it), and `--swatch-color` for the selected ring.
  *
- * This class uses the render_block filter to intercept WooCommerce blocks during rendering
- * and injects color swatches based on the show_label configuration.
+ * WooCommerce's chip script re-applies the chip's `title` and the swatch's
+ * `style` / `--no-color` class when it hydrates, so nothing here relies on
+ * those: the ring colour sits on the button (the swatch inherits it), terms
+ * without a stored swatch get one through Color_Data_Manager's
+ * `default_term_metadata` fallback, and color-swatch-chips.ts drops the
+ * `title` the styled tooltip replaces.
+ *
+ * WooCommerce server-renders only the first 30 options; the rest render in
+ * the browser on "+N more". The chip list carries `data-aa-color-swatches`,
+ * this attribute's swatch map, so color-swatch-chips.ts decorates those the
+ * same way.
  *
  * @since 1.0.0
  */
 class Color_Block_Swatch_Manager {
-	/**
-	 * Input name values that identify a color attribute.
-	 *
-	 * @var string
-	 */
-	private const COLOR_INPUT_NAME = 'attribute_pa_color';
 
 	/**
-	 * Whether to show text labels alongside color swatches
-	 *
-	 * @var bool
+	 * The variation selector's input for the colour attribute.
 	 */
-	private bool $show_label = false;
+	private const COLOR_INPUT = 'name="attribute_pa_color"';
+
+	/**
+	 * Class on WooCommerce's chip list.
+	 */
+	private const LIST_CLASS = 'wc-block-product-filter-chips';
+
+	/**
+	 * Class on WooCommerce's chip button.
+	 */
+	private const CHIP_CLASS = 'wc-block-product-filter-chips__item';
+
+	/**
+	 * Class on WooCommerce's swatch span inside the chip.
+	 */
+	private const SWATCH_CLASS = 'wc-block-product-filter-chips__swatch';
+
+	/**
+	 * Theme class marking a decorated chip.
+	 */
+	private const THEME_CHIP_CLASS = 'aggressive-apparel-color-chip';
+
+	/**
+	 * Ring colour mixed into a pattern swatch, which has no single colour.
+	 */
+	private const PATTERN_RING = 'rgb(0 0 0 / 40%)';
+
+	/**
+	 * Script that keeps chips decorated in the browser.
+	 */
+	private const SCRIPT_HANDLE = 'aggressive-apparel-color-swatch-chips';
 
 	/**
 	 * Initialize the block swatch manager
@@ -51,226 +87,160 @@ class Color_Block_Swatch_Manager {
 	 * @return void
 	 */
 	public function init(): void {
-		$this->register_hooks();
+		add_filter( 'render_block_' . Block_Pill_Helper::BLOCK_NAME, array( $this, 'decorate_color_swatches' ), 10, 2 );
 	}
 
 	/**
-	 * Set whether to show text labels alongside color swatches
+	 * Decorate the swatches in the colour attribute's variation selector.
 	 *
-	 * @param bool $show_label Whether to show text labels.
-	 * @return void
+	 * @param string $block_content Block HTML.
+	 * @param array  $block         Parsed block.
+	 * @return string
 	 */
-	public function set_show_label( bool $show_label ): void {
-		$this->show_label = $show_label;
-	}
-
-	/**
-	 * Get whether text labels are shown alongside color swatches
-	 *
-	 * @return bool Whether text labels are shown.
-	 */
-	public function get_show_label(): bool {
-		return $this->show_label;
-	}
-
-	/**
-	 * Register WordPress hooks for multiple interception points
-	 *
-	 * Uses multiple hooks to ensure WooCommerce blocks are caught at different
-	 * stages of the rendering process.
-	 *
-	 * @return void
-	 */
-	private function register_hooks(): void {
-		add_filter( 'render_block_' . Block_Pill_Helper::BLOCK_NAME, array( $this, 'inject_color_swatches_in_block' ), 10, 2 );
-	}
-
-	/**
-	 * Inject color swatches into individual blocks during rendering
-	 *
-	 * @param string $block_content The block content.
-	 * @param array  $block         The block data.
-	 * @return string Modified block content.
-	 */
-	public function inject_color_swatches_in_block( string $block_content, array $block ): string {
-		// Only process WooCommerce color attribute blocks that contain color attributes.
-		if ( ! Block_Pill_Helper::is_attribute_options_block( $block ) ) {
+	public function decorate_color_swatches( string $block_content, array $block ): string {
+		// Only pa_color: another "Color / image" attribute's terms aren't in
+		// this swatch map, even where a slug happens to match.
+		if ( ! Block_Pill_Helper::is_attribute_options_block( $block ) || ! str_contains( $block_content, self::COLOR_INPUT ) || ! str_contains( $block_content, self::SWATCH_CLASS ) ) {
 			return $block_content;
 		}
 
-		if ( ! str_contains( $block_content, self::COLOR_INPUT_NAME ) ) {
-			return $block_content;
-		}
+		$swatches  = Color_Data_Manager::get_safe_swatch_data();
+		$processor = new \WP_HTML_Tag_Processor( $block_content );
+		$options   = array();
+		$current   = null;
+		$decorated = false;
 
-		return $this->inject_swatches_with_html_processor( $block_content );
-	}
+		// One pass: WooCommerce's context lists every option; a chip button
+		// selects its term's swatch, which the next swatch span (always inside
+		// that button) receives.
+		while ( $processor->next_tag() ) {
+			$tag = $processor->get_tag();
 
-	/**
-	 * Inject color swatches using DOMDocument via Block_Pill_Helper.
-	 *
-	 * @param string $block_content The block content to modify.
-	 * @return string Modified block content.
-	 */
-	private function inject_swatches_with_html_processor( string $block_content ): string {
-		$dom = Block_Pill_Helper::load_dom( $block_content );
-		if ( ! $dom ) {
-			return $block_content;
-		}
+			if ( array() === $options ) {
+				$options = self::context_option_slugs( $processor->get_attribute( 'data-wp-context' ) );
+			}
 
-		$buttons  = Block_Pill_Helper::get_option_buttons( $dom );
-		$modified = false;
-
-		foreach ( $buttons as $button ) {
-			// Skip chips already carrying a swatch (idempotency).
-			if ( Block_Pill_Helper::has_color_swatch( $button ) ) {
+			if ( 'DIV' === $tag && $processor->has_class( self::LIST_CLASS ) ) {
+				// Always present on a colour list: it is also how the script
+				// finds the lists whose chip titles to drop.
+				$processor->set_attribute( 'data-aa-color-swatches', (string) wp_json_encode( (object) self::client_map( $options, $swatches ) ) );
+				$decorated = true;
 				continue;
 			}
 
-			// WooCommerce stores the option's term slug on the chip's value attr.
-			$color_slug = $button->getAttribute( 'value' );
-			if ( '' === $color_slug ) {
+			if ( 'BUTTON' === $tag ) {
+				$current = null;
+				// Skip a chip already decorated (the filter can run again).
+				$slug = $processor->has_class( self::CHIP_CLASS ) && ! $processor->has_class( self::THEME_CHIP_CLASS )
+					? (string) $processor->get_attribute( 'value' )
+					: '';
+				if ( '' !== $slug && isset( $swatches[ $slug ] ) ) {
+					$current   = $swatches[ $slug ];
+					$decorated = true;
+					$processor->add_class( self::THEME_CHIP_CLASS );
+					$processor->remove_attribute( 'title' );
+					$style = rtrim( trim( (string) $processor->get_attribute( 'style' ) ), ';' );
+					$processor->set_attribute( 'style', ltrim( $style . '; --swatch-color: ' . self::ring_color( $current ) . ';', '; ' ) );
+				}
 				continue;
 			}
 
-			// Try taxonomy term first, then fall back to swatch data map.
-			$color_data = $this->resolve_color_data( $color_slug );
-			if ( ! $color_data ) {
+			if ( null !== $current && 'SPAN' === $tag && $processor->has_class( self::SWATCH_CLASS ) ) {
+				$this->decorate_swatch( $processor, $current );
+				$current = null;
+			}
+		}
+
+		if ( $decorated ) {
+			Asset_Loader::enqueue_script( self::SCRIPT_HANDLE, 'build/scripts/color-swatch-chips' );
+		}
+
+		return $processor->get_updated_html();
+	}
+
+	/**
+	 * The option slugs in WooCommerce's selector context, if this is it.
+	 *
+	 * @param mixed $context A `data-wp-context` value.
+	 * @return list<string>
+	 */
+	private static function context_option_slugs( $context ): array {
+		if ( ! is_string( $context ) || ! str_contains( $context, '"items"' ) ) {
+			return array();
+		}
+
+		// A context may carry a "namespace::" prefix before its JSON.
+		$data  = json_decode( (string) substr( $context, (int) strpos( $context, '{' ) ), true );
+		$items = is_array( $data ) && is_array( $data['items'] ?? null ) ? $data['items'] : array();
+
+		return array_values( array_filter( array_map( static fn( $item ) => is_array( $item ) && is_scalar( $item['value'] ?? null ) ? (string) $item['value'] : '', $items ) ) );
+	}
+
+	/**
+	 * Swatch data color-swatch-chips.ts needs for chips the browser renders.
+	 *
+	 * Each entry has `name`, `ring`, `pattern` and `color`; the filter may add
+	 * more (Swatch_Tooltips adds `tooltip`).
+	 *
+	 * @param array               $slugs    This attribute's option slugs.
+	 * @param array<string,array> $swatches Swatch data keyed by slug.
+	 * @phpstan-param list<string> $slugs
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function client_map( array $slugs, array $swatches ): array {
+		$map = array();
+		foreach ( $slugs as $slug ) {
+			if ( ! isset( $swatches[ $slug ] ) ) {
 				continue;
 			}
-
-			$color_name = $color_data['name'];
-
-			$classes = 'aggressive-apparel-color-swatch aggressive-apparel-color-swatch--interactive';
-			if ( $this->show_label ) {
-				$classes .= ' aggressive-apparel-color-swatch--with-label';
-			}
-
-			$swatch = $dom->createElement( 'span' );
-			$swatch->setAttribute( 'class', $classes . ' aggressive-apparel-color-swatch__circle' );
-
-			// Decorative: WooCommerce's chip <button> already carries the colour
-			// name in its aria-label, so the swatch is hidden from assistive tech
-			// to avoid a duplicate announcement. The name stays available to
-			// sighted (incl. colour-blind) users via the hover/focus tooltip
-			// driven by data-color-name (see swatch-tooltips.css).
-			$swatch->setAttribute( 'aria-hidden', 'true' );
-			$swatch->setAttribute( 'data-color-name', $color_name );
-
-			if ( 'pattern' === $color_data['type'] ) {
-				$swatch->setAttribute( 'data-pattern-url', $color_data['value'] );
-				$swatch->setAttribute( 'style', 'background-image: url(' . esc_url( $color_data['value'] ) . '); --swatch-color: rgb(0 0 0 / 40%);' );
-				$swatch->setAttribute( 'class', $swatch->getAttribute( 'class' ) . ' aggressive-apparel-color-swatch--pattern' );
-			} else {
-				$swatch->setAttribute( 'data-color', $color_data['value'] );
-				$swatch->setAttribute( 'style', 'background-color: ' . esc_attr( $color_data['value'] ) . '; --swatch-color: ' . esc_attr( $color_data['value'] ) . ';' );
-			}
-
-			// Mark the chip as a color chip and prepend the swatch, leaving
-			// WooCommerce's own chip label/text intact (CSS hides the text unless
-			// "show label" is enabled). Keeping the structure avoids fighting the
-			// block's Interactivity bindings.
-			$button->setAttribute(
-				'class',
-				trim( $button->getAttribute( 'class' ) . ' aggressive-apparel-color-chip' )
-			);
-			$button->insertBefore( $swatch, $button->firstChild );
-
-			$modified = true;
-		}
-
-		if ( ! $modified ) {
-			return $block_content;
-		}
-
-		return Block_Pill_Helper::save_dom( $dom, $block_content );
-	}
-
-	/**
-	 * Resolve color display data from a slug/value.
-	 *
-	 * Tries the pa_color taxonomy first, then falls back to Color_Data_Manager
-	 * swatch data (which covers both taxonomy and custom attributes).
-	 *
-	 * @param string $slug The color slug or option value.
-	 * @return array{type: string, value: string, name: string}|null Color data or null if not found.
-	 */
-	private function resolve_color_data( string $slug ): ?array {
-		// 1. Try taxonomy term (pa_color).
-		$term = get_term_by( 'slug', $slug, 'pa_color' );
-		if ( $term instanceof WP_Term ) {
-			$data = $this->get_color_display_data_for_term( $term );
-			if ( $data['is_valid'] && ! empty( $data['value'] ) ) {
-				return array(
-					'type'  => $data['type'],
-					'value' => $data['value'],
-					'name'  => $term->name,
-				);
-			}
-		}
-
-		// 2. Fall back to Color_Data_Manager swatch data (memoized per request
-		// — this runs per color button via the render_block filter).
-		$swatch_data = Color_Data_Manager::get_safe_swatch_data();
-		if ( isset( $swatch_data[ $slug ] ) && ! empty( $swatch_data[ $slug ]['value'] ) ) {
-			return $swatch_data[ $slug ];
-		}
-
-		return null;
-	}
-
-	/**
-	 * Retrieve the color display data for a given term
-	 *
-	 * Handles both solid colors and patterns.
-	 *
-	 * @param WP_Term $term The color term object.
-	 * @return array Array with 'type' ('solid' or 'pattern'), 'value' (color or image URL), and 'is_valid'.
-	 */
-	private function get_color_display_data_for_term( WP_Term $term ): array {
-		$color_type = get_term_meta( $term->term_id, 'color_type', true );
-
-		// Default to solid for backward compatibility.
-		if ( empty( $color_type ) ) {
-			$color_type = 'solid';
-		}
-
-		if ( 'pattern' === $color_type ) {
-			$pattern_id = get_term_meta( $term->term_id, 'color_pattern_id', true );
-
-			if ( $pattern_id && wp_attachment_is_image( $pattern_id ) ) {
-				$pattern_url = wp_get_attachment_url( $pattern_id );
-				return array(
-					'type'     => 'pattern',
-					'value'    => $pattern_url,
-					'is_valid' => true,
-				);
-			} else {
-				// Pattern set but invalid/missing.
-				return array(
-					'type'     => 'pattern',
-					'value'    => '',
-					'is_valid' => false,
-				);
-			}
-		} else {
-			// Solid color handling.
-			$color_value = get_term_meta( $term->term_id, 'color_value', true );
-
-			return array(
-				'type'     => 'solid',
-				'value'    => $color_value,
-				'is_valid' => $this->is_valid_hex_color( $color_value ),
+			$is_pattern   = 'pattern' === ( $swatches[ $slug ]['type'] ?? '' );
+			$map[ $slug ] = array(
+				'name'    => (string) ( $swatches[ $slug ]['name'] ?? '' ),
+				'ring'    => self::ring_color( $swatches[ $slug ] ),
+				'pattern' => $is_pattern,
+				'color'   => $is_pattern ? '' : (string) ( $swatches[ $slug ]['value'] ?? '' ),
 			);
 		}
+
+		/**
+		 * Filter the swatch data sent with a colour selector for chips the
+		 * browser renders (Swatch_Tooltips adds each `tooltip`).
+		 *
+		 * @param array<string, array> $map Swatch data keyed by term slug.
+		 */
+		return (array) apply_filters( 'aggressive_apparel_color_swatch_map', $map );
 	}
 
 	/**
-	 * Validate hex color format
+	 * Decorate one swatch span.
 	 *
-	 * @param string $color The color string to validate.
-	 * @return bool True if valid 6-digit hex color.
+	 * @param \WP_HTML_Tag_Processor $processor Processor positioned on the span.
+	 * @param array                  $swatch    The term's swatch data (`type`, `value`, `name`).
+	 * @return void
 	 */
-	private function is_valid_hex_color( string $color ): bool {
-		return preg_match( '/^#[a-fA-F0-9]{6}$/', $color ) === 1;
+	private function decorate_swatch( \WP_HTML_Tag_Processor $processor, array $swatch ): void {
+		$is_pattern = 'pattern' === ( $swatch['type'] ?? '' );
+
+		foreach ( array( 'aggressive-apparel-color-swatch', 'aggressive-apparel-color-swatch--interactive', 'aggressive-apparel-color-swatch__circle' ) as $class ) {
+			$processor->add_class( $class );
+		}
+		if ( $is_pattern ) {
+			$processor->add_class( 'aggressive-apparel-color-swatch--pattern' );
+		}
+
+		$processor->set_attribute( 'data-color-name', (string) ( $swatch['name'] ?? '' ) );
+		if ( ! $is_pattern ) {
+			$processor->set_attribute( 'data-color', (string) ( $swatch['value'] ?? '' ) );
+		}
+	}
+
+	/**
+	 * The colour the selected ring mixes from.
+	 *
+	 * @param array $swatch The term's swatch data.
+	 * @return string
+	 */
+	private static function ring_color( array $swatch ): string {
+		return 'pattern' === ( $swatch['type'] ?? '' ) ? self::PATTERN_RING : (string) ( $swatch['value'] ?? '' );
 	}
 }

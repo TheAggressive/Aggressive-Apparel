@@ -2,7 +2,16 @@
 /**
  * Color Data Manager Class
  *
- * Handles color data operations and validation
+ * Reads and writes colour swatch data. Swatches are WooCommerce's own visual
+ * attribute term meta — `color` (a hex) or `image` (an attachment ID) — the
+ * same values WooCommerce draws on the product page; every theme surface
+ * (product cards, Quick View, sticky add-to-cart, filters) reads them here.
+ *
+ * A term without them falls back to the theme's pre-migration meta, then to a
+ * colour guessed from its name (resolve_swatch()). Nothing is stored for a
+ * fallback: WooCommerce's own storefront reads get it through
+ * `default_term_metadata`, so it follows renames and an admin can clear a
+ * swatch, exactly as the old dynamic fallback did.
  *
  * @package Aggressive_Apparel
  * @since 1.0.0
@@ -32,6 +41,17 @@ class Color_Data_Manager {
 	 * Color attribute name
 	 */
 	private const ATTRIBUTE_NAME = 'pa_color';
+
+	/**
+	 * WooCommerce visual-attribute term meta: the swatch colour (hex).
+	 */
+	public const COLOR_META = 'color';
+
+	/**
+	 * WooCommerce visual-attribute term meta: the swatch image (attachment ID).
+	 * An image wins over a colour, as in WooCommerce.
+	 */
+	public const IMAGE_META = 'image';
 
 	/**
 	 * Default colors
@@ -79,58 +99,118 @@ class Color_Data_Manager {
 	}
 
 	/**
-	 * Format color term data
+	 * Format a color term for display.
 	 *
-	 * @param \WP_Term $term Term object.
+	 * @param \WP_Term $term Color term.
 	 * @return array Formatted color data.
 	 */
 	private function format_color_term( \WP_Term $term ): array {
-		$color_type   = get_term_meta( $term->term_id, 'color_type', true );
-		$color_value  = get_term_meta( $term->term_id, 'color_value', true );
-		$format_value = get_term_meta( $term->term_id, 'color_format', true );
-		$pattern_id   = get_term_meta( $term->term_id, 'color_pattern_id', true );
-		$color_format = $format_value ? $format_value : 'hex';
+		$swatch = self::resolve_swatch( $term );
 
-		// Default to solid for backward compatibility.
-		if ( empty( $color_type ) ) {
-			$color_type = 'solid';
-		}
-
-		// Handle different color types.
-		if ( 'pattern' === $color_type ) {
-			// For patterns, we use the pattern image URL as the display value.
-			$pattern_url   = $pattern_id ? wp_get_attachment_url( $pattern_id ) : '';
-			$display_value = $pattern_url;
-
+		if ( 'pattern' === $swatch['type'] ) {
 			return array(
 				'id'          => $term->term_id,
 				'name'        => $term->name,
 				'slug'        => $term->slug,
 				'type'        => 'pattern',
-				'value'       => $display_value,
-				'pattern_id'  => $pattern_id,
-				'pattern_url' => $pattern_url,
+				'value'       => $swatch['value'],
+				'pattern_id'  => $swatch['image_id'],
+				'pattern_url' => $swatch['value'],
 				'format'      => 'pattern',
 				'count'       => $term->count,
 			);
-		} else {
-			// Solid colors without configured metadata use a deterministic name fallback.
-			if ( empty( $color_value ) ) {
-				$color_value  = self::guess_color_from_name( $term->name, $term->slug );
-				$color_format = 'hex';
-			}
+		}
 
+		return array(
+			'id'     => $term->term_id,
+			'name'   => $term->name,
+			'slug'   => $term->slug,
+			'type'   => 'solid',
+			'value'  => $swatch['value'],
+			'format' => 'hex',
+			'hex'    => $swatch['value'],
+			'count'  => $term->count,
+		);
+	}
+
+	/**
+	 * The swatch a term shows: WooCommerce's `image`, else its `color`; for a
+	 * term with neither stored, the theme's pre-migration pattern / colour, else
+	 * a colour guessed from the name. The old meta stays on migrated terms as a
+	 * rollback copy, so it is never consulted once WooCommerce meta exists.
+	 * Reads stored rows only, never the `default_term_metadata` fallback this
+	 * feeds.
+	 *
+	 * @param \WP_Term $term Color term.
+	 * @return array{type: 'pattern'|'solid', value: string, image_id: int}
+	 */
+	public static function resolve_swatch( \WP_Term $term ): array {
+		$id     = $term->term_id;
+		$stored = self::has_swatch_meta( $id );
+
+		$image_id = $stored
+			? self::image_id( get_metadata_raw( 'term', $id, self::IMAGE_META, true ) )
+			: ( 'pattern' === get_metadata_raw( 'term', $id, 'color_type', true ) ? self::image_id( get_metadata_raw( 'term', $id, 'color_pattern_id', true ) ) : 0 );
+		if ( $image_id ) {
 			return array(
-				'id'     => $term->term_id,
-				'name'   => $term->name,
-				'slug'   => $term->slug,
-				'type'   => 'solid',
-				'value'  => $color_value,
-				'format' => $color_format,
-				'hex'    => $color_value, // For hex format, value is already hex.
-				'count'  => $term->count,
+				'type'     => 'pattern',
+				'value'    => (string) wp_get_attachment_url( $image_id ),
+				'image_id' => $image_id,
 			);
 		}
+
+		$color = self::to_hex( (string) get_metadata_raw( 'term', $id, $stored ? self::COLOR_META : 'color_value', true ) );
+
+		return array(
+			'type'     => 'solid',
+			'value'    => '' !== $color ? $color : self::guess_color_from_name( $term->name, $term->slug ),
+			'image_id' => 0,
+		);
+	}
+
+	/**
+	 * Serve a colour term's fallback swatch to WooCommerce's storefront reads
+	 * of `color` / `image` when the term stores none.
+	 *
+	 * Admin screens keep seeing only what is stored, so WooCommerce's term
+	 * fields show (and save) the real value.
+	 *
+	 * @param mixed  $value     Default value.
+	 * @param int    $object_id Term ID.
+	 * @param string $meta_key  Meta key.
+	 * @param bool   $single    Whether a single value was requested.
+	 * @return mixed
+	 */
+	public static function default_swatch_meta( $value, $object_id, $meta_key, $single ) {
+		if ( ! in_array( $meta_key, array( self::COLOR_META, self::IMAGE_META ), true ) || ( is_admin() && ! wp_doing_ajax() ) ) {
+			return $value;
+		}
+
+		$term = get_term( (int) $object_id );
+		if ( ! $term instanceof \WP_Term || self::ATTRIBUTE_NAME !== $term->taxonomy ) {
+			return $value;
+		}
+
+		$swatch   = self::resolve_swatch( $term );
+		$fallback = self::IMAGE_META === $meta_key
+			? ( 'pattern' === $swatch['type'] ? $swatch['image_id'] : '' )
+			: ( 'solid' === $swatch['type'] ? $swatch['value'] : '' );
+		if ( '' === $fallback ) {
+			return $value;
+		}
+
+		return $single ? $fallback : array( $fallback );
+	}
+
+	/**
+	 * A stored attachment ID, when it is an image that still exists.
+	 *
+	 * @param mixed $value Stored meta value.
+	 */
+	private static function image_id( $value ): int {
+		$image_id = absint( is_scalar( $value ) ? $value : 0 );
+
+		return $image_id && wp_attachment_is_image( $image_id ) ? $image_id : 0;
 	}
 
 	/**
@@ -186,7 +266,7 @@ class Color_Data_Manager {
 	 *
 	 * @var string
 	 */
-	private const SWATCH_TRANSIENT_KEY = 'aggressive_apparel_color_swatch_data_v1';
+	private const SWATCH_TRANSIENT_KEY = 'aggressive_apparel_color_swatch_data_v2';
 
 	/**
 	 * Swatch data TTL (invalidated immediately on color-term mutations).
@@ -251,10 +331,12 @@ class Color_Data_Manager {
 	}
 
 	/**
-	 * Hook the memo flush to the color taxonomy's term lifecycle.
+	 * Serve fallback swatches to WooCommerce (default_swatch_meta()) and hook
+	 * the memo flush to the color taxonomy's term lifecycle.
 	 *
-	 * Covers mutation paths outside this class — the Color_Admin_UI term-save
-	 * handler (created_/edited_ at priority 10) and term deletes/renames —
+	 * The flush covers mutation paths outside this class — WooCommerce's swatch fields,
+	 * saved on created_term / edit_term (both fire before the taxonomy-specific
+	 * hooks below), and term deletes/renames —
 	 * so invalidation holds by construction instead of relying on each
 	 * mutator to remember a manual flush call. This class's own mutators
 	 * still flush at method end because their meta writes land after the
@@ -262,9 +344,10 @@ class Color_Data_Manager {
 	 *
 	 * @return void
 	 */
-	public static function register_invalidation_hooks(): void {
+	public static function register_hooks(): void {
 		$attribute_name = self::ATTRIBUTE_NAME;
 
+		add_filter( 'default_term_metadata', array( self::class, 'default_swatch_meta' ), 10, 4 );
 		add_action( 'created_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
 		add_action( 'edited_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
 		add_action( 'delete_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
@@ -307,8 +390,7 @@ class Color_Data_Manager {
 			return $result;
 		}
 
-		update_term_meta( $result['term_id'], 'color_value', $value );
-		update_term_meta( $result['term_id'], 'color_format', $format );
+		update_term_meta( $result['term_id'], self::COLOR_META, self::to_hex( $value ) );
 
 		self::flush_swatch_data_memo();
 
@@ -338,40 +420,6 @@ class Color_Data_Manager {
 	}
 
 	/**
-	 * Save color field value
-	 *
-	 * @param int $term_id Term ID.
-	 * @return void
-	 */
-	public function save_color_field( int $term_id ): void {
-		// Verify nonce for security.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-tag_' . $term_id ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		// Default to hex format for user-friendly color picker.
-		$color_format = 'hex';
-		$color_value  = isset( $_POST['color_value'] ) ? sanitize_hex_color( wp_unslash( $_POST['color_value'] ) ) : '';
-
-		// Validate color value.
-		if ( ! empty( $color_value ) && $this->validate_color_value( $color_value, $color_format ) ) {
-			update_term_meta( $term_id, 'color_value', $color_value );
-			update_term_meta( $term_id, 'color_format', $color_format );
-
-		} else {
-			// Clear color data if invalid.
-			delete_term_meta( $term_id, 'color_value' );
-			delete_term_meta( $term_id, 'color_format' );
-		}
-
-		self::flush_swatch_data_memo();
-	}
-
-	/**
 	 * Add default color terms
 	 *
 	 * @return void
@@ -380,7 +428,7 @@ class Color_Data_Manager {
 		$default_colors = self::DEFAULT_COLORS;
 
 		foreach ( $default_colors as $color_name => $color_value ) {
-			$this->add_color_term( $color_name, $color_value, 'hex' );
+			$this->add_color_term( $color_name, $color_value );
 		}
 	}
 
@@ -388,11 +436,10 @@ class Color_Data_Manager {
 	 * Add a single color term
 	 *
 	 * @param string $color_name  Color name (slug).
-	 * @param string $color_value Color value.
-	 * @param string $color_format Color format.
+	 * @param string $color_value Color value (hex or oklch()).
 	 * @return void
 	 */
-	private function add_color_term( string $color_name, string $color_value, string $color_format = 'hex' ): void {
+	private function add_color_term( string $color_name, string $color_value ): void {
 		$attribute_name = self::ATTRIBUTE_NAME;
 
 		if ( ! taxonomy_exists( $attribute_name ) ) {
@@ -413,20 +460,43 @@ class Color_Data_Manager {
 			);
 
 			if ( ! is_wp_error( $term_id ) ) {
-				// Store the color value and format as term meta.
-				update_term_meta( $term_id['term_id'], 'color_value', $color_value );
-				update_term_meta( $term_id['term_id'], 'color_format', $color_format );
+				update_term_meta( $term_id['term_id'], self::COLOR_META, self::to_hex( $color_value ) );
 			}
-		} else {
-			// Update color value if term exists but no color value.
-			$current_value = get_term_meta( $existing_term->term_id, 'color_value', true );
-			if ( empty( $current_value ) ) {
-				update_term_meta( $existing_term->term_id, 'color_value', $color_value );
-				update_term_meta( $existing_term->term_id, 'color_format', $color_format );
-			}
+		} elseif ( ! self::has_swatch_meta( $existing_term->term_id ) ) {
+			// Fill in a colour only where the term has no swatch yet.
+			update_term_meta( $existing_term->term_id, self::COLOR_META, self::to_hex( $color_value ) );
 		}
 
 		self::flush_swatch_data_memo();
+	}
+
+	/**
+	 * Whether a term already carries a WooCommerce swatch (colour or image).
+	 *
+	 * @param int $term_id Term ID.
+	 */
+	public static function has_swatch_meta( int $term_id ): bool {
+		return metadata_exists( 'term', $term_id, self::COLOR_META ) || metadata_exists( 'term', $term_id, self::IMAGE_META );
+	}
+
+	/**
+	 * Convert a stored colour to the `#rrggbb` hex WooCommerce keeps.
+	 *
+	 * The kind is read from the value itself, not a stored format flag: the
+	 * old storefront drew a hex or an `oklch()` value whatever its flag said.
+	 * `oklch()` maps to the nearest sRGB colour (clipped per channel, alpha
+	 * dropped), exact for every opaque colour sRGB can show.
+	 *
+	 * @param string $value Colour value.
+	 * @return string Lowercase hex, or '' when the value can't be read.
+	 */
+	public static function to_hex( string $value ): string {
+		$value = trim( $value );
+		if ( 0 === stripos( $value, 'oklch(' ) ) {
+			return (string) Badge_Palette::oklch_to_hex( $value );
+		}
+
+		return strtolower( (string) sanitize_hex_color( $value ) );
 	}
 
 	/**

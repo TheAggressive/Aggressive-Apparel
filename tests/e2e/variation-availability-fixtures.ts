@@ -122,9 +122,8 @@ foreach ($colors as $slug => $color) {
     }
     $term_id = (int) $created['term_id'];
     $created_term_ids[] = $term_id;
-    update_term_meta($term_id, 'color_type', 'solid');
-    update_term_meta($term_id, 'color_value', $color['value']);
-    update_term_meta($term_id, 'color_format', 'hex');
+    // WooCommerce's own visual-attribute swatch meta.
+    update_term_meta($term_id, 'color', $color['value']);
   } else {
     $term_id = (int) $term->term_id;
   }
@@ -183,6 +182,10 @@ foreach ($variations as $slug => $spec) {
   $variation->save();
 }
 WC_Product_Variable::sync($product_id);
+
+// Swatches are WooCommerce's native visual attribute; on a fresh site no admin
+// page has run the one-off move yet, so run it here (idempotent).
+\\Aggressive_Apparel\\WooCommerce\\Color_Swatch_Migration::run();
 
 // Delay the option mutation until every fixture record exists. A setup
 // exception before this point cannot leak feature flags into a persistent site.

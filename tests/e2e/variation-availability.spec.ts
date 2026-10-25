@@ -38,6 +38,35 @@ test.afterAll(() => {
   }
 });
 
+test.describe('product page — colour swatches', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test("styles WooCommerce's native colour chips as theme swatches", async ({
+    page,
+  }) => {
+    await page.goto(fixture.permalink);
+
+    const list = page
+      .locator('.wc-block-product-filter-chips[data-aa-color-swatches]')
+      .first();
+    await expect(list).toBeVisible();
+    const chips = list.locator('.aggressive-apparel-color-chip');
+    await expect(chips).toHaveCount(3);
+    // The styled tooltip replaces the browser one, even after hydration.
+    await expect(list.locator('[title]')).toHaveCount(0);
+
+    const red = list.locator('.aggressive-apparel-color-chip[value="red"]');
+    await expect(red).toHaveAttribute('style', /--swatch-color:/);
+    await expect(
+      red.locator('.aggressive-apparel-color-swatch__circle')
+    ).toHaveAttribute('data-color-name', /Red/);
+
+    // Selecting still drives WooCommerce's variation choice.
+    await red.click();
+    await expect(red).toHaveAttribute('aria-checked', 'true');
+  });
+});
+
 test.describe('sticky cart — variation availability', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 

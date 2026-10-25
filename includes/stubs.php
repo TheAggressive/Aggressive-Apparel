@@ -36,6 +36,17 @@ if ( ! function_exists( 'is_product_category' ) ) {
 }
 
 /**
+ * Check if current page is any product taxonomy archive
+ *
+ * @return bool
+ */
+if ( ! function_exists( 'is_product_taxonomy' ) ) {
+	function is_product_taxonomy(): bool {
+		return false;
+	}
+}
+
+/**
  * Check if current page is shop page
  *
  * @return bool

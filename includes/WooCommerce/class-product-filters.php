@@ -172,7 +172,7 @@ class Product_Filters {
 	/**
 	 * Whether the current request should load product-filters assets.
 	 *
-	 * Defaults to shop / product category / product tag archives. Custom
+	 * Defaults to the shop and every product taxonomy archive. Custom
 	 * archive integrations can opt in via the filter.
 	 *
 	 * @return bool
@@ -259,6 +259,10 @@ class Product_Filters {
 				'salesCategoryUrl'    => $data_provider->sales_category_url(),
 				'layout'              => $layout,
 				'currentCategorySlug' => $current_cat_slug,
+				// The tag / brand / attribute archive being browsed (e.g.
+				// /collection/womens/). URL sync keeps its path while it still
+				// scopes the selection, so refining a collection stays on it.
+				'archiveTerm'         => self::current_archive_term(),
 				// Categories keep their link: URL sync maps a selected category
 				// to its archive path (a full navigation, so title, canonical
 				// and breadcrumbs are server-rendered).
@@ -573,11 +577,40 @@ class Product_Filters {
 	 *
 	 * @since 1.22.0
 	 *
-	 * @return bool True when the current request is a shop, product category,
-	 *              or product tag archive.
+	 * @return bool True when the current request is the shop or any product
+	 *              taxonomy archive (category, tag, brand, attribute).
 	 */
 	public static function is_filterable_archive(): bool {
 		return Product_Context::is_product_archive();
+	}
+
+	/**
+	 * The non-category product taxonomy term this archive is scoped to.
+	 *
+	 * Categories have their own routing (`categories[].link`), so only tag,
+	 * brand and attribute archives are reported. Per-URL, not per-visitor, so
+	 * it is safe to seed into page-cached interactivity state.
+	 *
+	 * @return array{taxonomy: string, slug: string, link: string} Empty strings
+	 *                                                             elsewhere.
+	 */
+	private static function current_archive_term(): array {
+		$archive = Product_Context::get_current_product_term_archive();
+		if ( '' === $archive['taxonomy'] || 'product_cat' === $archive['taxonomy'] ) {
+			return array(
+				'taxonomy' => '',
+				'slug'     => '',
+				'link'     => '',
+			);
+		}
+
+		$link = get_term_link( $archive['term'], $archive['taxonomy'] );
+
+		return array(
+			'taxonomy' => $archive['taxonomy'],
+			'slug'     => $archive['term'],
+			'link'     => is_string( $link ) ? esc_url_raw( $link ) : '',
+		);
 	}
 
 	/**

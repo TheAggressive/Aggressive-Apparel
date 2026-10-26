@@ -1,6 +1,7 @@
 import { chromium, type FullConfig, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { ensureCatalogFixtures } from './catalog-fixtures';
+import { cleanUpFixtures } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 interface ThemeRecord {
@@ -100,6 +101,9 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
   mkdirSync('tests/e2e/.auth', { recursive: true });
 
   ensureProjectThemeActive();
+  // A run that crashed or was interrupted skipped teardown: clean up after
+  // it, and restore its options, before backing them up again.
+  cleanUpFixtures();
   const { shopPageId } = ensureCatalogFixtures();
 
   const browser = await chromium.launch();

@@ -1,3 +1,4 @@
+import { ownPostPhp, ownTermPhp } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 /**
@@ -98,6 +99,7 @@ if (is_wp_error($attachment_id)) {
   wp_delete_file($upload['file']);
   throw new RuntimeException($attachment_id->get_error_message());
 }
+${ownPostPhp('$attachment_id', 'variation-availability')}
 require_once ABSPATH . 'wp-admin/includes/image.php';
 $attachment_metadata = wp_generate_attachment_metadata($attachment_id, $upload['file']);
 if (is_array($attachment_metadata)) {
@@ -122,6 +124,7 @@ foreach ($colors as $slug => $color) {
     }
     $term_id = (int) $created['term_id'];
     $created_term_ids[] = $term_id;
+    ${ownTermPhp('$term_id', 'variation-availability')}
     // WooCommerce's own visual-attribute swatch meta.
     update_term_meta($term_id, 'color', $color['value']);
   } else {
@@ -143,6 +146,7 @@ if (!$category) {
   }
   $category_id = (int) $created['term_id'];
   $created_category_id = $category_id;
+  ${ownTermPhp('$category_id', 'variation-availability')}
 } else {
   $category_id = (int) $category->term_id;
 }
@@ -167,6 +171,7 @@ $attribute->set_visible(true);
 $attribute->set_variation(true);
 $product->set_attributes(array($attribute));
 $product_id = $product->save();
+${ownPostPhp('$product_id', 'variation-availability')}
 
 $variations = array(
   'red'   => array(12, 'instock'),

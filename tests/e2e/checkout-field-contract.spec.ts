@@ -25,6 +25,7 @@ const FIXTURE_OWNER_META = '_aa_e2e_fixture_owner';
 const FIXTURE_OWNER = 'checkout-field-contract';
 
 let productId = 0;
+let shippingInstanceId = 0;
 
 test.beforeAll(() => {
   productId = Number(
@@ -40,9 +41,26 @@ test.beforeAll(() => {
     ])
   );
   expect(productId).toBeGreaterThan(0);
+
+  // A shipping method gives checkout its shipping step, and with it
+  // WooCommerce's "Use same address for billing" checkbox, so the choice-gap
+  // check below has a checkbox whatever optional blocks the template keeps.
+  shippingInstanceId = Number(
+    wpCli([
+      'eval',
+      `echo ( new WC_Shipping_Zone( 0 ) )->add_shipping_method( 'flat_rate' );`,
+    ])
+  );
+  expect(shippingInstanceId).toBeGreaterThan(0);
 });
 
 test.afterAll(() => {
+  if (shippingInstanceId) {
+    wpCli([
+      'eval',
+      `( new WC_Shipping_Zone( 0 ) )->delete_shipping_method( ${shippingInstanceId} );`,
+    ]);
+  }
   wpCli([
     'eval',
     `foreach (get_posts(array('post_type' => 'product', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '${FIXTURE_OWNER_META}', 'meta_value' => '${FIXTURE_OWNER}')) as $id) { wp_delete_post($id, true); }`,

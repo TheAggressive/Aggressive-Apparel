@@ -52,6 +52,11 @@ class Color_Block_Swatch_Manager {
 	private const COLOR_INPUT = 'name="attribute_pa_color"';
 
 	/**
+	 * Prefix of WooCommerce's id for a colour option (`attribute_pa_color-<slug>`).
+	 */
+	private const OPTION_ID_PREFIX = 'attribute_pa_color-';
+
+	/**
 	 * Class on WooCommerce's chip list.
 	 */
 	private const LIST_CLASS = 'wc-block-product-filter-chips';
@@ -110,17 +115,20 @@ class Color_Block_Swatch_Manager {
 		$current   = null;
 		$decorated = false;
 
-		// One pass: WooCommerce's context lists every option; a chip button
-		// selects its term's swatch, which the next swatch span (always inside
-		// that button) receives.
+		// One pass. The block renders every attribute, each in a wrapper whose
+		// context lists its options, so $options is the colour slugs inside the
+		// colour wrapper and empty in the others. A chip button selects its
+		// term's swatch, which the next swatch span (always inside that button)
+		// receives.
 		while ( $processor->next_tag() ) {
 			$tag = $processor->get_tag();
 
-			if ( array() === $options ) {
-				$options = self::context_option_slugs( $processor->get_attribute( 'data-wp-context' ) );
+			$attribute_options = self::context_option_slugs( $processor->get_attribute( 'data-wp-context' ) );
+			if ( null !== $attribute_options ) {
+				$options = $attribute_options;
 			}
 
-			if ( 'DIV' === $tag && $processor->has_class( self::LIST_CLASS ) ) {
+			if ( 'DIV' === $tag && array() !== $options && $processor->has_class( self::LIST_CLASS ) ) {
 				// Always present on a colour list: it is also how the script
 				// finds the lists whose chip titles to drop.
 				$processor->set_attribute( 'data-aa-color-swatches', (string) wp_json_encode( (object) self::client_map( $options, $swatches ) ) );
@@ -131,7 +139,7 @@ class Color_Block_Swatch_Manager {
 			if ( 'BUTTON' === $tag ) {
 				$current = null;
 				// Skip a chip already decorated (the filter can run again).
-				$slug = $processor->has_class( self::CHIP_CLASS ) && ! $processor->has_class( self::THEME_CHIP_CLASS )
+				$slug = $processor->has_class( self::CHIP_CLASS ) && ! $processor->has_class( self::THEME_CHIP_CLASS ) && str_starts_with( (string) $processor->get_attribute( 'id' ), self::OPTION_ID_PREFIX )
 					? (string) $processor->get_attribute( 'value' )
 					: '';
 				if ( '' !== $slug && isset( $swatches[ $slug ] ) ) {
@@ -159,21 +167,30 @@ class Color_Block_Swatch_Manager {
 	}
 
 	/**
-	 * The option slugs in WooCommerce's selector context, if this is it.
+	 * The colour option slugs in an attribute wrapper's context
+	 * (`variationAttributeOptions`): empty for another attribute, null when
+	 * this isn't an attribute wrapper.
 	 *
 	 * @param mixed $context A `data-wp-context` value.
-	 * @return list<string>
+	 * @return list<string>|null
 	 */
-	private static function context_option_slugs( $context ): array {
-		if ( ! is_string( $context ) || ! str_contains( $context, '"items"' ) ) {
-			return array();
+	private static function context_option_slugs( $context ): ?array {
+		if ( ! is_string( $context ) || ! str_contains( $context, '"variationAttributeOptions"' ) ) {
+			return null;
 		}
 
 		// A context may carry a "namespace::" prefix before its JSON.
 		$data  = json_decode( (string) substr( $context, (int) strpos( $context, '{' ) ), true );
-		$items = is_array( $data ) && is_array( $data['items'] ?? null ) ? $data['items'] : array();
+		$items = is_array( $data ) && is_array( $data['variationAttributeOptions'] ?? null ) ? $data['variationAttributeOptions'] : array();
 
-		return array_values( array_filter( array_map( static fn( $item ) => is_array( $item ) && is_scalar( $item['value'] ?? null ) ? (string) $item['value'] : '', $items ) ) );
+		return array_values(
+			array_filter(
+				array_map(
+					static fn( $item ) => is_array( $item ) && is_scalar( $item['value'] ?? null ) && str_starts_with( (string) ( $item['id'] ?? '' ), self::OPTION_ID_PREFIX ) ? (string) $item['value'] : '',
+					$items
+				)
+			)
+		);
 	}
 
 	/**

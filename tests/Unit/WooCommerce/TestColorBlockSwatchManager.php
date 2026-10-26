@@ -88,6 +88,7 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 	private function color_attribute_block( array $options, string $attribute = 'pa_color', array $overflow = array() ): string {
 		$items = array_map(
 			static fn( $slug ) => array(
+				'id'    => 'attribute_' . $attribute . '-' . $slug,
 				'value' => $slug,
 				'label' => ucfirst( $slug ),
 			),
@@ -97,17 +98,18 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 		$buttons = '';
 		foreach ( $options as $slug => $style ) {
 			$buttons .= sprintf(
-				'<button class="wc-block-product-filter-chips__item" type="button" role="radio" id="attribute_pa_color-%1$s" aria-label="%1$s" title="%1$s" value="%1$s" aria-checked="false">'
+				'<button class="wc-block-product-filter-chips__item" type="button" role="radio" id="attribute_%3$s-%1$s" aria-label="%1$s" title="%1$s" value="%1$s" aria-checked="false">'
 					. '<span class="wc-block-product-filter-chips__label">'
 					. '<span class="wc-block-product-filter-chips__swatch" style="%2$s" aria-hidden="true"></span>'
 					. '<span class="wc-block-product-filter-chips__text">%1$s</span>'
 					. '</span></button>',
 				$slug,
-				$style
+				$style,
+				$attribute
 			);
 		}
 
-		return '<div class="wp-block-woocommerce-add-to-cart-with-options-variation-selector-attribute" data-wp-context=\'' . esc_attr( (string) wp_json_encode( array( 'items' => $items ) ) ) . '\'>'
+		return '<div class="wp-block-woocommerce-add-to-cart-with-options-variation-selector-attribute" data-wp-context=\'' . esc_attr( (string) wp_json_encode( array( 'variationAttributeOptions' => $items ) ) ) . '\'>'
 			. '<div class="wp-block-woocommerce-product-filter-chips wc-block-product-filter-chips is-style-swatch">'
 			. '<div class="wc-block-product-filter-chips__items">' . $buttons . '</div></div>'
 			. '<input type="hidden" name="attribute_' . $attribute . '" value="">'
@@ -224,6 +226,23 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 	}
 
 	/**
+	 * WooCommerce renders every attribute in one block: only the colour
+	 * attribute's list is tagged, with the colour options' map.
+	 */
+	public function test_only_the_color_attribute_is_decorated(): void {
+		$size = '<div class="wp-block-woocommerce-add-to-cart-with-options-variation-selector-attribute" data-wp-context=\'' . esc_attr( (string) wp_json_encode( array( 'variationAttributeOptions' => array( array( 'id' => 'attribute_size-blue', 'value' => 'blue' ) ) ) ) ) . '\'>'
+			. '<div class="wp-block-woocommerce-product-filter-chips wc-block-product-filter-chips"><div class="wc-block-product-filter-chips__items">'
+			. '<button class="wc-block-product-filter-chips__item" type="button" id="attribute_size-blue" title="blue" value="blue"><span class="wc-block-product-filter-chips__label"><span class="wc-block-product-filter-chips__text">blue</span></span></button>'
+			. '</div></div><input type="hidden" name="attribute_size" value=""></div>';
+
+		$html = $this->decorate( $size . $this->color_attribute_block( array( 'blue' => 'background-color:#0000ff' ) ) );
+
+		$this->assertStringStartsWith( $size, $html, 'The size attribute is untouched.' );
+		$map = json_decode( (string) $this->tag( substr( $html, strlen( $size ) ), array( 'class_name' => 'wc-block-product-filter-chips' ) )->get_attribute( 'data-aa-color-swatches' ), true );
+		$this->assertSame( array( 'blue' ), array_keys( $map ) );
+	}
+
+	/**
 	 * Attribute blocks without swatches (sizes) and other blocks are untouched.
 	 */
 	public function test_non_swatch_blocks_are_untouched(): void {
@@ -270,6 +289,9 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 		if ( ! class_exists( '\Automattic\WooCommerce\Blocks\BlockTypes\ProductFilterChips' ) ) {
 			$this->markTestSkipped( 'WooCommerce is not active.' );
 		}
+
+		$attribute = (string) file_get_contents( (string) ( new \ReflectionClass( '\Automattic\WooCommerce\Blocks\BlockTypes\AddToCartWithOptions\VariationSelectorAttribute' ) )->getFileName() );
+		$this->assertStringContainsString( "'variationAttributeOptions'", $attribute, "WooCommerce's attribute context no longer lists the options as variationAttributeOptions; update Color_Block_Swatch_Manager." );
 
 		$source = (string) file_get_contents( (string) ( new \ReflectionClass( '\Automattic\WooCommerce\Blocks\BlockTypes\ProductFilterChips' ) )->getFileName() );
 		foreach ( array( 'wc-block-product-filter-chips__item', 'wc-block-product-filter-chips__swatch', 'wc-block-product-filter-chips__label', 'wc-block-product-filter-chips__text' ) as $class ) {

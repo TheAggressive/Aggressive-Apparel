@@ -23,29 +23,16 @@ $is_mega_menu  = (bool) ( $block->context['aggressive-apparel/isMegaMenu'] ?? fa
 // Auto-detect current page if not manually set.
 if ( ! $is_current && ! empty( $url ) ) {
 	$current_url = home_url( add_query_arg( array() ) );
-	$link_url    = $url;
+	$link_host   = wp_parse_url( $url, PHP_URL_HOST );
 
-	// Normalize URLs for comparison.
-	$current_path = wp_parse_url( $current_url, PHP_URL_PATH ) ?? '/';
-	$link_path    = wp_parse_url( $link_url, PHP_URL_PATH ) ?? '/';
-
-	// Handle relative URLs.
-	if ( ! wp_parse_url( $link_url, PHP_URL_HOST ) ) {
-		// It's a relative URL, compare paths directly.
-		$is_current = trailingslashit( $current_path ) === trailingslashit( $link_path );
-	} else {
-		// Full URL, compare host and path.
-		$current_host = wp_parse_url( $current_url, PHP_URL_HOST );
-		$link_host    = wp_parse_url( $link_url, PHP_URL_HOST );
-
-		if ( $current_host === $link_host ) {
-			$is_current = trailingslashit( $current_path ) === trailingslashit( $link_path );
-		}
+	// A relative link, or one on this site's host, is current on its path.
+	if ( ! $link_host || wp_parse_url( $current_url, PHP_URL_HOST ) === $link_host ) {
+		$is_current = trailingslashit( wp_parse_url( $current_url, PHP_URL_PATH ) ?? '/' ) === trailingslashit( wp_parse_url( $url, PHP_URL_PATH ) ?? '/' );
 	}
 
 	// A link with a query (?collection=mens, ?orderby=date) is current only
 	// with that query: the path alone can't tell Men's T-shirts from Women's.
-	$link_query = (string) wp_parse_url( $link_url, PHP_URL_QUERY );
+	$link_query = (string) wp_parse_url( $url, PHP_URL_QUERY );
 	if ( $is_current && '' !== $link_query ) {
 		wp_parse_str( $link_query, $link_args );
 		wp_parse_str( (string) wp_parse_url( $current_url, PHP_URL_QUERY ), $current_args );

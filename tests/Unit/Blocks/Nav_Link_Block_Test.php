@@ -73,6 +73,8 @@ class Nav_Link_Block_Test extends WP_UnitTestCase {
 	public function test_path_match(): void {
 		$this->assertTrue( $this->is_current( '/shop/', '/shop' ) );
 		$this->assertFalse( $this->is_current( '/shop/sales/', '/shop/' ) );
+		$this->assertTrue( $this->is_current( home_url( '/shop/' ), '/shop/' ) );
+		$this->assertFalse( $this->is_current( 'https://elsewhere.example/shop/', '/shop/' ) );
 	}
 
 	/**

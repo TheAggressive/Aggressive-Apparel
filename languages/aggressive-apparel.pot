@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T09:10:10+00:00\n"
+"POT-Creation-Date: 2026-10-26T19:45:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -7701,12 +7701,14 @@ msgstr ""
 msgid "Main navigation"
 msgstr ""
 
-#: src/blocks-interactivity/product-color-swatches/render.php:139
-msgid "Color options"
+#. translators: %s: Product name.
+#: src/blocks-interactivity/product-color-swatches/render.php:140
+#, php-format
+msgid "Color options for %s"
 msgstr ""
 
 #. translators: %s: Color name.
-#: src/blocks-interactivity/product-color-swatches/render.php:179
+#: src/blocks-interactivity/product-color-swatches/render.php:180
 #, php-format
 msgid "View in %s"
 msgstr ""

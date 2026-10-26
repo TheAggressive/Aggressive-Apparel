@@ -75,6 +75,7 @@ class Blocks {
 
 		\add_action( 'init', array( __CLASS__, 'register' ) );
 		\add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_rating_mark_var' ) );
+		Card_Block_Assets::init();
 	}
 
 	/**

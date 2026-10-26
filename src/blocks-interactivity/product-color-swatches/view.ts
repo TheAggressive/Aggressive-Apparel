@@ -13,6 +13,17 @@
  * Data for each swatch (slug, imageUrl, etc.) is stored in the
  * data-wp-context attribute rendered by PHP and read here via
  * getAttribute — no hydration required.
+ *
+ * The selected swatch deselects on a second press (it is a toggle), on
+ * Escape, or on a click outside its card, putting back the card's original
+ * image and links. Clicks elsewhere in the same card (its link, wishlist,
+ * Quick View) keep the selection: they act on the chosen colour.
+ *
+ * Originals are captured when a swatch first changes the element, and kept
+ * only while the element still shows what the swatch applied. An element a
+ * filter navigation reuses for another product starts afresh. They live in
+ * WeakMaps, not on the element, so page markup can't plant a value for the
+ * restore to write back.
  */
 
 interface ContainerContext {
@@ -26,6 +37,9 @@ interface SwatchContext {
   imageSrcset: string;
   imageAlt: string;
 }
+
+const GROUP_SELECTOR = '.aa-product-color-swatches';
+const SWATCH_SELECTOR = '.aa-product-color-swatches__swatch';
 
 const CARD_SELECTOR =
   'li.wp-block-post, li.product, li.wc-block-product, .product, [data-product-id]';
@@ -91,12 +105,53 @@ function swapImage(
   img.addEventListener('error', reveal, { once: true });
 }
 
+/** Swatch groups with a selection, so an outside click checks only these. */
+const selected = new Set<HTMLElement>();
+
+/** A card image's original source, and the src a swatch last applied. */
+interface ImageOriginal {
+  src: string;
+  srcset: string;
+  alt: string;
+  applied: string;
+}
+
+/** A card link's original href, and the href a swatch last applied. */
+interface LinkOriginal {
+  href: string;
+  applied: string;
+}
+
+const imageOriginals = new WeakMap<HTMLImageElement, ImageOriginal>();
+const linkOriginals = new WeakMap<HTMLAnchorElement, LinkOriginal>();
+
+/** Record the image's original source unless it still shows a swatch's. */
+function rememberImage(img: HTMLImageElement): ImageOriginal {
+  let original = imageOriginals.get(img);
+  if (!original || img.getAttribute('src') !== original.applied) {
+    original = {
+      src: img.getAttribute('src') || '',
+      srcset: img.getAttribute('srcset') || '',
+      alt: img.getAttribute('alt') || '',
+      applied: '',
+    };
+    imageOriginals.set(img, original);
+  }
+  return original;
+}
+
 function updateProductLinks(card: Element, slug: string): void {
   findProductLinks(card).forEach(link => {
+    let original = linkOriginals.get(link);
+    if (!original || link.getAttribute('href') !== original.applied) {
+      original = { href: link.getAttribute('href') || '', applied: '' };
+      linkOriginals.set(link, original);
+    }
     try {
       const url = new URL(link.href, window.location.origin);
       url.searchParams.set('attribute_pa_color', slug);
       link.href = url.toString();
+      original.applied = link.getAttribute('href') || '';
     } catch {
       // Silently skip if href can't be parsed.
     }
@@ -111,15 +166,90 @@ function readContext<T>(el: HTMLElement): Partial<T> {
   }
 }
 
+/** Press `active` (or none) in a swatch group. */
+function setPressed(container: HTMLElement, active: HTMLElement | null): void {
+  container.querySelectorAll<HTMLElement>(SWATCH_SELECTOR).forEach(s => {
+    s.setAttribute('aria-pressed', s === active ? 'true' : 'false');
+    s.classList.toggle('is-active', s === active);
+  });
+  if (active) {
+    selected.add(container);
+  } else {
+    selected.delete(container);
+  }
+}
+
+/** Put back the image's original src, srcset and alt, if a swatch set them. */
+function restoreImage(img: HTMLImageElement, transition: string): void {
+  const original = imageOriginals.get(img);
+  if (!original || img.getAttribute('src') !== original.applied) {
+    return;
+  }
+  if (img.getAttribute('src') !== original.src) {
+    swapImage(img, original.src, '', '', transition);
+  }
+  if (original.srcset) {
+    img.srcset = original.srcset;
+  } else {
+    img.removeAttribute('srcset');
+  }
+  img.alt = original.alt;
+  original.applied = original.src;
+}
+
+/** Deselect a swatch group and put back its card's original image and links. */
+function resetGroup(container: HTMLElement): void {
+  setPressed(container, null);
+
+  const card = findProductCard(container);
+  if (!card) {
+    return;
+  }
+
+  const img = findProductImage(card);
+  if (img) {
+    restoreImage(
+      img,
+      readContext<ContainerContext>(container).transition || 'blur'
+    );
+  }
+
+  findProductLinks(card).forEach(link => {
+    const original = linkOriginals.get(link);
+    if (original && link.getAttribute('href') === original.applied) {
+      link.setAttribute('href', original.href);
+      original.applied = original.href;
+    }
+  });
+}
+
+/** Reset every selection whose card the click landed outside of. */
+function resetGroupsOutside(target: Element): void {
+  selected.forEach(container => {
+    if (!container.isConnected) {
+      selected.delete(container);
+      return;
+    }
+    const scope = findProductCard(container) ?? container;
+    if (!scope.contains(target)) {
+      resetGroup(container);
+    }
+  });
+}
+
 document.addEventListener('click', (e: MouseEvent) => {
-  const btn = (e.target as HTMLElement).closest<HTMLElement>(
-    '.aa-product-color-swatches__swatch'
-  );
+  const target = e.target;
+  if (!(target instanceof Element)) {
+    return;
+  }
+  resetGroupsOutside(target);
+
+  const btn = target.closest<HTMLElement>(SWATCH_SELECTOR);
   if (!btn) {
     return;
   }
 
-  const container = btn.closest<HTMLElement>('.aa-product-color-swatches');
+  const container = btn.closest<HTMLElement>(GROUP_SELECTOR);
   if (!container) {
     return;
   }
@@ -132,14 +262,13 @@ document.addEventListener('click', (e: MouseEvent) => {
     return;
   }
 
-  // Update aria-pressed and active class on all sibling swatches.
-  container
-    .querySelectorAll<HTMLElement>('.aa-product-color-swatches__swatch')
-    .forEach(s => {
-      const isActive = s === btn;
-      s.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-      s.classList.toggle('is-active', isActive);
-    });
+  // A toggle: pressing the selected swatch again deselects it.
+  if (btn.getAttribute('aria-pressed') === 'true') {
+    resetGroup(container);
+    return;
+  }
+
+  setPressed(container, btn);
 
   const card = findProductCard(btn);
   if (!card) {
@@ -153,14 +282,27 @@ document.addEventListener('click', (e: MouseEvent) => {
   const transition = containerCtx.transition || 'blur';
   const linkToVariation = containerCtx.linkToVariation !== false;
 
-  if (imageUrl) {
-    const img = findProductImage(card);
-    if (img) {
-      swapImage(img, imageUrl, imageSrcset, imageAlt, transition);
-    }
+  const img = findProductImage(card);
+  if (img && imageUrl) {
+    const original = rememberImage(img);
+    swapImage(img, imageUrl, imageSrcset, imageAlt, transition);
+    original.applied = img.getAttribute('src') || '';
+  } else if (img) {
+    // A colour without its own photo shows the product's.
+    restoreImage(img, transition);
   }
 
   if (linkToVariation) {
     updateProductLinks(card, slug);
+  }
+});
+
+document.addEventListener('keydown', (e: KeyboardEvent) => {
+  if (e.key !== 'Escape' || !(e.target instanceof Element)) {
+    return;
+  }
+  const container = e.target.closest<HTMLElement>(GROUP_SELECTOR);
+  if (container && selected.has(container)) {
+    resetGroup(container);
   }
 });

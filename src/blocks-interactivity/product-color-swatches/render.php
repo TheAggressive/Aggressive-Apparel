@@ -136,7 +136,8 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		'class'           => trim( $wrapper_classes ),
 		'data-wp-context' => wp_json_encode( $container_context ),
 		'role'            => 'group',
-		'aria-label'      => __( 'Color options', 'aggressive-apparel' ),
+		/* translators: %s: Product name. */
+		'aria-label'      => sprintf( __( 'Color options for %s', 'aggressive-apparel' ), $product->get_name() ),
 	)
 );
 ?>
@@ -176,7 +177,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		}
 
 		/* translators: %s: Color name. */
-		$aria_label = esc_attr( sprintf( __( 'View in %s', 'aggressive-apparel' ), $swatch['colorName'] ) );
+		$aria_label = sprintf( __( 'View in %s', 'aggressive-apparel' ), $swatch['colorName'] );
 		?>
 		<button
 			type="button"

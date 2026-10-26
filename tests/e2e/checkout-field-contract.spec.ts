@@ -19,6 +19,7 @@ import {
   choiceGapPx,
   measureChoiceGaps,
 } from './choice-gap';
+import { ownShippingMethodPhp } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 const FIXTURE_OWNER_META = '_aa_e2e_fixture_owner';
@@ -48,7 +49,9 @@ test.beforeAll(() => {
   shippingInstanceId = Number(
     wpCli([
       'eval',
-      `echo ( new WC_Shipping_Zone( 0 ) )->add_shipping_method( 'flat_rate' );`,
+      `$id = ( new WC_Shipping_Zone( 0 ) )->add_shipping_method( 'flat_rate' );
+       ${ownShippingMethodPhp('$id')}
+       echo $id;`,
     ])
   );
   expect(shippingInstanceId).toBeGreaterThan(0);

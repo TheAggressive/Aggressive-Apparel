@@ -1,3 +1,8 @@
+import {
+  backupOptions,
+  FIXTURE_OWNER_META,
+  ownPostPhp,
+} from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 /**
@@ -23,6 +28,7 @@ const FEATURE_OPTION = 'aggressive_apparel_wc_features';
 const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 const COMING_SOON_OPTION = 'woocommerce_coming_soon';
 const PRETTY_PERMALINK_STRUCTURE = '/%postname%/';
+const FIXTURE_OWNER = 'catalog';
 
 export interface CatalogFixtures {
   shopPageId: number;
@@ -156,7 +162,7 @@ for ($offset = 0; $offset < ${count}; $offset++) {
 	$product->set_regular_price((string) (10 + ($index % 50)));
 	$product->set_status('publish');
 	$product->set_catalog_visibility('visible');
-	$product->save();
+	${ownPostPhp('$product->save()', FIXTURE_OWNER)}
 }`,
   ]);
 }
@@ -198,7 +204,7 @@ function ensureCatalogImages(): void {
   wpCli([
     'eval',
     `$title = 'E2E Catalog Card Image';
-$existing = get_posts(array('post_type' => 'attachment', 'post_status' => 'inherit', 'title' => $title, 'fields' => 'ids', 'posts_per_page' => 1));
+$existing = get_posts(array('post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => '${FIXTURE_OWNER_META}', 'meta_value' => '${FIXTURE_OWNER}', 'fields' => 'ids', 'posts_per_page' => 1));
 $attachment_id = $existing ? (int) $existing[0] : 0;
 if (!$attachment_id) {
 	$bytes = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', true);
@@ -210,11 +216,12 @@ if (!$attachment_id) {
 	if (is_wp_error($attachment_id)) {
 		throw new RuntimeException($attachment_id->get_error_message());
 	}
+	${ownPostPhp('$attachment_id', FIXTURE_OWNER)}
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	wp_update_attachment_metadata($attachment_id, wp_generate_attachment_metadata($attachment_id, $upload['file']));
 }
 
-$products = get_posts(array('post_type' => 'product', 'post_status' => 'publish', 's' => 'E2E Catalog Product', 'fields' => 'ids', 'posts_per_page' => -1));
+$products = get_posts(array('post_type' => 'product', 'post_status' => 'publish', 'meta_key' => '${FIXTURE_OWNER_META}', 'meta_value' => '${FIXTURE_OWNER}', 'fields' => 'ids', 'posts_per_page' => -1));
 foreach ($products as $product_id) {
 	if (!has_post_thumbnail($product_id)) {
 		set_post_thumbnail($product_id, $attachment_id);
@@ -225,6 +232,13 @@ foreach ($products as $product_id) {
 
 /** Idempotent catalogue floor for Load More e2e. */
 export function ensureCatalogFixtures(): CatalogFixtures {
+  // Restored by global teardown (fixture-cleanup.ts).
+  backupOptions([
+    FEATURE_OPTION,
+    LOAD_MORE_MODE_OPTION,
+    COMING_SOON_OPTION,
+    'permalink_structure',
+  ]);
   ensurePublicStore();
   const shopPageId = ensureStorefrontInfrastructure();
   ensureInfiniteScrollMode();

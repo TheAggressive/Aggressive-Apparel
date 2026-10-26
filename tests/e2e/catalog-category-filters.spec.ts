@@ -9,6 +9,7 @@ import {
   CHILD_COLLECTION,
   PARENT_CATEGORY,
   PARENT_NAME,
+  deleteCategoryFilterFixtures,
   ensureCategoryFilterFixtures,
   type CategoryFilterFixtures,
 } from './category-filter-fixtures';
@@ -17,6 +18,10 @@ let fixtures: CategoryFilterFixtures;
 
 test.beforeAll(() => {
   fixtures = ensureCategoryFilterFixtures();
+});
+
+test.afterAll(() => {
+  deleteCategoryFilterFixtures();
 });
 
 test.use({ storageState: { cookies: [], origins: [] } });

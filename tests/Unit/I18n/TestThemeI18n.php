@@ -162,7 +162,7 @@ class TestThemeI18n extends WP_UnitTestCase {
 			'404'            => array( '404.html', 'aggressive-apparel/page-404' ),
 			'archive'        => array( 'archive-product.html', 'aggressive-apparel/template-no-products' ),
 			'category'       => array( 'taxonomy-product_cat.html', 'aggressive-apparel/template-no-products' ),
-			'home'           => array( 'home.html', 'aggressive-apparel/template-latest-posts-heading' ),
+			'home'           => array( 'home.html', 'aggressive-apparel/home-storefront' ),
 			'index'          => array( 'index.html', 'aggressive-apparel/template-no-posts' ),
 			'search'         => array( 'search.html', 'aggressive-apparel/template-no-search-results' ),
 			'cart'           => array( 'page-cart.html', 'aggressive-apparel/template-cart-heading' ),

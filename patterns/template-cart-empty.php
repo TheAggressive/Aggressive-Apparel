@@ -19,8 +19,8 @@
 <p class="has-text-align-center"><a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php echo esc_html__( 'Browse store', 'aggressive-apparel' ); ?></a></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:separator {"className":"is-style-wide"} -->
-<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide"/>
+<!-- wp:separator {"className":"is-style-dots"} -->
+<hr class="wp-block-separator has-alpha-channel-opacity is-style-dots"/>
 <!-- /wp:separator -->
 
 <!-- wp:heading {"textAlign":"center"} -->

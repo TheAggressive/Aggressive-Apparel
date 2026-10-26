@@ -11,6 +11,6 @@
  */
 
 ?>
-<!-- wp:heading {"level":1} -->
-<h1 class="wp-block-heading"><?php echo esc_html__( 'Cart', 'aggressive-apparel' ); ?></h1>
+<!-- wp:heading {"level":1,"align":"wide","style":{"typography":{"textAlign":"left"}}} -->
+<h1 class="wp-block-heading has-text-align-left alignwide"><?php echo esc_html__( 'Cart', 'aggressive-apparel' ); ?></h1>
 <!-- /wp:heading -->

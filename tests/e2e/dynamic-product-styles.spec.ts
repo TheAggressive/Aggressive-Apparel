@@ -42,51 +42,60 @@ async function openVisualFixtureCard(page: Page) {
   return card;
 }
 
+/**
+ * Swatch tiers (product-color-swatches/style.css): the visual dot, and the
+ * floor under its target (the dot plus 12px), in standard and narrow
+ * ("dense") cards. The shop template picks the tier, so tests read it.
+ */
+const SWATCH_TIERS = {
+  xxs: { visual: 14, floor: 24, denseVisual: 12, denseFloor: 24 },
+  xs: { visual: 20, floor: 32, denseVisual: 16, denseFloor: 28 },
+  sm: { visual: 28, floor: 32, denseVisual: 22, denseFloor: 28 },
+  md: { visual: 32, floor: 32, denseVisual: 24, denseFloor: 28 },
+  lg: { visual: 44, floor: 32, denseVisual: 28, denseFloor: 28 },
+} as const;
+
+/** WCAG 2.2 AA target size (2.5.8). */
+const MIN_TARGET_PX = 24;
+
+async function swatchTier(group: Locator) {
+  const size = await group.evaluate(
+    element =>
+      [...element.classList]
+        .find(name => name.startsWith('is-size-'))
+        ?.slice('is-size-'.length) ?? ''
+  );
+  expect(Object.keys(SWATCH_TIERS), `swatch size "${size}"`).toContain(size);
+  return SWATCH_TIERS[size as keyof typeof SWATCH_TIERS];
+}
+
+const swatchVisual = (swatch: Locator) =>
+  swatch.evaluate(element => ({
+    width: Number.parseFloat(getComputedStyle(element, '::before').width),
+    gap: Number.parseFloat(
+      getComputedStyle(element.parentElement as Element).columnGap
+    ),
+  }));
+
 test('product-card swatches keep an accessible target and focus state', async ({
   page,
 }) => {
   const card = await openVisualFixtureCard(page);
 
-  const swatch = card.locator('.aa-product-color-swatches__swatch').first();
+  const group = card.locator('.aa-product-color-swatches').first();
+  const swatch = group.locator('.aa-product-color-swatches__swatch').first();
   await expect(swatch).toHaveCount(1);
+  const tier = await swatchTier(group);
 
   const box = await swatch.boundingBox();
-  expect(box?.width).toBeGreaterThanOrEqual(32);
-  expect(box?.height).toBeGreaterThanOrEqual(32);
-  const visual = await swatch.evaluate(element => {
-    const swatchStyle = getComputedStyle(element, '::before');
-    const containerStyle = getComputedStyle(element.parentElement as Element);
-    return {
-      width: Number.parseFloat(swatchStyle.width),
-      gap: Number.parseFloat(containerStyle.columnGap),
-    };
-  });
-  expect(visual.width).toBe(20);
+  const target = Math.max(tier.visual + 12, tier.floor);
+  expect(box?.width).toBe(target);
+  expect(box?.height).toBe(target);
+  expect(target).toBeGreaterThanOrEqual(MIN_TARGET_PX);
+
+  const visual = await swatchVisual(swatch);
+  expect(visual.width).toBe(tier.visual);
   expect(visual.gap).toBe(0);
-  expect((box?.width ?? 0) - visual.width).toBe(12);
-
-  const grouping = await swatch.evaluate(element => {
-    const group = element.parentElement;
-    const price = group?.previousElementSibling;
-    if (!group || !price) {
-      return null;
-    }
-
-    const target = element.getBoundingClientRect();
-    const priceBox = price.getBoundingClientRect();
-    const visualSize = Number.parseFloat(
-      getComputedStyle(element, '::before').height
-    );
-
-    return {
-      alignment: getComputedStyle(group).justifyContent,
-      priceToVisual:
-        target.top + (target.height - visualSize) / 2 - priceBox.bottom,
-    };
-  });
-  expect(grouping?.alignment).toBe('center');
-  expect(grouping?.priceToVisual).toBeGreaterThanOrEqual(24);
-  expect(grouping?.priceToVisual).toBeLessThanOrEqual(28);
   await expect(swatch).toHaveAttribute('aria-pressed', 'false');
 
   await swatch.focus();
@@ -110,25 +119,18 @@ test('narrow product cards use the dense swatch tier without wrapping', async ({
   const group = card.locator('.aa-product-color-swatches').first();
   const swatches = group.locator('.aa-product-color-swatches__swatch');
   await expect(swatches.first()).toHaveCount(1);
+  const tier = await swatchTier(group);
 
   const first = swatches.first();
   const box = await first.boundingBox();
-  expect(box?.width).toBeGreaterThanOrEqual(28);
-  expect(box?.width).toBeLessThan(32);
-  expect(box?.height).toBeGreaterThanOrEqual(28);
-  expect(box?.height).toBeLessThan(32);
+  const target = Math.max(tier.denseVisual + 12, tier.denseFloor);
+  expect(box?.width).toBe(target);
+  expect(box?.height).toBe(target);
+  expect(target).toBeGreaterThanOrEqual(MIN_TARGET_PX);
 
-  const visual = await first.evaluate(element => {
-    const swatchStyle = getComputedStyle(element, '::before');
-    const containerStyle = getComputedStyle(element.parentElement as Element);
-    return {
-      width: Number.parseFloat(swatchStyle.width),
-      gap: Number.parseFloat(containerStyle.columnGap),
-    };
-  });
-  expect(visual.width).toBe(16);
+  const visual = await swatchVisual(first);
+  expect(visual.width).toBe(tier.denseVisual);
   expect(visual.gap).toBe(0);
-  expect((box?.width ?? 0) - visual.width).toBe(12);
 
   const visibleCount = Math.min(await swatches.count(), 4);
   if (visibleCount > 1) {

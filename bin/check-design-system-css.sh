@@ -55,7 +55,7 @@ fi
 BEM_PATTERN='^(aggressive-apparel-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?|aa-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?)$'
 HEX_PATTERN='(?<!&)#[0-9a-fA-F]{3,8}'
 EDITOR_CHROME_PATTERN="(#757575|rgb\\(117,\\s*117,\\s*117\\)|color: '#(666|999|1e1e1e|cc1818|0066cc|0c4a6e)'|backgroundColor: '#(f0f0f0|f0f8ff|f0f9ff|f5f5f5|f8f9fa|f9f9f9)'|border(Top)?: '1px solid #ddd'|borderRadius: '(4px|8px)')"
-REGISTERED_STYLE_PATTERN='^(is-style-(badge|badge-muted|bordered|caption|commerce-cards|commerce-grid|commerce-price|cta|cta-ghost|cta-outline-on-dark|cta-small|cta-small-outline-on-dark|default|eyebrow|ghost|legal|logos-only|meta|outline|outline-on-dark|price|product-frame|small|subtle|surface-card|text|wide))$'
+REGISTERED_STYLE_PATTERN='^(is-style-(badge|badge-muted|bordered|caption|commerce-cards|commerce-grid|commerce-price|cta|cta-ghost|cta-outline-on-dark|cta-small|cta-small-outline-on-dark|default|dots|eyebrow|ghost|legal|logos-only|meta|outline|outline-on-dark|price|product-frame|small|subtle|surface-card|text|wide))$'
 RAW_CTA_PATTERN='padding-(top|right|bottom|left):(1\.2rem|3rem)|font-size:1\.1rem'
 INLINE_BUTTON_STYLE_PATTERN='wp-block-button__link[^>]*style='
 BUTTON_RECIPE_ATTRIBUTE_PATTERN='<!-- wp:button [^>]*(typography|padding)'

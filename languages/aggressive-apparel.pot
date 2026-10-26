@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T07:43:20+00:00\n"
+"POT-Creation-Date: 2026-10-26T09:10:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1684,11 +1684,13 @@ msgid "No products were found matching your selection."
 msgstr ""
 
 #: includes/WooCommerce/class-collection-attribute-migration.php:67
+#: patterns/home-storefront.php:92
 #: patterns/homepage-seasonal-shop.php:24
 msgid "Men's"
 msgstr ""
 
 #: includes/WooCommerce/class-collection-attribute-migration.php:68
+#: patterns/home-storefront.php:108
 #: patterns/homepage-seasonal-shop.php:48
 msgid "Women's"
 msgstr ""
@@ -4593,6 +4595,7 @@ msgid "The pieces our community keeps coming back for."
 msgstr ""
 
 #: patterns/best-sellers-row.php:32
+#: patterns/home-storefront.php:52
 #: patterns/homepage-drop-composition.php:78
 #: patterns/homepage-seasonal-shop.php:174
 #: patterns/new-arrivals-row.php:32
@@ -5528,6 +5531,7 @@ msgid "All Products"
 msgstr ""
 
 #: patterns/footer-columns.php:47
+#: patterns/home-storefront.php:47
 #: patterns/homepage-drop-composition.php:70
 #: patterns/mega-menu-panel.php:52
 #: patterns/new-arrivals-row.php:20
@@ -5819,6 +5823,68 @@ msgstr ""
 msgid "Watch the Film"
 msgstr ""
 
+#: patterns/home-storefront.php
+msgctxt "Pattern title"
+msgid "Home Storefront"
+msgstr ""
+
+#: patterns/home-storefront.php
+msgctxt "Pattern description"
+msgid "Storefront home page: hero carousel, new arrivals, men's / women's collection covers and brand statement."
+msgstr ""
+
+#: patterns/home-storefront.php:22
+msgid "Rebellion Has a Uniform"
+msgstr ""
+
+#: patterns/home-storefront.php:26
+msgid "Built for the ones who learned that loyalty has consequences"
+msgstr ""
+
+#: patterns/home-storefront.php:31
+msgid "Shop Trust Kills"
+msgstr ""
+
+#: patterns/home-storefront.php:35
+msgid "Explore New Arrivals"
+msgstr ""
+
+#: patterns/home-storefront.php:59
+msgid "Fresh graphics. No recycled attitude."
+msgstr ""
+
+#: patterns/home-storefront.php:80
+msgid "No results found"
+msgstr ""
+
+#: patterns/home-storefront.php:89
+#: patterns/home-storefront.php:90
+msgid "Man with tattoos on a motorcycle wearing a white t-shirt featuring a skull-patterned letter A graphic"
+msgstr ""
+
+#: patterns/home-storefront.php:98
+#: patterns/homepage-seasonal-shop.php:30
+msgid "Shop Men's"
+msgstr ""
+
+#: patterns/home-storefront.php:105
+#: patterns/home-storefront.php:106
+msgid "Woman wearing a black t-shirt with the word AGGRESSIVE in a spiky metal-style font"
+msgstr ""
+
+#: patterns/home-storefront.php:114
+#: patterns/homepage-seasonal-shop.php:54
+msgid "Shop Women's"
+msgstr ""
+
+#: patterns/home-storefront.php:127
+msgid "For the Unruled"
+msgstr ""
+
+#: patterns/home-storefront.php:131
+msgid "The Aggressive is independent graphic apparel shaped by punk, metal, skate and motocross culture. Designed for people who carry their edge naturally—not people trying to manufacture one."
+msgstr ""
+
 #: patterns/homepage-brand-led.php
 msgctxt "Pattern title"
 msgid "Homepage Brand Led"
@@ -6000,16 +6066,8 @@ msgstr ""
 msgid "Menswear"
 msgstr ""
 
-#: patterns/homepage-seasonal-shop.php:30
-msgid "Shop Men's"
-msgstr ""
-
 #: patterns/homepage-seasonal-shop.php:44
 msgid "Womenswear"
-msgstr ""
-
-#: patterns/homepage-seasonal-shop.php:54
-msgid "Shop Women's"
 msgstr ""
 
 #: patterns/homepage-seasonal-shop.php:68
@@ -6408,19 +6466,23 @@ msgctxt "Pattern description"
 msgid "Branded 404 error page with search, popular products link, and back-to-home CTA."
 msgstr ""
 
-#: patterns/page-404.php:20
+#: patterns/page-404.php:23
 msgid "Page Not Found"
 msgstr ""
 
-#: patterns/page-404.php:24
-msgid "The page you're looking for doesn't exist or has been moved. Try searching or head back to the shop."
+#: patterns/page-404.php:27
+msgid "Looks like this page has disappeared..."
 msgstr ""
 
-#: patterns/page-404.php:32
+#: patterns/page-404.php:27
+msgid "Lets get you back to the good stuff."
+msgstr ""
+
+#: patterns/page-404.php:34
 msgid "Browse Shop"
 msgstr ""
 
-#: patterns/page-404.php:36
+#: patterns/page-404.php:38
 msgid "Go Home"
 msgstr ""
 
@@ -7205,20 +7267,6 @@ msgstr ""
 
 #: patterns/template-checkout-heading.php:15
 msgid "Checkout"
-msgstr ""
-
-#: patterns/template-latest-posts-heading.php
-msgctxt "Pattern title"
-msgid "Latest Posts Heading"
-msgstr ""
-
-#: patterns/template-latest-posts-heading.php
-msgctxt "Pattern description"
-msgid "Heading for the home / blog posts template."
-msgstr ""
-
-#: patterns/template-latest-posts-heading.php:15
-msgid "Latest Posts"
 msgstr ""
 
 #: patterns/template-no-posts.php

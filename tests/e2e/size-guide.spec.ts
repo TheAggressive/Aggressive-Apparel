@@ -6,10 +6,12 @@ import {
 } from './size-guide-fixtures';
 
 /**
- * Browser-level contract for the dynamic product Size Guide block.
+ * Browser-level contract for the product Size Guide dialog.
  *
- * This intentionally exercises the production block renderer and shared
- * overlay primitives on a real WooCommerce single-product request.
+ * The product template has no Size Guide block, so Size_Guide prints the
+ * dialog in the footer behind a hidden trigger, and the "(Guide)" link beside
+ * the Size options opens it. This exercises that path and the shared overlay
+ * primitives on a real WooCommerce single-product request.
  */
 
 test.describe('Size Guide — product page', () => {
@@ -38,9 +40,11 @@ test.describe('Size Guide — product page', () => {
     const dialog = root.locator('[role="dialog"]');
     const panel = dialog.locator('.aggressive-apparel-size-guide__modal');
     const closeButton = dialog.getByRole('button', { name: 'Close' });
+    const opener = page.locator('.aa-size-label__link');
 
     await expect(root).toHaveCount(1);
-    await expect(trigger).toHaveClass(/wp-block-aggressive-apparel-size-guide/);
+    await expect(trigger).toBeHidden();
+    await expect(opener).toBeVisible();
     await expect(overlay).toHaveClass(/aggressive-apparel-overlay/);
     await expect(panel).toHaveClass(/aggressive-apparel-panel/);
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -50,7 +54,7 @@ test.describe('Size Guide — product page', () => {
     expect(controlledId).toBeTruthy();
     await expect(overlay).toHaveAttribute('id', controlledId ?? '');
 
-    await trigger.click();
+    await opener.click();
 
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAccessibleName('Size Guide');
@@ -68,7 +72,7 @@ test.describe('Size Guide — product page', () => {
 
     await expect(overlay).toBeHidden();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    await expect(trigger).toBeFocused();
+    await expect(opener).toBeFocused();
     await expect
       .poll(() => page.evaluate(() => document.body.style.overflow))
       .toBe('');
@@ -85,8 +89,9 @@ test.describe('Size Guide — product page', () => {
     const dialog = root.getByRole('dialog', { name: 'Size Guide' });
     const closeButton = dialog.getByRole('button', { name: 'Close' });
     const fitNotesLink = dialog.getByRole('link', { name: 'Fit notes' });
+    const opener = page.locator('.aa-size-label__link');
 
-    await trigger.click();
+    await opener.click();
     await expect(closeButton).toBeFocused();
 
     await page.keyboard.press('Tab');
@@ -98,9 +103,9 @@ test.describe('Size Guide — product page', () => {
 
     await closeButton.click();
     await expect(overlay).toBeHidden();
-    await expect(trigger).toBeFocused();
+    await expect(opener).toBeFocused();
 
-    await trigger.click();
+    await opener.click();
     await expect(dialog).toBeVisible();
     await overlay
       .locator('.aggressive-apparel-size-guide__backdrop')
@@ -108,6 +113,6 @@ test.describe('Size Guide — product page', () => {
 
     await expect(overlay).toBeHidden();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    await expect(trigger).toBeFocused();
+    await expect(opener).toBeFocused();
   });
 });

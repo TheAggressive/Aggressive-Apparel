@@ -125,18 +125,34 @@ if (!post_type_exists('aa_size_guide')) {
   return;
 }
 
-$product = new WC_Product_Simple();
+// Sized like the store's apparel: the guide opens from the "(Guide)" link
+// beside the Size options.
+$product = new WC_Product_Variable();
 $product->set_name('E2E Size Guide Product');
 $product->set_sku('${FIXTURE_SKU}');
-$product->set_regular_price('29.99');
 $product->set_status('publish');
 $product->set_catalog_visibility('visible');
 $product->set_short_description('<p>Size Guide browser fixture.</p>');
+$attribute = new WC_Product_Attribute();
+$attribute->set_name('Size');
+$attribute->set_options(array('Small', 'Medium', 'Large'));
+$attribute->set_visible(true);
+$attribute->set_variation(true);
+$product->set_attributes(array($attribute));
 $product_id = $product->save();
 if ($product_id <= 0) {
   echo wp_json_encode(array('error' => 'Could not create the fixture product.'));
   return;
 }
+foreach (array('Small', 'Medium', 'Large') as $size) {
+  $variation = new WC_Product_Variation();
+  $variation->set_parent_id($product_id);
+  $variation->set_attributes(array('size' => $size));
+  $variation->set_regular_price('29.99');
+  $variation->set_stock_status('instock');
+  $variation->save();
+}
+WC_Product_Variable::sync($product_id);
 if (false === update_post_meta($product_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}')) {
   echo wp_json_encode(array('error' => 'Could not mark the fixture product as test-owned.'));
   return;

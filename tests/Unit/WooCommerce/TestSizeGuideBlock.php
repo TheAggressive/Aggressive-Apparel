@@ -18,7 +18,7 @@ use WP_Block_Type_Registry;
 use WP_UnitTestCase;
 
 /**
- * Covers block rendering, duplicate protection, and template placement.
+ * Covers block rendering, duplicate protection, and the standalone dialog.
  */
 class TestSizeGuideBlock extends WP_UnitTestCase {
 
@@ -212,17 +212,20 @@ class TestSizeGuideBlock extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Theme template places the explicit block before add-to-cart.
+	 * Without the block, the footer prints the dialog behind a hidden trigger
+	 * so the page's "Size guide" links still open it.
 	 */
-	public function test_theme_template_places_block_before_add_to_cart(): void {
-		$template = file_get_contents( get_template_directory() . '/templates/single-product.html' );
+	public function test_standalone_dialog_renders_without_the_block(): void {
+		$product_id = $this->create_product_with_guide( '<p>Chest 38–40 inches</p>' );
+		$this->go_to( get_permalink( $product_id ) );
 
-		$this->assertIsString( $template );
-		$this->assertStringContainsString( '<!-- wp:aggressive-apparel/size-guide /-->', $template );
-		$this->assertLessThan(
-			strpos( $template, '<!-- wp:woocommerce/add-to-cart-with-options /-->' ),
-			strpos( $template, '<!-- wp:aggressive-apparel/size-guide /-->' )
-		);
+		ob_start();
+		( new Size_Guide() )->render_standalone_dialog();
+		$html = (string) ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<button class="aggressive-apparel-size-guide__trigger"[^>]*\shidden>/', $html );
+		$this->assertStringContainsString( 'aria-modal="true"', $html );
+		$this->assertStringContainsString( 'Chest 38–40 inches', $html );
 	}
 
 	/**

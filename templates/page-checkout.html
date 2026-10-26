@@ -1,9 +1,9 @@
-<!-- wp:template-part {"slug":"header","theme":"aggressive-apparel","tagName":"header"} /-->
+<!-- wp:template-part {"slug":"checkout-header","area":"header"} /-->
 
-<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
-<main class="wp-block-group"><!-- wp:pattern {"slug":"aggressive-apparel/template-checkout-heading"} /-->
+<!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"right":"var:preset|spacing|fluid-9","left":"var:preset|spacing|fluid-9"},"margin":{"top":"var:preset|spacing|fluid-12","bottom":"var:preset|spacing|fluid-24"}}},"layout":{"type":"constrained"}} -->
+<main class="wp-block-group" style="margin-top:var(--wp--preset--spacing--fluid-12);margin-bottom:var(--wp--preset--spacing--fluid-24);padding-right:var(--wp--preset--spacing--fluid-9);padding-left:var(--wp--preset--spacing--fluid-9)"><!-- wp:pattern {"slug":"aggressive-apparel/template-checkout-heading"} /-->
 
-<!-- wp:aggressive-apparel/store-notices {"captureBlockNotices":true} /-->
+<!-- wp:woocommerce/store-notices /-->
 
 <!-- wp:woocommerce/checkout {"showFormStepNumbers":true} -->
 <div class="wp-block-woocommerce-checkout alignwide wc-block-checkout is-loading"><!-- wp:woocommerce/checkout-totals-block -->
@@ -37,16 +37,20 @@
 <div class="wp-block-woocommerce-checkout-order-summary-taxes-block"></div>
 <!-- /wp:woocommerce/checkout-order-summary-taxes-block --></div>
 <!-- /wp:woocommerce/checkout-order-summary-totals-block --></div>
-<!-- /wp:woocommerce/checkout-order-summary-block --></div>
+<!-- /wp:woocommerce/checkout-order-summary-block -->
+
+<!-- wp:woocommerce-paypal-payments/checkout-paylater-messages {"ppcpId":"ppcp-00bbac77-360c-4591-a5f0-d1268a3bcf71"} /--></div>
 <!-- /wp:woocommerce/checkout-totals-block -->
 
 <!-- wp:woocommerce/checkout-fields-block -->
-<div class="wp-block-woocommerce-checkout-fields-block"><!-- wp:woocommerce/checkout-express-payment-block -->
+<div class="wp-block-woocommerce-checkout-fields-block"><!-- wp:woocommerce/checkout-express-payment-block {"showButtonStyles":true,"buttonBorderRadius":"150"} -->
 <div class="wp-block-woocommerce-checkout-express-payment-block"></div>
 <!-- /wp:woocommerce/checkout-express-payment-block -->
 
 <!-- wp:woocommerce/checkout-contact-information-block -->
-<div class="wp-block-woocommerce-checkout-contact-information-block"></div>
+<div class="wp-block-woocommerce-checkout-contact-information-block"><!-- wp:omnisend/checkout-block /-->
+
+<!-- wp:omnisend/checkout-sms-block /--></div>
 <!-- /wp:woocommerce/checkout-contact-information-block -->
 
 <!-- wp:woocommerce/checkout-shipping-method-block -->
@@ -77,19 +81,13 @@
 <div class="wp-block-woocommerce-checkout-additional-information-block"></div>
 <!-- /wp:woocommerce/checkout-additional-information-block -->
 
-<!-- wp:woocommerce/checkout-order-note-block -->
-<div class="wp-block-woocommerce-checkout-order-note-block"></div>
-<!-- /wp:woocommerce/checkout-order-note-block -->
-
-<!-- wp:woocommerce/checkout-terms-block -->
+<!-- wp:woocommerce/checkout-terms-block {"showSeparator":false} -->
 <div class="wp-block-woocommerce-checkout-terms-block"></div>
 <!-- /wp:woocommerce/checkout-terms-block -->
 
-<!-- wp:woocommerce/checkout-actions-block {"className":"is-style-with-price"} -->
+<!-- wp:woocommerce/checkout-actions-block {"showReturnToCart":true,"className":"is-style-with-price"} -->
 <div class="wp-block-woocommerce-checkout-actions-block is-style-with-price"></div>
 <!-- /wp:woocommerce/checkout-actions-block --></div>
 <!-- /wp:woocommerce/checkout-fields-block --></div>
 <!-- /wp:woocommerce/checkout --></main>
 <!-- /wp:group -->
-
-<!-- wp:template-part {"slug":"footer","theme":"aggressive-apparel","tagName":"footer"} /-->

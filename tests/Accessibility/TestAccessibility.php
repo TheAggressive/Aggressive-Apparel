@@ -52,6 +52,12 @@ class TestAccessibility extends WP_UnitTestCase {
 				continue;
 			}
 
+			// Neither are WooCommerce's email-editor templates.
+			$name = basename( $template, '.html' );
+			if ( str_starts_with( $name, 'email-' ) || 'wooemailtemplate' === $name ) {
+				continue;
+			}
+
 			$this->assertStringContainsString(
 				'<main',
 				$markup,

@@ -118,6 +118,13 @@ class Mobile_Bottom_Nav {
 					'isHiddenByScroll' => false,
 					'isSearchOpen'     => false,
 					'cartApiUrl'       => esc_url_raw( rest_url( 'wc/store/v1/cart' ) ),
+					'i18n'             => array(
+						'cart'      => __( 'Cart', 'aggressive-apparel' ),
+						/* translators: %d: Number of items in the cart (one). */
+						'cartOne'   => __( 'Cart (%d item)', 'aggressive-apparel' ),
+						/* translators: %d: Number of items in the cart (several). */
+						'cartOther' => __( 'Cart (%d items)', 'aggressive-apparel' ),
+					),
 				),
 			);
 		}

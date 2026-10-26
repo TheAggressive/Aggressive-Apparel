@@ -29,6 +29,8 @@ interface BottomNavState {
   isHiddenByScroll: boolean;
   cartCount: number;
   cartApiUrl: string;
+  /** Translated cart labels from PHP; `%d` is the item count. */
+  i18n?: { cart?: string; cartOne?: string; cartOther?: string };
   readonly hasEmptyCart: boolean;
   readonly cartAriaLabel: string;
 }
@@ -110,9 +112,15 @@ const { state, actions } = store<BottomNavStore>(
         return state.cartCount === 0;
       },
       get cartAriaLabel(): string {
-        return state.cartCount > 0
-          ? `Cart (${state.cartCount} ${state.cartCount === 1 ? 'item' : 'items'})`
-          : 'Cart';
+        const i18n = state.i18n ?? {};
+        if (state.cartCount <= 0) {
+          return i18n.cart ?? 'Cart';
+        }
+        const format =
+          state.cartCount === 1
+            ? (i18n.cartOne ?? 'Cart (%d item)')
+            : (i18n.cartOther ?? 'Cart (%d items)');
+        return format.replace('%d', String(state.cartCount));
       },
     },
 

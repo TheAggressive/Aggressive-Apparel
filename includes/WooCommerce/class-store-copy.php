@@ -32,6 +32,13 @@ trait Store_Copy {
 	private static array $store_copy_definitions_cache = array();
 
 	/**
+	 * Whether this request has loaded every Store Copy option in one query.
+	 *
+	 * @var bool
+	 */
+	private static bool $options_primed = false;
+
+	/**
 	 * Storefront microcopy settings with labels, defaults, and admin help.
 	 *
 	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>, inherit_default?: bool, highlight?: bool, max_length?: int, show_in_rest?: bool}>
@@ -376,6 +383,13 @@ trait Store_Copy {
 	 * @return string
 	 */
 	private static function get_store_copy_base_text( string $option_name, string $fallback, bool $allow_empty = false ): string {
+		// Most of these are never saved, and an absent, non-autoloaded option
+		// costs a query per read; one priming query covers them all.
+		if ( ! self::$options_primed ) {
+			self::$options_primed = true;
+			wp_prime_option_caches( array_column( self::get_store_copy_definitions(), 'option' ) );
+		}
+
 		if ( $allow_empty ) {
 			// `null` sentinel distinguishes "row absent" (→ default) from a
 			// stored empty string (→ intentional no-copy). On the frontend

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T19:45:01+00:00\n"
+"POT-Creation-Date: 2026-10-26T21:07:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -458,8 +458,8 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:200
 #: includes/Core/class-search-modal.php:202
-#: includes/WooCommerce/class-mobile-bottom-nav.php:147
-#: includes/WooCommerce/class-mobile-bottom-nav.php:153
+#: includes/WooCommerce/class-mobile-bottom-nav.php:154
+#: includes/WooCommerce/class-mobile-bottom-nav.php:160
 #: src/blocks-interactivity/search/render.php:28
 msgid "Search"
 msgstr ""
@@ -469,7 +469,7 @@ msgid "Clear search"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:205
-#: includes/WooCommerce/class-mobile-bottom-nav.php:205
+#: includes/WooCommerce/class-mobile-bottom-nav.php:212
 msgid "Close search"
 msgstr ""
 
@@ -1432,7 +1432,7 @@ msgstr ""
 #: includes/WooCommerce/class-badge-rules-admin.php:50
 #: includes/WooCommerce/class-badge-rules-admin.php:111
 #: includes/WooCommerce/class-badge-system-defaults.php:134
-#: includes/WooCommerce/class-store-copy.php:190
+#: includes/WooCommerce/class-store-copy.php:197
 #: patterns/design-system-preview.php:145
 #: patterns/footer-columns.php:49
 #: patterns/mega-menu-panel.php:64
@@ -2240,7 +2240,7 @@ msgid "Show stock availability indicator (In Stock, Low Stock, Out of Stock) in 
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:497
-#: includes/WooCommerce/class-store-copy.php:109
+#: includes/WooCommerce/class-store-copy.php:116
 msgid "Quick View"
 msgstr ""
 
@@ -2258,8 +2258,8 @@ msgid "Show recommended products with checkboxes and combined add-to-cart on pro
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:509
-#: includes/WooCommerce/class-mobile-bottom-nav.php:173
-#: includes/WooCommerce/class-mobile-bottom-nav.php:175
+#: includes/WooCommerce/class-mobile-bottom-nav.php:180
+#: includes/WooCommerce/class-mobile-bottom-nav.php:182
 #: includes/WooCommerce/class-wishlist.php:204
 msgid "Wishlist"
 msgstr ""
@@ -2395,32 +2395,45 @@ msgstr ""
 msgid "%d more products loaded."
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:136
-msgid "Mobile navigation"
-msgstr ""
-
-#: includes/WooCommerce/class-mobile-bottom-nav.php:138
-#: includes/WooCommerce/class-mobile-bottom-nav.php:140
-msgid "Home"
-msgstr ""
-
-#: includes/WooCommerce/class-mobile-bottom-nav.php:156
-#: includes/WooCommerce/class-mobile-bottom-nav.php:164
+#: includes/WooCommerce/class-mobile-bottom-nav.php:122
+#: includes/WooCommerce/class-mobile-bottom-nav.php:163
+#: includes/WooCommerce/class-mobile-bottom-nav.php:171
 #: patterns/template-cart-heading.php:15
 msgid "Cart"
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:167
-#: includes/WooCommerce/class-mobile-bottom-nav.php:169
+#. translators: %d: Number of items in the cart (one).
+#: includes/WooCommerce/class-mobile-bottom-nav.php:124
+#, php-format
+msgid "Cart (%d item)"
+msgstr ""
+
+#. translators: %d: Number of items in the cart (several).
+#: includes/WooCommerce/class-mobile-bottom-nav.php:126
+#, php-format
+msgid "Cart (%d items)"
+msgstr ""
+
+#: includes/WooCommerce/class-mobile-bottom-nav.php:143
+msgid "Mobile navigation"
+msgstr ""
+
+#: includes/WooCommerce/class-mobile-bottom-nav.php:145
+#: includes/WooCommerce/class-mobile-bottom-nav.php:147
+msgid "Home"
+msgstr ""
+
+#: includes/WooCommerce/class-mobile-bottom-nav.php:174
+#: includes/WooCommerce/class-mobile-bottom-nav.php:176
 msgid "Account"
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:192
-#: includes/WooCommerce/class-mobile-bottom-nav.php:201
+#: includes/WooCommerce/class-mobile-bottom-nav.php:199
+#: includes/WooCommerce/class-mobile-bottom-nav.php:208
 msgid "Search products"
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:200
+#: includes/WooCommerce/class-mobile-bottom-nav.php:207
 msgid "Search products…"
 msgstr ""
 
@@ -2461,7 +2474,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:236
 #: includes/WooCommerce/class-quick-view-renderer.php:115
-#: includes/WooCommerce/class-store-copy.php:91
+#: includes/WooCommerce/class-store-copy.php:98
 #: patterns/design-system-preview.php:157
 msgid "Out of Stock"
 msgstr ""
@@ -4015,263 +4028,263 @@ msgstr ""
 msgid "Error adding to cart"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:78
+#: includes/WooCommerce/class-store-copy.php:85
 msgid "Variable Product Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:79
+#: includes/WooCommerce/class-store-copy.php:86
 msgid "Choose"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:80
+#: includes/WooCommerce/class-store-copy.php:87
 msgid "Button text for variable products on product cards, Quick View, and Sticky Cart before options are chosen."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:84
+#: includes/WooCommerce/class-store-copy.php:91
 msgid "Simple Product Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:85
+#: includes/WooCommerce/class-store-copy.php:92
 #: src/blocks-interactivity/wishlist-item-actions/render.php:20
 #: src/blocks-interactivity/wishlist-item-actions/render.php:22
 msgid "Add to Cart"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:86
+#: includes/WooCommerce/class-store-copy.php:93
 msgid "Product-card button text for simple products that can be added directly."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:90
+#: includes/WooCommerce/class-store-copy.php:97
 msgid "Out of Stock Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:92
+#: includes/WooCommerce/class-store-copy.php:99
 msgid "Button text shown when product-card or sticky-cart products are out of stock."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:96
+#: includes/WooCommerce/class-store-copy.php:103
 msgid "Filter Toggle Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:97
+#: includes/WooCommerce/class-store-copy.php:104
 #: src/blocks-interactivity/filter-toggle/render.php:56
 msgid "Filter"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:98
+#: includes/WooCommerce/class-store-copy.php:105
 msgid "Visible text for the automatic product-filter trigger and default Filter Toggle block label."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:102
+#: includes/WooCommerce/class-store-copy.php:109
 msgid "Load More Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:103
+#: includes/WooCommerce/class-store-copy.php:110
 msgid "Load More Products"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:104
+#: includes/WooCommerce/class-store-copy.php:111
 msgid "Button text for loading the next page of catalog products."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:108
+#: includes/WooCommerce/class-store-copy.php:115
 msgid "Quick View Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:110
+#: includes/WooCommerce/class-store-copy.php:117
 msgid "Label used by Quick View triggers on product cards."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:114
+#: includes/WooCommerce/class-store-copy.php:121
 msgid "Buy Now Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:115
+#: includes/WooCommerce/class-store-copy.php:122
 msgid "Buy Now"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:116
+#: includes/WooCommerce/class-store-copy.php:123
 msgid "Button text for checkout-forward purchase actions in Sticky Cart and Quick View."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:120
+#: includes/WooCommerce/class-store-copy.php:127
 msgid "View Cart Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:121
+#: includes/WooCommerce/class-store-copy.php:128
 msgid "View Cart"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:122
+#: includes/WooCommerce/class-store-copy.php:129
 msgid "Button text shown after an item is added to the cart."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:126
+#: includes/WooCommerce/class-store-copy.php:133
 msgid "Continue Shopping Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:127
+#: includes/WooCommerce/class-store-copy.php:134
 msgid "Continue Shopping"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:128
+#: includes/WooCommerce/class-store-copy.php:135
 msgid "Button text for closing post-cart panels and returning to browsing."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:132
+#: includes/WooCommerce/class-store-copy.php:139
 msgid "View Product Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:133
+#: includes/WooCommerce/class-store-copy.php:140
 msgid "View Full Product"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:134
+#: includes/WooCommerce/class-store-copy.php:141
 msgid "Link text for opening the full product page from custom overlays."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:138
+#: includes/WooCommerce/class-store-copy.php:145
 msgid "Back in Stock Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:139
+#: includes/WooCommerce/class-store-copy.php:146
 msgid "Notify Me"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:140
+#: includes/WooCommerce/class-store-copy.php:147
 msgid "Button and badge text for out-of-stock notification signups."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:144
+#: includes/WooCommerce/class-store-copy.php:151
 msgid "Wishlist Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:145
+#: includes/WooCommerce/class-store-copy.php:152
 #: src/blocks-interactivity/wishlist-button/render.php:64
 msgid "Add to Wishlist"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:146
+#: includes/WooCommerce/class-store-copy.php:153
 msgid "Accessible label and optional visible text for wishlist buttons."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:150
+#: includes/WooCommerce/class-store-copy.php:157
 msgid "Variable Price Prefix"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:151
-#: includes/WooCommerce/class-store-copy.php:156
+#: includes/WooCommerce/class-store-copy.php:158
+#: includes/WooCommerce/class-store-copy.php:163
 msgid "From"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:152
+#: includes/WooCommerce/class-store-copy.php:159
 msgid "Requires Smart Price Display. Word shown before the lowest price when a variable product’s range is collapsed to a single figure — e.g. “From $34.99”. Leave blank to show just the price with no prefix. The amount always uses your WooCommerce currency."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:153
+#: includes/WooCommerce/class-store-copy.php:160
 msgid "No prefix"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:157
+#: includes/WooCommerce/class-store-copy.php:164
 msgid "Starting at"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:158
+#: includes/WooCommerce/class-store-copy.php:165
 msgid "As low as"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:159
+#: includes/WooCommerce/class-store-copy.php:166
 msgid "Priced from"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:160
+#: includes/WooCommerce/class-store-copy.php:167
 msgid "Now from"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:166
-#: includes/WooCommerce/class-store-copy.php:172
+#: includes/WooCommerce/class-store-copy.php:173
+#: includes/WooCommerce/class-store-copy.php:179
 msgid "-{percent}%"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:167
+#: includes/WooCommerce/class-store-copy.php:174
 msgid "Sale Badge Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:168
+#: includes/WooCommerce/class-store-copy.php:175
 msgid "Requires Product Badges. Text on the automatic sale badge. Write {percent} where the discount number should go — “Save {percent}%” shows as “Save 20%”. Leave the token out for wording that never mentions a number, such as “Now on Sale”."
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:174
+#: includes/WooCommerce/class-store-copy.php:181
 msgid "{percent}% Off"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:176
-#: includes/WooCommerce/class-store-copy.php:197
-#: includes/WooCommerce/class-store-copy.php:205
+#: includes/WooCommerce/class-store-copy.php:183
+#: includes/WooCommerce/class-store-copy.php:204
+#: includes/WooCommerce/class-store-copy.php:212
 msgid "Save {percent}%"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:177
-#: includes/WooCommerce/class-store-copy.php:183
-#: includes/WooCommerce/class-store-copy.php:188
+#: includes/WooCommerce/class-store-copy.php:184
+#: includes/WooCommerce/class-store-copy.php:190
+#: includes/WooCommerce/class-store-copy.php:195
 msgid "On Sale"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:178
-#: includes/WooCommerce/class-store-copy.php:189
+#: includes/WooCommerce/class-store-copy.php:185
+#: includes/WooCommerce/class-store-copy.php:196
 msgid "Now on Sale"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:184
+#: includes/WooCommerce/class-store-copy.php:191
 msgid "Sale Badge Text (no discount)"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:185
+#: includes/WooCommerce/class-store-copy.php:192
 msgid "Fallback wording for products that are on sale but have no single discount figure — most often variable products whose variations are reduced by different amounts. Only used when Sale Badge Text asks for a percentage, so it cannot itself contain one."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:191
+#: includes/WooCommerce/class-store-copy.php:198
 msgid "Reduced"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:198
+#: includes/WooCommerce/class-store-copy.php:205
 msgid "Price Savings Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:199
+#: includes/WooCommerce/class-store-copy.php:206
 msgid "Note appended to the price of a reduced product. Uses the same {percent} token as the sale badge, so both can be worded the same way. Leave blank to show the price on its own. Products with no single discount figure never show this note."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:200
+#: includes/WooCommerce/class-store-copy.php:207
 msgid "No savings note"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:207
+#: includes/WooCommerce/class-store-copy.php:214
 msgid "{percent}% off"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:209
+#: includes/WooCommerce/class-store-copy.php:216
 msgid "You save {percent}%"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:214
+#: includes/WooCommerce/class-store-copy.php:221
 msgid "Free Shipping Message"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:216
+#: includes/WooCommerce/class-store-copy.php:223
 msgid "Shown by the Free Shipping Message and Free Shipping Bar blocks while the cart is below the free shipping threshold. Use {amount} for the amount still needed and put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:225
+#: includes/WooCommerce/class-store-copy.php:232
 msgid "Free Shipping Unlocked Message"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:227
+#: includes/WooCommerce/class-store-copy.php:234
 msgid "Shown by the same blocks once the cart qualifies for free shipping. Put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
 msgstr ""
 

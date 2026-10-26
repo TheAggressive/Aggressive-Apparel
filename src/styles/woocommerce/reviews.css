@@ -174,8 +174,9 @@
 			color: var(--aa-color-foreground-muted);
 		}
 
+		/* Muted, but held to 4.5:1 on the darker reply card too. */
 		& .woocommerce-review__published-date {
-			color: var(--aa-color-foreground-muted);
+			color: color-mix(in oklch, var(--aa-color-foreground-muted) 90%, var(--aa-color-foreground));
 			font-size: var(--wp--preset--font-size--x-small);
 			text-transform: uppercase;
 			letter-spacing: 0.08em;

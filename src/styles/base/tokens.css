@@ -311,6 +311,7 @@
 
 	/* Commerce-state colors — semantic aliases of the status colors above. */
 	--aa-commerce-sale: var(--aa-color-error);
+	--aa-commerce-sale-text: var(--aa-color-error-text);
 	--aa-commerce-sale-bg: var(--aa-color-error-bg);
 	--aa-commerce-sale-border: var(--aa-color-error-border);
 	--aa-commerce-new: var(--aa-color-info);

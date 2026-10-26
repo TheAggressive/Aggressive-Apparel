@@ -719,6 +719,13 @@ class Feature_Settings {
 			return null;
 		}
 
+		// One query for every setting, instead of one per absent option read.
+		static $primed = false;
+		if ( ! $primed ) {
+			$primed = true;
+			wp_prime_option_caches( array_keys( self::get_option_schema() ) );
+		}
+
 		$saved = get_option( $option, null );
 
 		if ( null === $saved || false === $saved ) {

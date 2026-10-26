@@ -448,7 +448,7 @@
 			}
 
 			ins {
-				color: var(--aa-color-error);
+				color: var(--aa-commerce-sale-text);
 				text-decoration: none;
 			}
 		}

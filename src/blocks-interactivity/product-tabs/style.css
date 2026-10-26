@@ -586,7 +586,6 @@
 .aa-product-info .commentlist .comment-text .meta {
 	font-size: var(--wp--preset--font-size--small);
 	margin-bottom: 0.5em;
-	opacity: 0.7;
 }
 
 .aa-product-info .comment-form-rating .stars {

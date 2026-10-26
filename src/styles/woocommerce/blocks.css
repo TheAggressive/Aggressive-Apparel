@@ -175,7 +175,7 @@
 .wp-block-woocommerce-product-price ins,
 .wc-block-components-product-price ins,
 .wc-block-grid__product-price ins {
-	color: var(--aa-color-error);
+	color: var(--aa-commerce-sale-text);
 	text-decoration: none;
 }
 
@@ -205,7 +205,7 @@
 	border: 1px solid var(--aa-commerce-sale-border);
 	border-radius: var(--aa-radius-control);
 	background-color: var(--aa-commerce-sale-bg);
-	color: var(--aa-commerce-sale);
+	color: var(--aa-commerce-sale-text);
 	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 700;
 	line-height: 1;

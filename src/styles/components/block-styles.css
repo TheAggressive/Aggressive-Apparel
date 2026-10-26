@@ -166,7 +166,7 @@
 .aa-commerce-state-sale {
 	border-color: var(--aa-commerce-sale-border);
 	background-color: var(--aa-commerce-sale-bg);
-	color: var(--aa-commerce-sale);
+	color: var(--aa-commerce-sale-text);
 }
 
 .aa-commerce-state-new {

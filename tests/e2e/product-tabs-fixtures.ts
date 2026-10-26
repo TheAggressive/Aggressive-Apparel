@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { ownPostPhp } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 /**
@@ -61,6 +62,7 @@ $p->set_length('20');
 $p->set_width('15');
 $p->set_height('5');
 $id = $p->save();
+${ownPostPhp('$id', 'product-tabs')}
 echo $id . '|' . get_permalink($id);
 `.trim();
 

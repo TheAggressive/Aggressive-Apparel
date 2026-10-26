@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { ownPostPhp } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 const storageKey = 'aggressive_apparel_wishlist';
@@ -28,6 +29,9 @@ test.beforeAll(() => {
     $page = wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Wishlist browser fixture', 'post_content' => $content));
     $cart_content = str_replace('wishlist-item-actions /-->', 'wishlist-item-actions {"showAddToCart":true} /-->', $content);
     $cart_page = wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Wishlist cart fallback fixture', 'post_content' => $cart_content));
+    foreach (array($page, $cart_page, $simple->get_id(), $variable->get_id()) as $id) {
+      ${ownPostPhp('$id', 'wishlist')}
+    }
     echo wp_json_encode(array('page' => $page, 'cartPage' => $cart_page, 'simple' => $simple->get_id(), 'variable' => $variable->get_id()));
   `,
     ])

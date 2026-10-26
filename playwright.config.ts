@@ -22,6 +22,7 @@ export default defineConfig({
     ? [['github'], ['list'], ['./tests/e2e/no-skips-reporter.ts']]
     : [['list'], ['./tests/e2e/no-skips-reporter.ts']],
   globalSetup: './tests/e2e/global-setup.ts',
+  globalTeardown: './tests/e2e/global-teardown.ts',
   use: {
     baseURL: process.env.WP_BASE_URL,
     storageState: 'tests/e2e/.auth/admin.json',

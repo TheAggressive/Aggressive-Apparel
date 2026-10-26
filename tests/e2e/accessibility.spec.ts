@@ -6,7 +6,10 @@ import {
   deleteVariationAvailabilityFixture,
   type VariationFixture,
 } from './variation-availability-fixtures';
-import { ensureCategoryFilterFixtures } from './category-filter-fixtures';
+import {
+  deleteCategoryFilterFixtures,
+  ensureCategoryFilterFixtures,
+} from './category-filter-fixtures';
 import { wpCli } from './wp-cli';
 
 /**
@@ -87,6 +90,8 @@ test.afterAll(() => {
   if (fixture?.id) {
     deleteVariationAvailabilityFixture(fixture);
   }
+  // The filter-drawer test creates these on demand.
+  deleteCategoryFilterFixtures();
 });
 
 test.describe('accessibility — WCAG 2.2 AA', () => {

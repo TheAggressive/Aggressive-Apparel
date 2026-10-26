@@ -442,12 +442,54 @@ cache: the shopper's unit and picked size are applied in the browser.
 
 ## Color Swatch System
 
-The theme includes a comprehensive color attribute system for product variations:
+Swatches are **WooCommerce's own visual attributes**: `pa_color` is a
+"Color / image" attribute (`wc-visual`) and each term carries WooCommerce's
+`color` (hex) or `image` (attachment) meta, edited on the term screen with
+WooCommerce's colour picker / image field (which also adds the list column).
+WooCommerce draws them in the product page's variation selector; the theme
+keeps their look and supplies every other surface.
 
-| Class                        | Purpose                              |
-| ---------------------------- | ------------------------------------ |
-| `Color_Attribute_Manager`    | Manages WooCommerce color attributes |
-| `Color_Data_Manager`         | Handles color data persistence       |
-| `Color_Block_Swatch_Manager` | Renders swatches in blocks           |
-| `Color_Pattern_Admin`        | Admin UI for color patterns          |
-| `Color_Admin_UI`             | Color swatch admin interface         |
+| Class                        | Purpose                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| `Color_Attribute_Manager`    | Provisions `pa_color` and its default terms                                    |
+| `Color_Data_Manager`         | Reads/writes swatch meta for cards, Quick View, sticky add-to-cart and filters |
+| `Color_Block_Swatch_Manager` | Decorates WooCommerce's swatch chips so `color-swatches.css` styles them       |
+| `Color_Swatch_Migration`     | One-off move from the theme's old meta; enables the WooCommerce feature        |
+| `Swatch_Tooltips`            | Adds fabric name / composition (term fields) to the hover tooltip              |
+
+- **Requires WooCommerce's "Color swatches for attributes"** (Settings →
+  Advanced → Features; experimental, block themes only). The migration turns
+  it on, sets the type, and records itself done only once WooCommerce reports
+  the type changed; otherwise it retries hourly. Whenever product pages can't
+  get swatches (feature off, type not "Color / image", or a WooCommerce
+  without the feature) an admin notice says so and why.
+- **Nothing depends on the migration having run.** Colours resolve
+  WooCommerce's `image` / `color`; a term with neither stored falls back to
+  the theme's old meta (`color_type`, `color_pattern_id`, `color_value`), then
+  a colour guessed from the name (`Color_Data_Manager::resolve_swatch()`). The
+  old meta is a rollback copy, never consulted once WooCommerce meta exists.
+  Theme surfaces read that directly; WooCommerce's own storefront reads get it
+  through `default_term_metadata`. Guesses are never stored, so they follow
+  renames and a cleared swatch stays cleared; admin screens see only what is
+  stored.
+- **Decorate, never inject — and only `pa_color`.** `Color_Block_Swatch_Manager`
+  only adds attributes to WooCommerce's chips in the `attribute_pa_color`
+  selector: the chip/swatch classes the stylesheet targets, `data-color-name`
+  for the tooltip, and `--swatch-color` (on the button) for the selected ring.
+  WooCommerce's chip script re-applies the chip `title` and the swatch
+  `style` / `--no-color` class on hydration, so nothing depends on those.
+- **Browser-rendered chips.** WooCommerce server-renders only the first 30
+  options; the rest render on "+N more". The chip list carries
+  `data-aa-color-swatches` (this attribute's swatch map, with
+  `Swatch_Tooltips`' text via `aggressive_apparel_color_swatch_map`), and
+  `color-swatch-chips.ts` decorates those chips the same way and drops every
+  colour chip's `title` (the styled tooltip replaces it).
+- **Shape only, at three classes.** WooCommerce marks a visual attribute's
+  list `.is-style-swatch` and shapes its chips at two classes. The theme's
+  chip and label rules go through `.wc-block-product-filter-chips` + the chip
+  classes (three) so the look doesn't depend on stylesheet order, and set only
+  structural properties (box, padding, border width, display) — chip colours
+  stay WooCommerce's and the editor's.
+- **Hex only.** WooCommerce stores hex; the migration converts `oklch()`
+  (detected from the value, whatever `color_format` says) to the matching
+  sRGB hex. The old meta is left as a rollback copy.

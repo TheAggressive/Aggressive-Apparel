@@ -186,9 +186,9 @@ class Bootstrap {
 			$this->container->register( 'product_gallery_nav', fn() => new WooCommerce\Product_Gallery_Nav() );
 
 			// Register color attribute services.
-			$this->container->register( 'color_attributes', fn( Service_Container $container ) => new WooCommerce\Color_Attribute_Manager( $container->get( 'color_pattern_admin' ) ) );
+			$this->container->register( 'color_attributes', fn() => new WooCommerce\Color_Attribute_Manager() );
+			$this->container->register( 'color_swatch_migration', fn() => new WooCommerce\Color_Swatch_Migration() );
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
-			$this->container->register( 'color_pattern_admin', fn() => new WooCommerce\Color_Pattern_Admin() );
 			$this->container->register( 'size_option_sorter', fn() => new WooCommerce\Size_Option_Sorter() );
 			$this->container->register( 'product_card_contract', fn() => new WooCommerce\Product_Card_Contract() );
 
@@ -294,6 +294,7 @@ class Bootstrap {
 		$this->container->get( 'jquery_optimizer' )->init();
 		$this->container->get( 'product_gallery_nav' )->init();
 		$this->container->get( 'color_attributes' )->init();
+		$this->container->get( 'color_swatch_migration' )->init();
 		$this->container->get( 'color_block_swatch_manager' )->init();
 		$this->container->get( 'size_option_sorter' )->init();
 		$this->container->get( 'product_card_contract' )->init();

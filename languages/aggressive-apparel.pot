@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T10:12:08+00:00\n"
+"POT-Creation-Date: 2026-10-26T07:43:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1110,6 +1110,7 @@ msgid "Back in Stock Notifications is on, but WooCommerce is not accepting signu
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock.php:116
+#: includes/WooCommerce/class-color-swatch-migration.php:205
 msgid "Open settings"
 msgstr ""
 
@@ -1703,137 +1704,16 @@ msgstr ""
 msgid "Collection"
 msgstr ""
 
-#: includes/WooCommerce/class-color-admin-ui.php:85
-#: includes/WooCommerce/class-color-admin-ui.php:137
-msgid "Color Type"
+#: includes/WooCommerce/class-color-swatch-migration.php:197
+msgid "WooCommerce draws them only while its \"Color swatches for attributes\" feature is on (Settings → Advanced → Features) and the Color attribute's type is \"Color / image\", which needs a block theme."
 msgstr ""
 
-#: includes/WooCommerce/class-color-admin-ui.php:89
-#: includes/WooCommerce/class-color-admin-ui.php:143
-msgid "Solid Color"
+#: includes/WooCommerce/class-color-swatch-migration.php:198
+msgid "This WooCommerce version has no \"Color swatches for attributes\" feature; update WooCommerce to show them."
 msgstr ""
 
-#: includes/WooCommerce/class-color-admin-ui.php:93
-#: includes/WooCommerce/class-color-admin-ui.php:147
-msgid "Pattern"
-msgstr ""
-
-#: includes/WooCommerce/class-color-admin-ui.php:99
-#: includes/WooCommerce/class-color-admin-ui.php:155
-#: includes/WooCommerce/class-color-admin-ui.php:306
-#: includes/WooCommerce/class-product-filter-renderer.php:50
-#: includes/WooCommerce/class-product-filter-renderer.php:158
-msgid "Color"
-msgstr ""
-
-#: includes/WooCommerce/class-color-admin-ui.php:101
-#: includes/WooCommerce/class-color-admin-ui.php:159
-msgid "Choose a solid color for this product attribute."
-msgstr ""
-
-#: includes/WooCommerce/class-color-admin-ui.php:105
-#: includes/WooCommerce/class-color-admin-ui.php:165
-msgid "Pattern Image"
-msgstr ""
-
-#: includes/WooCommerce/class-color-admin-ui.php:353
-msgid "No pattern set"
-msgstr ""
-
-#. translators: %s: color term name
-#: includes/WooCommerce/class-color-admin-ui.php:367
-#, php-format
-msgid "Pattern preview for %s"
-msgstr ""
-
-#. translators: %s: color term name
-#: includes/WooCommerce/class-color-admin-ui.php:369
-#, php-format
-msgid "Pattern for %s"
-msgstr ""
-
-#: includes/WooCommerce/class-color-admin-ui.php:375
-msgid "Pattern image not found"
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:119
-#: includes/WooCommerce/class-color-pattern-admin.php:285
-msgid "Upload Pattern"
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:120
-#: includes/WooCommerce/class-color-pattern-admin.php:275
-msgid "Change Pattern"
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:121
-#: includes/WooCommerce/class-color-pattern-admin.php:278
-msgid "Remove Pattern"
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:122
-msgid "Select Pattern Image"
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:123
-msgid "Use This Image"
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:124
-msgid "Upload failed. Please try again."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:125
-msgid "Invalid file type. Please use JPG, PNG, GIF, or WebP."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:126
-msgid "File too large. Maximum size is 2MB."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:142
-#: includes/WooCommerce/class-color-pattern-admin.php:223
-msgid "Security check failed."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:150
-msgid "No attachment selected."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:156
-msgid "Invalid attachment."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:160
-msgid "Selected attachment must be an image."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:201
-msgid "Insufficient permissions."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:209
-msgid "Invalid term ID."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:231
-msgid "No pattern found."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:243
-msgid "Pattern removed successfully."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:272
-msgid "Pattern preview"
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:283
-msgid "No pattern uploaded."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:292
-msgid "Upload a pattern image to use instead of a solid color. Recommended size: 100x100px or larger square images."
+#: includes/WooCommerce/class-color-swatch-migration.php:202
+msgid "Product pages show colours as text, not swatches."
 msgstr ""
 
 #: includes/WooCommerce/class-custom-badge-taxonomy.php:511
@@ -2591,6 +2471,11 @@ msgstr ""
 #: includes/WooCommerce/class-product-filter-renderer.php:32
 #: patterns/category-landing-composition.php:17
 msgid "Category"
+msgstr ""
+
+#: includes/WooCommerce/class-product-filter-renderer.php:50
+#: includes/WooCommerce/class-product-filter-renderer.php:158
+msgid "Color"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:59
@@ -4388,13 +4273,13 @@ msgstr ""
 msgid "Shown by the same blocks once the cart qualifies for free shipping. Put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
 msgstr ""
 
-#: includes/WooCommerce/class-swatch-tooltips.php:107
-#: includes/WooCommerce/class-swatch-tooltips.php:130
+#: includes/WooCommerce/class-swatch-tooltips.php:109
+#: includes/WooCommerce/class-swatch-tooltips.php:132
 msgid "Fabric Name"
 msgstr ""
 
-#: includes/WooCommerce/class-swatch-tooltips.php:111
-#: includes/WooCommerce/class-swatch-tooltips.php:134
+#: includes/WooCommerce/class-swatch-tooltips.php:113
+#: includes/WooCommerce/class-swatch-tooltips.php:136
 msgid "Fabric Composition"
 msgstr ""
 

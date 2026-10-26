@@ -129,26 +129,4 @@ class Block_Pill_Helper {
 
 		return $chips;
 	}
-
-	/**
-	 * Check if a chip button already contains a color swatch.
-	 *
-	 * @param \DOMElement $button The option chip <button> element.
-	 * @return bool
-	 */
-	public static function has_color_swatch( \DOMElement $button ): bool {
-		$class_attr = $button->getAttribute( 'class' );
-		if ( false !== strpos( $class_attr, 'aggressive-apparel-color-swatch' ) ) {
-			return true;
-		}
-
-		$spans = $button->getElementsByTagName( 'span' );
-		foreach ( $spans as $span ) {
-			if ( false !== strpos( $span->getAttribute( 'class' ), 'aggressive-apparel-color-swatch' ) ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 }

@@ -213,8 +213,12 @@ test.describe('accessibility — WCAG 2.2 AA', () => {
     test('search modal', async ({ page }) => {
       await page.goto('/');
 
-      // The header's own trigger — the drawer carries a second, off-canvas one.
-      await page.locator('header .aa-search-trigger').click();
+      // The header's own trigger, or, where the header hides it on phones,
+      // the one in the menu drawer.
+      if (!(await page.locator('header .aa-search-trigger').isVisible())) {
+        await page.locator('.aa-nav-trigger:visible').first().click();
+      }
+      await page.locator('.aa-search-trigger:visible').first().click();
       const modal = page.locator('.aa-search.is-open');
       await expect(modal).toBeVisible();
 

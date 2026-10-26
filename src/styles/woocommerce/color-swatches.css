@@ -2,19 +2,23 @@
  * Color Swatches for WooCommerce Blocks
  *
  * Shrink-reveal animation matching quick view / sticky cart drawers.
- * WooCommerce 10.x renders options as <button aria-checked> chips, so selection
+ * WooCommerce renders options as <button aria-checked> chips, so selection
  * is keyed off the chip's [aria-checked="true"] state (no radio input).
  *
  * @package Aggressive_Apparel
  */
 
 /*
- * 1. Color chip button (WooCommerce 10.x renders options as
- *    wc-block-product-filter-chips__item buttons; our PHP tags color ones with
- *    .aggressive-apparel-color-chip). Strip the chip styling so only the circle
- *    shows.
+ * 1. Color chip button. WooCommerce renders options as
+ *    wc-block-product-filter-chips__item buttons; our PHP tags colour ones with
+ *    .aggressive-apparel-color-chip, and WooCommerce marks a visual attribute's
+ *    list `.is-style-swatch`, shaping its chips (border, padding, radius) at two
+ *    classes. Only the chip's shape is overridden — box, padding, border width —
+ *    so the circle alone shows; chip colours stay WooCommerce's and the
+ *    editor's. Going through the list and chip classes outranks WooCommerce's
+ *    shape rules whatever order the stylesheets load in.
  */
-.aggressive-apparel-color-chip {
+.wc-block-product-filter-chips .wc-block-product-filter-chips__item.aggressive-apparel-color-chip {
 	display: inline-grid;
 	place-items: center;
 	width: 2.75rem;
@@ -22,42 +26,26 @@
 	min-width: 2.75rem;
 	min-height: 2.75rem;
 	padding: 0;
-	border: none;
+	border-width: 0;
 	border-radius: 50%;
-	background: transparent;
 	overflow: visible;
 	line-height: 0;
-	box-shadow: none;
-
-	/* Kill WooCommerce's default chip hover/focus/selected backgrounds. */
-	&:hover,
-	&:focus-within {
-		background: transparent;
-	}
-
-	&[aria-checked="true"] {
-		background: transparent;
-	}
 }
 
 /*
- * 2. The swatch is the only visible element; hide WooCommerce's option name.
- *    WooCommerce 10.x renders the name in `.wc-block-product-filter-chips__text`
- *    (in our markup it ends up nested inside the injected swatch); older/other
- *    layouts wrap it in `__label`. Hide both unconditionally; the rare
- *    show-label case re-reveals them below.
+ * 2. The swatch is the only visible element. WooCommerce nests it in the
+ *    chip's `__label` next to the option name (`__text`) and any count, so the
+ *    label stays as a pass-through box and only the name and count hide.
+ *    Same specificity as section 1, over WooCommerce's `.is-style-swatch`
+ *    label layout.
  */
-.aggressive-apparel-color-chip .wc-block-product-filter-chips__text,
-.aggressive-apparel-color-chip .wc-block-product-filter-chips__label {
-	display: none;
+.wc-block-product-filter-chips .aggressive-apparel-color-chip .wc-block-product-filter-chips__label {
+	display: contents;
 }
 
-/* Re-show the name when a swatch is explicitly configured to show its label. */
-.aggressive-apparel-color-chip:has(.aggressive-apparel-color-swatch--with-label)
-	.wc-block-product-filter-chips__text,
-.aggressive-apparel-color-chip:has(.aggressive-apparel-color-swatch--with-label)
-	.wc-block-product-filter-chips__label {
-	display: revert;
+.wc-block-product-filter-chips .aggressive-apparel-color-chip .wc-block-product-filter-chips__text,
+.wc-block-product-filter-chips .aggressive-apparel-color-chip .wc-block-product-filter-chips__count {
+	display: none;
 }
 
 .aggressive-apparel-color-chip .aggressive-apparel-color-swatch {
@@ -94,13 +82,12 @@
 
 /*
  * 5. Selected state — shrink-reveal with colored ring.
- *    Radio :checked is a sibling BEFORE the swatch span inside the label.
  */
 .aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
 	transform: scale(0.78);
 	outline: 3px solid
 			color-mix(
-				in oklch,
+				in oklab,
 				var(--swatch-color, var(--aa-color-muted-40)) 60%,
 				var(--aa-color-foreground)
 			);
@@ -116,7 +103,7 @@
  * 6. Focus-visible — keyboard accessibility ring. The chip <button> is the
  *    focusable control, so reflect its focus on the swatch circle.
  */
-.aggressive-apparel-color-chip:focus-visible {
+.wc-block-product-filter-chips .wc-block-product-filter-chips__item.aggressive-apparel-color-chip:focus-visible {
 	outline: 2px solid transparent;
 	box-shadow: var(--aa-focus-ring);
 }
@@ -131,14 +118,7 @@
 }
 
 /*
- * 8. With label text alongside the swatch.
- */
-.aggressive-apparel-color-swatch--with-label {
-	margin-right: 0.5rem;
-}
-
-/*
- * 9. Reduced motion — disable all animations.
+ * 8. Reduced motion — disable all animations.
  */
 @media (prefers-reduced-motion: reduce) {
 
@@ -150,21 +130,19 @@
 		transform: none;
 	}
 
-	.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
+	.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle,
+	.aggressive-apparel-color-chip[aria-checked="true"]:not(:disabled) .aggressive-apparel-color-swatch__circle:hover {
 		transform: none;
+	}
+
+	.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
 		box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
-		outline: 3px solid
-			color-mix(
-				in oklch,
-				var(--swatch-color, var(--aa-color-muted-40)) 60%,
-				var(--aa-color-foreground)
-			);
 		outline-offset: 3px;
 	}
 }
 
 /*
- * 10. Colour-name tooltip.
+ * 9. Colour-name tooltip.
  *
  * Swatches carry no visible label, so the name is shown on hover and keyboard
  * focus — required for colour-blind users to tell swatches apart (WCAG 1.4.1).

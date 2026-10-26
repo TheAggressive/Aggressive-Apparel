@@ -358,7 +358,7 @@ class Badge_Palette {
 	 * @param string $value Candidate CSS color.
 	 * @return string|null
 	 */
-	private static function oklch_to_hex( string $value ): ?string {
+	public static function oklch_to_hex( string $value ): ?string {
 		if ( 1 !== preg_match(
 			'/^oklch\(\s*([0-9.]+%?)\s+([0-9.]+)\s+(-?[0-9.]+)(?:deg)?(?:\s*\/\s*[0-9.]+%?)?\s*\)$/i',
 			trim( $value ),

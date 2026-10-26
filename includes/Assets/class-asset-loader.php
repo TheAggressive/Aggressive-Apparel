@@ -282,7 +282,7 @@ class Asset_Loader {
 	 *
 	 * @param string $handle        Script handle.
 	 * @param string $relative_path Path relative to theme root, without extension
-	 *                              (e.g. 'build/scripts/admin/color-pattern-admin').
+	 *                              (e.g. 'build/scripts/admin/product-tabs-repeater').
 	 * @param array  $deps          Script dependencies.
 	 * @param bool   $in_footer     Whether to print the script in the footer.
 	 * @return bool True when the file existed and was enqueued.

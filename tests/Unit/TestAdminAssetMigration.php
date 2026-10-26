@@ -74,7 +74,6 @@ class TestAdminAssetMigration extends WP_UnitTestCase {
 	public function test_migrated_typescript_sources_exist() {
 		$dir = get_template_directory() . '/src/scripts/admin';
 
-		$this->assertFileExists( $dir . '/woocommerce/color-swatch-admin.ts' );
 		$this->assertFileExists( $dir . '/badge-studio/index.tsx' );
 	}
 }

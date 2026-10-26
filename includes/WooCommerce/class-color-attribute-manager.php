@@ -55,28 +55,10 @@ class Color_Attribute_Manager {
 	private Color_Data_Manager $data_manager;
 
 	/**
-	 * Admin UI instance
-	 *
-	 * @var Color_Admin_UI
-	 */
-	private Color_Admin_UI $admin_ui;
-
-	/**
-	 * Color Pattern Admin instance
-	 *
-	 * @var Color_Pattern_Admin
-	 */
-	private Color_Pattern_Admin $pattern_admin;
-
-	/**
 	 * Constructor
-	 *
-	 * @param Color_Pattern_Admin $pattern_admin Shared pattern admin service.
 	 */
-	public function __construct( Color_Pattern_Admin $pattern_admin ) {
-		$this->data_manager  = new Color_Data_Manager();
-		$this->pattern_admin = $pattern_admin;
-		$this->admin_ui      = new Color_Admin_UI( $this->pattern_admin );
+	public function __construct() {
+		$this->data_manager = new Color_Data_Manager();
 	}
 
 	/**
@@ -100,13 +82,11 @@ class Color_Attribute_Manager {
 		add_action( 'admin_init', array( $this, 'maybe_run_setup' ), 5 );
 		add_filter( 'woocommerce_attribute_taxonomies', array( $this, 'register_color_attribute' ), 10, 1 );
 
-		$this->pattern_admin->register_hooks();
+		// Swatch colours are edited with WooCommerce's own term fields
+		// (Color_Swatch_Migration makes pa_color a "Color / image" attribute).
 
-		// Initialize admin UI.
-		$this->admin_ui->register_hooks();
-
-		// Keep the per-request swatch memo honest across all term mutators.
-		Color_Data_Manager::register_invalidation_hooks();
+		// Fallback swatches for WooCommerce, and an honest per-request swatch memo.
+		Color_Data_Manager::register_hooks();
 	}
 
 	/**
@@ -218,7 +198,7 @@ class Color_Attribute_Manager {
 			return false;
 		}
 
-		return '#000000' === get_term_meta( $term->term_id, 'color_value', true );
+		return '#000000' === get_term_meta( $term->term_id, Color_Data_Manager::COLOR_META, true );
 	}
 
 	/**
@@ -264,26 +244,5 @@ class Color_Attribute_Manager {
 	 */
 	public function add_default_color_terms(): void {
 		$this->data_manager->add_default_color_terms();
-	}
-
-	/**
-	 * Get all color terms with their data
-	 *
-	 * @return array Array of color terms with data.
-	 */
-	public function get_color_terms(): array {
-		return $this->data_manager->get_color_terms();
-	}
-
-	/**
-	 * Add custom color term
-	 *
-	 * @param string $name   Color name.
-	 * @param string $value  Color value.
-	 * @param string $format Color format.
-	 * @return int|\WP_Error Term ID on success, WP_Error on failure.
-	 */
-	public function add_custom_color( string $name, string $value, string $format = 'hex' ): int|\WP_Error {
-		return $this->data_manager->add_custom_color( $name, $value, $format );
 	}
 }

@@ -22,7 +22,7 @@ class TestColorDataManagerCache extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	private const TRANSIENT_KEY = 'aggressive_apparel_color_swatch_data_v1';
+	private const TRANSIENT_KEY = 'aggressive_apparel_color_swatch_data_v2';
 
 	/**
 	 * @return void

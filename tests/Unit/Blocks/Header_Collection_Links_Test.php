@@ -46,7 +46,7 @@ class Header_Collection_Links_Test extends WP_UnitTestCase {
 
 	/** Regression: Women's → Tank Tops used to point at the men's filter. */
 	public function test_womens_tank_tops_link(): void {
-		$this->assertSame( '/shop/tank-tops/?collection=womens', $this->submenu_links( 'WOMENS' )['Tank Tops'] ?? '' );
+		$this->assertSame( '/shop/tank-tops/?collection=womens', $this->submenu_links( 'WOMENS' )['TANK TOPS'] ?? '' );
 	}
 
 	/**

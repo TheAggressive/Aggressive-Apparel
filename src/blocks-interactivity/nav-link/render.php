@@ -42,6 +42,20 @@ if ( ! $is_current && ! empty( $url ) ) {
 			$is_current = trailingslashit( $current_path ) === trailingslashit( $link_path );
 		}
 	}
+
+	// A link with a query (?collection=mens, ?orderby=date) is current only
+	// with that query: the path alone can't tell Men's T-shirts from Women's.
+	$link_query = (string) wp_parse_url( $link_url, PHP_URL_QUERY );
+	if ( $is_current && '' !== $link_query ) {
+		wp_parse_str( $link_query, $link_args );
+		wp_parse_str( (string) wp_parse_url( $current_url, PHP_URL_QUERY ), $current_args );
+		foreach ( $link_args as $key => $value ) {
+			if ( ( $current_args[ $key ] ?? null ) !== $value ) {
+				$is_current = false;
+				break;
+			}
+		}
+	}
 }
 
 // Build class list (base class added automatically by get_block_wrapper_attributes).

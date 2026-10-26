@@ -7,12 +7,11 @@ import { initColorSwatchChips } from '../color-swatch-chips';
 const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 
 const MAP = {
-  blue: { name: 'Blue', ring: '#0000ff', pattern: false, color: '#0000ff' },
+  blue: { name: 'Blue', ring: '#0000ff', pattern: false },
   plaid: {
     name: 'Plaid',
     ring: 'rgb(0 0 0 / 40%)',
     pattern: true,
-    color: '',
     tooltip: 'Plaid — Flannel',
   },
 };
@@ -82,7 +81,6 @@ it('decorates chips WooCommerce renders on "+N more" from the map', async () => 
   ).toBe(true);
   expect(swatch.dataset.colorName).toBe('Plaid');
   expect(swatch.dataset.tooltip).toBe('Plaid — Flannel');
-  expect(swatch.dataset.color).toBeUndefined();
 });
 
 it('leaves chips with no swatch data alone', async () => {

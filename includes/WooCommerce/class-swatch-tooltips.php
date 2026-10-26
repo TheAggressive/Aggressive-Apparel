@@ -31,9 +31,8 @@ class Swatch_Tooltips {
 	 * @return void
 	 */
 	public function init(): void {
-		// Inject tooltip data attributes into already-rendered swatch HTML.
-		add_filter( 'render_block_' . Block_Pill_Helper::BLOCK_NAME, array( $this, 'add_tooltip_data' ), 15, 2 );
-		// …and send the same text with chips the browser renders on "+N more".
+		// Color_Block_Swatch_Manager decorates every chip, server- or
+		// browser-rendered, from this map.
 		add_filter( 'aggressive_apparel_color_swatch_map', array( $this, 'add_tooltips_to_map' ) );
 
 		// Admin: add extra fields to color term forms.
@@ -48,51 +47,31 @@ class Swatch_Tooltips {
 	}
 
 	/**
-	 * Inject data-tooltip attributes onto swatch elements.
-	 *
-	 * The tooltip always carries the colour name (so colour-blind users can
-	 * identify a swatch without permanent visible labels — WCAG 1.4.1), with the
-	 * fabric name / composition appended when configured on the term.
-	 *
-	 * @param string $block_content Block HTML.
-	 * @param array  $block         Block data.
-	 * @return string Modified HTML.
-	 */
-	public function add_tooltip_data( string $block_content, array $block ): string {
-		if ( ! Block_Pill_Helper::is_attribute_options_block( $block ) ) {
-			return $block_content;
-		}
-
-		if ( false === strpos( $block_content, 'aggressive-apparel-color-swatch' ) ) {
-			return $block_content;
-		}
-
-		// Find each swatch span and add a tooltip built from the colour name
-		// (always) plus any fabric details.
-		return (string) preg_replace_callback(
-			'/data-color-name="([^"]+)"/',
-			function ( $matches ) {
-				$term    = get_term_by( 'name', $matches[1], 'pa_color' );
-				$tooltip = $term instanceof \WP_Term ? self::tooltip( $term ) : $matches[1];
-
-				return $matches[0] . ' data-tooltip="' . esc_attr( $tooltip ) . '"';
-			},
-			$block_content,
-		);
-	}
-
-	/**
-	 * Add each colour's tooltip to the swatch map sent for browser-rendered
-	 * chips.
+	 * Add each colour's tooltip to a colour selector's swatch map.
 	 *
 	 * @param array $map Swatch data keyed by term slug.
 	 * @return array
 	 */
 	public function add_tooltips_to_map( array $map ): array {
-		foreach ( $map as $slug => $entry ) {
-			$term = get_term_by( 'slug', (string) $slug, 'pa_color' );
-			if ( is_array( $entry ) && $term instanceof \WP_Term ) {
-				$map[ $slug ]['tooltip'] = self::tooltip( $term );
+		if ( array() === $map ) {
+			return $map;
+		}
+
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'pa_color',
+				'slug'       => array_map( 'strval', array_keys( $map ) ),
+				'hide_empty' => false,
+			)
+		);
+		if ( ! is_array( $terms ) ) {
+			return $map;
+		}
+
+		// get_terms() primes the term meta cache, so tooltip() doesn't query.
+		foreach ( $terms as $term ) {
+			if ( $term instanceof \WP_Term && is_array( $map[ $term->slug ] ?? null ) ) {
+				$map[ $term->slug ]['tooltip'] = self::tooltip( $term );
 			}
 		}
 

@@ -137,9 +137,9 @@ final class Product_Filter_Data {
 			$result[] = array(
 				'slug'  => $color['slug'],
 				'name'  => $color['name'],
-				'value' => $color['value'] ?? $color['hex'] ?? '#000000',
-				'type'  => $color['type'] ?? 'solid',
-				'count' => $color['count'] ?? 0,
+				'value' => $color['value'],
+				'type'  => $color['type'],
+				'count' => $color['count'],
 			);
 		}
 		return $result;

@@ -2,7 +2,7 @@
  * Color Swatches for WooCommerce Blocks
  *
  * Shrink-reveal animation matching quick view / sticky cart drawers.
- * WooCommerce 10.x renders options as <button aria-checked> chips, so selection
+ * WooCommerce renders options as <button aria-checked> chips, so selection
  * is keyed off the chip's [aria-checked="true"] state (no radio input).
  *
  * @package Aggressive_Apparel
@@ -82,7 +82,6 @@
 
 /*
  * 5. Selected state — shrink-reveal with colored ring.
- *    Radio :checked is a sibling BEFORE the swatch span inside the label.
  */
 .aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
 	transform: scale(0.78);
@@ -131,15 +130,13 @@
 		transform: none;
 	}
 
-	.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
+	.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle,
+	.aggressive-apparel-color-chip[aria-checked="true"]:not(:disabled) .aggressive-apparel-color-swatch__circle:hover {
 		transform: none;
+	}
+
+	.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
 		box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
-		outline: 3px solid
-			color-mix(
-				in oklab,
-				var(--swatch-color, var(--aa-color-muted-40)) 60%,
-				var(--aa-color-foreground)
-			);
 		outline-offset: 3px;
 	}
 }

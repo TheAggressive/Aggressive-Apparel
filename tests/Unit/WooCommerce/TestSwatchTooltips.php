@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
-use Aggressive_Apparel\WooCommerce\Block_Pill_Helper;
 use Aggressive_Apparel\WooCommerce\Swatch_Tooltips;
 use WP_UnitTestCase;
 
 /**
- * A colour's tooltip is its name plus any fabric details, the same whether
- * WooCommerce renders the chip on the server or in the browser.
+ * A colour's tooltip is its name plus any fabric details, added to the swatch
+ * map every colour chip is decorated from.
  */
 class TestSwatchTooltips extends WP_UnitTestCase {
 
@@ -38,26 +37,11 @@ class TestSwatchTooltips extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Server-rendered swatches get the tooltip as `data-tooltip`.
+	 * Each colour's tooltip goes into the swatch map; unknown slugs get none.
 	 *
 	 * @return void
 	 */
-	public function test_server_rendered_swatches(): void {
-		$html = ( new Swatch_Tooltips() )->add_tooltip_data(
-			'<span class="aggressive-apparel-color-swatch" data-color-name="Plaid"></span><span class="aggressive-apparel-color-swatch" data-color-name="Blue"></span>',
-			array( 'blockName' => Block_Pill_Helper::BLOCK_NAME )
-		);
-
-		$this->assertStringContainsString( 'data-tooltip="Plaid — Flannel · 100% cotton"', $html );
-		$this->assertStringContainsString( 'data-tooltip="Blue"', $html );
-	}
-
-	/**
-	 * Browser-rendered chips get the same text through the swatch map.
-	 *
-	 * @return void
-	 */
-	public function test_swatch_map_for_browser_rendered_chips(): void {
+	public function test_adds_tooltips_to_swatch_map(): void {
 		$map = ( new Swatch_Tooltips() )->add_tooltips_to_map(
 			array(
 				'plaid'   => array( 'name' => 'Plaid' ),

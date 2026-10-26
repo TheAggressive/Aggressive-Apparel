@@ -61,13 +61,6 @@ class Color_Data_Manager {
 	);
 
 	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		// No dependencies needed.
-	}
-
-	/**
 	 * Get all color terms with their data
 	 *
 	 * @return array Array of color terms with data.
@@ -107,29 +100,13 @@ class Color_Data_Manager {
 	private function format_color_term( \WP_Term $term ): array {
 		$swatch = self::resolve_swatch( $term );
 
-		if ( 'pattern' === $swatch['type'] ) {
-			return array(
-				'id'          => $term->term_id,
-				'name'        => $term->name,
-				'slug'        => $term->slug,
-				'type'        => 'pattern',
-				'value'       => $swatch['value'],
-				'pattern_id'  => $swatch['image_id'],
-				'pattern_url' => $swatch['value'],
-				'format'      => 'pattern',
-				'count'       => $term->count,
-			);
-		}
-
 		return array(
-			'id'     => $term->term_id,
-			'name'   => $term->name,
-			'slug'   => $term->slug,
-			'type'   => 'solid',
-			'value'  => $swatch['value'],
-			'format' => 'hex',
-			'hex'    => $swatch['value'],
-			'count'  => $term->count,
+			'id'    => $term->term_id,
+			'name'  => $term->name,
+			'slug'  => $term->slug,
+			'type'  => $swatch['type'],
+			'value' => $swatch['value'],
+			'count' => $term->count,
 		);
 	}
 
@@ -351,72 +328,6 @@ class Color_Data_Manager {
 		add_action( 'created_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
 		add_action( 'edited_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
 		add_action( 'delete_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
-	}
-
-	/**
-	 * Add custom color term
-	 *
-	 * @param string $name   Color name.
-	 * @param string $value  Color value.
-	 * @param string $format Color format.
-	 * @return int|\WP_Error Term ID on success, WP_Error on failure.
-	 */
-	public function add_custom_color( string $name, string $value, string $format = 'hex' ): int|\WP_Error {
-		$attribute_name = self::ATTRIBUTE_NAME;
-
-		if ( ! taxonomy_exists( $attribute_name ) ) {
-			return new \WP_Error( 'taxonomy_not_found', 'Color attribute taxonomy does not exist.' );
-		}
-
-		// Validate color value.
-		if ( ! $this->validate_color_value( $value, $format ) ) {
-			return new \WP_Error(
-				'invalid_color',
-				'hex' === $format
-					? 'Invalid hex color format. Use format #RRGGBB.'
-					: 'Invalid OKLCH color format. Use format oklch(L% C H).'
-			);
-		}
-
-		$term_slug = sanitize_title( $name );
-
-		$result = wp_insert_term(
-			$name,
-			$attribute_name,
-			array( 'slug' => $term_slug )
-		);
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		update_term_meta( $result['term_id'], self::COLOR_META, self::to_hex( $value ) );
-
-		self::flush_swatch_data_memo();
-
-		return $result['term_id'];
-	}
-
-	/**
-	 * Validate color value based on format
-	 *
-	 * @param string $color_value Color value to validate.
-	 * @param string $color_format Color format ('hex' or 'oklch').
-	 * @return bool True if valid, false otherwise.
-	 */
-	public function validate_color_value( string $color_value, string $color_format ): bool {
-		switch ( $color_format ) {
-			case 'hex':
-				return (bool) preg_match( '/^#[a-fA-F0-9]{6}$/', $color_value );
-			case 'oklch':
-				// OKLCH format: oklch(L% C H) or oklch(L% C H / A).
-				return (bool) preg_match(
-					'/^oklch\(\s*\d*\.?\d+%?\s+\d*\.?\d+\s+\d*\.?\d+(?:\s*\/\s*\d*\.?\d+)?\s*\)$/i',
-					$color_value
-				);
-			default:
-				return false;
-		}
 	}
 
 	/**

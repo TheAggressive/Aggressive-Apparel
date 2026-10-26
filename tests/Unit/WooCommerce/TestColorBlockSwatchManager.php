@@ -155,7 +155,7 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 		$swatch = $this->tag( $html, array( 'class_name' => 'wc-block-product-filter-chips__swatch' ) );
 		$this->assertTrue( $swatch->has_class( 'aggressive-apparel-color-swatch__circle' ) );
 		$this->assertSame( 'Blue', $swatch->get_attribute( 'data-color-name' ) );
-		$this->assertSame( '#0000ff', $swatch->get_attribute( 'data-color' ) );
+		$this->assertNull( $swatch->get_attribute( 'data-tooltip' ), 'No tooltip filter, so the name alone shows.' );
 		$this->assertSame( 'background-color:#0000ff', $swatch->get_attribute( 'style' ), "WooCommerce's paint is left alone." );
 		$this->assertTrue( wp_script_is( 'aggressive-apparel-color-swatch-chips', 'enqueued' ) );
 	}
@@ -169,7 +169,6 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 		$this->assertSame( '--swatch-color: rgb(0 0 0 / 40%);', $this->tag( $html, array( 'tag_name' => 'BUTTON' ) )->get_attribute( 'style' ) );
 		$swatch = $this->tag( $html, array( 'class_name' => 'wc-block-product-filter-chips__swatch' ) );
 		$this->assertTrue( $swatch->has_class( 'aggressive-apparel-color-swatch--pattern' ) );
-		$this->assertNull( $swatch->get_attribute( 'data-color' ) );
 	}
 
 	/**
@@ -197,12 +196,14 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 	/**
 	 * The chip list carries this attribute's swatch map — every option,
 	 * including those WooCommerce renders only in the browser — for the
-	 * script to decorate those chips; filters can extend each entry.
+	 * script to decorate those chips. A filter's tooltip reaches both those and
+	 * the server's chips.
 	 */
 	public function test_list_carries_swatch_map_for_browser_rendered_chips(): void {
 		add_filter(
 			'aggressive_apparel_color_swatch_map',
 			static function ( array $map ): array {
+				$map['blue']['tooltip']  = 'Blue — Jersey';
 				$map['plaid']['tooltip'] = 'Plaid — Flannel';
 				return $map;
 			}
@@ -216,13 +217,14 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 				'name'    => 'Blue',
 				'ring'    => '#0000ff',
 				'pattern' => false,
-				'color'   => '#0000ff',
+				'tooltip' => 'Blue — Jersey',
 			),
 			$map['blue']
 		);
 		$this->assertTrue( $map['plaid']['pattern'] );
 		$this->assertSame( 'rgb(0 0 0 / 40%)', $map['plaid']['ring'] );
 		$this->assertSame( 'Plaid — Flannel', $map['plaid']['tooltip'] );
+		$this->assertSame( 'Blue — Jersey', $this->tag( $html, array( 'class_name' => 'wc-block-product-filter-chips__swatch' ) )->get_attribute( 'data-tooltip' ) );
 	}
 
 	/**

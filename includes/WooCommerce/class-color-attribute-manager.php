@@ -245,25 +245,4 @@ class Color_Attribute_Manager {
 	public function add_default_color_terms(): void {
 		$this->data_manager->add_default_color_terms();
 	}
-
-	/**
-	 * Get all color terms with their data
-	 *
-	 * @return array Array of color terms with data.
-	 */
-	public function get_color_terms(): array {
-		return $this->data_manager->get_color_terms();
-	}
-
-	/**
-	 * Add custom color term
-	 *
-	 * @param string $name   Color name.
-	 * @param string $value  Color value.
-	 * @param string $format Color format.
-	 * @return int|\WP_Error Term ID on success, WP_Error on failure.
-	 */
-	public function add_custom_color( string $name, string $value, string $format = 'hex' ): int|\WP_Error {
-		return $this->data_manager->add_custom_color( $name, $value, $format );
-	}
 }

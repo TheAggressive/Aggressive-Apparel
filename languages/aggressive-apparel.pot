@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T23:55:12+00:00\n"
+"POT-Creation-Date: 2026-10-26T07:43:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1044,7 +1044,6 @@ msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock-links.php:80
 #: includes/WooCommerce/class-back-in-stock-links.php:82
-#: templates/emails/back-in-stock.php:67
 msgid "Unsubscribe"
 msgstr ""
 
@@ -4274,13 +4273,13 @@ msgstr ""
 msgid "Shown by the same blocks once the cart qualifies for free shipping. Put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
 msgstr ""
 
-#: includes/WooCommerce/class-swatch-tooltips.php:130
-#: includes/WooCommerce/class-swatch-tooltips.php:153
+#: includes/WooCommerce/class-swatch-tooltips.php:109
+#: includes/WooCommerce/class-swatch-tooltips.php:132
 msgid "Fabric Name"
 msgstr ""
 
-#: includes/WooCommerce/class-swatch-tooltips.php:134
-#: includes/WooCommerce/class-swatch-tooltips.php:157
+#: includes/WooCommerce/class-swatch-tooltips.php:113
+#: includes/WooCommerce/class-swatch-tooltips.php:136
 msgid "Fabric Composition"
 msgstr ""
 
@@ -4521,7 +4520,6 @@ msgstr ""
 #: patterns/lookbook-grid.php:85
 #: patterns/lookbook-grid.php:135
 #: patterns/lookbook-grid.php:158
-#: templates/emails/back-in-stock.php:56
 msgid "Shop Now"
 msgstr ""
 
@@ -7742,41 +7740,6 @@ msgid "(%s customer review)"
 msgid_plural "(%s customer reviews)"
 msgstr[0] ""
 msgstr[1] ""
-
-#. translators: %s: product name.
-#: templates/emails/back-in-stock-confirmation-plain.php:19
-#: templates/emails/back-in-stock-confirmation.php:22
-#, php-format
-msgid "You asked us to email you when %s is back in stock. Please confirm this was you:"
-msgstr ""
-
-#: templates/emails/back-in-stock-confirmation-plain.php:24
-#: templates/emails/back-in-stock-confirmation.php:38
-msgid "If you did not sign up, ignore this email and you will not hear from us about this product."
-msgstr ""
-
-#: templates/emails/back-in-stock-confirmation.php:33
-msgid "Confirm my alert"
-msgstr ""
-
-#: templates/emails/back-in-stock-plain.php:18
-#: templates/emails/back-in-stock.php:26
-msgid "Great news! A product you were waiting for is back in stock:"
-msgstr ""
-
-#: templates/emails/back-in-stock-plain.php:23
-msgid "Shop now:"
-msgstr ""
-
-#: templates/emails/back-in-stock-plain.php:28
-msgid "Unsubscribe:"
-msgstr ""
-
-#. translators: %s: unsubscribe link.
-#: templates/emails/back-in-stock.php:66
-#, php-format
-msgid "You received this email because you asked to be notified. %s"
-msgstr ""
 
 #: src/blocks-interactivity/countdown-timer/block.json
 msgctxt "block title"

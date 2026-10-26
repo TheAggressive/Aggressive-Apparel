@@ -27,8 +27,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * `wc-block-product-filter-chips__swatch` span painted from the term's
  * `color` / `image` meta. This only adds attributes to that markup — never
  * elements — so the theme's color-swatches.css styles it: the chip and swatch
- * classes, the colour name the hover tooltip shows (Swatch_Tooltips extends
- * it), and `--swatch-color` for the selected ring.
+ * classes, the colour name the hover tooltip shows (`data-tooltip` when
+ * Swatch_Tooltips adds fabric details), and `--swatch-color` for the selected
+ * ring.
  *
  * WooCommerce's chip script re-applies the chip's `title` and the swatch's
  * `style` / `--no-color` class when it hydrates, so nothing here relies on
@@ -38,9 +39,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * `title` the styled tooltip replaces.
  *
  * WooCommerce server-renders only the first 30 options; the rest render in
- * the browser on "+N more". The chip list carries `data-aa-color-swatches`,
- * this attribute's swatch map, so color-swatch-chips.ts decorates those the
- * same way.
+ * the browser on "+N more". Both are decorated from one swatch map: here for
+ * the server's chips, and in color-swatch-chips.ts, from the list's
+ * `data-aa-color-swatches` copy, for the browser's.
  *
  * @since 1.0.0
  */
@@ -111,27 +112,31 @@ class Color_Block_Swatch_Manager {
 
 		$swatches  = Color_Data_Manager::get_safe_swatch_data();
 		$processor = new \WP_HTML_Tag_Processor( $block_content );
-		$options   = array();
+		$map       = null;
 		$current   = null;
 		$decorated = false;
 
 		// One pass. The block renders every attribute, each in a wrapper whose
-		// context lists its options, so $options is the colour slugs inside the
-		// colour wrapper and empty in the others. A chip button selects its
-		// term's swatch, which the next swatch span (always inside that button)
-		// receives.
+		// context lists its options, so $map is the colour options' swatch map
+		// inside the colour wrapper and null in the others. A chip button
+		// selects its term's entry, which the next swatch span (always inside
+		// that button) receives.
 		while ( $processor->next_tag() ) {
 			$tag = $processor->get_tag();
 
-			$attribute_options = self::context_option_slugs( $processor->get_attribute( 'data-wp-context' ) );
-			if ( null !== $attribute_options ) {
-				$options = $attribute_options;
+			$options = self::context_option_slugs( $processor->get_attribute( 'data-wp-context' ) );
+			if ( null !== $options ) {
+				$map = array() !== $options ? self::swatch_map( $options, $swatches ) : null;
 			}
 
-			if ( 'DIV' === $tag && array() !== $options && $processor->has_class( self::LIST_CLASS ) ) {
+			if ( null === $map ) {
+				continue;
+			}
+
+			if ( 'DIV' === $tag && $processor->has_class( self::LIST_CLASS ) ) {
 				// Always present on a colour list: it is also how the script
 				// finds the lists whose chip titles to drop.
-				$processor->set_attribute( 'data-aa-color-swatches', (string) wp_json_encode( (object) self::client_map( $options, $swatches ) ) );
+				$processor->set_attribute( 'data-aa-color-swatches', (string) wp_json_encode( (object) $map ) );
 				$decorated = true;
 				continue;
 			}
@@ -142,19 +147,19 @@ class Color_Block_Swatch_Manager {
 				$slug = $processor->has_class( self::CHIP_CLASS ) && ! $processor->has_class( self::THEME_CHIP_CLASS ) && str_starts_with( (string) $processor->get_attribute( 'id' ), self::OPTION_ID_PREFIX )
 					? (string) $processor->get_attribute( 'value' )
 					: '';
-				if ( '' !== $slug && isset( $swatches[ $slug ] ) ) {
-					$current   = $swatches[ $slug ];
+				if ( '' !== $slug && is_array( $map[ $slug ] ?? null ) ) {
+					$current   = $map[ $slug ];
 					$decorated = true;
 					$processor->add_class( self::THEME_CHIP_CLASS );
 					$processor->remove_attribute( 'title' );
 					$style = rtrim( trim( (string) $processor->get_attribute( 'style' ) ), ';' );
-					$processor->set_attribute( 'style', ltrim( $style . '; --swatch-color: ' . self::ring_color( $current ) . ';', '; ' ) );
+					$processor->set_attribute( 'style', ltrim( $style . '; --swatch-color: ' . (string) ( $current['ring'] ?? '' ) . ';', '; ' ) );
 				}
 				continue;
 			}
 
 			if ( null !== $current && 'SPAN' === $tag && $processor->has_class( self::SWATCH_CLASS ) ) {
-				$this->decorate_swatch( $processor, $current );
+				self::decorate_swatch( $processor, $current );
 				$current = null;
 			}
 		}
@@ -194,17 +199,16 @@ class Color_Block_Swatch_Manager {
 	}
 
 	/**
-	 * Swatch data color-swatch-chips.ts needs for chips the browser renders.
-	 *
-	 * Each entry has `name`, `ring`, `pattern` and `color`; the filter may add
-	 * more (Swatch_Tooltips adds `tooltip`).
+	 * The swatch map for a colour attribute's options: each entry has `name`,
+	 * `ring` and `pattern`, and the filter may add `tooltip`. It decorates the
+	 * server's chips, and is sent with the list for the browser's.
 	 *
 	 * @param array               $slugs    This attribute's option slugs.
 	 * @param array<string,array> $swatches Swatch data keyed by slug.
 	 * @phpstan-param list<string> $slugs
 	 * @return array<string, array<string, mixed>>
 	 */
-	private static function client_map( array $slugs, array $swatches ): array {
+	private static function swatch_map( array $slugs, array $swatches ): array {
 		$map = array();
 		foreach ( $slugs as $slug ) {
 			if ( ! isset( $swatches[ $slug ] ) ) {
@@ -213,15 +217,14 @@ class Color_Block_Swatch_Manager {
 			$is_pattern   = 'pattern' === ( $swatches[ $slug ]['type'] ?? '' );
 			$map[ $slug ] = array(
 				'name'    => (string) ( $swatches[ $slug ]['name'] ?? '' ),
-				'ring'    => self::ring_color( $swatches[ $slug ] ),
+				'ring'    => $is_pattern ? self::PATTERN_RING : (string) ( $swatches[ $slug ]['value'] ?? '' ),
 				'pattern' => $is_pattern,
-				'color'   => $is_pattern ? '' : (string) ( $swatches[ $slug ]['value'] ?? '' ),
 			);
 		}
 
 		/**
-		 * Filter the swatch data sent with a colour selector for chips the
-		 * browser renders (Swatch_Tooltips adds each `tooltip`).
+		 * Filter a colour selector's swatch map (Swatch_Tooltips adds each
+		 * `tooltip`).
 		 *
 		 * @param array<string, array> $map Swatch data keyed by term slug.
 		 */
@@ -229,35 +232,23 @@ class Color_Block_Swatch_Manager {
 	}
 
 	/**
-	 * Decorate one swatch span.
+	 * Decorate one swatch span, as color-swatch-chips.ts's decorateChip() does.
 	 *
 	 * @param \WP_HTML_Tag_Processor $processor Processor positioned on the span.
-	 * @param array                  $swatch    The term's swatch data (`type`, `value`, `name`).
+	 * @param array                  $entry     The term's swatch map entry.
 	 * @return void
 	 */
-	private function decorate_swatch( \WP_HTML_Tag_Processor $processor, array $swatch ): void {
-		$is_pattern = 'pattern' === ( $swatch['type'] ?? '' );
-
-		foreach ( array( 'aggressive-apparel-color-swatch', 'aggressive-apparel-color-swatch--interactive', 'aggressive-apparel-color-swatch__circle' ) as $class ) {
-			$processor->add_class( $class );
-		}
-		if ( $is_pattern ) {
+	private static function decorate_swatch( \WP_HTML_Tag_Processor $processor, array $entry ): void {
+		$processor->add_class( 'aggressive-apparel-color-swatch' );
+		$processor->add_class( 'aggressive-apparel-color-swatch__circle' );
+		if ( ! empty( $entry['pattern'] ) ) {
 			$processor->add_class( 'aggressive-apparel-color-swatch--pattern' );
 		}
 
-		$processor->set_attribute( 'data-color-name', (string) ( $swatch['name'] ?? '' ) );
-		if ( ! $is_pattern ) {
-			$processor->set_attribute( 'data-color', (string) ( $swatch['value'] ?? '' ) );
+		$processor->set_attribute( 'data-color-name', (string) ( $entry['name'] ?? '' ) );
+		$tooltip = is_string( $entry['tooltip'] ?? null ) ? $entry['tooltip'] : '';
+		if ( '' !== $tooltip ) {
+			$processor->set_attribute( 'data-tooltip', $tooltip );
 		}
-	}
-
-	/**
-	 * The colour the selected ring mixes from.
-	 *
-	 * @param array $swatch The term's swatch data.
-	 * @return string
-	 */
-	private static function ring_color( array $swatch ): string {
-		return 'pattern' === ( $swatch['type'] ?? '' ) ? self::PATTERN_RING : (string) ( $swatch['value'] ?? '' );
 	}
 }

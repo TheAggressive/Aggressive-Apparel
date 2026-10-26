@@ -23,7 +23,6 @@ const CHIP_CLASS = 'aggressive-apparel-color-chip';
 const SWATCH_SELECTOR = '.wc-block-product-filter-chips__swatch';
 const SWATCH_CLASSES = [
   'aggressive-apparel-color-swatch',
-  'aggressive-apparel-color-swatch--interactive',
   'aggressive-apparel-color-swatch__circle',
 ];
 
@@ -31,7 +30,6 @@ export interface SwatchEntry {
   name: string;
   ring: string;
   pattern: boolean;
-  color: string;
   tooltip?: string;
 }
 
@@ -50,7 +48,8 @@ function readMap(list: Element): SwatchMap {
 }
 
 /**
- * Decorate one chip WooCommerce rendered in the browser.
+ * Decorate one chip WooCommerce rendered in the browser, as
+ * Color_Block_Swatch_Manager does the server's.
  */
 export function decorateChip(chip: HTMLElement, entry: SwatchEntry): void {
   chip.classList.add(CHIP_CLASS);
@@ -67,9 +66,6 @@ export function decorateChip(chip: HTMLElement, entry: SwatchEntry): void {
     entry.pattern
   );
   swatch.dataset.colorName = entry.name;
-  if (entry.color) {
-    swatch.dataset.color = entry.color;
-  }
   if (entry.tooltip) {
     swatch.dataset.tooltip = entry.tooltip;
   }

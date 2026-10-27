@@ -172,4 +172,64 @@ test.describe('store-notices toasts', () => {
       await deletePage(page, id);
     }
   });
+
+  test('a notice on the shop becomes a toast without moving the grid', async ({
+    page,
+  }) => {
+    await page.goto('/shop/');
+    // Product Collection's own notices region, which WooCommerce fills
+    // client-side (an add-to-cart error, say).
+    const region = page
+      .locator(
+        '[data-wp-interactive="woocommerce/store-notices"].wc-block-components-notices'
+      )
+      .filter({ hasNot: page.locator('form') })
+      .first();
+    const grid = page.locator('.wc-block-product-template').first();
+    const before = await grid.boundingBox();
+
+    await region.evaluate(element => {
+      const banner = document.createElement('div');
+      banner.className = 'wc-block-components-notice-banner is-error';
+      banner.innerHTML =
+        '<div class="wc-block-components-notice-banner__content">Shop overlay check.</div>';
+      element.append(banner);
+    });
+
+    await expect(
+      page.locator('.aa-notices__message', { hasText: 'Shop overlay check.' })
+    ).toBeVisible();
+    await expect(region).toBeHidden();
+    expect((await grid.boundingBox())?.y).toBe(before?.y);
+  });
+
+  test('captures a notice whose text WooCommerce fills in after insertion', async ({
+    page,
+  }) => {
+    await page.goto('/shop/');
+    const region = page
+      .locator(
+        '[data-wp-interactive="woocommerce/store-notices"].wc-block-components-notices'
+      )
+      .filter({ hasNot: page.locator('form') })
+      .first();
+
+    // WooCommerce's interactive notices: the banner first, its text from a
+    // data-wp-init callback a moment later.
+    await region.evaluate(element => {
+      const banner = document.createElement('div');
+      banner.className = 'wc-block-components-notice-banner is-error';
+      banner.innerHTML =
+        '<div class="wc-block-components-notice-banner__content"><span></span></div>';
+      element.append(banner);
+      setTimeout(() => {
+        banner.querySelector('span')!.textContent = 'Filled in later.';
+      }, 300);
+    });
+
+    await expect(
+      page.locator('.aa-notices__message', { hasText: 'Filled in later.' })
+    ).toBeVisible();
+    await expect(region).toBeHidden();
+  });
 });

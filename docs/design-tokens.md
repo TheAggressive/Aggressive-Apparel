@@ -17,28 +17,29 @@ The editor swatch **name matches the slug** (so `var(--aa-color-foreground)` ↔
 "Foreground"), and adaptive (light/dark) colors carry an **"(Adaptive)"** suffix
 so it's clear they shift with the color scheme.
 
-| Editor name                     | Slug (= CSS)           | Value                                   |
-| ------------------------------- | ---------------------- | --------------------------------------- |
-| Primary                         | `primary`              | Legacy alias to adaptive Accent         |
-| Red                             | `red`                  | Legacy alias to adaptive Accent         |
-| White                           | `white`                | `#ffffff`                               |
-| Black                           | `black`                | `#000000`                               |
-| Transparent                     | `transparent`          | `transparent` (explicit "no fill")      |
-| Surface (Adaptive)              | `surface`              | Adaptive page/section background        |
-| Surface Elevated (Adaptive)     | `surface-elevated`     | Adaptive higher-contrast surface        |
-| Surface Muted (Adaptive)        | `surface-muted`        | Soft panel between elevated and surface |
-| Surface Sunken (Adaptive)       | `surface-sunken`       | Recessed wells / input fills            |
-| Foreground (Adaptive)           | `foreground`           | Adaptive primary text                   |
-| Foreground Muted (Adaptive)     | `foreground-muted`     | Adaptive secondary text                 |
-| Accent (Adaptive)               | `accent`               | Adaptive brand interactive color        |
-| Accent on Foreground (Adaptive) | `accent-on-foreground` | Inverse accent for foreground surfaces  |
-| Border (Adaptive)               | `border`               | Adaptive borders/dividers               |
-| Border Muted (Adaptive)         | `border-muted`         | Quieter hairlines than `border`         |
-| Success                         | `success`              | `oklch(52.7% 0.137 150.1)` (status)     |
-| Warning                         | `warning`              | `oklch(55.3% 0.174 38.4)` (status)      |
-| Error                           | `error`                | `oklch(57.7% 0.215 27.3)` (status)      |
-| Info                            | `info`                 | `oklch(48.8% 0.217 264.4)` (status)     |
-| Neutral                         | `neutral`              | `oklch(55.1% 0.023 264.4)` (status)     |
+| Editor name                         | Slug (= CSS)           | Value                                                       |
+| ----------------------------------- | ---------------------- | ----------------------------------------------------------- |
+| Primary                             | `primary`              | Legacy alias to adaptive Accent                             |
+| Red                                 | `red`                  | Legacy alias to adaptive Accent                             |
+| White                               | `white`                | `#ffffff`                                                   |
+| Black                               | `black`                | `#000000`                                                   |
+| Transparent                         | `transparent`          | `transparent` (explicit "no fill")                          |
+| Surface (Adaptive)                  | `surface`              | Adaptive page/section background                            |
+| Surface Elevated (Adaptive)         | `surface-elevated`     | Adaptive higher-contrast surface                            |
+| Surface Muted (Adaptive)            | `surface-muted`        | Soft panel between elevated and surface                     |
+| Surface Sunken (Adaptive)           | `surface-sunken`       | Recessed wells / input fills                                |
+| Foreground (Adaptive)               | `foreground`           | Adaptive primary text                                       |
+| Foreground Muted (Adaptive)         | `foreground-muted`     | Adaptive secondary text                                     |
+| Accent (Adaptive)                   | `accent`               | Adaptive brand interactive color                            |
+| Accent on Foreground (Adaptive)     | `accent-on-foreground` | Inverse accent for foreground surfaces                      |
+| Accent on Raised Surface (Adaptive) | `accent-on-raised`     | Accent text on raised dark surfaces where `accent` fails AA |
+| Border (Adaptive)                   | `border`               | Adaptive borders/dividers                                   |
+| Border Muted (Adaptive)             | `border-muted`         | Quieter hairlines than `border`                             |
+| Success                             | `success`              | `oklch(52.7% 0.137 150.1)` (status)                         |
+| Warning                             | `warning`              | `oklch(55.3% 0.174 38.4)` (status)                          |
+| Error                               | `error`                | `oklch(57.7% 0.215 27.3)` (status)                          |
+| Info                                | `info`                 | `oklch(48.8% 0.217 264.4)` (status)                         |
+| Neutral                             | `neutral`              | `oklch(55.1% 0.023 264.4)` (status)                         |
 
 Adaptive colors are injected as `light-dark()` palette entries by
 `Core/Adaptive_Colors` from `settings.custom.adaptiveColors` (edit their `light`/

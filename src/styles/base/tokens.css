@@ -78,6 +78,13 @@
 	--aa-color-accent: var(--wp--preset--color--accent);
 	--aa-color-accent-fill: var(--wp--preset--color--accent-fill);
 	--aa-color-accent-on-foreground: var(--wp--preset--color--accent-on-foreground);
+
+	/* Accent text on raised dark surfaces (striped rows, tinted panels): the
+	   brand accent clears 4.5:1 on the page surface but not on a lighter one
+	   (4.24:1 on #252525). Same hue at max in-gamut chroma, lightness +2.5 —
+	   4.74:1 there, 5.54:1 on the page. Light mode equals the accent. Use only
+	   where the brand accent fails; never as a general link colour. */
+	--aa-color-accent-on-raised: var(--wp--preset--color--accent-on-raised);
 	--aa-color-border: var(--wp--preset--color--border);
 	--aa-color-border-muted: var(--wp--preset--color--border-muted);
 

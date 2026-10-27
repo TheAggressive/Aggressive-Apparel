@@ -827,6 +827,16 @@
 	margin-block-start: 0.25rem;
 }
 
+/* Attribute values link to their archives (rel="tag") and take the global
+   accent link colour, which falls short of 4.5:1 on the striped rows in dark
+   mode. The raised-surface accent keeps them brand red and passes on every
+   row; applied to the whole table so links don't change colour row to row.
+   At rest only, so the global link :hover / :focus colour still applies. */
+.aa-product-info.woocommerce table.shop_attributes td a:not(:hover, :focus),
+.aa-product-info table.woocommerce-product-attributes td a:not(:hover, :focus) {
+	color: var(--aa-color-accent-on-raised);
+}
+
 /* ===================================================================
  * Reduced motion
  * =================================================================== */

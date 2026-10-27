@@ -8,15 +8,16 @@ Single source of truth for UI tokens, naming, and usage across the theme.
 
 Defined in `theme.json` → `settings.custom.adaptiveColors`. Injected at runtime as `light-dark(light, dark)` palette entries by `Adaptive_Colors`.
 
-| Slug                   | Editor name                     | Role                                    | Light                     | Dark                      |
-| ---------------------- | ------------------------------- | --------------------------------------- | ------------------------- | ------------------------- |
-| `surface`              | Surface (Adaptive)              | Default page/section background         | oklch(87% 0 0)            | oklch(20.5% 0 0)          |
-| `surface-elevated`     | Surface Elevated (Adaptive)     | Higher-contrast surface                 | oklch(1 0 0)              | oklch(0 0 0)              |
-| `foreground`           | Foreground (Adaptive)           | Primary text                            | oklch(0 0 0)              | oklch(1 0 0)              |
-| `foreground-muted`     | Foreground Muted (Adaptive)     | Secondary/muted text                    | oklch(55.6% 0 0)          | oklch(87% 0 0)            |
-| `accent`               | Accent (Adaptive)               | Brand interactive (links, hover, focus) | oklch(44.4% 0.177 26.899) | oklch(65% 0.236 29)       |
-| `accent-on-foreground` | Accent on Foreground (Adaptive) | Brand accent on inverted foreground     | oklch(68% 0.22 27.325)    | oklch(44.4% 0.177 26.899) |
-| `border`               | Border (Adaptive)               | Borders and dividers                    | oklch(70.8% 0 0)          | oklch(43.9% 0 0)          |
+| Slug                   | Editor name                         | Role                                                                                 | Light                     | Dark                      |
+| ---------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ | ------------------------- | ------------------------- |
+| `surface`              | Surface (Adaptive)                  | Default page/section background                                                      | oklch(87% 0 0)            | oklch(20.5% 0 0)          |
+| `surface-elevated`     | Surface Elevated (Adaptive)         | Higher-contrast surface                                                              | oklch(1 0 0)              | oklch(0 0 0)              |
+| `foreground`           | Foreground (Adaptive)               | Primary text                                                                         | oklch(0 0 0)              | oklch(1 0 0)              |
+| `foreground-muted`     | Foreground Muted (Adaptive)         | Secondary/muted text                                                                 | oklch(55.6% 0 0)          | oklch(87% 0 0)            |
+| `accent`               | Accent (Adaptive)                   | Brand interactive (links, hover, focus)                                              | oklch(44.4% 0.177 26.899) | oklch(65% 0.236 29)       |
+| `accent-on-foreground` | Accent on Foreground (Adaptive)     | Brand accent on inverted foreground                                                  | oklch(68% 0.22 27.325)    | oklch(44.4% 0.177 26.899) |
+| `accent-on-raised`     | Accent on Raised Surface (Adaptive) | Accent text on raised dark surfaces (striped rows) — only where `accent` fails 4.5:1 | oklch(44.4% 0.177 26.899) | oklch(67.5% 0.213 29)     |
+| `border`               | Border (Adaptive)                   | Borders and dividers                                                                 | oklch(70.8% 0 0)          | oklch(43.9% 0 0)          |
 
 **CSS variable:** `var(--wp--preset--color--{slug})`  
 **Alias:** `var(--aa-color-{slug})` in `src/styles/base/tokens.css`

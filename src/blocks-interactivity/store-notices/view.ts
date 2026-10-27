@@ -228,29 +228,74 @@ function startBridge(ctx: NoticesContext, root: HTMLElement): void {
 
   const seen = new WeakSet<Element>();
 
-  const contentOf = (node: Element): string => {
-    const inner = node.querySelector(
-      '.wc-block-components-notice-banner__content'
-    );
-    // Keep the message's inline markup (links included) but run it through the
-    // same allowlist sanitiser as everything else before it can be stored.
-    return sanitizeNoticeHtml((inner ?? node).innerHTML ?? '');
+  /** The banner's message element (classic notices are the message). */
+  const contentNode = (node: Element): Element =>
+    node.querySelector('.wc-block-components-notice-banner__content') ?? node;
+
+  // Keep the message's inline markup (links included) but run it through the
+  // same allowlist sanitiser as everything else before it can be stored.
+  const contentOf = (node: Element): string =>
+    sanitizeNoticeHtml(contentNode(node).innerHTML ?? '');
+
+  const textOf = (node: Element): string =>
+    contentNode(node).textContent?.trim() ?? '';
+
+  const hide = (node: Element): void => {
+    node.setAttribute('hidden', '');
+    (node as HTMLElement).style.display = 'none';
+  };
+
+  /** Banners waiting for WooCommerce to fill in their text. */
+  const pending = new WeakSet<Element>();
+
+  /**
+   * WooCommerce's interactive notices (add-to-cart validation, Product
+   * Collection) insert the banner first and fill its text from a
+   * `data-wp-init` callback. Capture once the text arrives, hidden meanwhile
+   * so it never flashes into the page; give it back if none does.
+   */
+  const awaitText = (node: Element, type: NoticeType): void => {
+    if (pending.has(node)) {
+      return;
+    }
+    pending.add(node);
+    hide(node);
+
+    const observer = new MutationObserver(() => {
+      if (textOf(node)) {
+        observer.disconnect();
+        clearTimeout(timer);
+        pending.delete(node);
+        capture(node, type);
+      }
+    });
+    observer.observe(node, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    const timer = setTimeout(() => {
+      observer.disconnect();
+      pending.delete(node);
+      node.removeAttribute('hidden');
+      (node as HTMLElement).style.display = '';
+    }, 2000);
   };
 
   const capture = (node: Element, type: NoticeType): void => {
     if (seen.has(node)) {
       return;
     }
+    if (!textOf(node)) {
+      awaitText(node, type);
+      return;
+    }
     seen.add(node);
 
     const message = contentOf(node);
-    if (!message.trim()) {
-      return;
-    }
 
     // Hide WooCommerce's own copy; ours replaces it.
-    node.setAttribute('hidden', '');
-    (node as HTMLElement).style.display = 'none';
+    hide(node);
 
     // WooCommerce re-renders its block notices as fresh DOM nodes (the WeakSet
     // above only dedups a given node), so skip if an identical toast is already

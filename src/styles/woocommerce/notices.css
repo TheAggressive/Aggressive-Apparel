@@ -8,8 +8,16 @@
  * @package Aggressive_Apparel
  */
 
-.woocommerce-notices-wrapper:empty,
-.wc-block-components-notices:empty {
+.woocommerce-notices-wrapper:empty {
+	display: none;
+}
+
+/* WooCommerce keeps its notices container in the page even with nothing to
+   show: whitespace, the template it renders notices from, or banners the
+   Store Notices block has moved into toasts — and its margin still pushes
+   the page down. Hide it when every child is one of those. (On a product
+   page the container also wraps the add-to-cart form, so it stays.) */
+.wc-block-components-notices:not(:has(> :not(template, .wc-block-components-notice-banner[hidden]))) {
 	display: none;
 }
 

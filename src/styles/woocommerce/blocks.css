@@ -7,6 +7,8 @@
  * @package Aggressive_Apparel
  */
 
+@import './_cart.css';
+
 /* Product collection rhythm. Keep visual defaults specificity-free so palette
    and typography classes saved by the Site Editor always win, including on
    cards appended by Load More / Infinite Scroll. */
@@ -381,6 +383,86 @@
 	color: var(--aa-color-foreground);
 }
 
+/* WooCommerce prints each product's short description under the line item on
+ * the cart and checkout. Hide it there; the mini-cart clamps it in mini-cart.css. */
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout) .wc-block-components-product-metadata__description {
+	display: none;
+}
+
+/* The footer total is bold uppercase (below); its "Shipping will be
+ * calculated at checkout" note inherits that and reads as a warning. Set it
+ * back to a quiet note — dimmed with opacity, not a colour, so it keeps the
+ * summary's (editor-set) text color. */
+.wc-block-components-totals-footer-item .wc-block-components-totals-item__description {
+	font-weight: 400;
+	text-transform: none;
+	letter-spacing: normal;
+	opacity: 0.75;
+}
+
+/* WooCommerce renders its order-meta slot (where "You save" lives) after the
+ * footer total. Put the total last, so the summary reads breakdown → savings
+ * → total → button. Checkout collapses its summary on mobile (display: none
+ * until .is-open), so it only becomes a flex column where it is shown. On
+ * mobile checkout also repeats the summary above "Place order" (the fill). */
+.wp-block-woocommerce-cart-order-summary-block,
+.checkout-order-summary-block-fill {
+	display: flex;
+	flex-direction: column;
+}
+
+.wc-block-components-checkout-order-summary__content.is-open {
+	display: flex;
+	flex-direction: column;
+}
+
+@container (min-width: 920px) {
+
+	.wp-block-woocommerce-checkout-order-summary-block .wc-block-components-checkout-order-summary__content {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+:is(.wp-block-woocommerce-cart-order-summary-block, .wc-block-components-checkout-order-summary__content, .checkout-order-summary-block-fill) > .wc-block-components-totals-wrapper:has(> .wc-block-components-totals-footer-item) {
+	order: 1;
+}
+
+/* "You save" totals line (scripts/cart-order-meta.tsx). It sums what the
+ * per-line "Save" badges show, so once it has rendered those are hidden (the
+ * struck-through price still marks each sale item). Keyed on the line itself:
+ * if the script never runs, the badges stay. Block-scoped :has(), not body. */
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout):has(.aa-cart-savings) :is(.wc-block-cart-item__total, .wc-block-components-order-summary-item__total-price) .wc-block-components-sale-badge {
+	display: none;
+}
+
+.aa-cart-savings .wc-block-components-totals-item {
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+/* Sale colour in a layer, so the editor and WooCommerce keep priority. */
+@layer aa-woocommerce {
+
+	.aa-cart-savings .wc-block-components-totals-item {
+		color: var(--aa-commerce-sale-text);
+	}
+}
+
+/* Cart totals / order-summary column — WooCommerce fixes it at 360px. Give it
+ * ~44% of the row, capped at 600px (reached from a ~1365px container), so the
+ * items or form keep the larger share. Below a 920px container WooCommerce
+ * stacks the columns. */
+@container (min-width: 920px) {
+
+	:is(.wc-block-cart, .wc-block-checkout) .wc-block-components-sidebar {
+		flex-basis: clamp(360px, 44cqi, 600px);
+		width: clamp(360px, 44cqi, 600px);
+	}
+}
+
 .wc-block-cart-items__row,
 .wc-block-components-totals-wrapper,
 .wc-block-components-sidebar,
@@ -394,9 +476,11 @@
  * stays a single panel (no nested surfaces / double padding) and applies
  * consistently on desktop (sidebar) and mobile (top collapsible). Uses the
  * shared card radius so it matches the site's other content cards (Card block
- * style, reviews, product cards, mini-cart). */
-.wp-block-woocommerce-checkout-order-summary-block,
-.wp-block-woocommerce-cart-order-summary-block {
+ * style, reviews, product cards, mini-cart). Scoped to the parent block:
+ * WooCommerce's own 5px radius on the summary block has the same specificity
+ * and its stylesheet prints after ours. */
+.wp-block-woocommerce-checkout .wp-block-woocommerce-checkout-order-summary-block,
+.wp-block-woocommerce-cart .wp-block-woocommerce-cart-order-summary-block {
 	border-radius: var(--aa-radius-card);
 	background-color: var(--aa-color-surface-elevated);
 	padding: var(--wp--preset--spacing--8);

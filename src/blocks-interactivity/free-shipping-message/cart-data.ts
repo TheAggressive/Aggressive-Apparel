@@ -205,6 +205,22 @@ export function formatFreeShippingMessage(
 }
 
 /**
+ * Bar fill for parsed progress, 0–100. Shared by the free-shipping bar block
+ * and the cart order-summary progress so both fill identically.
+ */
+export function progressPercent(
+  parsed: Pick<ParsedCartTotals, 'threshold' | 'cartTotal' | 'complete'>
+): number {
+  if (parsed.complete) {
+    return 100;
+  }
+
+  return parsed.threshold > 0
+    ? Math.min(100, (parsed.cartTotal / parsed.threshold) * 100)
+    : 0;
+}
+
+/**
  * Parse a Store API cart response into free-shipping progress.
  *
  * The theme's cart extension carries the customer's zone threshold and the

@@ -86,8 +86,12 @@ above the control.
   labels), where plain foreground-muted is ~4.0:1.
 - **Status text:** `--aa-color-error-text` / `--aa-color-success-text` mix 30%
   of the adaptive foreground into the static status swatches, which alone sit
-  near 3.3–3.7:1. Use them for validation messages and thin indicators (≥ 4.9:1
+  near 3.3–3.7:1. Use them for validation messages and thin indicators (≥ 4.5:1
   on every surface, both schemes); keep the swatches for fills and badges.
+  Exception: dark-mode error text is a fixed `oklch(65% 0.236 29)` — mixing in
+  white turns the red salmon-pink. It matches the dark `accent` (one red for
+  dark-mode text) but is not an alias, so re-theming the accent never recolours
+  errors or sale prices (`--aa-commerce-sale-text`).
 - **`src/styles/components/forms.css`** (frontend, enqueued after main; also an
   editor style, so server-rendered previews match): the native baseline for
   text-like inputs, `textarea`, checkbox/radio/range, file, color, raw `input`

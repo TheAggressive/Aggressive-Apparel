@@ -34,7 +34,7 @@ if ( ! function_exists( 'wc_get_notices' ) ) {
 }
 
 /**
- * Whitelisted toast positions. Anything else falls back to top-right.
+ * Whitelisted toast positions. Anything else falls back to bottom-right (the block default).
  */
 $aa_notice_positions = array(
 	'top-right',
@@ -47,7 +47,7 @@ $aa_notice_positions = array(
 
 $aa_position = isset( $attributes['position'] ) && in_array( $attributes['position'], $aa_notice_positions, true )
 	? (string) $attributes['position']
-	: 'top-right';
+	: 'bottom-right';
 
 $aa_badge_position = isset( $attributes['badgePosition'] ) && in_array( $attributes['badgePosition'], array( 'top-right', 'bottom-right' ), true )
 	? (string) $attributes['badgePosition']

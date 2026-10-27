@@ -50,7 +50,11 @@
 .wc-block-mini-cart__drawer {
 	font-family: var(--font-sans, inherit);
 
+	/* WooCommerce pulls the title up (-2px) and relies on the empty notices
+	   container above it for top spacing; we hide that container, so the
+	   title supplies its own, level with the close button (top: 16px). */
 	.wc-block-mini-cart__title {
+		margin-block-start: var(--wp--preset--spacing--4);
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
@@ -417,7 +421,7 @@
 
 	.wc-block-components-sale-badge {
 		background-color: var(--aa-color-error-bg);
-		color: var(--aa-color-error);
+		color: var(--aa-color-error-text);
 		border: 1px solid var(--aa-color-error-border);
 	}
 
@@ -488,7 +492,7 @@
 		}
 
 		&:hover {
-			color: var(--aa-color-error);
+			color: var(--aa-color-error-text);
 		}
 
 		&:focus-visible {

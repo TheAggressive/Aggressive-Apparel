@@ -305,8 +305,13 @@
 	   in light mode and lightens them in dark: ≥ 4.9:1 on the surface,
 	   muted/elevated surfaces, their own 12% tint, and the field fill, in both
 	   schemes. Use these for text and thin indicators; keep the swatches for
-	   fills and badges. */
-	--aa-color-error-text: color-mix(in oklch, var(--aa-color-error) 70%, var(--aa-color-foreground));
+	   fills and badges.
+	   Dark error text is a fixed red instead: mixing in white drops the chroma
+	   to a salmon pink. 65% lightness at full in-gamut chroma stays red and
+	   clears 4.5:1 on the page surface (pure #f00 is only ~4.35:1). It is the
+	   same value as the theme.json dark accent, but deliberately not an alias:
+	   errors and sale text must stay red when the accent is re-themed. */
+	--aa-color-error-text: light-dark(color-mix(in oklch, var(--aa-color-error) 70%, var(--aa-color-foreground)), oklch(65% 0.236 29deg));
 	--aa-color-success-text: color-mix(in oklch, var(--aa-color-success) 70%, var(--aa-color-foreground));
 
 	/* Commerce-state colors — semantic aliases of the status colors above. */

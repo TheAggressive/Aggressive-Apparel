@@ -16,7 +16,7 @@
   "attributes": {
     "position": {
       "type": "string",
-      "default": "top-right"
+      "default": "bottom-right"
     },
     "maxVisible": {
       "type": "number",

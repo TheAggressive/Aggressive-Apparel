@@ -356,7 +356,7 @@
           "slug": "accent",
           "name": "Accent (Adaptive)",
           "light": "oklch(44.4% 0.177 26.899)",
-          "dark": "oklch(68% 0.22 27.325)"
+          "dark": "oklch(65% 0.236 29)"
         },
         {
           "slug": "accent-fill",

@@ -14,7 +14,7 @@ Defined in `theme.json` → `settings.custom.adaptiveColors`. Injected at runtim
 | `surface-elevated`     | Surface Elevated (Adaptive)     | Higher-contrast surface                 | oklch(1 0 0)              | oklch(0 0 0)              |
 | `foreground`           | Foreground (Adaptive)           | Primary text                            | oklch(0 0 0)              | oklch(1 0 0)              |
 | `foreground-muted`     | Foreground Muted (Adaptive)     | Secondary/muted text                    | oklch(55.6% 0 0)          | oklch(87% 0 0)            |
-| `accent`               | Accent (Adaptive)               | Brand interactive (links, hover, focus) | oklch(44.4% 0.177 26.899) | oklch(57.7% 0.245 27.325) |
+| `accent`               | Accent (Adaptive)               | Brand interactive (links, hover, focus) | oklch(44.4% 0.177 26.899) | oklch(65% 0.236 29)       |
 | `accent-on-foreground` | Accent on Foreground (Adaptive) | Brand accent on inverted foreground     | oklch(68% 0.22 27.325)    | oklch(44.4% 0.177 26.899) |
 | `border`               | Border (Adaptive)               | Borders and dividers                    | oklch(70.8% 0 0)          | oklch(43.9% 0 0)          |
 

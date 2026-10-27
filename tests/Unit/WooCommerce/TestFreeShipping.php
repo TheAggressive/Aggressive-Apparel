@@ -157,7 +157,7 @@ class TestFreeShipping extends WP_UnitTestCase {
 			has_action( 'update_option_woocommerce_free_shipping_settings', array( Free_Shipping::class, 'flush_threshold_cache' ) )
 		);
 		$this->assertNotFalse(
-			has_action( 'rest_api_init', array( Free_Shipping::class, 'register_store_api_extension' ) )
+			has_action( 'init', array( Free_Shipping::class, 'register_store_api_extension' ) )
 		);
 	}
 

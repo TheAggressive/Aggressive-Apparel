@@ -1678,6 +1678,15 @@ msgstr ""
 msgid "Scales every badge on screens under 600px wide, keeping each badge’s own design."
 msgstr ""
 
+#: includes/WooCommerce/class-cart-order-meta.php:81
+msgid "You save"
+msgstr ""
+
+#: includes/WooCommerce/class-cart-order-meta.php:82
+#: src/blocks-interactivity/free-shipping-bar/render.php:90
+msgid "Free shipping progress"
+msgstr ""
+
 #: includes/WooCommerce/class-catalog-archive-filters.php:183
 #: patterns/template-no-products.php:15
 msgid "No products were found matching your selection."
@@ -7607,10 +7616,6 @@ msgstr ""
 
 #: src/blocks-interactivity/countdown-timer/render.php:273
 msgid "s"
-msgstr ""
-
-#: src/blocks-interactivity/free-shipping-bar/render.php:90
-msgid "Free shipping progress"
 msgstr ""
 
 #: src/blocks-interactivity/grid-list-toggle/render.php:32

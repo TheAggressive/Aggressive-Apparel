@@ -92,6 +92,19 @@ body.has-bottom-nav.aa-sticky-cart-visible :is(.aa-notices--bottom-left, .aa-not
 	bottom: calc(1.25rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 6rem));
 }
 
+/* WooCommerce's sticky mobile "Proceed to Checkout" bar on the cart (z-index
+ * 9999, above the stack) — published by scripts/_wc-checkout-bar.ts. It pins
+ * to bottom: 0 over the bottom nav, so clear whichever is taller. The nav
+ * height is only a length while the nav is active (tokens.css defaults it to
+ * a unitless 0, which would invalidate max()), hence the separate rule. */
+body.aa-wc-checkout-bar-visible :is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) {
+	bottom: calc(1.25rem + var(--aa-wc-checkout-bar-height, 5rem));
+}
+
+body.has-bottom-nav.aa-wc-checkout-bar-visible :is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) {
+	bottom: calc(1.25rem + max(var(--aa-bottom-nav-height), var(--aa-wc-checkout-bar-height, 5rem)));
+}
+
 /*
  * Logged-in admin bar: WordPress pins a fixed toolbar at the top (32px wide
  * viewports, 46px at <=782px). Push the top-anchored stacks below it so the
@@ -194,7 +207,7 @@ body.admin-bar :is(.aa-notices--top-right, .aa-notices--top-left, .aa-notices--t
 }
 
 .aa-notices__toast--error {
-	border-left-color: var(--aa-color-error);
+	border-left-color: var(--aa-color-error-text);
 }
 
 .aa-notices__toast--notice {

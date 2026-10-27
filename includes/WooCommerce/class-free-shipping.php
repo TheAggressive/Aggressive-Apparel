@@ -64,7 +64,7 @@ class Free_Shipping {
 		add_action( 'woocommerce_shipping_zone_method_deleted', array( self::class, 'flush_threshold_cache' ) );
 		add_action( 'woocommerce_shipping_zone_method_status_toggled', array( self::class, 'flush_threshold_cache' ) );
 		add_action( 'update_option_woocommerce_free_shipping_settings', array( self::class, 'flush_threshold_cache' ) );
-		add_action( 'rest_api_init', array( self::class, 'register_store_api_extension' ) );
+		add_action( 'init', array( self::class, 'register_store_api_extension' ) );
 	}
 
 	/**
@@ -83,6 +83,12 @@ class Free_Shipping {
 	 *
 	 * The free-shipping blocks already fetch the cart when it holds items, so
 	 * this costs no extra request and corrects cached first-paint HTML.
+	 *
+	 * Registered on `init`, not `rest_api_init`: the cart and checkout blocks
+	 * hydrate their first cart by calling the Store API controller directly
+	 * while the page renders, which never fires `rest_api_init`. Without the
+	 * data there, the order-summary progress (Cart_Order_Meta) stays empty
+	 * until the cart changes.
 	 *
 	 * @return void
 	 */

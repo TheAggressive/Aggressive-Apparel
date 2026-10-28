@@ -8,6 +8,7 @@
  */
 
 @import './_cart.css';
+@import './_saved-for-later.css';
 
 /* Product collection rhythm. Keep visual defaults specificity-free so palette
    and typography classes saved by the Site Editor always win, including on

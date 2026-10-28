@@ -10,8 +10,10 @@
  *   below every item, so the same component portals into a strip above the
  *   cart (CSS shows one or the other at WooCommerce's 920px breakpoint).
  * - "You save": the sum of the line items' sale savings (cart and checkout).
+ * - A secure-checkout note under the cart's checkout button (cart only),
+ *   portalled there because WooCommerce has no slot after the button.
  *
- * Both render from the live cart the slot passes in, so they follow quantity
+ * All render from the live cart the slot passes in, so they follow quantity
  * changes without fetching anything.
  *
  * @package Aggressive_Apparel
@@ -47,6 +49,7 @@ interface CartOrderMetaData {
   i18n: {
     youSave: string;
     shippingProgress: string;
+    secureCheckout: string;
   };
   shipping: CurrencyFormat & {
     emphasisText: string;
@@ -64,8 +67,6 @@ interface WooGlobals {
   };
 }
 
-const STRIP_CLASS = 'aa-cart-shipping-strip';
-
 const globals = window as unknown as {
   wc?: WooGlobals;
   aaCartOrderMeta?: CartOrderMetaData;
@@ -75,12 +76,25 @@ const priceFormat = globals.wc?.priceFormat;
 const data = globals.aaCartOrderMeta;
 
 /**
- * The strip host above the cart block: a sibling of WooCommerce's React root,
- * so its re-renders never touch it. Created once, wide-aligned like the cart.
+ * A host element placed beside an anchor inside the cart, for content that
+ * WooCommerce offers no slot for. The host is a plain node WooCommerce's React
+ * tree never renders, so its re-renders leave it (and our portal) alone.
+ * Re-checked whenever `refresh` changes (pass the live cart): if WooCommerce
+ * remounts the anchor after a cart update, the host is placed again.
  *
- * @param enabled Whether a strip is wanted (cart context only).
+ * @param enabled   Whether the host is wanted (cart context only).
+ * @param anchor    Selector of the element to sit beside.
+ * @param className Host class names (the first identifies it).
+ * @param where     Before or after the anchor.
+ * @param refresh   Value whose change triggers a re-check.
  */
-function useStripHost(enabled: boolean): HTMLElement | null {
+function useHostBeside(
+  enabled: boolean,
+  anchor: string,
+  className: string,
+  where: 'before' | 'after',
+  refresh: unknown
+): HTMLElement | null {
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -88,23 +102,31 @@ function useStripHost(enabled: boolean): HTMLElement | null {
       return;
     }
 
-    const cart = document.querySelector('.wp-block-woocommerce-cart');
-    if (!cart) {
+    const target = document.querySelector(anchor);
+    if (!target) {
       return;
     }
 
-    let strip = cart.previousElementSibling;
-    if (
-      !(strip instanceof HTMLElement) ||
-      !strip.classList.contains(STRIP_CLASS)
-    ) {
-      strip = document.createElement('div');
-      strip.className = `${STRIP_CLASS} alignwide`;
-      cart.before(strip);
+    const id = className.split(' ')[0];
+    const sibling =
+      where === 'before'
+        ? target.previousElementSibling
+        : target.nextElementSibling;
+    let next =
+      sibling instanceof HTMLElement && sibling.classList.contains(id)
+        ? sibling
+        : null;
+
+    if (!next) {
+      next = document.createElement('div');
+      next.className = className;
+      target[where](next);
     }
 
-    setHost(strip as HTMLElement);
-  }, [enabled]);
+    if (next !== host) {
+      setHost(next);
+    }
+  }, [enabled, anchor, className, where, host, refresh]);
 
   return host;
 }
@@ -120,7 +142,14 @@ function useStripHost(enabled: boolean): HTMLElement | null {
  */
 function CartShippingProgress({ cart, extensions, context }: SlotFillProps) {
   const isCart = context === 'woocommerce/cart';
-  const host = useStripHost(isCart);
+  // Above the cart block, wide-aligned like it.
+  const host = useHostBeside(
+    isCart,
+    '.wp-block-woocommerce-cart',
+    'aa-cart-shipping-strip alignwide',
+    'before',
+    cart
+  );
 
   if (!cart || !data || !isCart) {
     return null;
@@ -196,6 +225,34 @@ function CartShippingProgress({ cart, extensions, context }: SlotFillProps) {
 }
 
 /**
+ * Secure-checkout note under the cart's checkout button. The lock is a CSS
+ * mask (decorative), so the note reads as its text alone.
+ *
+ * @param props         Slot fill props.
+ * @param props.cart    Live Store API cart (re-checks the host on change).
+ * @param props.context 'woocommerce/cart' or 'woocommerce/checkout'.
+ */
+function CartSecureNote({ cart, context }: SlotFillProps) {
+  const isCart = context === 'woocommerce/cart' && !!data;
+  const host = useHostBeside(
+    isCart,
+    '.wp-block-woocommerce-cart .wp-block-woocommerce-proceed-to-checkout-block',
+    'aa-cart-secure-note-host',
+    'after',
+    cart
+  );
+
+  if (!isCart || !host || !data) {
+    return null;
+  }
+
+  return createPortal(
+    <p className='aa-cart-secure-note'>{data.i18n.secureCheckout}</p>,
+    host
+  );
+}
+
+/**
  * Savings row, styled as one of WooCommerce's own totals items.
  *
  * @param props      Slot fill props.
@@ -234,6 +291,7 @@ if (OrderMeta) {
       <OrderMeta>
         <CartShippingProgress />
         <CartSavings />
+        <CartSecureNote />
       </OrderMeta>
     ),
     scope: 'woocommerce-checkout',

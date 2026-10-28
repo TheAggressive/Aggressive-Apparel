@@ -1687,6 +1687,10 @@ msgstr ""
 msgid "Free shipping progress"
 msgstr ""
 
+#: includes/WooCommerce/class-cart-order-meta.php:83
+msgid "Secure checkout — your information is protected."
+msgstr ""
+
 #: includes/WooCommerce/class-catalog-archive-filters.php:183
 #: patterns/template-no-products.php:15
 msgid "No products were found matching your selection."

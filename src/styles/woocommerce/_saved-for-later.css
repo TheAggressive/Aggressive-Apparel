@@ -1,0 +1,145 @@
+/**
+ * Cart "Saved for later" list — WooCommerce's woocommerce/saved-for-later
+ * block, hooked in after the cart. Partial of blocks.css.
+ *
+ * WooCommerce styles each item as a centered product card with a white
+ * variation chip and a white remove disc over the photo, and greys the
+ * quantity with rgba(0, 0, 0, 0.7), which disappears in dark mode. The theme
+ * lays each item out like a cart row instead: thumbnail, then name, variation,
+ * price, quantity and "Move to cart", with remove in the corner. These are
+ * WooCommerce's unlayered rules, so the overrides are unlayered too and set
+ * structure only; text keeps the block's (editor-set) color and font size via
+ * inherit and opacity. The item name's typography lives in theme.json (Saved
+ * for Later block CSS) so the Site Editor can change it, its link treatment is
+ * shared with the cart rows in _cart.css, and "Move to cart" keeps the theme's
+ * button style.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wc-block-saved-for-later {
+	container-type: inline-size;
+
+	.wc-block-saved-for-later__header {
+		margin-block-end: var(--wp--preset--spacing--6);
+	}
+
+	.wc-block-shopper-list-item {
+		display: grid;
+
+		/* A percentage track resolves against the card, so the thumbnail
+		 * follows each card's own width: 5rem on a phone, 6rem on a roomy card. */
+		grid-template:
+			"image name remove" auto
+			"image variation variation" auto
+			"image price price" auto
+			"image quantity quantity" auto
+			"image move move" 1fr
+			/ clamp(5rem, 25%, 6rem) minmax(0, 1fr) auto;
+		gap: 0.25rem var(--wp--preset--spacing--4);
+		padding: var(--wp--preset--spacing--4);
+		border: 1px solid var(--aa-color-border-default);
+		border-radius: var(--aa-radius-card);
+
+		/* Unwrap the image box so its link, remove button and variation label
+		 * become grid items and leave the photo. */
+		> .wc-block-components-product-image {
+			display: contents;
+		}
+
+		.wc-block-components-product-image > a {
+			grid-area: image;
+			align-self: start;
+		}
+
+		.wc-block-components-product-image img {
+			display: block;
+			width: 100%;
+			height: auto;
+			aspect-ratio: 1;
+			object-fit: cover;
+		}
+
+		.wp-block-post-title {
+			grid-area: name;
+			margin: 0;
+			text-align: start;
+		}
+
+		.wc-block-shopper-list-item__variation,
+		.wc-block-components-product-price,
+		.wc-block-shopper-list-item__quantity {
+			text-align: start;
+		}
+
+		.wc-block-shopper-list-item__variation {
+			grid-area: variation;
+			position: static;
+			padding: 0;
+			border: 0;
+			border-radius: 0;
+			background: none;
+			color: inherit;
+			opacity: 0.75;
+		}
+
+		.wc-block-components-product-price {
+			grid-area: price;
+		}
+
+		.wc-block-shopper-list-item__quantity {
+			grid-area: quantity;
+			color: inherit;
+			opacity: 0.75;
+		}
+
+		.wc-block-components-product-button {
+			grid-area: move;
+			place-self: end start;
+			max-width: 100%;
+			margin: var(--wp--preset--spacing--2) 0 0;
+		}
+
+		/* A plain icon button like the cart row's remove control, in the
+		 * corner beside the name so it never competes with "Move to cart" for
+		 * width. The negative margins keep its hit area without pushing the
+		 * name down or the icon in from the card's corner. */
+		.wc-block-shopper-list-item__remove {
+			grid-area: remove;
+			align-self: start;
+			position: static;
+			margin-block: -0.5rem;
+			margin-inline: 0 -0.5rem;
+			padding: 0.5rem;
+			border-radius: var(--aa-radius-control);
+			background: none;
+			color: inherit;
+
+			&:hover:not([disabled]) {
+				background: color-mix(in srgb, currentcolor 12%, transparent);
+				color: inherit;
+			}
+
+			&:focus-visible:not([disabled]) {
+				outline: 2px solid currentcolor;
+				outline-offset: 2px;
+			}
+		}
+	}
+
+	.wc-block-saved-for-later__empty {
+		color: inherit;
+		opacity: 0.75;
+	}
+}
+
+/* The block's Columns setting applies on wide lists. Narrower, WooCommerce's
+ * 150px column minimum would squeeze the row layout, so cards wrap at 20rem
+ * instead. The attribute selector outranks WooCommerce's `.columns-N` rule, so
+ * stylesheet order doesn't decide it. Gap stays WooCommerce's block-gap. */
+@container (width < 60rem) {
+
+	.wc-block-saved-for-later .wc-block-saved-for-later__list[class*="columns-"] {
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+	}
+}

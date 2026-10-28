@@ -201,6 +201,7 @@ class Bootstrap {
 			$this->container->register( 'wcpay_appearance', fn() => new WooCommerce\Wcpay_Appearance() );
 			$this->container->register( 'mini_cart_a11y', fn() => new WooCommerce\Mini_Cart_A11y() );
 			$this->container->register( 'cart_order_meta', fn() => new WooCommerce\Cart_Order_Meta() );
+			$this->container->register( 'saved_for_later', fn() => new WooCommerce\Saved_For_Later() );
 			$this->container->register( 'variation_selector_a11y', fn() => new WooCommerce\Variation_Selector_A11y() );
 			$this->container->register( 'add_to_cart_button_a11y', fn() => new WooCommerce\Add_To_Cart_Button_A11y() );
 		}
@@ -308,6 +309,7 @@ class Bootstrap {
 		$this->container->get( 'wcpay_appearance' )->init();
 		$this->container->get( 'mini_cart_a11y' )->init();
 		$this->container->get( 'cart_order_meta' )->init();
+		$this->container->get( 'saved_for_later' )->init();
 		$this->container->get( 'variation_selector_a11y' )->init();
 		$this->container->get( 'add_to_cart_button_a11y' )->init();
 		WooCommerce\Free_Shipping::init();

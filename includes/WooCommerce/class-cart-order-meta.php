@@ -2,9 +2,9 @@
 /**
  * Cart and checkout order-meta lines.
  *
- * Loads the script that adds free-shipping progress (cart) and a "You save"
- * total (cart and checkout) to the order summaries, only when one of those
- * blocks renders.
+ * Loads the script that adds free-shipping progress (cart), a "You save"
+ * total (cart and checkout) and a secure-checkout note under the cart's
+ * checkout button, only when one of those blocks renders.
  *
  * @package Aggressive_Apparel
  */
@@ -80,6 +80,7 @@ class Cart_Order_Meta {
 			'i18n'     => array(
 				'youSave'          => __( 'You save', 'aggressive-apparel' ),
 				'shippingProgress' => __( 'Free shipping progress', 'aggressive-apparel' ),
+				'secureCheckout'   => __( 'Secure checkout — your information is protected.', 'aggressive-apparel' ),
 			),
 			'shipping' => array_merge(
 				Free_Shipping_Message::block_context( array() ),

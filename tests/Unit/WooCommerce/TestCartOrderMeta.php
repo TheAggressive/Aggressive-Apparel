@@ -96,5 +96,6 @@ class TestCartOrderMeta extends WP_UnitTestCase {
 		$this->assertStringContainsString( '"i18n"', $before[0] );
 		$this->assertStringContainsString( '"currencyMinorUnit"', $before[0] );
 		$this->assertStringContainsString( '"youSave":"You save"', $before[0] );
+		$this->assertStringContainsString( '"secureCheckout"', $before[0] );
 	}
 }

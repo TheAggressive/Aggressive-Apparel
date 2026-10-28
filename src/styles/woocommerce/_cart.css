@@ -57,21 +57,28 @@
 	}
 }
 
+/* Phones: no room for a third column (the product column is ~210px and the
+ * stepper + remove need 184px), so pin the line total to the row's top-right,
+ * level with the name (which alone shares its line, so only it keeps clear).
+ * The lines below take the column's full width. */
 @container (max-width: 479px) {
 
 	.wp-block-woocommerce-cart .wc-block-cart table.wc-block-cart-items .wc-block-cart-items__row {
+		position: relative;
 		grid-template-columns: 80px minmax(0, 1fr);
 
 		.wc-block-cart-item__total {
-			grid-row: 2;
-			grid-column: 2;
-			justify-content: flex-start;
+			position: absolute;
+			inset-block-start: 0;
+			inset-inline-end: 0;
 		}
 
-		.wc-block-cart-item__total-price-and-sale-badge-wrapper {
-			flex-direction: row;
-			align-items: center;
-			gap: var(--wp--preset--spacing--3);
+		.wc-block-cart-item__wrap > .wc-block-components-product-name {
+			padding-inline-end: 5rem;
+		}
+
+		.wc-block-cart-item__wrap > .wc-block-cart-item__save-for-later {
+			margin-top: 0;
 		}
 	}
 }
@@ -215,4 +222,35 @@
 	.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__image {
 		width: calc(6rem + 16px);
 	}
+}
+
+/* Secure-checkout cue: a padlock in the checkout button and a one-line note
+ * under it (scripts/cart-order-meta.tsx). The theme's barbed-lock is a
+ * footer-sized illustration and turns to noise at text size, so this is a
+ * plain padlock drawn like the theme's other mask icons. Both locks are
+ * decorative CSS masks in currentcolor: the button keeps its accessible name
+ * and editor colours. The button lock also shows in WooCommerce's sticky
+ * mobile bar, which is the same button. */
+.wp-block-woocommerce-cart {
+	--aa-icon-lock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E");
+}
+
+.wp-block-woocommerce-cart .wc-block-cart__submit-button .wc-block-components-button__text::before,
+.aa-cart-secure-note::before {
+	content: "";
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	margin-inline-end: 0.5em;
+	vertical-align: -0.125em;
+	background-color: currentcolor;
+	mask: var(--aa-icon-lock) center / contain no-repeat;
+}
+
+.aa-cart-secure-note {
+	margin: var(--wp--preset--spacing--3) 0 0;
+	font-size: var(--wp--preset--font-size--small);
+	text-align: center;
+	text-wrap: balance;
+	opacity: 0.75;
 }

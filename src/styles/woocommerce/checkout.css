@@ -280,8 +280,9 @@
   border-left-color: var(--aa-field-bar-invalid) !important;
 }
 
-/* Sale Badge */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-formatted-money-amount {
+/* Sale badge — space the amount from its "Save" label. Scoped to the badge:
+ * on every money amount it also indented line totals and the first price. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-sale-badge .wc-block-components-formatted-money-amount {
   margin-left: var(--wp--preset--spacing--2);
 }
 

@@ -5,11 +5,13 @@
  * @package Aggressive_Apparel
  */
 
-/* Cart line-item names are links, so they'd take the accent link color and
- * compete with the sale price and checkout button. Inherit the row's text
- * color instead (so an editor-set cart color still wins) and underline on
- * hover for link feedback. */
-.wp-block-woocommerce-cart .wc-block-components-product-name {
+/* Cart line-item names (and Saved for later item names, which should read
+ * the same) are links, so they'd take the accent link color and compete with
+ * the sale price and checkout button. Inherit the row's text color instead (so
+ * an editor-set cart color still wins) and underline on hover for link
+ * feedback. */
+.wp-block-woocommerce-cart .wc-block-components-product-name,
+.wc-block-saved-for-later .wc-block-shopper-list-item .wp-block-post-title a {
 	color: inherit;
 	text-decoration: none;
 	text-underline-offset: 0.2em;

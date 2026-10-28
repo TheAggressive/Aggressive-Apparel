@@ -1592,6 +1592,9 @@
           "text": "var:preset|color|foreground"
         }
       },
+      "woocommerce/saved-for-later": {
+        "css": "& .wc-block-shopper-list-item .wp-block-post-title{color:inherit;font-family:inherit;font-weight:500;letter-spacing:normal;line-height:1.4}"
+      },
       "woocommerce/mini-cart": {
         "typography": {
           "fontFamily": "var:preset|font-family|space-grotesk",

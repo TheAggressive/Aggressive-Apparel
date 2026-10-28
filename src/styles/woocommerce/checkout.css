@@ -113,6 +113,21 @@
   color: var(--aa-color-foreground);
 }
 
+/* Order-summary thumbnails — WooCommerce's 48px reads small in the wider
+ * summary column; 64px fills it and makes variants easier to tell apart.
+ * Two-column layout only: stacked on mobile, the details column needs the room. */
+@container (min-width: 920px) {
+
+  .wc-block-checkout .wc-block-components-order-summary .wc-block-components-order-summary-item__image {
+    width: 4rem;
+  }
+
+  .wc-block-checkout .wc-block-components-order-summary .wc-block-components-order-summary-item__image > img {
+    width: 4rem;
+    max-width: 4rem;
+  }
+}
+
 /* Order-summary line-item quantity number */
 .wc-block-components-order-summary
   .wc-block-components-order-summary-item__quantity span {

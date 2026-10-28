@@ -12,6 +12,7 @@ import {
   emptyCartTotals,
   hasCartItemsCookie,
   parseCartTotals,
+  progressPercent,
   type CartResponse,
   type FreeShippingMessageContext,
   type ParsedCartTotals,
@@ -31,6 +32,7 @@ export {
   emptyCartTotals,
   hasCartItemsCookie,
   parseCartTotals,
+  progressPercent,
   formatMoney,
   buildFreeShippingSegments,
   formatFreeShippingMessage,
@@ -446,11 +448,7 @@ export function subscribeFreeShippingBarCartRefresh(
     }
 
     applyParsedTotals(ctx, parsed);
-    ctx.percent = parsed.complete
-      ? 100
-      : parsed.threshold > 0
-        ? Math.min(100, (parsed.cartTotal / parsed.threshold) * 100)
-        : 0;
+    ctx.percent = progressPercent(parsed);
   });
 
   return subscribeCartRefresh(ctx.restBase, refresh);

@@ -356,7 +356,7 @@
           "slug": "accent",
           "name": "Accent (Adaptive)",
           "light": "oklch(44.4% 0.177 26.899)",
-          "dark": "oklch(68% 0.22 27.325)"
+          "dark": "oklch(65% 0.236 29)"
         },
         {
           "slug": "accent-fill",
@@ -369,6 +369,12 @@
           "name": "Accent on Foreground (Adaptive)",
           "light": "oklch(68% 0.22 27.325)",
           "dark": "oklch(44.4% 0.177 26.899)"
+        },
+        {
+          "slug": "accent-on-raised",
+          "name": "Accent on Raised Surface (Adaptive)",
+          "light": "oklch(44.4% 0.177 26.899)",
+          "dark": "oklch(67.5% 0.213 29)"
         },
         {
           "slug": "border",

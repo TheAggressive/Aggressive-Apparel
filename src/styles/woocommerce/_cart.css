@@ -1,0 +1,218 @@
+/**
+ * Cart page — line items, the free-shipping strip, and the sticky totals
+ * column. Partial of blocks.css; rules shared with checkout stay there.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Cart line-item names are links, so they'd take the accent link color and
+ * compete with the sale price and checkout button. Inherit the row's text
+ * color instead (so an editor-set cart color still wins) and underline on
+ * hover for link feedback. */
+.wp-block-woocommerce-cart .wc-block-components-product-name {
+	color: inherit;
+	text-decoration: none;
+	text-underline-offset: 0.2em;
+
+	&:hover,
+	&:focus-visible {
+		text-decoration: underline;
+	}
+}
+
+/* Row dividers are each cell's top border. Collapsed, Chrome snaps the
+ * fractional row offsets per cell, so a divider can step 1px where the Total
+ * column starts. Separate borders (no spacing) draw it as one straight line. */
+.wp-block-woocommerce-cart .wc-block-cart-items {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+/* Cart rows: WooCommerce stacks every part of the item on its own line. Keep
+ * name, prices and details stacked, but put the quantity stepper, remove and
+ * "Save for later" on one line, so more items fit on screen. The matching top
+ * margin keeps the link centred on the stepper (see checkout.css). */
+.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__wrap {
+	flex-flow: row wrap;
+	align-items: center;
+	column-gap: var(--wp--preset--spacing--4);
+
+	> :not(.wc-block-cart-item__quantity, .wc-block-cart-item__save-for-later) {
+		flex-basis: 100%;
+	}
+
+	> .wc-block-cart-item__save-for-later {
+		margin-top: var(--wp--preset--spacing--2);
+	}
+}
+
+/* Below 920px WooCommerce turns each row into a grid with a fixed 132px
+ * product column, narrower than our stepper + remove (~184px), so rows
+ * overflow the viewport. Let the product column flex; on phones, where even
+ * that can't fit beside the line total, move the total under the details. */
+@container (max-width: 919px) {
+
+	.wp-block-woocommerce-cart .wc-block-cart table.wc-block-cart-items .wc-block-cart-items__row {
+		grid-template-columns: 80px minmax(0, 1fr) auto;
+	}
+}
+
+@container (max-width: 479px) {
+
+	.wp-block-woocommerce-cart .wc-block-cart table.wc-block-cart-items .wc-block-cart-items__row {
+		grid-template-columns: 80px minmax(0, 1fr);
+
+		.wc-block-cart-item__total {
+			grid-row: 2;
+			grid-column: 2;
+			justify-content: flex-start;
+		}
+
+		.wc-block-cart-item__total-price-and-sale-badge-wrapper {
+			flex-direction: row;
+			align-items: center;
+			gap: var(--wp--preset--spacing--3);
+		}
+	}
+}
+
+/* Desktop: keep the totals and checkout button in view while a long cart
+ * scrolls. The site header scrolls away, so only clear the admin bar. */
+@container (min-width: 920px) {
+
+	.wp-block-woocommerce-cart .wc-block-cart__sidebar {
+		position: sticky;
+		top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wp--preset--spacing--6));
+		align-self: flex-start;
+	}
+}
+
+/* Free-shipping progress (scripts/cart-order-meta.tsx). One component
+ * renders twice: in the totals card (--card) and, through a portal, in a strip
+ * the script inserts above the cart block (--strip). Desktop shows the card
+ * copy, beside the total it depends on; on phones the card sits below every
+ * item, so the strip shows instead. The strip host is wide-aligned like the
+ * cart, so its width is the cart's: both switch at WooCommerce's 920px. */
+.aa-cart-shipping-strip {
+	container-type: inline-size;
+	margin-block: 0;
+}
+
+.aa-cart-shipping-meta {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--2);
+
+	.aa-cart-shipping-meta__message {
+		margin: 0;
+	}
+
+	.aa-cart-shipping-meta__strong {
+		font-weight: 700;
+	}
+
+	.aa-cart-shipping-meta__track {
+		height: 0.5rem;
+		overflow: hidden;
+		border-radius: var(--aa-radius-full);
+	}
+
+	.aa-cart-shipping-meta__progress {
+		height: 100%;
+		border-radius: inherit;
+		transition: width 0.4s ease;
+	}
+}
+
+.aa-cart-shipping-meta--strip {
+	margin-block-start: var(--wp--style--block-gap, var(--wp--preset--spacing--6));
+
+	.aa-cart-shipping-meta__message {
+		font-size: var(--wp--preset--font-size--medium);
+	}
+}
+
+@container (min-width: 920px) {
+
+	.aa-cart-shipping-meta--strip {
+		display: none;
+	}
+}
+
+@container (max-width: 919px) {
+
+	.wp-block-woocommerce-cart .aa-cart-shipping-meta--card {
+		display: none;
+	}
+}
+
+/* Theme-owned colours sit in a layer, so the editor and WooCommerce's own
+ * unlayered styles keep priority. */
+@layer aa-woocommerce {
+
+	.aa-cart-shipping-meta__track {
+		background-color: color-mix(in oklch, currentcolor 15%, transparent);
+	}
+
+	.aa-cart-shipping-meta__progress {
+		background-color: var(--aa-color-accent);
+	}
+
+	.aa-cart-shipping-meta.is-complete {
+
+		.aa-cart-shipping-meta__progress {
+			background-color: var(--aa-color-success);
+		}
+
+		.aa-cart-shipping-meta__message {
+			color: var(--aa-color-success-text);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-cart-shipping-meta__progress {
+		transition: none;
+	}
+}
+
+/* "Product / Total" header — self-evident above product rows, and it pushed
+ * the first item below the top of the totals card. Hidden visually but kept
+ * for screen readers, which use it to label the columns. */
+.wp-block-woocommerce-cart table.wc-block-cart-items thead {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* Name at body size, so it leads the price and details beneath it. */
+.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-components-product-name {
+	font-size: var(--wp--preset--font-size--medium);
+}
+
+/* "Save for later" — a quiet secondary action beside the stepper. Dimmed
+ * with opacity, not a colour, so it keeps the row's (editor-set) text color. */
+.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__save-for-later .wc-block-cart-item__save-for-later-link {
+	font-size: var(--wp--preset--font-size--small);
+	text-underline-offset: 0.2em;
+	opacity: 0.75;
+
+	&:hover,
+	&:focus-visible {
+		opacity: 1;
+	}
+}
+
+/* Desktop thumbnails — 96px fills the taller rows and makes variants easy to
+ * tell apart. The column was sized by the (now hidden) header cell; the cell
+ * is border-box, so add WooCommerce's 16px gutter padding to the image size. */
+@container (min-width: 920px) {
+
+	.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__image {
+		width: calc(6rem + 16px);
+	}
+}

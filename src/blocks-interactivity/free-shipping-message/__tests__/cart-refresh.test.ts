@@ -13,6 +13,7 @@ import {
   cartFromMutationBody,
   formatFreeShippingMessage,
   formatMoney,
+  progressPercent,
   type FreeShippingMessageContext,
 } from '../cart-data';
 
@@ -424,5 +425,28 @@ describe('cartFromMutationBody', () => {
     expect(cartFromMutationBody(null)).toBeNull();
     expect(cartFromMutationBody({ fragments: {} })).toBeNull();
     expect(cartFromMutationBody({ responses: [{ status: 500 }] })).toBeNull();
+  });
+});
+
+describe('progressPercent', () => {
+  it('fills by cart total over threshold, capped at 100', () => {
+    expect(
+      progressPercent({ threshold: 150, cartTotal: 66, complete: false })
+    ).toBeCloseTo(44);
+    expect(
+      progressPercent({ threshold: 150, cartTotal: 200, complete: false })
+    ).toBe(100);
+  });
+
+  it('is full once WooCommerce says free shipping is unlocked', () => {
+    expect(
+      progressPercent({ threshold: 150, cartTotal: 10, complete: true })
+    ).toBe(100);
+  });
+
+  it('is empty without a threshold', () => {
+    expect(
+      progressPercent({ threshold: 0, cartTotal: 66, complete: false })
+    ).toBe(0);
   });
 });

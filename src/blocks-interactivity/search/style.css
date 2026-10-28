@@ -345,7 +345,7 @@
 }
 
 .aa-search__error {
-	color: var(--aa-color-error);
+	color: var(--aa-color-error-text);
 }
 
 .aa-search__error-message {

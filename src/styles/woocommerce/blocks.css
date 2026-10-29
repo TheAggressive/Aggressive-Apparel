@@ -402,8 +402,9 @@
 	mask: var(--aa-icon-lock) center / contain no-repeat;
 }
 
-/* WooCommerce radio controls (shipping and payment options) drawn like the
- * theme's radio (forms.css), whose baseline stops at WooCommerce Blocks: a
+/* WooCommerce radio controls (shipping options; payment options hide theirs
+ * except in forced colors, see payment.css) drawn like the theme's radio
+ * (forms.css), whose baseline stops at WooCommerce Blocks: a
  * muted ring on the field fill that turns accent, with an accent dot, when
  * checked. WooCommerce paints a white disc and a black ::before dot with
  * unlayered (0,2,0)/(0,3,0) rules; the type selector outranks both. Size and

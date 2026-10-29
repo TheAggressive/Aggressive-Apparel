@@ -37,11 +37,7 @@ const setList = () => {
     heights.set(option, i === 0 ? 200 : 60);
     option.getBoundingClientRect = () =>
       ({ height: heights.get(option) }) as DOMRect;
-    option.animate = animate;
   });
-  document
-    .querySelectorAll<HTMLInputElement>('input')
-    .forEach(input => (input.animate = animate));
 
   return options;
 };
@@ -58,6 +54,15 @@ const select = async (options: HTMLElement[], index: number) => {
 
   await flush();
 };
+
+beforeAll(() => {
+  // jsdom has no Web Animations; the instances record which card animated.
+  Element.prototype.animate = animate;
+});
+
+afterAll(() => {
+  delete (Element.prototype as Partial<Element>).animate;
+});
 
 beforeEach(() => {
   animate.mockReset();

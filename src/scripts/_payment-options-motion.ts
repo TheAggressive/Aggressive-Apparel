@@ -18,7 +18,7 @@
  * @package Aggressive_Apparel
  */
 
-export const PAYMENT_OPTIONS_LIST =
+const PAYMENT_OPTIONS_LIST =
   '.wc-block-checkout__payment-method .wc-block-components-radio-control';
 
 const OPTION = '.wc-block-components-radio-control-accordion-option';
@@ -106,11 +106,7 @@ export function watchPaymentOptions(doc: Document = document): () => void {
 
       ends.set(option, end);
 
-      if (
-        start === undefined ||
-        !Number.isFinite(start) ||
-        Math.abs(start - end) < 1
-      ) {
+      if (start === undefined || Math.abs(start - end) < 1) {
         return;
       }
 
@@ -142,7 +138,7 @@ export function watchPaymentOptions(doc: Document = document): () => void {
 
     if (
       !list ||
-      typeof input.animate !== 'function' ||
+      typeof view.Element.prototype.animate !== 'function' ||
       view.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     ) {
       return;
@@ -159,13 +155,19 @@ export function watchPaymentOptions(doc: Document = document): () => void {
     const observer = new view.MutationObserver(() => {
       // A card still animating starts from where it is on screen; the rest
       // from where they last came to rest (the DOM already holds the new
-      // layout, so their current height is the end, not the start).
-      const from = new Map(
-        options(list).map(option => [
-          option,
-          running.has(option) ? height(option) : (resting.get(option) ?? NaN),
-        ])
-      );
+      // layout, so their current height is the end, not the start). Cards
+      // that appeared in this render have no start and aren't animated.
+      const from = new Map<HTMLElement, number>();
+
+      options(list).forEach(option => {
+        const start = running.has(option)
+          ? height(option)
+          : resting.get(option);
+
+        if (start !== undefined) {
+          from.set(option, start);
+        }
+      });
       const { duration, ends } = animate(list, from);
 
       resting = ends;

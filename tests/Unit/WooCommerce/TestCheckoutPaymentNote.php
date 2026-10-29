@@ -66,6 +66,25 @@ class TestCheckoutPaymentNote extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The filter changes the default, and an empty string shows no note.
+	 *
+	 * @return void
+	 */
+	public function test_filter_changes_or_removes_note(): void {
+		$service = new Checkout_Payment_Note();
+		$block   = $this->block( 'woocommerce/checkout-payment-block' );
+
+		$custom = static fn() => 'Secured by Stripe.';
+		add_filter( 'aggressive_apparel_checkout_payment_note', $custom );
+		$this->assertSame( 'Secured by Stripe.', $service->default_description( $block )['attrs']['description'] );
+		remove_filter( 'aggressive_apparel_checkout_payment_note', $custom );
+
+		add_filter( 'aggressive_apparel_checkout_payment_note', '__return_empty_string' );
+		$this->assertSame( $block, $service->default_description( $block ) );
+		remove_filter( 'aggressive_apparel_checkout_payment_note', '__return_empty_string' );
+	}
+
+	/**
 	 * Other blocks pass through unchanged.
 	 *
 	 * @return void

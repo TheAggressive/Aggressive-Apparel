@@ -1696,7 +1696,7 @@ msgstr ""
 msgid "No products were found matching your selection."
 msgstr ""
 
-#: includes/WooCommerce/class-checkout-payment-note.php:51
+#: includes/WooCommerce/class-checkout-payment-note.php:63
 msgid "All transactions are secure and encrypted."
 msgstr ""
 

@@ -7,6 +7,8 @@
  * the merchant hasn't written one, so the reassurance sits where shoppers
  * enter card details. WooCommerce renders it as the step's own description
  * (from the block's `data-description`), and any text set in the editor wins.
+ * Filter `aggressive_apparel_checkout_payment_note` to change the default, or
+ * return an empty string to show no note.
  *
  * @package Aggressive_Apparel
  */
@@ -47,10 +49,25 @@ class Checkout_Payment_Note {
 
 		$attrs = is_array( $parsed_block['attrs'] ?? null ) ? $parsed_block['attrs'] : array();
 
-		if ( '' === trim( (string) ( $attrs['description'] ?? '' ) ) ) {
-			$attrs['description'] = __( 'All transactions are secure and encrypted.', 'aggressive-apparel' );
+		if ( '' !== trim( (string) ( $attrs['description'] ?? '' ) ) ) {
+			return $parsed_block;
 		}
 
+		/**
+		 * Filters the payment step's default security note.
+		 *
+		 * @param string $note Note text; an empty string shows no note.
+		 */
+		$note = (string) apply_filters(
+			'aggressive_apparel_checkout_payment_note',
+			__( 'All transactions are secure and encrypted.', 'aggressive-apparel' )
+		);
+
+		if ( '' === $note ) {
+			return $parsed_block;
+		}
+
+		$attrs['description']  = $note;
 		$parsed_block['attrs'] = $attrs;
 
 		return $parsed_block;

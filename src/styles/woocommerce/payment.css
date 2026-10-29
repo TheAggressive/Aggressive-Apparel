@@ -1,28 +1,21 @@
 /**
  * WooCommerce Checkout — Payment Options
  *
- * Turns WooCommerce's payment-method list into a stack of tappable option
- * cards with no visible radios. The native radio stays, stretched invisibly
- * over each card's header, so the whole card is the hit area and keyboard,
- * arrow-key and screen-reader behaviour stay WooCommerce's. Selecting a card
- * turns its border to the text color, springs an accent check badge in
- * beside the name and fades the method's panel (card fields, instructions)
- * in; scripts/_payment-options-motion.ts animates the cards' heights so the
- * old panel closes and the new one opens without the list jumping.
+ * Payment methods as tappable option cards with no visible radios. The native
+ * radio stays, invisible and stretched over each card's header, so keyboard,
+ * arrow-key and screen-reader behaviour remain WooCommerce's. Selecting a
+ * card turns its border to the text color and springs in an accent check
+ * badge; scripts/_payment-options-motion.ts animates the card heights so the
+ * list doesn't jump as panels open and close.
  *
- * With the radios hidden, the card itself must read as a control: unselected
- * edges hold 3:1 against the page (WCAG 1.4.11), the selected state adds a
- * shape (the check) as well as a color, and forced-colors mode gets the
- * native radios back, since it repaints the borders and badge that carry
- * the state.
+ * With the radios hidden, the card must read as a control: unselected edges
+ * hold 3:1 against the page (WCAG 1.4.11), selection adds a shape (the check)
+ * as well as a color, and forced-colors mode gets the native radios back.
  *
- * WooCommerce's "highlight checked" list draws a shared frame (the list's
- * ::after), a separator above each method (each option's ::after) and an inset
- * ring on the selected method; cards need none of those, so they're switched
- * off and each option draws its own border. Markup stays WooCommerce's, and
- * every rule outranks WooCommerce's by specificity, so none needs !important.
- * Card INPUT fields render inside a cross-origin Stripe iframe — see
- * `src/scripts/wcpay-appearance.ts`.
+ * WooCommerce's shared frame, row separators and inset selection ring are
+ * switched off; each card draws its own border. Markup stays WooCommerce's
+ * and no rule needs !important. Card fields render in a Stripe iframe — see
+ * src/scripts/wcpay-appearance.ts.
  *
  * @package Aggressive_Apparel
  */
@@ -51,8 +44,12 @@
 			border-color var(--aa-duration-fast) var(--aa-ease-default),
 			background-color var(--aa-duration-fast) var(--aa-ease-default);
 
-		&:hover {
-			border-color: color-mix(in srgb, currentcolor 75%, transparent);
+		/* Real hover only: on touch screens a tap would leave it stuck on. */
+		@media (hover: hover) and (pointer: fine) {
+
+			&:hover {
+				border-color: color-mix(in srgb, currentcolor 75%, transparent);
+			}
 		}
 
 		/* Keyboard focus rings the whole card. */
@@ -63,7 +60,8 @@
 	}
 
 	/* Selected card: its 1px border in the text color, in place of WooCommerce's
-	 * inset ring; the accent check badge carries the brand color. */
+	 * inset ring and 4px radius; the accent check badge carries the brand
+	 * color. */
 	.wc-block-components-radio-control--highlight-checked .wc-block-components-radio-control-accordion-option--checked-option-highlighted {
 		border-color: currentcolor;
 		border-radius: var(--aa-radius-lg);
@@ -77,7 +75,10 @@
 		padding-block: 18px;
 		padding-inline-start: 16px;
 		color: inherit;
-		transition: padding-inline-start var(--aa-duration-normal) var(--aa-ease-spring);
+
+		@media (prefers-reduced-motion: no-preference) {
+			transition: padding-inline-start var(--aa-duration-normal) var(--aa-ease-spring);
+		}
 
 		&.wc-block-components-radio-control__option-checked {
 			padding-inline-start: 48px;
@@ -96,9 +97,12 @@
 			background: var(--aa-color-accent-fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='2.5 6.5 5 9 9.5 3.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 0.75rem no-repeat;
 			opacity: 0;
 			scale: 0;
-			transition:
-				opacity var(--aa-duration-fast) var(--aa-ease-default),
-				scale 0.35s var(--aa-ease-spring);
+
+			@media (prefers-reduced-motion: no-preference) {
+				transition:
+					opacity var(--aa-duration-fast) var(--aa-ease-default),
+					scale 0.35s var(--aa-ease-spring);
+			}
 		}
 
 		&.wc-block-components-radio-control__option-checked::before {
@@ -187,7 +191,8 @@
 
 		.wc-block-components-radio-control .wc-block-components-radio-control__input[type="radio"] {
 			appearance: auto;
-			inset: 50% auto auto 16px;
+			inset-block: 50% auto;
+			inset-inline: 16px auto;
 			width: 1.25rem;
 			height: 1.25rem;
 			margin: -0.625rem 0 0;
@@ -200,17 +205,6 @@
 			&::before {
 				content: none;
 			}
-		}
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.wc-block-checkout__payment-method .wc-block-components-radio-control__option {
-		transition: none;
-
-		&::before {
-			transition: none;
 		}
 	}
 }

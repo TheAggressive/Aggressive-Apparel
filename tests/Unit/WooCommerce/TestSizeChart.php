@@ -15,6 +15,7 @@ use Aggressive_Apparel\WooCommerce\Size_Chart_Import;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Assignments;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Post_Type;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Rest;
+use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
 
 /**
@@ -22,12 +23,7 @@ use WP_UnitTestCase;
  */
 class TestSizeChart extends WP_UnitTestCase {
 
-	/**
-	 * Attribute taxonomies registered before each test.
-	 *
-	 * @var list<string>
-	 */
-	private array $baseline = array();
+	use Restores_Taxonomies;
 
 	/**
 	 * Enable the feature and register the post type.
@@ -35,7 +31,7 @@ class TestSizeChart extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->baseline = array_values( get_taxonomies() );
+		$this->snapshot_taxonomies();
 		update_option( Feature_Settings::OPTION_KEY, array( 'size_guide' => true ), false );
 		if ( ! post_type_exists( Size_Guide_Post_Type::POST_TYPE ) ) {
 			( new Size_Guide_Post_Type() )->register();
@@ -48,12 +44,7 @@ class TestSizeChart extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		delete_option( Feature_Settings::OPTION_KEY );
-		// A created chart's specs register their attribute taxonomies (e.g.
-		// `pa_fit`), which outlive the rollback and block later tests from
-		// creating that attribute.
-		foreach ( array_diff( array_values( get_taxonomies() ), $this->baseline ) as $taxonomy ) {
-			unregister_taxonomy( $taxonomy );
-		}
+		$this->restore_taxonomies();
 
 		parent::tearDown();
 	}

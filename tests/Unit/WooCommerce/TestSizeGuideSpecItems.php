@@ -14,6 +14,7 @@ use Aggressive_Apparel\WooCommerce\Product_Specs;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Rest;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Spec_Items;
+use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
 
 /**
@@ -21,12 +22,7 @@ use WP_UnitTestCase;
  */
 class TestSizeGuideSpecItems extends WP_UnitTestCase {
 
-	/**
-	 * Attribute taxonomies registered before each test.
-	 *
-	 * @var list<string>
-	 */
-	private array $baseline = array();
+	use Restores_Taxonomies;
 
 	/**
 	 * Enable the feature and start from the default registry.
@@ -34,7 +30,7 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->baseline = array_values( get_taxonomies() );
+		$this->snapshot_taxonomies();
 		update_option( Feature_Settings::OPTION_KEY, array( 'size_guide' => true ), false );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		Product_Specs_Registry::flush();
@@ -48,11 +44,7 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		delete_option( Feature_Settings::OPTION_KEY );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		Product_Specs_Registry::flush();
-		// Spec attribute taxonomies (e.g. `pa_fit`) outlive the rollback and
-		// block later tests from creating that attribute.
-		foreach ( array_diff( array_values( get_taxonomies() ), $this->baseline ) as $taxonomy ) {
-			unregister_taxonomy( $taxonomy );
-		}
+		$this->restore_taxonomies();
 
 		parent::tearDown();
 	}

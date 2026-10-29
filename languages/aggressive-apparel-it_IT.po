@@ -2062,6 +2062,24 @@ msgstr "Come per gli schermi di grandi dimensioni"
 msgid "Scales every badge on screens under 600px wide, keeping each badge’s own design."
 msgstr "Adatta le dimensioni di ogni badge sugli schermi con larghezza inferiore a 600px, mantenendo il design specifico di ciascun badge."
 
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-cart-order-meta.php:81
+#, aa-mt
+msgid "You save"
+msgstr "Risparmi"
+
+#: includes/WooCommerce/class-cart-order-meta.php:82
+#: src/blocks-interactivity/free-shipping-bar/render.php:90
+#, aa-mt
+msgid "Free shipping progress"
+msgstr "Stato della spedizione gratuita"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-cart-order-meta.php:83
+#, aa-mt
+msgid "Secure checkout — your information is protected."
+msgstr "Pagamento sicuro — i tuoi dati sono protetti."
+
 #: includes/WooCommerce/class-catalog-archive-filters.php:183
 #: patterns/template-no-products.php:15
 #, aa-mt
@@ -9345,11 +9363,6 @@ msgstr "m"
 #, aa-mt
 msgid "s"
 msgstr "s"
-
-#: src/blocks-interactivity/free-shipping-bar/render.php:90
-#, aa-mt
-msgid "Free shipping progress"
-msgstr "Stato della spedizione gratuita"
 
 #: src/blocks-interactivity/grid-list-toggle/render.php:32
 #, aa-mt

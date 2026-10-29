@@ -16,6 +16,10 @@
  * All render from the live cart the slot passes in, so they follow quantity
  * changes without fetching anything.
  *
+ * The same script also smooths the checkout's payment-method cards as they
+ * open and close (`_payment-options-motion.ts`), since it already loads
+ * wherever the checkout renders.
+ *
  * @package Aggressive_Apparel
  */
 
@@ -24,6 +28,7 @@ import { createPortal, useEffect, useState } from '@wordpress/element';
 import type { ComponentType, ReactNode } from 'react';
 import { getCartSavings, type SavingsCartItem } from './_cart-savings-total';
 import { watchCheckoutBar } from './_wc-checkout-bar';
+import { watchPaymentOptions } from './_payment-options-motion';
 import {
   buildFreeShippingSegments,
   parseCartTotals,
@@ -299,3 +304,4 @@ if (OrderMeta) {
 }
 
 watchCheckoutBar();
+watchPaymentOptions();

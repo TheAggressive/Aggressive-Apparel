@@ -1696,6 +1696,10 @@ msgstr ""
 msgid "No products were found matching your selection."
 msgstr ""
 
+#: includes/WooCommerce/class-checkout-payment-note.php:51
+msgid "All transactions are secure and encrypted."
+msgstr ""
+
 #: includes/WooCommerce/class-collection-attribute-migration.php:67
 #: patterns/home-storefront.php:92
 #: patterns/homepage-seasonal-shop.php:24

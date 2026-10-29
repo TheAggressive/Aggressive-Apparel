@@ -378,9 +378,88 @@
 	color: var(--aa-color-foreground-muted);
 }
 
-/* Cart and checkout panels. */
+/* Secure-checkout cue: a padlock on the cart's checkout button and the note
+ * under it (scripts/cart-order-meta.tsx), on checkout's Place order button,
+ * and on the payment step's security note (Checkout_Payment_Note). The
+ * theme's barbed-lock is a footer-sized illustration and turns to noise at
+ * text size, so this is a plain padlock drawn like the theme's other mask
+ * icons. Every lock is a decorative CSS mask in currentcolor: buttons keep
+ * their accessible names and editor colours. The cart button lock also shows
+ * in WooCommerce's sticky mobile bar, which is the same button. The payment
+ * note's lock is an ::after moved first (payment.css): WooCommerce draws the
+ * step-number connector with the description's ::before. */
+.wp-block-woocommerce-cart .wc-block-cart__submit-button .wc-block-components-button__text::before,
+.aa-cart-secure-note::before,
+.wp-block-woocommerce-checkout .wc-block-components-checkout-place-order-button__text::before,
+.wc-block-checkout__payment-method .wc-block-components-checkout-step__description::after {
+	content: "";
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	margin-inline-end: 0.5em;
+	vertical-align: -0.125em;
+	background-color: currentcolor;
+	mask: var(--aa-icon-lock) center / contain no-repeat;
+}
+
+/* WooCommerce radio controls (shipping and payment options) drawn like the
+ * theme's radio (forms.css), whose baseline stops at WooCommerce Blocks: a
+ * muted ring on the field fill that turns accent, with an accent dot, when
+ * checked. WooCommerce paints a white disc and a black ::before dot with
+ * unlayered (0,2,0)/(0,3,0) rules; the type selector outranks both. Size and
+ * position stay WooCommerce's. */
+.wc-block-components-radio-control .wc-block-components-radio-control__input[type="radio"] {
+	border: 1.5px solid var(--aa-color-foreground-muted);
+	background-color: var(--aa-field-bg);
+	cursor: pointer;
+	transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
+
+	&:hover:not(:checked, :disabled, [aria-disabled="true"]) {
+		border-color: var(--aa-color-foreground);
+	}
+
+	/* A 2px ring on a clear fill: Chrome floors border widths to whole pixels
+	 * (1.5px draws as 1px), and a 1px ring around the field fill reads as a
+	 * muddy halo around the dot. The shorthand also beats WooCommerce's
+	 * :checked rule, which resets the border to 1px. */
+	&:checked {
+		border: 2px solid var(--aa-color-accent-fill);
+		background-color: transparent;
+	}
+
+	/* The dot springs in like the theme's radio. `scale`, not `transform`:
+	 * WooCommerce centres the dot with a translate transform. */
+	&:checked::before {
+		background: var(--aa-color-accent-fill);
+
+		@media (prefers-reduced-motion: no-preference) {
+			animation: aa-radio-dot-in 0.35s var(--aa-ease-spring);
+		}
+	}
+
+	&:focus {
+		outline: none;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--aa-field-bar-focus);
+		outline-offset: 2px;
+	}
+}
+
+@keyframes aa-radio-dot-in {
+
+	from {
+		scale: 0;
+	}
+}
+
+/* Cart and checkout panels. The padlock is the secure-checkout cue's icon
+ * (see above). */
 .wp-block-woocommerce-cart,
 .wp-block-woocommerce-checkout {
+	--aa-icon-lock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E");
+
 	color: var(--aa-color-foreground);
 }
 

@@ -1,67 +1,216 @@
 /**
  * WooCommerce Checkout — Payment Options
  *
- * Restyles the block-checkout payment-method selector (Card / Affirm / Afterpay
- * / Klarna) into a bordered list with adaptive dividers. Card INPUT fields render
- * inside a cross-origin Stripe iframe — see `src/scripts/wcpay-appearance.ts`.
+ * Turns WooCommerce's payment-method list into a stack of tappable option
+ * cards with no visible radios. The native radio stays, stretched invisibly
+ * over each card's header, so the whole card is the hit area and keyboard,
+ * arrow-key and screen-reader behaviour stay WooCommerce's. Selecting a card
+ * turns its border to the text color, springs an accent check badge in
+ * beside the name and fades the method's panel (card fields, instructions)
+ * in; scripts/_payment-options-motion.ts animates the cards' heights so the
+ * old panel closes and the new one opens without the list jumping.
+ *
+ * With the radios hidden, the card itself must read as a control: unselected
+ * edges hold 3:1 against the page (WCAG 1.4.11), the selected state adds a
+ * shape (the check) as well as a color, and forced-colors mode gets the
+ * native radios back, since it repaints the borders and badge that carry
+ * the state.
+ *
+ * WooCommerce's "highlight checked" list draws a shared frame (the list's
+ * ::after), a separator above each method (each option's ::after) and an inset
+ * ring on the selected method; cards need none of those, so they're switched
+ * off and each option draws its own border. Markup stays WooCommerce's, and
+ * every rule outranks WooCommerce's by specificity, so none needs !important.
+ * Card INPUT fields render inside a cross-origin Stripe iframe — see
+ * `src/scripts/wcpay-appearance.ts`.
  *
  * @package Aggressive_Apparel
  */
 
-/* Payment method list — single bordered container with consistent dividers. */
-.wc-block-checkout__payment-method .wc-block-components-radio-control {
-  border: 1px solid var(--aa-color-border-default) !important;
-  border-radius: var(--aa-radius-lg);
-  overflow: hidden;
-  background: transparent;
+.wc-block-checkout__payment-method {
+
+	.wc-block-components-radio-control {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wp--preset--spacing--3);
+	}
+
+	/* No shared frame or separators between cards. */
+	.wc-block-components-radio-control--highlight-checked::after,
+	.wc-block-components-radio-control--highlight-checked .wc-block-components-radio-control-accordion-option::after {
+		content: none;
+	}
+
+	/* 45% of the text color is the least that holds 3:1 against the page in
+	 * both color schemes. */
+	.wc-block-components-radio-control-accordion-option {
+		border: 1px solid color-mix(in srgb, currentcolor 45%, transparent);
+		border-radius: var(--aa-radius-lg);
+		background-color: color-mix(in srgb, currentcolor 3%, transparent);
+		transition:
+			border-color var(--aa-duration-fast) var(--aa-ease-default),
+			background-color var(--aa-duration-fast) var(--aa-ease-default);
+
+		&:hover {
+			border-color: color-mix(in srgb, currentcolor 75%, transparent);
+		}
+
+		/* Keyboard focus rings the whole card. */
+		&:has(.wc-block-components-radio-control__input:focus-visible) {
+			outline: 2px solid var(--aa-field-bar-focus);
+			outline-offset: 2px;
+		}
+	}
+
+	/* Selected card: its 1px border in the text color, in place of WooCommerce's
+	 * inset ring; the accent check badge carries the brand color. */
+	.wc-block-components-radio-control--highlight-checked .wc-block-components-radio-control-accordion-option--checked-option-highlighted {
+		border-color: currentcolor;
+		border-radius: var(--aa-radius-lg);
+		background-color: color-mix(in srgb, currentcolor 6%, transparent);
+		box-shadow: none;
+	}
+
+	/* Card header. Unselected, the name sits at the card's edge; selected, it
+	 * slides over for the check badge (WooCommerce's 48px radio indent). */
+	.wc-block-components-radio-control__option {
+		padding-block: 18px;
+		padding-inline-start: 16px;
+		color: inherit;
+		transition: padding-inline-start var(--aa-duration-normal) var(--aa-ease-spring);
+
+		&.wc-block-components-radio-control__option-checked {
+			padding-inline-start: 48px;
+		}
+
+		/* The check badge: an accent disc with a white check that springs in. */
+		&::before {
+			content: "";
+			position: absolute;
+			inset-block-start: 50%;
+			inset-inline-start: 16px;
+			width: 1.25rem;
+			height: 1.25rem;
+			margin-block-start: -0.625rem;
+			border-radius: 50%;
+			background: var(--aa-color-accent-fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='2.5 6.5 5 9 9.5 3.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 0.75rem no-repeat;
+			opacity: 0;
+			scale: 0;
+			transition:
+				opacity var(--aa-duration-fast) var(--aa-ease-default),
+				scale 0.35s var(--aa-ease-spring);
+		}
+
+		&.wc-block-components-radio-control__option-checked::before {
+			opacity: 1;
+			scale: 1;
+		}
+	}
+
+	/* The native radio, invisible and stretched over the header: the whole
+	 * header is its hit area, and it keeps focus, arrow keys and its label. */
+	.wc-block-components-radio-control .wc-block-components-radio-control__input[type="radio"] {
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		border-radius: 0;
+		opacity: 0;
+		transform: none;
+
+		&:focus-visible {
+			outline: none;
+		}
+	}
+
+	.wc-block-components-radio-control__label {
+		font-size: var(--wp--preset--font-size--medium);
+		font-weight: 600;
+	}
+
+	/* The method's panel: card fields or instructions, set off by a hairline,
+	 * fading in as its card grows open. Instructions read as secondary to the
+	 * name; color, not opacity, so the card fields' iframe stays at full
+	 * strength. */
+	.wc-block-components-radio-control-accordion-content {
+		margin-inline: 16px;
+		padding: 12px 0 16px;
+		border-block-start: 1px solid var(--aa-color-border-default);
+		color: color-mix(in srgb, currentcolor 75%, transparent);
+
+		/* Text-only instructions start under the method name, beside the badge.
+		 * Payment fields keep the full card width. */
+		&:not(:has(iframe, .wcpay-upe-element)) {
+			padding-inline-start: 32px;
+		}
+
+		@media (prefers-reduced-motion: no-preference) {
+			transition: opacity var(--aa-duration-normal) var(--aa-ease-default);
+
+			@starting-style {
+				opacity: 0;
+			}
+		}
+	}
+
+	/* WooPayments iframe host — WooPayments pads it 7px; the fields inside
+	 * carry their own spacing. */
+	.wcpay-upe-element {
+		margin-block-start: var(--wp--preset--spacing--2);
+		padding: 0;
+	}
+
+	/* Save-card checkbox (outside iframe) — match checkout foreground. */
+	.wc-block-components-checkbox__label {
+		color: var(--aa-color-foreground);
+	}
+
+	/* The step's security note (Checkout_Payment_Note, or the merchant's own
+	 * description), led by the shared padlock from blocks.css. */
+	.wc-block-components-checkout-step__description {
+		display: flex;
+		align-items: baseline;
+		color: color-mix(in srgb, currentcolor 75%, transparent);
+
+		&::after {
+			flex-shrink: 0;
+			order: -1;
+		}
+	}
 }
 
-/* WC draws dividers with absolutely-positioned ::after pseudo-elements. */
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option::after,
-.wc-block-checkout__payment-method .wc-block-components-radio-control__option::after {
-  border-color: var(--aa-color-border-default) !important;
+/* Forced colors repaint the borders and badge in system colors, so selected
+ * and unselected cards would look alike: show the native radios instead. */
+@media (forced-colors: active) {
+
+	.wc-block-checkout__payment-method {
+
+		.wc-block-components-radio-control .wc-block-components-radio-control__input[type="radio"] {
+			appearance: auto;
+			inset: 50% auto auto 16px;
+			width: 1.25rem;
+			height: 1.25rem;
+			margin: -0.625rem 0 0;
+			opacity: 1;
+		}
+
+		.wc-block-components-radio-control__option {
+			padding-inline-start: 48px;
+
+			&::before {
+				content: none;
+			}
+		}
+	}
 }
 
-/* Keep the bottom divider on the last option (Affirm / PayPal stack). */
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option:last-child::after,
-.wc-block-checkout__payment-method .wc-block-components-radio-control__option:last-child::after {
-  border-block-end: 1px solid var(--aa-color-border-default) !important;
-}
+@media (prefers-reduced-motion: reduce) {
 
-/* Expanded card panel — drop WC highlight fill, keep structure + dividers. */
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option--checked-option-highlighted {
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
+	.wc-block-checkout__payment-method .wc-block-components-radio-control__option {
+		transition: none;
 
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-content {
-  background: transparent !important;
-  box-shadow: none !important;
-  padding-inline: var(--wp--preset--spacing--4);
-  padding-block-end: var(--wp--preset--spacing--4);
-}
-
-/* Divider between expanded card panel and the next method (Affirm, etc.). */
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option--checked-option-highlighted::after {
-  display: block !important;
-  border-block-end: 1px solid var(--aa-color-border-default) !important;
-}
-
-/* Divider between stacked payment methods. */
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option + .wc-block-components-radio-control-accordion-option {
-  border-block-start: 1px solid var(--aa-color-border-default);
-}
-
-/* WooPayments iframe host — no extra chrome. */
-.wc-block-checkout__payment-method .wcpay-upe-element {
-  margin-block-start: var(--wp--preset--spacing--2);
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-}
-
-/* Save-card checkbox (outside iframe) — match checkout foreground. */
-.wc-block-checkout__payment-method .wc-block-components-checkbox__label {
-  color: var(--aa-color-foreground);
+		&::before {
+			transition: none;
+		}
+	}
 }

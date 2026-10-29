@@ -185,3 +185,43 @@ describe('sanitizeNoticeHtml — XSS vectors are neutralised', () => {
     expect(sanitizeNoticeHtml(null as unknown as string)).toBe('');
   });
 });
+
+describe('sanitizeNoticeHtml — block boundaries become line breaks', () => {
+  /** Words as a screen reader gets them (textContent ignores <br>). */
+  const words = (html: string) =>
+    (parse(html).textContent ?? '').replace(/\s+/g, ' ').trim();
+  const breaks = (html: string) => parse(html).querySelectorAll('br').length;
+
+  it('keeps a checkout error summary apart from its list', () => {
+    const out = sanitizeNoticeHtml(
+      'Please fix the following error before continuing<ul><li>Your card was declined.</li></ul>'
+    );
+    expect(words(out)).toBe(
+      'Please fix the following error before continuing Your card was declined.'
+    );
+    expect(breaks(out)).toBe(1);
+  });
+
+  it('puts one break between adjacent blocks', () => {
+    const out = sanitizeNoticeHtml('<ul><li>First</li><li>Second</li></ul>');
+    expect(words(out)).toBe('First Second');
+    expect(breaks(out)).toBe(1);
+  });
+
+  it('breaks before text that follows a block', () => {
+    const out = sanitizeNoticeHtml('<p>Coupon removed.</p>Try another.');
+    expect(words(out)).toBe('Coupon removed. Try another.');
+    expect(breaks(out)).toBe(1);
+  });
+
+  it('adds no break around a lone block or inline tags', () => {
+    expect(breaks(sanitizeNoticeHtml('<p>hello</p>'))).toBe(0);
+    expect(breaks(sanitizeNoticeHtml('a<span>b</span>c'))).toBe(0);
+  });
+
+  it('ignores whitespace-only text between blocks', () => {
+    const out = sanitizeNoticeHtml('<p>A</p>\n  <p>B</p>');
+    expect(words(out)).toBe('A B');
+    expect(breaks(out)).toBe(1);
+  });
+});

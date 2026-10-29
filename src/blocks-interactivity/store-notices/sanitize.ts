@@ -36,6 +36,38 @@ const ALLOWED_ATTRS: Record<string, Set<string>> = {
 };
 
 /**
+ * Block elements whose boundaries carry meaning: WooCommerce's checkout errors
+ * are a summary paragraph and a list of problems. Unwrapping them would run
+ * the lines together ("…before continuingYour card was declined"), so their
+ * edges become line breaks.
+ */
+const BLOCK_TAGS = new Set([
+  'P',
+  'DIV',
+  'UL',
+  'OL',
+  'LI',
+  'DL',
+  'DT',
+  'DD',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
+  'BLOCKQUOTE',
+  'PRE',
+  'TABLE',
+  'TR',
+  'SECTION',
+  'ARTICLE',
+  'HEADER',
+  'FOOTER',
+  'ADDRESS',
+]);
+
+/**
  * Elements removed together with their contents — they can execute code, load
  * remote resources, or nest documents. Unknown *formatting* tags are unwrapped
  * instead (their text is kept); these are erased entirely.
@@ -126,11 +158,26 @@ function sanitizeElement(el: Element): void {
   }
 
   // Unwrap unknown/formatting-only tags: keep their (sanitised) children.
+  // A block element's edges become line breaks when content sits beside it;
+  // between two blocks only the later one adds a break, so there's one.
   if (!ALLOWED_TAGS.has(tag)) {
     const parent = el.parentNode;
     if (parent) {
+      const isBlock = BLOCK_TAGS.has(tag);
+      const next = contentSibling(el, 'next');
+
+      if (isBlock && contentSibling(el, 'previous')) {
+        insertBreak(parent, el);
+      }
       while (el.firstChild) {
         parent.insertBefore(el.firstChild, el);
+      }
+      if (
+        isBlock &&
+        next &&
+        !(next instanceof Element && BLOCK_TAGS.has(next.tagName.toUpperCase()))
+      ) {
+        insertBreak(parent, el);
       }
       parent.removeChild(el);
     }
@@ -155,6 +202,39 @@ function sanitizeElement(el: Element): void {
       el.setAttribute('rel', 'noopener noreferrer nofollow');
     }
   }
+}
+
+/** Whether a node shows anything (whitespace-only text doesn't). */
+function hasContent(node: Node | null): boolean {
+  return (
+    node !== null &&
+    (node.nodeType !== Node.TEXT_NODE || (node.textContent ?? '').trim() !== '')
+  );
+}
+
+/** The nearest sibling before or after `node` that shows something. */
+function contentSibling(
+  node: Node,
+  direction: 'previous' | 'next'
+): Node | null {
+  let sibling =
+    direction === 'previous' ? node.previousSibling : node.nextSibling;
+  while (sibling && !hasContent(sibling)) {
+    sibling =
+      direction === 'previous' ? sibling.previousSibling : sibling.nextSibling;
+  }
+  return sibling;
+}
+
+/**
+ * Insert a line break before `ref`: a space, so the words stay apart in
+ * plain text (screen-reader announcements read textContent, which ignores
+ * <br>), then the <br> itself.
+ */
+function insertBreak(parent: Node, ref: Node | null): void {
+  const doc = parent.ownerDocument ?? document;
+  parent.insertBefore(doc.createTextNode(' '), ref);
+  parent.insertBefore(doc.createElement('br'), ref);
 }
 
 /**

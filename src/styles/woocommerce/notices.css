@@ -151,6 +151,14 @@
 	color: var(--aa-color-foreground) !important;
 }
 
+/* Checkout's error banner is a summary line over a list of problems: stack
+ * them so it reads top to bottom instead of as two side-by-side columns. */
+.wc-block-components-notice-banner > .wc-block-components-notice-banner__content:has(> .wc-block-components-notice-banner__summary) {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--wp--preset--spacing--2);
+}
+
 /* WooCommerce prints the action link before the message text; show it after,
  * sharing the row once there's room (the text shrinks and wraps beside it). */
 .wc-block-components-notice-banner > .wc-block-components-notice-banner__content > :is(.button, .wc-forward) {

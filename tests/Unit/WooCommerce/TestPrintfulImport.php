@@ -15,6 +15,7 @@ use Aggressive_Apparel\WooCommerce\Printful_Catalog;
 use Aggressive_Apparel\WooCommerce\Printful_Import;
 use Aggressive_Apparel\WooCommerce\Printful_Rest;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
+use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
 
 /**
@@ -29,12 +30,7 @@ class TestPrintfulImport extends WP_UnitTestCase {
 	 */
 	private array $requests = array();
 
-	/**
-	 * Taxonomies registered before each test.
-	 *
-	 * @var list<string>
-	 */
-	private array $baseline = array();
+	use Restores_Taxonomies;
 
 	/**
 	 * HTTP status Printful answers the size table request with.
@@ -56,7 +52,7 @@ class TestPrintfulImport extends WP_UnitTestCase {
 			delete_transient( $key );
 		}
 		Product_Specs_Registry::flush();
-		$this->baseline = array_values( get_taxonomies() );
+		$this->snapshot_taxonomies();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		add_filter( 'pre_http_request', array( $this, 'respond' ), 10, 3 );
 	}
@@ -65,10 +61,7 @@ class TestPrintfulImport extends WP_UnitTestCase {
 	 * Restore global state.
 	 */
 	public function tearDown(): void {
-		// Attribute taxonomies outlive the DB rollback; drop the ones made here.
-		foreach ( array_diff( array_values( get_taxonomies() ), $this->baseline ) as $taxonomy ) {
-			unregister_taxonomy( $taxonomy );
-		}
+		$this->restore_taxonomies();
 		remove_filter( 'pre_http_request', array( $this, 'respond' ), 10 );
 		delete_option( Feature_Settings::OPTION_KEY );
 		delete_option( Printful_Import::RULES );

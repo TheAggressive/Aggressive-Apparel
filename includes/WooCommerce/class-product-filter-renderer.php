@@ -213,24 +213,22 @@ final class Product_Filter_Renderer {
 			echo '<span class="aa-product-filters__price-tooltip aa-product-filters__price-tooltip--min" data-wp-text="state.priceMinDisplay" aria-hidden="true"></span>';
 			echo '<span class="aa-product-filters__price-tooltip aa-product-filters__price-tooltip--max" data-wp-text="state.priceMaxDisplay" aria-hidden="true"></span>';
 			printf(
-				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--min" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMin" aria-label="%s" aria-valuemin="%d" aria-valuemax="%d" aria-valuenow="%d" />',
+				// Native range semantics carry min/max/value; the text binds to
+				// the same formatted price the tooltip shows. `value` is bound too:
+				// any binding re-renders the input, which would otherwise restore
+				// the server value.
+				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--min" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMin" aria-label="%s" data-wp-bind--value="state.priceMin" data-wp-bind--aria-valuetext="state.priceMinDisplay" />',
 				(int) $range['min'],
 				(int) $range['max'],
 				(int) $range['min'],
 				esc_attr__( 'Minimum price', 'aggressive-apparel' ),
-				(int) $range['min'],
-				(int) $range['max'],
-				(int) $range['min'],
 			);
 			printf(
-				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--max" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMax" aria-label="%s" aria-valuemin="%d" aria-valuemax="%d" aria-valuenow="%d" />',
+				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--max" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMax" aria-label="%s" data-wp-bind--value="state.priceMax" data-wp-bind--aria-valuetext="state.priceMaxDisplay" />',
 				(int) $range['min'],
 				(int) $range['max'],
 				(int) $range['max'],
 				esc_attr__( 'Maximum price', 'aggressive-apparel' ),
-				(int) $range['min'],
-				(int) $range['max'],
-				(int) $range['max'],
 			);
 			echo '</div>';
 			$this->render_section_end();

@@ -78,4 +78,32 @@ class TestCatalogFilterServices extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'actions.toggleInStockOnly', $html );
 		$this->assertStringContainsString( 'actions.toggleOnSaleOnly', $html );
 	}
+
+	/** Price thumbs use native range semantics plus a live formatted value. */
+	public function test_price_slider_has_no_static_aria_value(): void {
+		$renderer = new Product_Filter_Renderer();
+		ob_start();
+		$renderer->render_sections(
+			array(
+				'categories'      => array(),
+				'collectionTerms' => array(),
+				'colorTerms'      => array(),
+				'sizeTerms'       => array(),
+				'priceRange'      => array(
+					'min' => 10,
+					'max' => 90,
+				),
+			)
+		);
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'type="range"', $html );
+		$this->assertStringNotContainsString( 'aria-valuenow', $html, 'A static value would go stale as state changes.' );
+		$this->assertStringContainsString( 'data-wp-bind--aria-valuetext="state.priceMinDisplay"', $html );
+		$this->assertStringContainsString( 'data-wp-bind--aria-valuetext="state.priceMaxDisplay"', $html );
+		// A bound attribute re-renders the input; without a bound value that
+		// render restores the server value and the thumb snaps back.
+		$this->assertStringContainsString( 'data-wp-bind--value="state.priceMin"', $html );
+		$this->assertStringContainsString( 'data-wp-bind--value="state.priceMax"', $html );
+	}
 }

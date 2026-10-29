@@ -147,8 +147,3 @@ export function ColorModeToggle({
     </ToggleGroupControl>
   );
 }
-
-/**
- * @deprecated Use ColorModeToggle — kept as an alias for older imports.
- */
-export const AdaptiveSchemeTabs = ColorModeToggle;

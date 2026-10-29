@@ -141,7 +141,6 @@
     <exclude-pattern>tests/*</exclude-pattern>
     <exclude-pattern>tests/coverage/*</exclude-pattern>
     <exclude-pattern>phpcs-report.txt</exclude-pattern>
-    <exclude-pattern>includes/stubs.php</exclude-pattern>
     <exclude-pattern>stubs/*</exclude-pattern>
 
     <!-- Only check PHP files -->

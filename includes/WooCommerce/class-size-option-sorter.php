@@ -95,7 +95,6 @@ class Size_Option_Sorter {
 			return $block_content;
 		}
 
-		// Check if this block contains a size attribute.
 		$has_size = false;
 		foreach ( self::SIZE_INPUT_NAMES as $name ) {
 			if ( strpos( $block_content, $name ) !== false ) {

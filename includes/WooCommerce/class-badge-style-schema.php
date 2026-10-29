@@ -59,7 +59,7 @@ class Badge_Style_Schema {
 	public const LETTER_SPACINGS = array( 'normal', 'comfortable', 'wide', 'extra-wide' );
 
 	/**
-	 * Defaults for designer fields introduced by the robust badge designer.
+	 * Defaults for the badge designer's fields.
 	 *
 	 * @return array<string, int|string>
 	 */

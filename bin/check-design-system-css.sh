@@ -86,16 +86,9 @@ while IFS= read -r -d '' file; do
 		EXIT=1
 	fi
 done < <(
-	printf '%s\0' \
-		src/scripts/editor/adaptive-colors.tsx \
-		src/utils/adaptive-color-picker.tsx \
-		src/blocks-interactivity/navigation/edit.tsx \
-		src/blocks-interactivity/parallax/edit.tsx \
-		src/blocks-interactivity/parallax/components/DirectionPicker.tsx \
-		src/blocks-interactivity/parallax/components/EffectPresets.tsx \
-		src/blocks-interactivity/parallax/components/EffectTimingControls.tsx \
-		src/blocks-interactivity/parallax/components/EffectsControls.tsx \
-		src/blocks-interactivity/animate-on-scroll/edit.tsx
+	# Every editor component, not a hand-kept list: a list goes stale as
+	# files move, and a missing path is silently skipped above.
+	find src -name '*.tsx' -not -path '*/__tests__/*' -print0
 )
 
 echo "Checking registered block style names in patterns..."

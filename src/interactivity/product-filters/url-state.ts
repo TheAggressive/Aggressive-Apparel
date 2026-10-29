@@ -40,15 +40,6 @@ export function getShopPath(state: ProductFiltersState): string {
   }
 }
 
-/** Absolute WooCommerce shop URL. */
-export function getCanonicalShopUrl(state: ProductFiltersState): string {
-  try {
-    return new URL(state.shopUrl, window.location.origin).href;
-  } catch {
-    return `${window.location.origin}${getShopPath(state)}`;
-  }
-}
-
 /** Native Sales category pathname. */
 export function getSalesCategoryPath(
   state: ProductFiltersState

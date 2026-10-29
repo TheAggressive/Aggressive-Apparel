@@ -357,7 +357,6 @@ class Color_Data_Manager {
 			return;
 		}
 
-		// Check if term already exists.
 		$existing_term = get_term_by( 'slug', $color_name, $attribute_name );
 
 		if ( ! $existing_term ) {

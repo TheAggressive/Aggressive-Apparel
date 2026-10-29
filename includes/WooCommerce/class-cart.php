@@ -42,7 +42,6 @@ class Cart {
 	 * @return array Modified fragments.
 	 */
 	public function cart_fragments( $fragments ) {
-		// Check if WooCommerce cart is available.
 		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) {
 			return $fragments;
 		}

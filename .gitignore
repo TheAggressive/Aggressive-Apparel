@@ -12,6 +12,7 @@ node_modules/
 # PHPUnit
 /tests/coverage/
 /coverage/
+/coverage-*.xml
 .phpunit.result.cache
 phpunit.xml
 

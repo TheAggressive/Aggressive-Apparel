@@ -311,7 +311,6 @@ class Theme_Updates {
 			return $source;
 		}
 
-		// Check if this is from our GitHub repo.
 		$is_github_source = $this->releases->is_repository_source( $remote_source );
 
 		if ( ! $is_github_source ) {
@@ -319,10 +318,8 @@ class Theme_Updates {
 			return $source;
 		}
 
-		// Get the actual theme slug from WordPress to ensure we use the correct one.
 		$actual_theme_slug = wp_get_theme()->get_stylesheet();
 
-		// Check if the extracted directory name matches the theme slug.
 		$extracted_dir_name = basename( $source );
 
 		// If the directory name matches the theme slug, no renaming needed.

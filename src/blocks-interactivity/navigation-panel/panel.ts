@@ -179,7 +179,6 @@ export function openPanelWithSetup(
     }
   }
 
-  // Initialize inert state for drilldown panels.
   updateDrilldownInertState(panel, ps.drillStack);
 
   // Put focus on the close button once the panel animation starts. This gives

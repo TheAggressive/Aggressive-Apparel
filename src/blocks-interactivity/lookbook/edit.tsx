@@ -43,6 +43,7 @@ import {
   toPresetColorRef,
   type PresetColorOrigin,
 } from '../../utils/preset-colors';
+import { EDITOR_FIELDSET_STYLE } from '../../utils/editor-style-tokens';
 
 const MIN_PRODUCT_SEARCH_LENGTH = 2;
 const PRODUCT_SEARCH_LIMIT = 20;
@@ -503,10 +504,9 @@ export default function Edit({
             <div
               key={index}
               style={{
+                ...EDITOR_FIELDSET_STYLE,
                 marginBottom: '1rem',
                 padding: '0.5rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
               }}
             >
               <p style={{ margin: '0 0 0.5rem', fontWeight: 600 }}>

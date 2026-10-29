@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Theme Support Class
  *
- * Registers all WordPress theme supports following WordPress best practices.
+ * Registers the theme's WordPress feature supports.
  *
  * @since 1.0.0
  */

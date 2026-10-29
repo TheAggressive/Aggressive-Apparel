@@ -78,8 +78,6 @@ declare module '@aggressive-apparel/helpers' {
   ): string;
   export function setupFocusTrap(container: HTMLElement): () => void;
   export function prefersReducedMotion(): boolean;
-  export function shouldAllowAutoOpenOverlay(): boolean;
-  export function setMainContentInert(inert: boolean): void;
 
   export function escapeHtml(str: string | null | undefined): string;
   export function notifyCardsRendered(container: HTMLElement | null): void;

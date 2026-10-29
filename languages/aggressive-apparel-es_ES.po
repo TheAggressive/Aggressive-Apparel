@@ -2086,6 +2086,12 @@ msgstr "Pago seguro: tu información está protegida."
 msgid "No products were found matching your selection."
 msgstr "No se han encontrado productos que coincidan con tu selección."
 
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-checkout-payment-note.php:63
+#, aa-mt
+msgid "All transactions are secure and encrypted."
+msgstr "Todas las transacciones son seguras y están encriptadas."
+
 #: includes/WooCommerce/class-collection-attribute-migration.php:67
 #: patterns/home-storefront.php:92 patterns/homepage-seasonal-shop.php:24
 #, aa-mt

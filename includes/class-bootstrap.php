@@ -54,18 +54,6 @@ class Bootstrap {
 	}
 
 	/**
-	 * Load development stubs for IDE support
-	 *
-	 * @return void
-	 */
-	private function load_development_stubs(): void {
-		// Only load stubs in development environment.
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && file_exists( __DIR__ . '/stubs.php' ) ) {
-			require_once __DIR__ . '/stubs.php';
-		}
-	}
-
-	/**
 	 * Detect whether the current request is running inside a test environment.
 	 *
 	 * Guards the emitter in add_security_headers() so no real headers are sent
@@ -214,19 +202,10 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function initialize_services(): void {
-		$this->load_development_stubs();
 		$this->init_security_headers();
-
-		// Initialize core components.
 		$this->init_core_components();
-
-		// Initialize assets.
 		$this->init_asset_components();
-
-		// Initialize WooCommerce if available.
 		$this->init_woocommerce_components();
-
-		// Initialize hooks.
 		$this->init_hooks();
 	}
 
@@ -236,11 +215,10 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function init_core_components(): void {
-		// Initialize core services using the container.
 		$this->container->get( 'theme_support' )->init();
 		$this->container->get( 'image_sizes' )->init();
 		$this->container->get( 'content_width' )->init();
-		$this->container->get( 'theme_updates' )->init(); // Initialize theme updates.
+		$this->container->get( 'theme_updates' )->init();
 		$this->container->get( 'block_categories' ); // Register block and pattern categories.
 		$this->container->get( 'theme_features' )->init();
 		$this->container->get( 'adaptive_colors' )->init();
@@ -266,7 +244,6 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function init_asset_components(): void {
-		// Initialize asset services using the container.
 		$this->container->get( 'styles' )->init();
 		$this->container->get( 'scripts' )->init();
 	}

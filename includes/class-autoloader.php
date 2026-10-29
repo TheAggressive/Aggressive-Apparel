@@ -55,13 +55,11 @@ class Autoloader {
 	 * @return void
 	 */
 	public function autoload( $class_name ) {
-		// Check if the class uses the namespace prefix.
 		$len = strlen( $this->namespace );
 		if ( strncmp( $this->namespace, $class_name, $len ) !== 0 ) {
 			return;
 		}
 
-		// Get the relative class name and remove leading backslash.
 		$relative_class = substr( $class_name, $len );
 		$relative_class = ltrim( $relative_class, '\\' );
 

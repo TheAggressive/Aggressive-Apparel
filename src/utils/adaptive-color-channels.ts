@@ -151,22 +151,6 @@ export function getSupportsValue(supports: unknown, path: string[]): unknown {
   return current;
 }
 
-/**
- * Whether a supports path is enabled.
- *
- * Objects count as enabled (WP often uses `{ … }` feature bags).
- */
-export function isSupportsEnabled(supports: unknown, path: string[]): boolean {
-  const value = getSupportsValue(supports, path);
-  if (value === true) {
-    return true;
-  }
-  if (value && typeof value === 'object') {
-    return true;
-  }
-  return false;
-}
-
 function getColorSupportsObject(
   settings: BlockTypeSettingsLike
 ): Record<string, unknown> | true | false | undefined {

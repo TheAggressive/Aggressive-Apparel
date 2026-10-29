@@ -323,7 +323,6 @@ class Bootstrap {
 		WooCommerce\Select2_A11y::init();
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			\WP_CLI::add_command( 'aggressive-apparel collection-migrate', WooCommerce\Collection_Migration_Command::class );
 			\WP_CLI::add_command( 'aggressive-apparel specs-migrate', WooCommerce\Product_Specs_Migration_Command::class );
 		}
 	}

@@ -249,11 +249,9 @@ Until both are on, the theme renders nothing and shows an admin notice.
   the suggested privacy-policy text. The consent checkbox is required to
   submit but isn't stored per signup — with double opt-in, the verified
   address is the consent record.
-- **Migration.** Waitlists from the theme's old `aa_stock_subscribers` table
-  move into WooCommerce in Action Scheduler batches from an admin visit, once
-  WooCommerce's feature is on (`Back_In_Stock_Migration`). Only confirmed rows
-  move; the table is dropped after every row moved, and kept (retrying hourly)
-  if any failed.
+- **History.** Waitlists from the theme's old `aa_stock_subscribers` table
+  were moved into WooCommerce once by `Back_In_Stock_Migration`, removed
+  after the move ran in production.
 
 ## Collection vs Fit
 
@@ -286,52 +284,11 @@ script, not the server, and canonicalised to the category by Rank Math. A
 parent category's archive, facets and custom sorts include its subcategories'
 products.
 
-### Migrating `pa_fit` → `pa_collection`
+### History
 
-`wp aggressive-apparel collection-migrate` (`Collection_Attribute_Migration`).
-Never runs automatically. Dry run unless `--apply`.
-
-- Creates the Collection attribute and its three terms if missing.
-- For every product (any status) with an audience term on `pa_fit`, adds the
-  matching `pa_collection` term through WooCommerce CRUD. Only `mens`, `men`,
-  `womens`, `women`, `unisex` count as audience; any other `pa_fit` term is
-  ignored. Collection is never a variation attribute.
-- Idempotent: re-runs report `unchanged`, never duplicate terms.
-- `--remove-source` additionally drops the migrated terms from `pa_fit`
-  (removing the attribute only when nothing else is left on it). It skips
-  products where `pa_fit` is used for variations, since their
-  `attribute_pa_fit` values would be orphaned. Those are reported `skipped`
-  with a note and a closing warning — fix them by hand.
-- Aborts before touching products if a Collection term cannot be created,
-  and flushes only the runtime object cache between batches (never a shared
-  persistent cache).
-
-Production runbook:
-
-1. Back up the database.
-2. Deploy the theme, then immediately run
-   `wp aggressive-apparel collection-migrate` and review the report.
-   Until step 3, Collection links show unfiltered results.
-3. `wp aggressive-apparel collection-migrate --apply --format=json > collection-migration.json`
-   (keep the output — it is the per-product change record).
-4. If **WooCommerce → Settings → Advanced → Features → attribute lookup
-   direct updates** is off, let Action Scheduler drain (or run
-   **WooCommerce → Status → Tools → Regenerate the product attributes lookup
-   table**) — facets read the lookup table; filtering itself does not.
-5. Purge the page cache, then verify: `/shop/?collection=mens`, `womens`,
-   `unisex` each list the expected products; re-running step 2 reports zero
-   `would-update`.
-6. Update the header and mobile-nav template parts in the Site Editor to use
-   `?collection=` (or reset them to the theme file if they carry no other
-   customisations).
-7. Optional, later: `--apply --remove-source` once nothing reads `pa_fit` as
-   an audience.
-
-Rollback: before `--remove-source`, `pa_fit` is untouched, so reverting the
-theme restores the old behaviour; the extra `pa_collection` terms are inert
-and can be removed in **Products → Attributes**. After `--remove-source`,
-restore the backup or re-add the terms listed under `remove` in the step 3
-output.
+Audience terms moved from `pa_fit` to `pa_collection` once, through a
+`wp aggressive-apparel collection-migrate` command. It was removed after the
+move ran in production; git history has it and its runbook.
 
 ## Size Guides & Specs
 

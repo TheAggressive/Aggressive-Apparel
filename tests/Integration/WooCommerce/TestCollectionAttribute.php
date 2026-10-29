@@ -1,7 +1,6 @@
 <?php
 /**
- * Collection attribute tests: pa_fit → pa_collection migration, Collection
- * filtering and facets.
+ * Collection attribute tests: filtering, facets and independence from Fit.
  *
  * @package Aggressive_Apparel\Tests\Integration\WooCommerce
  */
@@ -11,14 +10,13 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Catalog_Cache_Version;
-use Aggressive_Apparel\WooCommerce\Collection_Attribute_Migration as Migration;
 use Aggressive_Apparel\WooCommerce\Product_Collection_Query;
 use Aggressive_Apparel\WooCommerce\Product_Facet_Service;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
 use WP_Query;
 use WP_UnitTestCase;
 
-/** Collection (audience) is independent of Fit and migrates safely. */
+/** Collection (audience) filters and facets independently of Fit. */
 class TestCollectionAttribute extends WP_UnitTestCase {
 
 	/** Register a clean `pa_fit` with audience and real-fit terms. */
@@ -42,169 +40,9 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	/** A dry run reports the plan and writes nothing. */
-	public function test_dry_run_writes_nothing(): void {
-		$product = $this->simple( array( 'pa_fit' => array( 'womens' ) ) );
-
-		$report = ( new Migration() )->run( true );
-
-		$this->assertSame( 'would-create', $report['attribute'] );
-		$this->assertSame( array( 'mens', 'womens', 'unisex' ), $report['terms'] );
-		$this->assertSame( Migration::STATUS_WOULD_UPDATE, $this->entry( $report, $product )['status'] );
-		$this->assertSame( array( 'womens' ), $this->entry( $report, $product )['add'] );
-		$this->assertSame( 0, wc_attribute_taxonomy_id_by_name( 'pa_collection' ) );
-		$this->assertArrayNotHasKey( 'pa_collection', wc_get_product( $product )->get_attributes() );
-	}
-
-	/** Apply copies only audience terms and preserves all other product data. */
-	public function test_apply_copies_audience_and_preserves_product(): void {
-		$cat     = self::factory()->term->create( array( 'taxonomy' => 'product_cat' ) );
-		$product = $this->simple( array( 'pa_fit' => array( 'womens', 'slim' ) ), array( $cat ) );
-
-		$report = ( new Migration() )->run( false );
-		$entry  = $this->entry( $report, $product );
-
-		$this->assertSame( 'created', $report['attribute'] );
-		$this->assertSame( Migration::STATUS_UPDATED, $entry['status'] );
-		$this->assertSame( array(), $entry['remove'] );
-
-		$saved = wc_get_product( $product );
-		$this->assertSame( array( 'womens' ), $this->slugs( $saved, 'pa_collection' ) );
-		$this->assertFalse( $saved->get_attributes()['pa_collection']->get_variation() );
-		$this->assertEqualsCanonicalizing( array( 'womens', 'slim' ), $this->slugs( $saved, 'pa_fit' ), 'pa_fit is untouched without --remove-source.' );
-		$this->assertSame( '25', $saved->get_regular_price() );
-		$this->assertSame( 7, $saved->get_stock_quantity() );
-		$this->assertSame( array( $cat ), $saved->get_category_ids() );
-		$this->assertTrue( has_term( 'womens', 'pa_collection', $product ) );
-	}
-
-	/** Re-running is a no-op and never duplicates terms or assignments. */
-	public function test_apply_is_idempotent(): void {
-		$product = $this->simple( array( 'pa_fit' => array( 'mens' ) ) );
-
-		( new Migration() )->run( false );
-		$second = ( new Migration() )->run( false );
-
-		$this->assertSame( 'exists', $second['attribute'] );
-		$this->assertSame( array(), $second['terms'] );
-		$this->assertSame( Migration::STATUS_UNCHANGED, $this->entry( $second, $product )['status'] );
-		$this->assertSame( array( 'mens' ), $this->slugs( wc_get_product( $product ), 'pa_collection' ) );
-		$this->assertCount( 3, get_terms( array( 'taxonomy' => 'pa_collection', 'hide_empty' => false ) ) );
-	}
-
-	/** Non-audience pa_fit values are never treated as collections. */
-	public function test_non_audience_fit_is_skipped(): void {
-		$product = $this->simple( array( 'pa_fit' => array( 'slim' ) ) );
-
-		$entry = $this->entry( ( new Migration() )->run( false, true ), $product );
-
-		$this->assertSame( Migration::STATUS_SKIPPED, $entry['status'] );
-		$this->assertSame( array( 'slim' ), $this->slugs( wc_get_product( $product ), 'pa_fit' ) );
-	}
-
-	/** --remove-source drops only the migrated audience terms. */
-	public function test_remove_source_keeps_real_fit_terms(): void {
-		$mixed = $this->simple( array( 'pa_fit' => array( 'mens', 'slim' ) ) );
-		$only  = $this->simple( array( 'pa_fit' => array( 'womens' ) ) );
-
-		( new Migration() )->run( false, true );
-
-		$this->assertSame( array( 'slim' ), $this->slugs( wc_get_product( $mixed ), 'pa_fit' ) );
-		$this->assertSame( array( 'mens' ), $this->slugs( wc_get_product( $mixed ), 'pa_collection' ) );
-		$this->assertArrayNotHasKey( 'pa_fit', wc_get_product( $only )->get_attributes() );
-		$this->assertSame( array( 'womens' ), $this->slugs( wc_get_product( $only ), 'pa_collection' ) );
-	}
-
-	/** Variable products keep their variations; a variation pa_fit stays put. */
-	public function test_variable_product_variations_are_preserved(): void {
-		$this->attribute( 'color', 'Color' );
-		$black = $this->term( 'pa_color', 'black' );
-		$red   = $this->term( 'pa_color', 'red' );
-
-		$product = new \WC_Product_Variable();
-		$product->set_name( 'Variable Tee' );
-		$product->set_status( 'publish' );
-		$product->set_attributes(
-			array(
-				$this->product_attribute( 'pa_color', array( $black, $red ), true, 0 ),
-				$this->product_attribute( 'pa_fit', array( $this->term( 'pa_fit', 'mens' ) ), true, 1 ),
-			)
-		);
-		$parent_id  = $product->save();
-		$variations = array();
-		foreach ( array( 'black', 'red' ) as $color ) {
-			$variation = new \WC_Product_Variation();
-			$variation->set_parent_id( $parent_id );
-			$variation->set_attributes(
-				array(
-					'pa_color' => $color,
-					'pa_fit'   => 'mens',
-				)
-			);
-			$variation->set_regular_price( '30' );
-			$variations[ $variation->save() ] = $color;
-		}
-
-		$entry = $this->entry( ( new Migration() )->run( false, true ), $parent_id );
-
-		$this->assertSame( Migration::STATUS_UPDATED, $entry['status'] );
-		$this->assertSame( array(), $entry['remove'] );
-		$this->assertStringContainsString( 'variations', $entry['note'] );
-
-		$saved = wc_get_product( $parent_id );
-		$this->assertTrue( $saved->get_attributes()['pa_fit']->get_variation(), 'Variation attribute is preserved.' );
-		$this->assertFalse( $saved->get_attributes()['pa_collection']->get_variation() );
-		$this->assertSame( array( 'mens' ), $this->slugs( $saved, 'pa_collection' ) );
-		$this->assertEqualsCanonicalizing( array_keys( $variations ), $saved->get_children() );
-		foreach ( $variations as $variation_id => $color ) {
-			$variation = wc_get_product( $variation_id );
-			$this->assertSame(
-				array(
-					'pa_color' => $color,
-					'pa_fit'   => 'mens',
-				),
-				$variation->get_attributes()
-			);
-			$this->assertSame( '30', $variation->get_regular_price() );
-		}
-	}
-
-	/** A held-back variation removal is reported as skipped, never unchanged. */
-	public function test_held_variation_source_is_skipped_once_collection_exists(): void {
-		$product = new \WC_Product_Variable();
-		$product->set_name( 'Variable Hat' );
-		$product->set_status( 'publish' );
-		$product->set_attributes( array( $this->product_attribute( 'pa_fit', array( $this->term( 'pa_fit', 'mens' ) ), true, 0 ) ) );
-		$id = $product->save();
-
-		( new Migration() )->run( false );
-		$entry = $this->entry( ( new Migration() )->run( false, true ), $id );
-
-		$this->assertSame( Migration::STATUS_SKIPPED, $entry['status'] );
-		$this->assertSame( Migration::NOTE_VARIATION, $entry['note'] );
-	}
-
-	/** A term that cannot be created aborts before any product is touched. */
-	public function test_term_creation_failure_aborts(): void {
-		$product = $this->simple( array( 'pa_fit' => array( 'mens' ) ) );
-		$fail    = static fn( $term, string $taxonomy ) => 'pa_collection' === $taxonomy ? new \WP_Error( 'nope', 'Rejected' ) : $term;
-		add_filter( 'pre_insert_term', $fail, 10, 2 );
-
-		try {
-			( new Migration() )->run( false );
-			$this->fail( 'Expected the migration to abort.' );
-		} catch ( \RuntimeException $e ) {
-			$this->assertStringContainsString( 'Rejected', $e->getMessage() );
-		} finally {
-			remove_filter( 'pre_insert_term', $fail, 10 );
-		}
-
-		$this->assertArrayNotHasKey( 'pa_collection', wc_get_product( $product )->get_attributes() );
-	}
-
 	/** Collection filtering combines with category, and Unisex is its own term. */
 	public function test_collection_filter_combines_with_category(): void {
-		( new Migration() )->run( false ); // Creates pa_collection + terms.
+		$this->collection();
 
 		$tanks  = self::factory()->term->create( array( 'taxonomy' => 'product_cat', 'slug' => 'tank-tops' ) );
 		$tees   = self::factory()->term->create( array( 'taxonomy' => 'product_cat', 'slug' => 't-shirts' ) );
@@ -223,7 +61,7 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 
 	/** Facets report Collection availability and no longer query pa_fit. */
 	public function test_facets_measure_collection(): void {
-		( new Migration() )->run( false );
+		$this->collection();
 
 		$tanks = self::factory()->term->create( array( 'taxonomy' => 'product_cat', 'slug' => 'tank-tops' ) );
 		$this->simple(
@@ -255,7 +93,7 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 	 * cannot write a transient per variant.
 	 */
 	public function test_facet_cache_is_keyed_on_the_normalized_selection(): void {
-		( new Migration() )->run( false ); // Creates pa_collection + terms.
+		$this->collection();
 		foreach ( array( 'tank-tops', 'hoodies' ) as $slug ) {
 			self::factory()->term->create(
 				array(
@@ -303,7 +141,7 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 	 * free-form prices compute uncached so callers can't mint a transient each.
 	 */
 	public function test_facet_cache_skips_unbounded_selections(): void {
-		( new Migration() )->run( false ); // Creates pa_collection + terms.
+		$this->collection();
 		self::factory()->term->create(
 			array(
 				'taxonomy' => 'product_cat',
@@ -361,6 +199,14 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 		$taxonomy = wc_attribute_taxonomy_name( $slug );
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			register_taxonomy( $taxonomy, array( 'product' ), array( 'hierarchical' => false ) );
+		}
+	}
+
+	/** Create the Collection attribute with its audience terms, in order. */
+	private function collection(): void {
+		$this->attribute( 'collection', 'Collection' );
+		foreach ( array( 'mens', 'womens', 'unisex' ) as $order => $slug ) {
+			wc_set_term_order( $this->term( 'pa_collection', $slug ), $order, 'pa_collection' );
 		}
 	}
 
@@ -458,36 +304,5 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 			)
 		);
 		return array_map( 'intval', $query->posts );
-	}
-
-	/**
-	 * Term slugs on a product attribute.
-	 *
-	 * @param \WC_Product $product  Product.
-	 * @param string      $taxonomy Taxonomy.
-	 * @return list<string>
-	 */
-	private function slugs( \WC_Product $product, string $taxonomy ): array {
-		$attribute = $product->get_attributes()[ $taxonomy ] ?? null;
-		if ( ! $attribute instanceof \WC_Product_Attribute ) {
-			return array();
-		}
-		return array_values( wp_list_pluck( (array) $attribute->get_terms(), 'slug' ) );
-	}
-
-	/**
-	 * The report entry for one product.
-	 *
-	 * @param array<string, mixed> $report     Migration report.
-	 * @param int                  $product_id Product ID.
-	 * @return array<string, mixed>
-	 */
-	private function entry( array $report, int $product_id ): array {
-		foreach ( $report['products'] as $entry ) {
-			if ( $entry['id'] === $product_id ) {
-				return $entry;
-			}
-		}
-		$this->fail( "No report entry for product {$product_id}." );
 	}
 }

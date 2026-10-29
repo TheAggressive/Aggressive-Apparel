@@ -142,6 +142,24 @@ class TestCatalogArchiveFilters extends WP_UnitTestCase {
 		$this->assertSame( $tees, get_queried_object_id(), 'The archive stays the category, not the colour.' );
 	}
 
+	/** A `?cat=` slug with a digit is a product category, never post category 2. */
+	public function test_category_slugs_with_digits_are_not_post_categories(): void {
+		$y2k     = self::factory()->term->create( array( 'taxonomy' => 'product_cat', 'slug' => 'y2k-tees' ) );
+		$hoodies = self::factory()->term->create( array( 'taxonomy' => 'product_cat', 'slug' => 'filter-hoodies' ) );
+		$tee     = $this->product( $y2k, 'black' );
+		$hoodie  = $this->product( $hoodies, 'black' );
+
+		$_GET = array( 'cat' => 'y2k-tees,filter-hoodies' );
+		( new Catalog_Archive_Filters() )->init();
+		$this->go_to( add_query_arg( 'cat', 'y2k-tees,filter-hoodies', (string) get_post_type_archive_link( 'product' ) ) );
+
+		$ids = array_map( static fn( $post ) => (int) $post->ID, $GLOBALS['wp_query']->posts );
+		sort( $ids );
+		$this->assertSame( array( $tee, $hoodie ), $ids );
+		$this->assertFalse( is_category(), 'Core must not read the slugs as post category IDs.' );
+		$this->assertSame( array( 'cat' => '12' ), ( new Catalog_Archive_Filters() )->drop_category_slugs( array( 'cat' => '12' ) ), 'Core ID lists pass through.' );
+	}
+
 	/**
 	 * The archive's explicit collection gets filters and sort; other
 	 * collections and inherited ones are left alone.

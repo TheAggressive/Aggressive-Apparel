@@ -65,11 +65,34 @@ final class Catalog_Archive_Filters {
 
 	/** Register hooks. */
 	public function init(): void {
+		add_filter( 'request', array( $this, 'drop_category_slugs' ) );
 		// Before WooCommerce's product query (10), which keeps these clauses.
 		add_action( 'pre_get_posts', array( $this, 'filter_main_query' ), 5 );
 		add_filter( 'query_loop_block_query_vars', array( $this, 'filter_collection_query' ), 20, 2 );
 		add_filter( 'render_block_data', array( $this, 'add_no_results_block' ) );
 		add_filter( 'posts_clauses', array( $this->queries, 'apply_lookup_clauses' ), 10, 2 );
+	}
+
+	/**
+	 * Keep core from reading the catalog's `?cat=` slugs as post categories.
+	 *
+	 * `cat` is a core query var of post category IDs; the catalog reuses the
+	 * name for product category slugs, read from `$_GET` by
+	 * Catalog_Url_Filters. Core strips a value to `[0-9,-]`, so `y2k` would
+	 * become post category 2 and empty the archive. A value core would strip
+	 * is never an ID list, so it is dropped here; ID lists pass through.
+	 *
+	 * @param array<string, mixed> $query_vars Request query vars.
+	 * @return array<string, mixed>
+	 */
+	public function drop_category_slugs( $query_vars ): array {
+		$query_vars = is_array( $query_vars ) ? $query_vars : array();
+		$cat        = $query_vars['cat'] ?? null;
+		if ( is_string( $cat ) && 1 === preg_match( '/[^0-9,-]/', $cat ) ) {
+			unset( $query_vars['cat'] );
+		}
+
+		return $query_vars;
 	}
 
 	/**

@@ -21,10 +21,19 @@ use WP_UnitTestCase;
 class TestProductSpecsTools extends WP_UnitTestCase {
 
 	/**
+	 * Attribute taxonomies registered before each test.
+	 *
+	 * @var list<string>
+	 */
+	private array $baseline = array();
+
+	/**
 	 * Enable the feature and start from the default registry.
 	 */
 	public function setUp(): void {
 		parent::setUp();
+
+		$this->baseline = array_values( get_taxonomies() );
 
 		update_option( Feature_Settings::OPTION_KEY, array( 'size_guide' => true ), false );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
@@ -40,6 +49,14 @@ class TestProductSpecsTools extends WP_UnitTestCase {
 		delete_option( Feature_Settings::OPTION_KEY );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		Product_Specs_Registry::flush();
+
+		// Saving a spec creates its attribute (e.g. `pa_fit`) and registers
+		// the taxonomy. The rollback drops the attribute row but not the
+		// registration, and wc_create_attribute() refuses a slug whose
+		// taxonomy exists, so later tests could never create that attribute.
+		foreach ( array_diff( array_values( get_taxonomies() ), $this->baseline ) as $taxonomy ) {
+			unregister_taxonomy( $taxonomy );
+		}
 
 		parent::tearDown();
 	}

@@ -26,11 +26,19 @@ use WP_UnitTestCase;
 class TestProductSpecs extends WP_UnitTestCase {
 
 	/**
+	 * Attribute taxonomies registered before each test.
+	 *
+	 * @var list<string>
+	 */
+	private array $baseline = array();
+
+	/**
 	 * Enable both features and start from the default registry.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 
+		$this->baseline = array_values( get_taxonomies() );
 		update_option(
 			Feature_Settings::OPTION_KEY,
 			array( 'size_guide' => true ),
@@ -48,6 +56,11 @@ class TestProductSpecs extends WP_UnitTestCase {
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		Product_Specs_Registry::flush();
 		$_POST = array();
+		// Spec attribute taxonomies (e.g. `pa_fit`) outlive the rollback and
+		// block later tests from creating that attribute.
+		foreach ( array_diff( array_values( get_taxonomies() ), $this->baseline ) as $taxonomy ) {
+			unregister_taxonomy( $taxonomy );
+		}
 
 		parent::tearDown();
 	}

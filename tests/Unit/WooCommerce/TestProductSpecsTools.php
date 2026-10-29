@@ -13,6 +13,7 @@ use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Grid;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Suggestions;
+use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
 
 /**
@@ -20,11 +21,15 @@ use WP_UnitTestCase;
  */
 class TestProductSpecsTools extends WP_UnitTestCase {
 
+	use Restores_Taxonomies;
+
 	/**
 	 * Enable the feature and start from the default registry.
 	 */
 	public function setUp(): void {
 		parent::setUp();
+
+		$this->snapshot_taxonomies();
 
 		update_option( Feature_Settings::OPTION_KEY, array( 'size_guide' => true ), false );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
@@ -40,6 +45,8 @@ class TestProductSpecsTools extends WP_UnitTestCase {
 		delete_option( Feature_Settings::OPTION_KEY );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		Product_Specs_Registry::flush();
+
+		$this->restore_taxonomies();
 
 		parent::tearDown();
 	}

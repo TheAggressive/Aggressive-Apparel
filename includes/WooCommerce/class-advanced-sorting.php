@@ -124,12 +124,23 @@ class Advanced_Sorting {
 				AND aa_featured_t.slug = 'featured'
 			) DESC, {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
 		} else {
-			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} aa_regular_price ON {$wpdb->posts}.ID = aa_regular_price.post_id AND aa_regular_price.meta_key = '_regular_price'";
-			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} aa_sale_price ON {$wpdb->posts}.ID = aa_sale_price.post_id AND aa_sale_price.meta_key = '_sale_price'";
-			$clauses['orderby'] = "CASE
-				WHEN aa_sale_price.meta_value <> '' AND CAST(aa_regular_price.meta_value AS DECIMAL(20,6)) > 0
-				THEN (CAST(aa_regular_price.meta_value AS DECIMAL(20,6)) - CAST(aa_sale_price.meta_value AS DECIMAL(20,6))) / CAST(aa_regular_price.meta_value AS DECIMAL(20,6))
-				ELSE -1 END DESC, {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
+			// Savings = (regular - active price) / regular, from the meta
+			// WooCommerce keeps: `_price` is the price being charged now, so a
+			// scheduled sale counts only once it starts. Variable products keep
+			// prices on their variations, so a product ranks by its best one.
+			$clauses['join']   .= " LEFT JOIN (
+				SELECT CASE WHEN aa_item.post_type = 'product_variation' THEN aa_item.post_parent ELSE aa_item.ID END AS product_id,
+					MAX( ( CAST(aa_regular.meta_value AS DECIMAL(20,6)) - CAST(aa_price.meta_value AS DECIMAL(20,6)) ) / CAST(aa_regular.meta_value AS DECIMAL(20,6)) ) AS savings
+				FROM {$wpdb->posts} aa_item
+				INNER JOIN {$wpdb->postmeta} aa_regular ON aa_regular.post_id = aa_item.ID AND aa_regular.meta_key = '_regular_price'
+				INNER JOIN {$wpdb->postmeta} aa_price ON aa_price.post_id = aa_item.ID AND aa_price.meta_key = '_price'
+				WHERE aa_item.post_type IN ('product', 'product_variation')
+				AND aa_item.post_status = 'publish'
+				AND aa_price.meta_value <> ''
+				AND CAST(aa_regular.meta_value AS DECIMAL(20,6)) > 0
+				GROUP BY product_id
+			) aa_savings ON aa_savings.product_id = {$wpdb->posts}.ID";
+			$clauses['orderby'] = "COALESCE(aa_savings.savings, -1) DESC, {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
 		}
 
 		return $clauses;

@@ -16,6 +16,7 @@ use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Taxonomy;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Values;
+use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
 
 /**
@@ -23,12 +24,7 @@ use WP_UnitTestCase;
  */
 class TestProductSpecsMultiValues extends WP_UnitTestCase {
 
-	/**
-	 * Taxonomies registered before each test.
-	 *
-	 * @var list<string>
-	 */
-	private array $baseline = array();
+	use Restores_Taxonomies;
 
 	/**
 	 * Start from a registry with a multi-value Collection spec on an
@@ -43,7 +39,7 @@ class TestProductSpecsMultiValues extends WP_UnitTestCase {
 		delete_transient( 'wc_attribute_taxonomies' );
 		Product_Specs_Registry::flush();
 		Product_Specs_Taxonomy::flush();
-		$this->baseline = array_values( get_taxonomies() );
+		$this->snapshot_taxonomies();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 
 		wc_create_attribute(
@@ -64,9 +60,7 @@ class TestProductSpecsMultiValues extends WP_UnitTestCase {
 	 * Unregister taxonomies a test created.
 	 */
 	public function tearDown(): void {
-		foreach ( array_diff( array_values( get_taxonomies() ), $this->baseline ) as $taxonomy ) {
-			unregister_taxonomy( $taxonomy );
-		}
+		$this->restore_taxonomies();
 		delete_option( Feature_Settings::OPTION_KEY );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		Product_Specs_Registry::flush();

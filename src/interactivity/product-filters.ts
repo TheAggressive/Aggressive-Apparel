@@ -198,7 +198,6 @@ export const { state, actions } = store<ProductFiltersStore>(
         const val = parseInt(target.value, 10);
         state.priceMin = Math.min(val, state.priceMax - 1);
         target.value = String(state.priceMin);
-        target.setAttribute('aria-valuenow', String(state.priceMin));
         syncPriceRange();
         stageFilterChange();
       },
@@ -208,7 +207,6 @@ export const { state, actions } = store<ProductFiltersStore>(
         const val = parseInt(target.value, 10);
         state.priceMax = Math.max(val, state.priceMin + 1);
         target.value = String(state.priceMax);
-        target.setAttribute('aria-valuenow', String(state.priceMax));
         syncPriceRange();
         stageFilterChange();
       },

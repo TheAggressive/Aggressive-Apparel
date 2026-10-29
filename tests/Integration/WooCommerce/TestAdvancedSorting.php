@@ -58,14 +58,18 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 	 * @param float  $sale_price   Optional active sale price.
 	 * @param string $stock_status WooCommerce stock status.
 	 * @param bool   $featured     Whether the product is featured.
+	 * @param string $sale_from    Optional sale start (timestamp); empty = now.
 	 * @return int Product ID.
 	 */
-	private function create_product( float $price, float $sale_price = 0, string $stock_status = 'instock', bool $featured = true ): int {
+	private function create_product( float $price, float $sale_price = 0, string $stock_status = 'instock', bool $featured = true, string $sale_from = '' ): int {
 		$product = new \WC_Product_Simple();
 		$product->set_name( 'Sorted product ' . wp_generate_password( 6, false ) );
 		$product->set_regular_price( (string) $price );
 		if ( $sale_price > 0 ) {
 			$product->set_sale_price( (string) $sale_price );
+		}
+		if ( '' !== $sale_from ) {
+			$product->set_date_on_sale_from( $sale_from );
 		}
 		$product->set_stock_status( $stock_status );
 		$product->set_featured( $featured );
@@ -73,6 +77,34 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 		$product->set_catalog_visibility( 'visible' );
 
 		return (int) $product->save();
+	}
+
+	/**
+	 * Create a published variable product; prices live on its variations.
+	 *
+	 * @param list<array{0: float, 1: float}> $prices Per variation: regular, sale (0 = none).
+	 * @return int Product ID.
+	 */
+	private function create_variable_product( array $prices ): int {
+		$product = new \WC_Product_Variable();
+		$product->set_name( 'Sorted variable ' . wp_generate_password( 6, false ) );
+		$product->set_status( 'publish' );
+		$product->set_catalog_visibility( 'visible' );
+		$product_id = (int) $product->save();
+
+		foreach ( $prices as $price ) {
+			$variation = new \WC_Product_Variation();
+			$variation->set_parent_id( $product_id );
+			$variation->set_regular_price( (string) $price[0] );
+			if ( $price[1] > 0 ) {
+				$variation->set_sale_price( (string) $price[1] );
+			}
+			$variation->set_status( 'publish' );
+			$variation->save();
+		}
+		\WC_Product_Variable::sync( $product_id );
+
+		return $product_id;
 	}
 
 	/**
@@ -120,6 +152,23 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 		$regular       = $this->create_product( 100 );
 
 		$this->assertSame( array( $half_price, $quarter_saved, $regular ), $this->sorted( 'savings' )['ids'] );
+	}
+
+	/** A variable product ranks by its best variation; its parent has no prices. */
+	public function test_savings_sort_ranks_variable_products_by_best_variation(): void {
+		$tenth_saved = $this->create_product( 100, 90 );
+		$variable    = $this->create_variable_product( array( array( 40, 0 ), array( 30, 15 ) ) );
+		$regular     = $this->create_product( 100 );
+
+		$this->assertSame( array( $variable, $tenth_saved, $regular ), $this->sorted( 'savings' )['ids'] );
+	}
+
+	/** A sale that has not started yet saves nothing. */
+	public function test_savings_sort_ignores_scheduled_sales(): void {
+		$scheduled = $this->create_product( 100, 10, 'instock', true, (string) strtotime( '+1 week' ) );
+		$active    = $this->create_product( 100, 90 );
+
+		$this->assertSame( array( $active, $scheduled ), $this->sorted( 'savings' )['ids'] );
 	}
 
 	/** The On Sale filter combines with a custom sort. */

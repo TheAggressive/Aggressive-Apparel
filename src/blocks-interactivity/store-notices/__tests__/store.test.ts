@@ -24,7 +24,7 @@ jest.mock(
   { virtual: true }
 );
 
-import { storeNoticesStore, makeNotice } from '../view';
+import { storeNoticesStore, makeNotice, staysInline } from '../view';
 
 const { state, actions, callbacks } = storeNoticesStore as unknown as {
   state: Record<string, unknown>;
@@ -266,5 +266,44 @@ describe('accessibility', () => {
       stopPropagation: () => {},
     } as unknown as KeyboardEvent);
     expect(notices).toHaveLength(1);
+  });
+});
+
+describe('staysInline (checkout errors are not bridged)', () => {
+  /** A WooCommerce notice banner inside `container`, as markup. */
+  const banner = (container: string, classes: string): Element => {
+    document.body.innerHTML = container.replace(
+      '%s',
+      `<div class="wc-block-components-notice-banner ${classes}">x</div>`
+    );
+    return document.querySelector('.wc-block-components-notice-banner')!;
+  };
+
+  it('keeps checkout errors and warnings inline', () => {
+    const checkout = '<div class="wp-block-woocommerce-checkout">%s</div>';
+    expect(staysInline(banner(checkout, 'is-error'))).toBe(true);
+    expect(staysInline(banner(checkout, 'is-warning'))).toBe(true);
+  });
+
+  it('still bridges checkout success and info notices', () => {
+    const checkout = '<div class="wp-block-woocommerce-checkout">%s</div>';
+    expect(staysInline(banner(checkout, 'is-success'))).toBe(false);
+    expect(staysInline(banner(checkout, 'is-info'))).toBe(false);
+  });
+
+  it('still bridges errors outside checkout', () => {
+    expect(
+      staysInline(
+        banner('<div class="wp-block-woocommerce-cart">%s</div>', 'is-error')
+      )
+    ).toBe(false);
+  });
+
+  it('keeps classic checkout errors inline', () => {
+    document.body.innerHTML =
+      '<form class="checkout woocommerce-checkout"><ul class="woocommerce-error"><li>x</li></ul></form>';
+    expect(staysInline(document.querySelector('.woocommerce-error')!)).toBe(
+      true
+    );
   });
 });

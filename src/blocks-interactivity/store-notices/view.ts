@@ -211,14 +211,35 @@ const BRIDGE_SOURCES: Array<{ selector: string; type: NoticeType }> = [
 ];
 
 /**
+ * Errors and warnings inside a checkout form stay where WooCommerce puts them.
+ * They block the order ("Your card was declined", "No shipping options are
+ * available for this address"), so they belong beside the fields to fix, in
+ * view when WooCommerce scrolls to them, and on screen until fixed — not in a
+ * dismissible corner toast. Success and info notices still become toasts.
+ */
+const INLINE_CHECKOUT_NOTICE = [
+  '.wc-block-components-notice-banner.is-error',
+  '.wc-block-components-notice-banner.is-warning',
+  '.woocommerce-error',
+].join(', ');
+const CHECKOUT_FORM =
+  '.wp-block-woocommerce-checkout, form.woocommerce-checkout';
+
+/** Whether a notice node is a checkout error/warning that stays inline. */
+export function staysInline(node: Element): boolean {
+  return node.matches(INLINE_CHECKOUT_NOTICE) && !!node.closest(CHECKOUT_FORM);
+}
+
+/**
  * Bridge WooCommerce's own rendered notices into the toast stack.
  *
  * The block cart/checkout render notices client-side via the Store API, and
  * classic pages print `.woocommerce-*` banners — neither goes through the
  * store-notices block. We observe the document, lift matching nodes into the
  * toast context (as plain text, so nothing is re-injected as HTML), and hide
- * the originals. Selectors target WooCommerce's current markup and degrade to
- * "do nothing" if that markup changes.
+ * the originals (except checkout errors and warnings, see staysInline).
+ * Selectors target WooCommerce's current markup and degrade to "do nothing" if
+ * that markup changes.
  */
 function startBridge(ctx: NoticesContext, root: HTMLElement): void {
   if (bridgeStarted) {
@@ -283,7 +304,7 @@ function startBridge(ctx: NoticesContext, root: HTMLElement): void {
   };
 
   const capture = (node: Element, type: NoticeType): void => {
-    if (seen.has(node)) {
+    if (seen.has(node) || staysInline(node)) {
       return;
     }
     if (!textOf(node)) {

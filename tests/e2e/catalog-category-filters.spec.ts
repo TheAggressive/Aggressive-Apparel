@@ -94,12 +94,12 @@ test.describe('filtered URLs', () => {
   test.use({ javaScriptEnabled: false });
 
   test('render the filtered products on the server', async ({ page }) => {
-    // One Collection is an audience landing page (/shop/{collection}/).
-    await page.goto(`/shop/${CHILD_COLLECTION}/`);
+    // Audience routes follow the configured WooCommerce category base.
+    await page.goto(fixtures.audienceUrl);
     expect(await cardTitles(page)).toEqual(['E2E Filter Child Product']);
     await expect(page.locator('h1').first()).toHaveText('E2E Child Only');
 
-    await page.goto(`/shop/${CHILD_COLLECTION}/${PARENT_CATEGORY}/`);
+    await page.goto(fixtures.audienceCategoryUrl);
     expect(await cardTitles(page)).toEqual(['E2E Filter Child Product']);
     await expect(page.locator('h1').first()).toHaveText(
       `E2E Child Only ${PARENT_NAME}`
@@ -122,7 +122,7 @@ test('picking one Collection opens its landing page', async ({ page }) => {
 
   await Promise.all([
     page.waitForURL(
-      url => url.pathname === `/shop/${CHILD_COLLECTION}/${PARENT_CATEGORY}/`
+      url => url.pathname === new URL(fixtures.audienceCategoryUrl).pathname
     ),
     (async () => {
       await chip.click();
@@ -148,7 +148,7 @@ test('a filter on the same page swaps the grid in place; back restores it', asyn
   // A landing page keeps its path when another filter is added, so only the
   // collection is swapped (picking an audience is a full navigation instead,
   // so the new page's title and breadcrumbs come from the server).
-  await page.goto(`/shop/${CHILD_COLLECTION}/`, { waitUntil: 'networkidle' });
+  await page.goto(fixtures.audienceUrl, { waitUntil: 'networkidle' });
   const unfiltered = await cardTitles(page);
   expect(unfiltered).toEqual(['E2E Filter Child Product']);
   await page.evaluate(() => {
@@ -161,7 +161,7 @@ test('a filter on the same page swaps the grid in place; back restores it', asyn
   await Promise.all([
     page.waitForURL(
       url =>
-        url.pathname === `/shop/${CHILD_COLLECTION}/` &&
+        url.pathname === new URL(fixtures.audienceUrl).pathname &&
         url.searchParams.get('stock') === 'instock'
     ),
     page.keyboard.press('Escape'),
@@ -186,7 +186,7 @@ test('a filter on the same page swaps the grid in place; back restores it', asyn
 });
 
 test('sorting keeps the active filters', async ({ page }) => {
-  await page.goto(`/shop/${CHILD_COLLECTION}/`, {
+  await page.goto(fixtures.audienceUrl, {
     waitUntil: 'networkidle',
   });
 
@@ -195,6 +195,8 @@ test('sorting keeps the active filters', async ({ page }) => {
     page.locator('select[name="orderby"]').first().selectOption('price'),
   ]);
 
-  expect(new URL(page.url()).pathname).toBe(`/shop/${CHILD_COLLECTION}/`);
+  expect(new URL(page.url()).pathname).toBe(
+    new URL(fixtures.audienceUrl).pathname
+  );
   expect(await cardTitles(page)).toEqual(['E2E Filter Child Product']);
 });

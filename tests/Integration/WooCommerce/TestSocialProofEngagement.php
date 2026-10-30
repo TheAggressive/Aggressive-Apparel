@@ -196,17 +196,8 @@ final class TestSocialProofEngagement extends WP_UnitTestCase {
 		return $id;
 	}
 
-	/**
-	 * The rendered toast is a decorative marketing surface: hidden from the
-	 * accessibility tree (so a ~20s cycle doesn't spam polite announcements) with
-	 * its interactive children removed from the tab order (no focusable
-	 * descendants inside aria-hidden). This locks that contract so a future edit
-	 * can't silently re-introduce the live region or a keyboard-focusable,
-	 * pointer-catching "ghost" toast.
-	 *
-	 * @return void
-	 */
-	public function test_toast_container_markup_is_decorative_not_a_live_region(): void {
+	/** Visible toasts expose their controls without announcing every cycle. */
+	public function test_toast_controls_are_accessible_without_a_live_region(): void {
 		// Single-product context so Social_Proof::should_show() passes.
 		$product_id = $this->create_simple_product_with_sales( 'AA-SP-Markup-Contract', 0 );
 		$this->go_to( (string) get_permalink( $product_id ) );
@@ -238,22 +229,14 @@ final class TestSocialProofEngagement extends WP_UnitTestCase {
 
 		$this->assertNotSame( '', $html, 'A toast should render on a single product when notifications exist.' );
 
-		// Decorative, not a cycling live region.
-		$this->assertStringContainsString( 'aria-hidden="true"', $html, 'Container must be hidden from the accessibility tree.' );
-		$this->assertStringNotContainsString( 'aria-live', $html, 'The decorative toast must not be a live region.' );
-		$this->assertStringNotContainsString( 'role="status"', $html, 'The decorative toast must not expose role=status.' );
-
-		// No focusable descendants inside aria-hidden.
-		$this->assertMatchesRegularExpression(
-			'/social-proof__link[^>]*tabindex="-1"/',
-			$html,
-			'The link must be out of the tab order inside aria-hidden.'
-		);
-		$this->assertMatchesRegularExpression(
-			'/social-proof__close[^>]*tabindex="-1"/',
-			$html,
-			'The dismiss button must be out of the tab order inside aria-hidden.'
-		);
+		$this->assertStringNotContainsString( 'aria-live', $html );
+		$this->assertStringNotContainsString( 'role="status"', $html );
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		foreach ( array( 'aggressive-apparel-social-proof', 'aggressive-apparel-social-proof__link', 'aggressive-apparel-social-proof__close' ) as $class ) {
+			$this->assertTrue( $processor->next_tag( array( 'class_name' => $class ) ) );
+			$this->assertNull( $processor->get_attribute( 'aria-hidden' ) );
+			$this->assertNull( $processor->get_attribute( 'tabindex' ) );
+		}
 	}
 
 	/**

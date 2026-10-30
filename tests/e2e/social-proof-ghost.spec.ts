@@ -6,7 +6,7 @@
  * focus-catching "ghost" pinned to the bottom-left corner that stole every
  * interaction beneath it.
  *
- * PHPUnit locks the markup contract (aria-hidden, tabindex, no live region), but
+ * PHPUnit locks the markup contract (accessible controls, no live region), but
  * only a real browser can prove the CSS hit-testing: a faded-out toast must be
  * transparent to clicks, and a visible one must intercept them. This spec loads
  * the REAL compiled social-proof stylesheet onto a plain page and drives the
@@ -88,20 +88,19 @@ async function buildToastOverTarget(page: Page): Promise<void> {
     });
     document.body.appendChild(target);
 
-    // Real toast markup (mirrors render_toast_container: aria-hidden container,
-    // tabindex=-1 controls). The __toast starts WITHOUT is-visible = the faded,
+    // Real toast markup, with keyboard-accessible controls.
+    // The toast starts WITHOUT is-visible = the faded,
     // between-cycles "ghost" state we're guarding against.
     const container = document.createElement('div');
     container.className = 'aggressive-apparel-social-proof';
-    container.setAttribute('aria-hidden', 'true');
     container.innerHTML = `
       <div class="aggressive-apparel-social-proof__toast" id="aa-e2e-toast">
-        <a class="aggressive-apparel-social-proof__link" id="aa-e2e-toast-link" href="#" tabindex="-1">
+        <a class="aggressive-apparel-social-proof__link" id="aa-e2e-toast-link" href="#">
           <div class="aggressive-apparel-social-proof__body">
             <p class="aggressive-apparel-social-proof__message">Someone just grabbed this</p>
           </div>
         </a>
-        <button type="button" class="aggressive-apparel-social-proof__close" tabindex="-1" aria-label="Dismiss">&times;</button>
+        <button type="button" class="aggressive-apparel-social-proof__close" aria-label="Dismiss">&times;</button>
       </div>`;
     document.body.appendChild(container);
 
@@ -162,6 +161,7 @@ test.describe('social-proof toast hit-testing', () => {
   test('faded-out toast is click-transparent; visible toast intercepts; no ghost after cycling out', async ({
     page,
   }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     const { id, url } = await publishBlankPage(page);
 
     try {
@@ -186,6 +186,11 @@ test.describe('social-proof toast hit-testing', () => {
 
       // 2) Visible (is-visible): the toast now intercepts the same point.
       await setVisible(page, true);
+      await page.locator('#aa-e2e-under').focus();
+      await page.keyboard.press('Tab');
+      await expect(page.locator('#aa-e2e-toast-link')).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.locator('#aa-e2e-toast button')).toBeFocused();
       await page.mouse.click(x, y);
       counts = await clickCounts(page);
       expect(counts.toast).toBe(1);
@@ -193,6 +198,10 @@ test.describe('social-proof toast hit-testing', () => {
 
       // 3) Cycle back out: the ghost must be gone — clicks reach beneath again.
       await setVisible(page, false);
+      await page.locator('#aa-e2e-under').focus();
+      await page.keyboard.press('Tab');
+      await expect(page.locator('#aa-e2e-toast-link')).not.toBeFocused();
+      await expect(page.locator('#aa-e2e-toast button')).not.toBeFocused();
       await page.mouse.click(x, y);
       counts = await clickCounts(page);
       expect(counts.under).toBe(2);

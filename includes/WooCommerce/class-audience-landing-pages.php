@@ -57,6 +57,7 @@ final class Audience_Landing_Pages {
 		add_filter( 'rank_math/frontend/description', array( $this, 'seo_description' ) );
 		add_filter( 'rank_math/frontend/canonical', array( $this, 'canonical' ) );
 		add_filter( 'rank_math/frontend/robots', array( $this, 'robots' ) );
+		add_filter( 'wp_robots', array( $this, 'core_robots' ) );
 		add_filter( 'rank_math/sitemap/providers', array( $this, 'sitemap_providers' ) );
 	}
 
@@ -391,6 +392,21 @@ final class Audience_Landing_Pages {
 		$robots = is_array( $robots ) ? $robots : array();
 		if ( '' !== self::current() && $wp_query instanceof \WP_Query && 0 === (int) $wp_query->found_posts ) {
 			$robots['index'] = 'noindex';
+		}
+
+		return $robots;
+	}
+
+	/**
+	 * Keep empty landing pages out of search results without an SEO plugin.
+	 *
+	 * @param array<string, bool|string> $robots WordPress robots directives.
+	 * @return array<string, bool|string>
+	 */
+	public function core_robots( array $robots ): array {
+		if ( 'noindex' === ( $this->robots( array() )['index'] ?? '' ) ) {
+			unset( $robots['index'] );
+			$robots['noindex'] = true;
 		}
 
 		return $robots;

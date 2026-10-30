@@ -18,6 +18,12 @@
 import { decodeEntities, stripTags } from '../helpers';
 
 describe('decodeEntities', () => {
+  it('replaces invalid Unicode references instead of crashing rendering', () => {
+    expect(
+      decodeEntities('&#999999999999999999; &#x110000; &#0; &#xD800;')
+    ).toBe('\ufffd \ufffd \ufffd \ufffd');
+    expect(decodeEntities('&#x1F600;')).toBe('😀');
+  });
   it('decodes &amp; last so entities cannot double-decode', () => {
     // The whole finding: decoded first, this yields "<script>".
     expect(decodeEntities('&amp;lt;script&amp;gt;')).toBe('&lt;script&gt;');

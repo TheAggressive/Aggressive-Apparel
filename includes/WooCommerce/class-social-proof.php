@@ -181,14 +181,12 @@ class Social_Proof {
 			),
 		);
 
-		// Decorative marketing surface: hidden from the accessibility tree so a
-		// toast that re-cycles every ~20s doesn't spam polite announcements. Its
-		// interactive children (link, dismiss) carry tabindex="-1" so there are
-		// no focusable descendants inside aria-hidden (an ARIA violation) — mouse
-		// users keep full interaction; keyboard/SR users simply don't get it.
-		echo '<div class="aggressive-apparel-social-proof" data-wp-interactive="aggressive-apparel/social-proof" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.startCycle" aria-hidden="true">';
+		// Keep links and dismissal available to keyboard and screen-reader users.
+		// CSS visibility removes hidden toasts from navigation; no live region is
+		// needed for these recurring marketing messages.
+		echo '<div class="aggressive-apparel-social-proof" data-wp-interactive="aggressive-apparel/social-proof" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.startCycle">';
 		echo '<div class="aggressive-apparel-social-proof__toast" data-wp-class--is-visible="context.isVisible" data-wp-class--is-demo="state.currentIsDemo" data-wp-bind--hidden="context.isDismissed">';
-		echo '<a class="aggressive-apparel-social-proof__link" tabindex="-1" data-wp-bind--href="state.currentUrl" data-wp-bind--hidden="state.currentHasNoLink">';
+		echo '<a class="aggressive-apparel-social-proof__link" data-wp-bind--href="state.currentUrl" data-wp-bind--hidden="state.currentHasNoLink">';
 		$this->render_visual_column( $notifications[0]['thumbnail'] ?? '' );
 		echo '<div class="aggressive-apparel-social-proof__body">';
 		echo '<p class="aggressive-apparel-social-proof__message" data-wp-text="state.currentMessage"></p>';
@@ -204,7 +202,7 @@ class Social_Proof {
 		echo '<p class="aggressive-apparel-social-proof__time" data-wp-text="state.currentTime" data-wp-bind--hidden="state.currentHasNoTime"></p>';
 		echo '</div>';
 		echo '</div>';
-		echo '<button type="button" class="aggressive-apparel-social-proof__close aa-icon-button aa-icon-button--only aa-icon-button--square" tabindex="-1" data-wp-on--click="actions.dismiss" aria-label="' . esc_attr__( 'Dismiss', 'aggressive-apparel' ) . '">&times;</button>';
+		echo '<button type="button" class="aggressive-apparel-social-proof__close aa-icon-button aa-icon-button--only aa-icon-button--square" data-wp-on--click="actions.dismiss" aria-label="' . esc_attr__( 'Dismiss', 'aggressive-apparel' ) . '">&times;</button>';
 		echo '</div>';
 		echo '</div>';
 	}

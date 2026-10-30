@@ -104,7 +104,7 @@ test.describe('Load More', () => {
 
     const requests: number[] = [];
     await page.route(nextUrl, async route => {
-      requests.push(Date.now());
+      requests.push(performance.now());
       if (requests.length === 1) {
         await route.fulfill({
           status: 429,

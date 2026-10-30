@@ -2,8 +2,7 @@
 /**
  * Rate Limiter
  *
- * A small, reusable per-IP throttle for public endpoints. Shared by the search
- * and load-more REST endpoints so the limiting logic lives in one place.
+ * A reusable per-IP throttle for public search, catalog facets, and stock signup.
  *
  * @package Aggressive_Apparel
  */
@@ -23,7 +22,7 @@ class Rate_Limiter {
 	/**
 	 * Whether the current request is within the allowed rate for a scope.
 	 *
-	 * Logged-in users and clients whose IP can't be determined are never
+	 * Store/site administrators and clients whose IP can't be determined are never
 	 * limited. The counter is keyed by scope + hashed IP (via the
 	 * Cloudflare-aware Client_IP helper), so different endpoints throttle
 	 * independently.
@@ -38,7 +37,7 @@ class Rate_Limiter {
 	 * @return bool True when the request is allowed, false when it should be throttled.
 	 */
 	public static function allow( string $scope, int $max, int $window ): bool {
-		if ( is_user_logged_in() ) {
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' ) ) {
 			return true;
 		}
 

@@ -9,7 +9,10 @@
  */
 
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
-import { setupFocusTrap } from '@aggressive-apparel/helpers';
+import {
+  getFocusableElements,
+  setupFocusTrap,
+} from '@aggressive-apparel/helpers';
 
 const FALLBACK_MS = 350;
 
@@ -67,18 +70,27 @@ export function prepareOverlayOpen(
 export function activateOverlayFocus(options: OpenOverlayOptions): () => void {
   const { panel, focusSelector } = options;
   const cleanup = setupFocusTrap(panel);
+  let cancelled = false;
 
   requestAnimationFrame(() => {
-    const focusTarget = focusSelector
+    if (cancelled || options.shell.hidden || !panel.isConnected) return;
+
+    const focusable = getFocusableElements(panel);
+    const preferredTarget = focusSelector
       ? panel.querySelector<HTMLElement>(focusSelector)
-      : panel.querySelector<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
+      : null;
+    const focusTarget =
+      preferredTarget && focusable.includes(preferredTarget)
+        ? preferredTarget
+        : focusable[0];
 
     focusTarget?.focus();
   });
 
-  return cleanup;
+  return () => {
+    cancelled = true;
+    cleanup();
+  };
 }
 
 /**

@@ -1,9 +1,4 @@
-/** Escape untrusted labels before inserting generated markup. */
-export function escapeHtml(value: string): string {
-  const element = document.createElement('div');
-  element.textContent = value;
-  return element.innerHTML;
-}
+export { escapeHtml } from '../../utils/escape-html';
 
 /** Whether a filter option is unavailable (the one marker CSS styles too). */
 export function isUnavailable(option: Element): boolean {

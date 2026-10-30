@@ -227,6 +227,10 @@ test.describe('accessibility — WCAG 2.2 AA', () => {
       const modal = page.locator('.aa-search.is-open');
       await expect(modal).toBeVisible();
 
+      await expect(
+        modal.locator('[role="dialog"] [aria-live="polite"]')
+      ).toHaveAttribute('aria-atomic', 'true');
+
       await expectAccessible(page, '.aa-search.is-open');
     });
   });

@@ -72,6 +72,7 @@ final class Product_Facets_Controller {
 			'default'           => '',
 			'type'              => 'string',
 			'maxLength'         => 300,
+			'validate_callback' => 'rest_validate_request_arg',
 			'sanitize_callback' => 'sanitize_text_field',
 		);
 
@@ -86,11 +87,15 @@ final class Product_Facets_Controller {
 					'taxonomy'   => array(
 						'default'           => '',
 						'type'              => 'string',
+						'maxLength'         => 64,
+						'validate_callback' => 'rest_validate_request_arg',
 						'sanitize_callback' => 'sanitize_key',
 					),
 					'term'       => array(
 						'default'           => '',
 						'type'              => 'string',
+						'maxLength'         => 200,
+						'validate_callback' => 'rest_validate_request_arg',
 						// REST sanitizers receive ($value, $request, $key); wrap so
 						// sanitize_title() does not treat the request as fallback.
 						'sanitize_callback' => static fn( $value ): string => sanitize_title( (string) $value ),
@@ -108,16 +113,19 @@ final class Product_Facets_Controller {
 					'min_price'  => array(
 						'default'           => 0,
 						'type'              => 'number',
+						'validate_callback' => 'rest_validate_request_arg',
 						'sanitize_callback' => static fn( $value ): float => (float) $value,
 					),
 					'max_price'  => array(
 						'default'           => 0,
 						'type'              => 'number',
+						'validate_callback' => 'rest_validate_request_arg',
 						'sanitize_callback' => static fn( $value ): float => (float) $value,
 					),
 					'stock'      => array(
 						'default'           => '',
 						'type'              => 'string',
+						'validate_callback' => 'rest_validate_request_arg',
 						'sanitize_callback' => 'sanitize_key',
 					),
 					'on_sale'    => array(

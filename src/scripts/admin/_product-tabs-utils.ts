@@ -4,14 +4,8 @@
  * @package Aggressive_Apparel
  */
 
-export function escapeHtml(value: string): string {
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { escapeHtml } from '../../utils/escape-html';
+export { escapeHtml };
 
 export function getFieldValue(scope: ParentNode, field: string): string {
   const input = (scope as Element).querySelector<

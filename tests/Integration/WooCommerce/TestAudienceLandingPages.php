@@ -119,6 +119,7 @@ class TestAudienceLandingPages extends WP_UnitTestCase {
 		$this->assertSame( "Men's Tees — Shop tees.", $this->pages->seo_description( 'Shop tees.' ) );
 		$this->assertSame( $url, $this->pages->canonical( (string) get_term_link( $tees ) ) );
 		$this->assertSame( 'index', $this->pages->robots( array( 'index' => 'index' ) )['index'] );
+		$this->assertSame( array( 'max-image-preview' => 'large' ), $this->pages->core_robots( array( 'max-image-preview' => 'large' ) ) );
 	}
 
 	/** A combination without products is noindex. */
@@ -130,6 +131,10 @@ class TestAudienceLandingPages extends WP_UnitTestCase {
 		$this->visit( Audience_Landing_Pages::url( 'mens', get_term( $tees ) ) );
 
 		$this->assertSame( 'noindex', $this->pages->robots( array( 'index' => 'index' ) )['index'] );
+		$core_robots = apply_filters( 'wp_robots', array( 'index' => true, 'nofollow' => true ) );
+		$this->assertTrue( $core_robots['noindex'] );
+		$this->assertArrayNotHasKey( 'index', $core_robots );
+		$this->assertTrue( $core_robots['nofollow'], 'Existing robots directives survive.' );
 	}
 
 	/** Elsewhere nothing changes. */
@@ -143,6 +148,7 @@ class TestAudienceLandingPages extends WP_UnitTestCase {
 		$this->assertSame( 'Tees', $this->pages->archive_title( 'Tees' ) );
 		$this->assertSame( 'x', $this->pages->canonical( 'x' ) );
 		$this->assertSame( 'index', $this->pages->robots( array( 'index' => 'index' ) )['index'] );
+		$this->assertSame( array( 'noindex' => true ), $this->pages->core_robots( array( 'noindex' => true ) ), 'Preserve a site-wide noindex setting.' );
 	}
 
 	/** An unknown category under an audience is a 404, not the audience page. */

@@ -27,6 +27,7 @@ import {
 } from '../nav-shared/overlay-coordination';
 import { escapeHtml, MIN_QUERY_CHARS as MIN_CHARS, renderItem } from './markup';
 import type { SearchResultItem, SearchResultType } from './markup';
+import { fetchSearch } from './request';
 
 type SearchErrorCode =
   '' | 'rate_limited' | 'server_error' | 'network' | 'invalid_response';
@@ -69,6 +70,7 @@ class SearchRequestError extends Error {
 
 interface SearchState {
   restUrl: string;
+  restNonce?: string;
   isOpen: boolean;
   query: string;
   scope: string;
@@ -672,12 +674,12 @@ const { state, actions } = store<SearchStore>(SEARCH_STORE, {
       abortInFlightSearch();
       controller = new AbortController();
 
-      // Always fetch every type so the scope tabs can filter client-side.
-      const url = `${state.restUrl}?query=${encodeURIComponent(
-        requestQuery
-      )}&scope=all`;
-
-      fetch(url, { signal: controller.signal })
+      fetchSearch(
+        state.restUrl,
+        requestQuery,
+        controller.signal,
+        state.restNonce
+      )
         .then(parseSearchResponse)
         .then(
           withScope((data: SearchSuccessResponse) => {

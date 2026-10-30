@@ -52,7 +52,7 @@ $context = (string) wp_json_encode(
 	);
 	?>
 >
-	<div data-wp-bind--hidden="!context.loaded">
+	<div hidden data-wp-bind--hidden="!context.loaded">
 		<?php if ( $heading ) : ?>
 		<h2 class="aggressive-apparel-recently-viewed__title">
 			<?php echo esc_html( $heading ); ?>
@@ -60,7 +60,7 @@ $context = (string) wp_json_encode(
 		<?php endif; ?>
 		<div
 			class="aggressive-apparel-recently-viewed__grid"
-			data-wp-html="state.productsHtml"
+			data-wp-watch="callbacks.renderProducts"
 		></div>
 	</div>
 </section>

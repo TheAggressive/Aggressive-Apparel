@@ -225,21 +225,31 @@ store(SOCIAL_PROOF_STORE, {
         return;
       }
 
-      ctx.notifications.forEach((n: SocialProofNotification) => {
-        if (n.thumbnail) {
+      // Warm the next notification, rather than downloading the entire pool
+      // while the page's primary images are loading.
+      const preloaded = new Set<string>();
+      const preloadNotification = (index: number): void => {
+        const n = ctx.notifications[index];
+        const preload = (src: string): void => {
+          if (preloaded.has(src)) return;
+          preloaded.add(src);
           const img = new Image();
-          img.src = n.thumbnail;
+          img.fetchPriority = 'low';
+          img.src = src;
+        };
+        if (n.thumbnail) {
+          preload(n.thumbnail);
         }
 
         const decor = n.decor_html?.trim();
         if (decor) {
           const match = decor.match(/src="([^"]+)"/u);
           if (match?.[1]) {
-            const img = new Image();
-            img.src = match[1];
+            preload(match[1]);
           }
         }
-      });
+      };
+      preloadNotification(ctx.currentIndex);
 
       const displayMs = ctx.displayDurationMs || 5000;
       // Gap between notifications: total interval minus display time, minimum 1 s.
@@ -305,6 +315,7 @@ store(SOCIAL_PROOF_STORE, {
         }
         ctx.isVisible = true;
         startHideTimer(displayMs);
+        preloadNotification((ctx.currentIndex + 1) % ctx.notifications.length);
       };
 
       // Pause on hover and keyboard focus; resume on leave/blur.

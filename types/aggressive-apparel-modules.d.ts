@@ -77,6 +77,7 @@ declare module '@aggressive-apparel/helpers' {
     label: string
   ): string;
   export function setupFocusTrap(container: HTMLElement): () => void;
+  export function getFocusableElements(container: HTMLElement): HTMLElement[];
   export function prefersReducedMotion(): boolean;
 
   export function escapeHtml(str: string | null | undefined): string;

@@ -125,7 +125,7 @@
 	<!-- /wp:group -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}},"textColor":"foreground-muted","fontSize":"x-small"} -->
-	<p class="has-text-align-center has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--6)">Questions? Email <a href="mailto:wholesale@aggressiveapparel.com"><?php echo esc_html__( 'wholesale@aggressiveapparel.com', 'aggressive-apparel' ); ?></a></p>
+	<p class="has-text-align-center has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--6)">Questions? Email <a href="mailto:wholesale@example.com"><?php echo esc_html__( 'wholesale@example.com', 'aggressive-apparel' ); ?></a></p>
 	<!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->

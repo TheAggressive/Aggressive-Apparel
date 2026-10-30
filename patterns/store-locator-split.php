@@ -25,7 +25,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><strong><?php echo esc_html__( '1247 Melrose Ave', 'aggressive-apparel' ); ?></strong><br>Los Angeles, CA 90038<br>United States</p>
+			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><strong><?php echo esc_html__( 'Street address', 'aggressive-apparel' ); ?></strong><br><?php echo esc_html__( 'City, State ZIP', 'aggressive-apparel' ); ?><br><?php echo esc_html__( 'Country', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:group {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"},"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained"}} -->
@@ -43,7 +43,7 @@
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->
 			<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--10)">
 				<!-- wp:button {"backgroundColor":"black","textColor":"white"} -->
-				<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" href="https://maps.google.com/?q=1247+Melrose+Ave+Los+Angeles+CA" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Get Directions', 'aggressive-apparel' ); ?></a></div>
+				<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" href="https://maps.google.com/" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Get Directions', 'aggressive-apparel' ); ?></a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->

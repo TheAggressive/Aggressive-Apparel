@@ -19,19 +19,19 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|10"}}} -->
 	<div class="wp-block-group">
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"small"} -->
-		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'GQ', 'aggressive-apparel' ); ?></p>
+		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"small"} -->
-		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Hypebeast', 'aggressive-apparel' ); ?></p>
+		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"small"} -->
-		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Complex', 'aggressive-apparel' ); ?></p>
+		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"small"} -->
-		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Highsnobiety', 'aggressive-apparel' ); ?></p>
+		<p class="has-foreground-muted-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"small"} -->

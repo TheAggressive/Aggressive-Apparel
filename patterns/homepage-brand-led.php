@@ -109,19 +109,19 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|14"}}} -->
 	<div class="wp-block-group">
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"700"}},"fontSize":"large"} -->
-		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'GQ', 'aggressive-apparel' ); ?></p>
+		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"700"}},"fontSize":"large"} -->
-		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Hypebeast', 'aggressive-apparel' ); ?></p>
+		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"700"}},"fontSize":"large"} -->
-		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Complex', 'aggressive-apparel' ); ?></p>
+		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"700"}},"fontSize":"large"} -->
-		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Highsnobiety', 'aggressive-apparel' ); ?></p>
+		<p class="has-large-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Publication', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

@@ -83,7 +83,7 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"lineHeight":"1.7"}},"textColor":"foreground-muted","fontSize":"medium"} -->
-				<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--2);line-height:1.7"><?php echo esc_html__( 'Milled in Portugal. Cut and sewn in Los Angeles. OEKO-TEX Standard 100 certified.', 'aggressive-apparel' ); ?></p>
+				<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--2);line-height:1.7"><?php echo esc_html__( 'Where the fabric is milled, where it is cut and sewn, and any certifications it holds.', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->

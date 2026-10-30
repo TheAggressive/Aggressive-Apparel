@@ -84,7 +84,6 @@ class Enhancements {
 	 */
 	private const SPECIAL_SERVICES = array(
 		Sale_Category::class,
-		Back_In_Stock_Migration::class,
 		Back_In_Stock::class,
 		Back_In_Stock_Links::class,
 		Back_In_Stock_Privacy::class,
@@ -179,9 +178,6 @@ class Enhancements {
 
 		// Back in Stock: WooCommerce owns the waitlist (Back_In_Stock_Native);
 		// the theme adds the block form, scanner-safe links and an exporter.
-		// The old table's move runs whatever the toggle says — its
-		// subscribers outlive the setting.
-		$this->container->get( Back_In_Stock_Migration::class )->init();
 		if ( Feature_Settings::is_enabled( 'back_in_stock' ) ) {
 			$this->container->get( Back_In_Stock::class )->init();
 			if ( Back_In_Stock_Native::is_supported() ) {

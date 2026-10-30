@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use Aggressive_Apparel\Service_Container;
-use Aggressive_Apparel\WooCommerce\Back_In_Stock_Migration;
 use Aggressive_Apparel\WooCommerce\Custom_Badge_Taxonomy;
 use Aggressive_Apparel\WooCommerce\Enhancements;
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
@@ -21,24 +20,6 @@ use WP_UnitTestCase;
  * Ensures one-time data maintenance stays off public requests.
  */
 class TestDatabaseMaintenanceLifecycle extends WP_UnitTestCase {
-
-	/**
-	 * The back-in-stock table move should be admin-only, and registered even
-	 * with the theme feature off: the subscribers it rescues outlive the toggle.
-	 */
-	public function test_back_in_stock_migration_uses_admin_lifecycle(): void {
-		delete_option( Feature_Settings::OPTION_KEY );
-
-		$container    = new Service_Container();
-		$enhancements = new Enhancements( $container );
-		$enhancements->init();
-		$migration = $container->get( Back_In_Stock_Migration::class );
-
-		$this->assertFalse( has_action( 'init', array( $migration, 'maybe_run' ) ) );
-		$this->assertSame( 10, has_action( 'admin_init', array( $migration, 'maybe_run' ) ) );
-
-		remove_action( 'admin_init', array( $migration, 'maybe_run' ) );
-	}
 
 	/**
 	 * Wishlist provisioning should be admin-only.

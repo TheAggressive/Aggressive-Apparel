@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-29T22:55:51+00:00\n"
+"POT-Creation-Date: 2026-10-29T23:08:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1700,29 +1700,6 @@ msgstr ""
 msgid "All transactions are secure and encrypted."
 msgstr ""
 
-#: includes/WooCommerce/class-collection-attribute-migration.php:67
-#: patterns/home-storefront.php:92
-#: patterns/homepage-seasonal-shop.php:24
-msgid "Men's"
-msgstr ""
-
-#: includes/WooCommerce/class-collection-attribute-migration.php:68
-#: patterns/home-storefront.php:108
-#: patterns/homepage-seasonal-shop.php:48
-msgid "Women's"
-msgstr ""
-
-#: includes/WooCommerce/class-collection-attribute-migration.php:69
-msgid "Unisex"
-msgstr ""
-
-#: includes/WooCommerce/class-collection-attribute-migration.php:224
-#: includes/WooCommerce/class-product-filter-renderer.php:41
-#: includes/WooCommerce/class-product-filter-renderer.php:141
-#: patterns/collection-landing-hero.php:18
-msgid "Collection"
-msgstr ""
-
 #: includes/WooCommerce/class-color-swatch-migration.php:197
 msgid "WooCommerce draws them only while its \"Color swatches for attributes\" feature is on (Settings → Advanced → Features) and the Color attribute's type is \"Color / image\", which needs a block theme."
 msgstr ""
@@ -2503,6 +2480,12 @@ msgstr ""
 #: includes/WooCommerce/class-product-filter-renderer.php:32
 #: patterns/category-landing-composition.php:17
 msgid "Category"
+msgstr ""
+
+#: includes/WooCommerce/class-product-filter-renderer.php:41
+#: includes/WooCommerce/class-product-filter-renderer.php:141
+#: patterns/collection-landing-hero.php:18
+msgid "Collection"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:50
@@ -5892,6 +5875,11 @@ msgstr ""
 msgid "Man with tattoos on a motorcycle wearing a white t-shirt featuring a skull-patterned letter A graphic"
 msgstr ""
 
+#: patterns/home-storefront.php:92
+#: patterns/homepage-seasonal-shop.php:24
+msgid "Men's"
+msgstr ""
+
 #: patterns/home-storefront.php:98
 #: patterns/homepage-seasonal-shop.php:30
 msgid "Shop Men's"
@@ -5900,6 +5888,11 @@ msgstr ""
 #: patterns/home-storefront.php:105
 #: patterns/home-storefront.php:106
 msgid "Woman wearing a black t-shirt with the word AGGRESSIVE in a spiky metal-style font"
+msgstr ""
+
+#: patterns/home-storefront.php:108
+#: patterns/homepage-seasonal-shop.php:48
+msgid "Women's"
 msgstr ""
 
 #: patterns/home-storefront.php:114

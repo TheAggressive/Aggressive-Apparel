@@ -271,14 +271,20 @@ class Legal_Identity {
 	/**
 	 * Permalink for a legal page, or empty when unset / trashed.
 	 *
-	 * Unlike core get_privacy_policy_url(), draft pages still resolve so the
-	 * Copyright block can show the link while the page is being written.
+	 * Unlike core get_privacy_policy_url(), a draft still resolves for people
+	 * who can open it, so the Copyright block shows the link in the editor
+	 * while the page is being written. Visitors only get published pages, so
+	 * the footer never links to a 404.
 	 *
 	 * @param int $page_id Page ID.
 	 * @return string
 	 */
 	public static function get_page_url( int $page_id ): string {
 		if ( ! self::is_usable_page( $page_id ) ) {
+			return '';
+		}
+
+		if ( 'publish' !== get_post_status( $page_id ) && ! current_user_can( 'read_post', $page_id ) ) {
 			return '';
 		}
 
@@ -617,8 +623,9 @@ class Legal_Identity {
 	/**
 	 * Get the Privacy Policy URL, or empty when unset.
 	 *
-	 * Resolves draft pages too (core get_privacy_policy_url() only returns
-	 * published pages, which hid the Copyright Privacy link during setup).
+	 * Resolves a draft for people who can open it (core
+	 * get_privacy_policy_url() never does, which hid the Copyright Privacy
+	 * link during setup); visitors only get a published page.
 	 *
 	 * @return string
 	 */

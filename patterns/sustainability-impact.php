@@ -37,7 +37,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Our fabrics are sourced from recycled and organic materials, reducing waste while maintaining premium quality.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Describe what your fabrics are made from and where they come from.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -53,7 +53,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Every order ships carbon neutral. We offset 100% of shipping emissions through verified environmental programs.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Describe how orders ship and any emissions programs you take part in.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -69,7 +69,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Fair wages, safe conditions, no exceptions. Every factory we partner with meets our strict ethical standards.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Describe who makes your products and the standards you hold them to.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

@@ -257,15 +257,6 @@ class TestSizeChart extends WP_UnitTestCase {
 		$this->assertTrue( $imported['lossless'] );
 	}
 
-	/** Guides with content the chart can't hold are left for a manual convert. */
-	public function test_migrate_skips_guides_that_would_lose_content(): void {
-		$guide_id = $this->guide( 'Video guide', '<table><tr><th>Size</th><th>Chest</th></tr><tr><td>M</td><td>21</td></tr></table><iframe src="https://example.com/video"></iframe>' );
-
-		$this->assertFalse( Size_Chart_Import::migrate( $guide_id ) );
-		$this->assertNull( Size_Chart::get( $guide_id ) );
-		$this->assertNotNull( Size_Chart_Import::from_html( (string) get_post_field( 'post_content', $guide_id ) ), 'Still convertible from the editor.' );
-	}
-
 	/** Usage for many guides comes from one grouped lookup. */
 	public function test_usage_map(): void {
 		$first  = $this->guide( 'Tees' );
@@ -311,19 +302,6 @@ class TestSizeChart extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<span class="screen-reader-text">Size </span><span aria-hidden="true">(</span>Guide<span aria-hidden="true">)</span></button>', $html );
 		$this->assertSame( str_replace( 'Size<', 'Color<', $label ), $link->render( str_replace( 'Size<', 'Color<', $label ), array(), $block ) );
 		unset( $GLOBALS['post'] );
-	}
-
-	/** Every guide is migrated, beyond a single query page. */
-	public function test_migrate_all_pages_through_every_guide(): void {
-		$table = '<table><tr><th>Size</th><th>Chest</th></tr><tr><td>M</td><td>21</td></tr></table>';
-		$ids   = array();
-		for ( $i = 0; $i < 55; $i++ ) {
-			$ids[] = $this->guide( 'Guide ' . $i, $table );
-		}
-
-		$this->assertSame( 55, Size_Chart_Import::migrate_all() );
-		$this->assertNotNull( Size_Chart::get( (int) end( $ids ) ) );
-		$this->assertSame( 0, Size_Chart_Import::migrate_all(), 'Converted guides are left alone.' );
 	}
 
 	/** A guide is created, edited, duplicated, and trashed in one place. */

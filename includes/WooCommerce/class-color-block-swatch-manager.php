@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Color Block Swatch Manager Class
  *
  * WooCommerce draws the swatches itself once `pa_color` is a "Color / image"
- * attribute (Color_Swatch_Migration): each option is a chip button holding a
+ * attribute: each option is a chip button holding a
  * `wc-block-product-filter-chips__swatch` span painted from the term's
  * `color` / `image` meta. This only adds attributes to that markup — never
  * elements — so the theme's color-swatches.css styles it: the chip and swatch

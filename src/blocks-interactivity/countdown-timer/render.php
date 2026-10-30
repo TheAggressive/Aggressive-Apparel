@@ -21,7 +21,7 @@ $manual_end_date = ! empty( $attributes['endDateTime'] ) ? trim( (string) $attri
 
 if ( '' !== $manual_end_date ) {
 	try {
-		$timezone = function_exists( 'wp_timezone' ) ? wp_timezone() : new DateTimeZone( 'UTC' );
+		$timezone = wp_timezone();
 		$end_ts   = ( new DateTimeImmutable( $manual_end_date, $timezone ) )->getTimestamp();
 	} catch ( Exception $e ) {
 		$end_ts = 0;

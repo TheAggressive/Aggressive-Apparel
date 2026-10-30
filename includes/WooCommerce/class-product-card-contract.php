@@ -97,10 +97,6 @@ class Product_Card_Contract {
 	 * @return string
 	 */
 	private function stamp_attributes( string $html, bool $stamp_img, bool $stamp_link ): string {
-		if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
-			return $html;
-		}
-
 		$processor   = new \WP_HTML_Tag_Processor( $html );
 		$img_stamped = ! $stamp_img;
 

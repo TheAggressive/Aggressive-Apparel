@@ -29,11 +29,11 @@
 		<!-- wp:group {"layout":{"type":"flex","orientation":"vertical","justifyContent":"right"},"style":{"spacing":{"blockGap":"var:preset|spacing|1"}}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"align":"right","style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"x-large"} -->
-			<p class="has-text-align-right has-accent-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700">4.9 / 5</p>
+			<p class="has-text-align-right has-accent-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( 'Rating', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"align":"right","textColor":"foreground-muted","fontSize":"x-small"} -->
-			<p class="has-text-align-right has-foreground-muted-color has-text-color has-x-small-font-size"><?php echo esc_html__( 'Based on 128 reviews', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-right has-foreground-muted-color has-text-color has-x-small-font-size"><?php echo esc_html__( 'Review count', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
@@ -49,15 +49,15 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700","letterSpacing":"0.08em"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em"><?php echo esc_html__( '5.0 · Verified', 'aggressive-apparel' ); ?></p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em"><?php echo esc_html__( 'Rating', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '"Weight is perfect. Soft inside, structured outside. Already ordered a second color."', 'aggressive-apparel' ); ?></p>
+			<p class="has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '"Add a real customer review here."', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
-			<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:600"><?php echo esc_html__( 'Maya R. · Size M · Verified', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:600"><?php echo esc_html__( 'Customer name · Size', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -65,15 +65,15 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700","letterSpacing":"0.08em"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em"><?php echo esc_html__( '5.0 · Verified', 'aggressive-apparel' ); ?></p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em"><?php echo esc_html__( 'Rating', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '"True to size with room to layer. Hardware feels premium — not the cheap zippers you get elsewhere."', 'aggressive-apparel' ); ?></p>
+			<p class="has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '"Add a real customer review here."', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
-			<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:600"><?php echo esc_html__( 'Jordan K. · Size L · Verified', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:600"><?php echo esc_html__( 'Customer name · Size', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -81,15 +81,15 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700","letterSpacing":"0.08em"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em"><?php echo esc_html__( '5.0 · Verified', 'aggressive-apparel' ); ?></p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em"><?php echo esc_html__( 'Rating', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '"Washes clean, no shrink drama. This is the hoodie I reach for every cold morning."', 'aggressive-apparel' ); ?></p>
+			<p class="has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '"Add a real customer review here."', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
-			<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:600"><?php echo esc_html__( 'Alex T. · Size S · Verified', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:600"><?php echo esc_html__( 'Customer name · Size', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

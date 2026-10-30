@@ -57,7 +57,7 @@ class Rate_Limiter {
 
 		// VIP and other persistent object-cache platforms provide atomic add/incr,
 		// avoiding lost updates when many requests from one client arrive at once.
-		if ( function_exists( 'wp_using_ext_object_cache' ) && wp_using_ext_object_cache() ) {
+		if ( wp_using_ext_object_cache() ) {
 			$cache_key = $scope . ':' . $hash . ':' . intdiv( $now, $window );
 			$group     = 'aggressive-apparel-rate-limits';
 			// TTL is the time left in the current window, not a fixed constant, so a

@@ -60,7 +60,7 @@ class Asset_Loader {
 	 * @return void
 	 */
 	public static function set_script_translations( string $handle ): void {
-		if ( '' === $handle || ! function_exists( 'wp_set_script_translations' ) ) {
+		if ( '' === $handle ) {
 			return;
 		}
 
@@ -154,7 +154,7 @@ class Asset_Loader {
 	 */
 	public static function enqueue_style( $handle, $src, $additional_deps = array(), $media = 'all' ) {
 		// Resolve RTL variant automatically.
-		$resolved_src = ( function_exists( 'is_rtl' ) && is_rtl() )
+		$resolved_src = is_rtl()
 			? self::resolve_rtl( $src )
 			: $src;
 
@@ -247,10 +247,6 @@ class Asset_Loader {
 	 * @return bool True when the module exists and was registered.
 	 */
 	public static function register_interactivity_module( string $module_id, string $relative_path, array $deps = array(), bool $with_interactivity = true ): bool {
-		if ( ! function_exists( 'wp_register_script_module' ) ) {
-			return false;
-		}
-
 		$file = AGGRESSIVE_APPAREL_DIR . '/' . $relative_path . '.js';
 
 		if ( ! file_exists( $file ) ) {
@@ -314,7 +310,7 @@ class Asset_Loader {
 	 */
 	public static function enqueue_tokens(): void {
 		$src          = 'build/styles/base/tokens';
-		$resolved_src = ( function_exists( 'is_rtl' ) && is_rtl() )
+		$resolved_src = is_rtl()
 			? self::resolve_rtl( $src )
 			: $src;
 		$asset_data   = self::get_asset_data( $src );

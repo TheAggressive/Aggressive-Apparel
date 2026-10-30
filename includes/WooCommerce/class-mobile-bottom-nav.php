@@ -110,24 +110,22 @@ class Mobile_Bottom_Nav {
 		$cart_url    = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/';
 		$account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '/my-account/';
 
-		if ( function_exists( 'wp_interactivity_state' ) ) {
-			wp_interactivity_state(
-				'aggressive-apparel/bottom-nav',
-				array(
-					'cartCount'        => $cart_count,
-					'isHiddenByScroll' => false,
-					'isSearchOpen'     => false,
-					'cartApiUrl'       => esc_url_raw( rest_url( 'wc/store/v1/cart' ) ),
-					'i18n'             => array(
-						'cart'      => __( 'Cart', 'aggressive-apparel' ),
-						/* translators: %d: Number of items in the cart (one). */
-						'cartOne'   => __( 'Cart (%d item)', 'aggressive-apparel' ),
-						/* translators: %d: Number of items in the cart (several). */
-						'cartOther' => __( 'Cart (%d items)', 'aggressive-apparel' ),
-					),
+		wp_interactivity_state(
+			'aggressive-apparel/bottom-nav',
+			array(
+				'cartCount'        => $cart_count,
+				'isHiddenByScroll' => false,
+				'isSearchOpen'     => false,
+				'cartApiUrl'       => esc_url_raw( rest_url( 'wc/store/v1/cart' ) ),
+				'i18n'             => array(
+					'cart'      => __( 'Cart', 'aggressive-apparel' ),
+					/* translators: %d: Number of items in the cart (one). */
+					'cartOne'   => __( 'Cart (%d item)', 'aggressive-apparel' ),
+					/* translators: %d: Number of items in the cart (several). */
+					'cartOther' => __( 'Cart (%d items)', 'aggressive-apparel' ),
 				),
-			);
-		}
+			),
+		);
 
 		$icon_attrs = array(
 			'width'  => 20,

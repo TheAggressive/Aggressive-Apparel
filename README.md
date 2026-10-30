@@ -264,7 +264,7 @@ Two icon libraries:
 - **UI icons** (41) — `Icons::get()` / `Icons::render()` for navigation, actions, and status glyphs
 - **Brand icons** (42) — lazy-loaded from `build/icons/` via `Brand_Icons`; use the `icon` block or `Icons::get('slug')` after build
 
-Color swatches use `Color_Attribute_Manager`, `Color_Data_Manager`, `Color_Block_Swatch_Manager`, `Color_Admin_UI`, and `Color_Pattern_Admin` for solid colors and pattern images with keyboard and screen-reader support.
+Color swatches are WooCommerce's own "Color / image" attribute; `Color_Data_Manager` and `Color_Block_Swatch_Manager` supply the theme's surfaces and styling hooks (see [docs/woocommerce.md](docs/woocommerce.md#color-swatch-system)).
 
 ## Testing
 

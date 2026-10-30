@@ -315,9 +315,7 @@ class Adaptive_Colors {
 			return $this->merged_pairs;
 		}
 
-		$from_global = function_exists( 'wp_get_global_settings' )
-			? wp_get_global_settings( array( 'custom', 'adaptiveColors' ) )
-			: null;
+		$from_global = wp_get_global_settings( array( 'custom', 'adaptiveColors' ) );
 		$extracted   = $this->extract_pairs( $from_global );
 
 		$this->merged_pairs = ! empty( $extracted ) ? $extracted : $this->pairs;

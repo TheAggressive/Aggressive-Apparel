@@ -92,10 +92,6 @@ class Blocks {
 	 * @return void
 	 */
 	public static function enqueue_rating_mark_var(): void {
-		if ( ! function_exists( 'wp_add_inline_style' ) || ! class_exists( '\WP_Block_Type_Registry' ) ) {
-			return;
-		}
-
 		$block = \WP_Block_Type_Registry::get_instance()->get_registered( self::BLOCK_NAMESPACE . 'product-rating' );
 
 		if ( ! $block ) {
@@ -136,10 +132,6 @@ class Blocks {
 	 */
 	public static function register(): void {
 		// Skip registration if WordPress functions aren't available.
-		if ( ! function_exists( 'register_block_type_from_metadata' ) || ! function_exists( 'get_template_directory' ) ) {
-			return;
-		}
-
 		try {
 			self::register_metadata_collection();
 
@@ -178,10 +170,6 @@ class Blocks {
 	 * @return void
 	 */
 	private static function register_metadata_collection(): void {
-		if ( ! function_exists( 'wp_register_block_metadata_collection' ) ) {
-			return;
-		}
-
 		$build_path = \get_template_directory() . '/build';
 		$manifest   = $build_path . '/blocks-manifest.php';
 
@@ -205,10 +193,6 @@ class Blocks {
 	 * @return string The full path to the blocks build directory with trailing slash, or empty string on failure.
 	 */
 	private static function get_build_directory( string $build_dir ): string {
-		if ( ! function_exists( 'get_template_directory' ) ) {
-			return '';
-		}
-
 		$template_dir = \get_template_directory();
 		if ( ! $template_dir ) {
 			return '';
@@ -320,10 +304,6 @@ class Blocks {
 	 * @return bool True when the block may be registered.
 	 */
 	private static function block_required_plugins_active( string $block_json ): bool {
-		if ( ! function_exists( 'wp_json_file_decode' ) ) {
-			return true;
-		}
-
 		$metadata = \wp_json_file_decode( $block_json, array( 'associative' => true ) );
 
 		if ( ! is_array( $metadata ) ) {

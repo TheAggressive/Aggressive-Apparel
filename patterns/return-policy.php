@@ -131,7 +131,7 @@
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}},"textColor":"white","fontSize":"small"} -->
-		<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3)">Contact us at <a href="mailto:support@aggressiveapparel.com"><?php echo esc_html__( 'support@aggressiveapparel.com', 'aggressive-apparel' ); ?></a> or start a return from your <a href="/my-account/orders"><?php echo esc_html__( 'account dashboard', 'aggressive-apparel' ); ?></a>.</p>
+		<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3)">Contact us at <a href="mailto:support@example.com"><?php echo esc_html__( 'support@example.com', 'aggressive-apparel' ); ?></a> or start a return from your <a href="/my-account/orders"><?php echo esc_html__( 'account dashboard', 'aggressive-apparel' ); ?></a>.</p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

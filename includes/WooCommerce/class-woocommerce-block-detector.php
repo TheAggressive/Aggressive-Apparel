@@ -603,10 +603,6 @@ class WooCommerce_Block_Detector {
 			return false;
 		}
 
-		if ( ! class_exists( 'WP_Block_Patterns_Registry' ) ) {
-			return false;
-		}
-
 		self::$resolving_refs[ $ref_key ] = true;
 
 		$registry = \WP_Block_Patterns_Registry::get_instance();
@@ -775,17 +771,15 @@ class WooCommerce_Block_Detector {
 	 * @return string
 	 */
 	private static function get_block_template_source_fingerprint( string $slug, string $type ): string {
-		if ( function_exists( 'get_block_template' ) ) {
-			$template_id = get_stylesheet() . '//' . $slug;
-			$template    = 'wp_template_part' === $type
-				? get_block_template( $template_id, 'wp_template_part' )
-				: get_block_template( $template_id, 'wp_template' );
+		$template_id = get_stylesheet() . '//' . $slug;
+		$template    = 'wp_template_part' === $type
+			? get_block_template( $template_id, 'wp_template_part' )
+			: get_block_template( $template_id, 'wp_template' );
 
-			if ( $template && ! empty( $template->content ) ) {
-				$modified = isset( $template->modified ) ? (string) $template->modified : '';
+		if ( $template && ! empty( $template->content ) ) {
+			$modified = isset( $template->modified ) ? (string) $template->modified : '';
 
-				return md5( $modified . '|' . $template->content );
-			}
+			return md5( $modified . '|' . $template->content );
 		}
 
 		$relative_path = 'wp_template_part' === $type

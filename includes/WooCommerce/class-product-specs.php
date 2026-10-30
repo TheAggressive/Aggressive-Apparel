@@ -327,12 +327,9 @@ final class Product_Specs {
 
 		$boundaries = self::boundaries( $item, $categories );
 
-		$attr = $attrs[ $key ] ?? null;
-		// A value saved before specs were attributes, not moved yet (or kept
-		// because the product's attribute differs): it showed ahead of the
-		// attribute before, so it still does.
-		$own_raw   = Product_Specs_Values::clean( get_post_meta( $product_id, Product_Specs_Meta::key( $key ), true ), $item );
-		$from_attr = '' === $own_raw && null !== $attr && $attr['own'];
+		$attr      = $attrs[ $key ] ?? null;
+		$own_raw   = '';
+		$from_attr = null !== $attr && $attr['own'];
 		if ( $from_attr ) {
 			$own_raw = $item['multiple']
 				? implode( ' ' . Product_Specs_Taxonomy::DELIMITER . ' ', $attr['names'] )

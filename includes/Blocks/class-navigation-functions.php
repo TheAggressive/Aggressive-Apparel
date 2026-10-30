@@ -38,10 +38,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action(
 	'wp_enqueue_scripts',
 	static function (): void {
-		if ( ! function_exists( 'WP_Block_Type_Registry' ) && ! class_exists( 'WP_Block_Type_Registry' ) ) {
-			return;
-		}
-
 		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'aggressive-apparel/navigation-panel' ) ) {
 			return;
 		}
@@ -70,13 +66,6 @@ add_action(
 add_action(
 	'wp_enqueue_scripts',
 	static function (): void {
-		if ( ! function_exists( 'wp_register_script_module' ) || ! function_exists( 'wp_enqueue_script_module' ) ) {
-			return;
-		}
-		if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
-			return;
-		}
-
 		wp_register_script_module(
 			'@aggressive-apparel/navigation-store',
 			AGGRESSIVE_APPAREL_URI . '/build/interactivity/navigation-store.js',
@@ -595,10 +584,6 @@ function aggressive_apparel_render_mobile_nav_part( string $part_slug ): void {
 		return;
 	}
 	$rendered[ $part_slug ] = true;
-
-	if ( ! function_exists( 'get_block_template' ) ) {
-		return;
-	}
 
 	$template_part = get_block_template( get_stylesheet() . '//' . $part_slug, 'wp_template_part' );
 	if ( $template_part instanceof WP_Block_Template && ! empty( $template_part->content ) ) {

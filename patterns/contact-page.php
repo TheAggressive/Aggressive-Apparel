@@ -33,7 +33,7 @@
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.6"}},"fontSize":"small"} -->
-				<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.6"><a href="mailto:support@aggressiveapparel.com"><?php echo esc_html__( 'support@aggressiveapparel.com', 'aggressive-apparel' ); ?></a></p>
+				<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.6"><a href="mailto:support@example.com"><?php echo esc_html__( 'support@example.com', 'aggressive-apparel' ); ?></a></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:paragraph {"align":"center","textColor":"foreground-muted","fontSize":"x-small"} -->
@@ -55,7 +55,7 @@
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.6"}},"fontSize":"small"} -->
-				<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.6"><a href="tel:+1XXXXXXXXXX"><?php echo esc_html__( '+1 (XXX) XXX-XXXX', 'aggressive-apparel' ); ?></a></p>
+				<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.6"><?php echo esc_html__( 'Your phone number', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:paragraph {"align":"center","textColor":"foreground-muted","fontSize":"x-small"} -->

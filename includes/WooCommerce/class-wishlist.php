@@ -292,34 +292,32 @@ BLOCKS;
 		);
 
 		// Provide the public Store API URL and translatable heart labels.
-		if ( function_exists( 'wp_interactivity_state' ) ) {
-			$price_config = Price_Display::interactivity_price_config();
+		$price_config = Price_Display::interactivity_price_config();
 
-			wp_interactivity_config( 'aggressive-apparel/wishlist', Wishlist_Integration::get_client_config() );
+		wp_interactivity_config( 'aggressive-apparel/wishlist', Wishlist_Integration::get_client_config() );
 
-			wp_interactivity_state(
-				'aggressive-apparel/wishlist',
-				array(
-					'productsApiUrl'        => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+		wp_interactivity_state(
+			'aggressive-apparel/wishlist',
+			array(
+				'productsApiUrl'        => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
 
-					// Smart Price Display: show variable products as "From $X" so
-					// the wishlist matches every other price surface.
-					'collapseVariablePrice' => $price_config['collapseVariablePrice'],
-					'priceStartingPrefix'   => $price_config['priceStartingPrefix'],
+				// Smart Price Display: show variable products as "From $X" so
+				// the wishlist matches every other price surface.
+				'collapseVariablePrice' => $price_config['collapseVariablePrice'],
+				'priceStartingPrefix'   => $price_config['priceStartingPrefix'],
 
-					'i18n'                  => array(
-						'addLabel'           => Feature_Settings::get_wishlist_button_text(),
-						'removeLabel'        => __( 'Remove from wishlist', 'aggressive-apparel' ),
-						/* translators: %s: Product name. */
-						'removeItemLabel'    => __( 'Remove %s from wishlist', 'aggressive-apparel' ),
-						'errorLabel'         => __( 'Your wishlist could not be updated. Please try again.', 'aggressive-apparel' ),
-						'chooseOptionsLabel' => __( 'Choose options', 'aggressive-apparel' ),
-						'viewProductLabel'   => __( 'View product', 'aggressive-apparel' ),
-						'localSaveLabel'     => __( 'Saved on this device', 'aggressive-apparel' ),
-					),
+				'i18n'                  => array(
+					'addLabel'           => Feature_Settings::get_wishlist_button_text(),
+					'removeLabel'        => __( 'Remove from wishlist', 'aggressive-apparel' ),
+					/* translators: %s: Product name. */
+					'removeItemLabel'    => __( 'Remove %s from wishlist', 'aggressive-apparel' ),
+					'errorLabel'         => __( 'Your wishlist could not be updated. Please try again.', 'aggressive-apparel' ),
+					'chooseOptionsLabel' => __( 'Choose options', 'aggressive-apparel' ),
+					'viewProductLabel'   => __( 'View product', 'aggressive-apparel' ),
+					'localSaveLabel'     => __( 'Saved on this device', 'aggressive-apparel' ),
 				),
-			);
-		}
+			),
+		);
 	}
 
 	/**

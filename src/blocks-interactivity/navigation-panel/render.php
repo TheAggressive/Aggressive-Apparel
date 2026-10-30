@@ -123,35 +123,33 @@ $announcer_id = aggressive_apparel_get_nav_panel_announcer_id( $panel_slug );
 // Seed the panel store state
 // ============================================================================
 
-if ( function_exists( 'wp_interactivity_state' ) ) {
-	$current_state = wp_interactivity_state( 'aggressive-apparel/navigation-panel' );
-	$panels_state  = $current_state['_panels'] ?? array();
+$current_state = wp_interactivity_state( 'aggressive-apparel/navigation-panel' );
+$panels_state  = $current_state['_panels'] ?? array();
 
-	$panels_state[ $panel_slug ] = array(
-		'isOpen'          => false,
-		'activeSubmenuId' => null,
-		'drillStack'      => array(),
-	);
+$panels_state[ $panel_slug ] = array(
+	'isOpen'          => false,
+	'activeSubmenuId' => null,
+	'drillStack'      => array(),
+);
 
-	wp_interactivity_state(
-		'aggressive-apparel/navigation-panel',
-		array(
-			'_panels' => $panels_state,
-			'i18n'    => array(
-				'menuOpened'      => __( 'Navigation menu opened', 'aggressive-apparel' ),
-				'menuClosed'      => __( 'Navigation menu closed', 'aggressive-apparel' ),
-				'submenuOpened'   => __( 'Submenu opened', 'aggressive-apparel' ),
-				'submenuClosed'   => __( 'Submenu closed', 'aggressive-apparel' ),
-				'submenuFallback' => __( 'submenu', 'aggressive-apparel' ),
-				/* translators: 1: submenu label, 2: drilldown level number. */
-				'openedLevel'     => __( 'Opened %1$s, level %2$s', 'aggressive-apparel' ),
-				'backToMain'      => __( 'Back to main menu', 'aggressive-apparel' ),
-				/* translators: %s: drilldown level number. */
-				'backToLevel'     => __( 'Back to level %s', 'aggressive-apparel' ),
-			),
-		)
-	);
-}
+wp_interactivity_state(
+	'aggressive-apparel/navigation-panel',
+	array(
+		'_panels' => $panels_state,
+		'i18n'    => array(
+			'menuOpened'      => __( 'Navigation menu opened', 'aggressive-apparel' ),
+			'menuClosed'      => __( 'Navigation menu closed', 'aggressive-apparel' ),
+			'submenuOpened'   => __( 'Submenu opened', 'aggressive-apparel' ),
+			'submenuClosed'   => __( 'Submenu closed', 'aggressive-apparel' ),
+			'submenuFallback' => __( 'submenu', 'aggressive-apparel' ),
+			/* translators: 1: submenu label, 2: drilldown level number. */
+			'openedLevel'     => __( 'Opened %1$s, level %2$s', 'aggressive-apparel' ),
+			'backToMain'      => __( 'Back to main menu', 'aggressive-apparel' ),
+			/* translators: %s: drilldown level number. */
+			'backToLevel'     => __( 'Back to level %s', 'aggressive-apparel' ),
+		),
+	)
+);
 
 // ============================================================================
 // Separate inner block content into panel header/footer and ordered sections

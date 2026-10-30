@@ -120,11 +120,6 @@ final class Product_Specs_Product_Writer {
 			$product->set_attributes( $attributes );
 			$product->save();
 		}
-		// The value now lives in the attribute (or was cleared on purpose), so
-		// an older theme-meta value must not show through again.
-		foreach ( $result['written'] as $key ) {
-			delete_post_meta( $product->get_id(), Product_Specs_Meta::key( $key ) );
-		}
 
 		return $result;
 	}

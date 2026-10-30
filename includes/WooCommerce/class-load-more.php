@@ -136,25 +136,23 @@ class Load_More {
 		// server markup matches the hydrated state. Unseeded, they evaluate
 		// falsy: the status line renders empty and the infinite-scroll button
 		// visible, and both change on hydration (layout shift on the grid).
-		if ( function_exists( 'wp_interactivity_state' ) ) {
-			wp_interactivity_state(
-				'aggressive-apparel/load-more',
-				array(
-					'hideButton'         => 'infinite_scroll' === $mode || $all_loaded,
-					'hideSentinel'       => 'infinite_scroll' !== $mode || $all_loaded,
-					'showSentinelLoader' => false,
-					'loadFailed'         => false,
-					'statusText'         => $total_products > 0
-						? sprintf(
-							/* translators: 1: number loaded so far, 2: total products. */
-							__( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
-							(int) $seed['loadedCount'],
-							$total_products
-						)
-						: '',
-				)
-			);
-		}
+		wp_interactivity_state(
+			'aggressive-apparel/load-more',
+			array(
+				'hideButton'         => 'infinite_scroll' === $mode || $all_loaded,
+				'hideSentinel'       => 'infinite_scroll' !== $mode || $all_loaded,
+				'showSentinelLoader' => false,
+				'loadFailed'         => false,
+				'statusText'         => $total_products > 0
+					? sprintf(
+						/* translators: 1: number loaded so far, 2: total products. */
+						__( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
+						(int) $seed['loadedCount'],
+						$total_products
+					)
+					: '',
+			)
+		);
 
 		// Native pagination: the crawlable path to every catalog page. CSS shows
 		// it only when scripting is unavailable (`@media (scripting: none)`),
@@ -225,10 +223,6 @@ class Load_More {
 	 */
 	public function output_interactivity_state(): void {
 		if ( ! $this->is_shop_page() ) {
-			return;
-		}
-
-		if ( ! function_exists( 'wp_interactivity_state' ) ) {
 			return;
 		}
 

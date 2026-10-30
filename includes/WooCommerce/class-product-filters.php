@@ -217,13 +217,7 @@ class Product_Filters {
 		// Enqueue by ID — registration happens in register_script_module()
 		// during wp_enqueue_scripts; WP_Script_Modules supports
 		// enqueue-before-register, so the render_block path is safe too.
-		if ( function_exists( 'wp_enqueue_script_module' ) ) {
-			wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
-		}
-
-		if ( ! function_exists( 'wp_interactivity_state' ) ) {
-			return;
-		}
+		wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
 
 		$data_provider    = new Product_Filter_Data();
 		$data             = $data_provider->get();

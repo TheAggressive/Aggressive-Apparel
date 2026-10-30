@@ -62,7 +62,7 @@ final class Cache_Health {
 	 * @return bool
 	 */
 	private function has_object_cache(): bool {
-		return function_exists( 'wp_using_ext_object_cache' ) && wp_using_ext_object_cache();
+		return wp_using_ext_object_cache();
 	}
 
 	/**

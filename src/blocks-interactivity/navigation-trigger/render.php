@@ -41,22 +41,20 @@ $trigger_id = aggressive_apparel_get_nav_trigger_id( $panel_slug );
 // even if the panel block renders later in the page (or in a different part).
 // ============================================================================
 
-if ( function_exists( 'wp_interactivity_state' ) ) {
-	$current_state = wp_interactivity_state( 'aggressive-apparel/navigation-panel' );
-	$panels_state  = $current_state['_panels'] ?? array();
+$current_state = wp_interactivity_state( 'aggressive-apparel/navigation-panel' );
+$panels_state  = $current_state['_panels'] ?? array();
 
-	if ( ! isset( $panels_state[ $panel_slug ] ) ) {
-		$panels_state[ $panel_slug ] = array(
-			'isOpen'          => false,
-			'activeSubmenuId' => null,
-			'drillStack'      => array(),
-		);
+if ( ! isset( $panels_state[ $panel_slug ] ) ) {
+	$panels_state[ $panel_slug ] = array(
+		'isOpen'          => false,
+		'activeSubmenuId' => null,
+		'drillStack'      => array(),
+	);
 
-		wp_interactivity_state(
-			'aggressive-apparel/navigation-panel',
-			array( '_panels' => $panels_state )
-		);
-	}
+	wp_interactivity_state(
+		'aggressive-apparel/navigation-panel',
+		array( '_panels' => $panels_state )
+	);
 }
 
 // ============================================================================

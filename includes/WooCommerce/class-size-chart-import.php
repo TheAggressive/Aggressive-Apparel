@@ -12,11 +12,9 @@
  * readable lines, in the notes. One image from the media library becomes the
  * measuring diagram; links keep their address in the notes.
  *
- * The automatic pass (first admin load after this ships) only converts guides
- * it can convert without losing anything shoppers see: tables, text, and at
- * most one library image. Anything richer (more images, embeds, other tables)
- * keeps rendering as it is until someone converts it from the editor, which
- * previews the result before saving. The old content always stays on the
+ * The editor converts a guide on request and previews the result before
+ * saving; `lossless` says whether everything shoppers see (tables, text, at
+ * most one library image) carried over. The old content always stays on the
  * post.
  *
  * @package Aggressive_Apparel
@@ -38,27 +36,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-type Table array{header: list<string>, lines: list<list<string>>}
  */
 final class Size_Chart_Import {
-
-	/**
-	 * Option recording that existing guides were converted.
-	 *
-	 * @var string
-	 */
-	public const MIGRATED_OPTION = 'aggressive_apparel_size_charts_migrated';
-
-	/**
-	 * Migration version; bump to re-run on existing stores.
-	 *
-	 * @var int
-	 */
-	private const VERSION = 1;
-
-	/**
-	 * Guides converted per query while migrating.
-	 *
-	 * @var int
-	 */
-	private const BATCH = 50;
 
 	/**
 	 * Median measurement above which a chart is in centimetres. Garment
@@ -97,103 +74,6 @@ final class Size_Chart_Import {
 	 * @var string
 	 */
 	private const SIZE_SYSTEM = '/^(us|uk|eu|it|fr|de|jp|au|cn|kr|mx|br|intl|international|alpha|numeric|size)\b/i';
-
-	/**
-	 * Register hooks.
-	 */
-	public function init(): void {
-		add_action( 'admin_init', array( $this, 'maybe_migrate' ) );
-	}
-
-	/**
-	 * Convert every old guide once.
-	 */
-	public function maybe_migrate(): void {
-		if ( (int) get_option( self::MIGRATED_OPTION, 0 ) >= self::VERSION || ! current_user_can( 'manage_woocommerce' ) ) {
-			return;
-		}
-
-		self::migrate_all();
-
-		// Product Specs folded into Size Guides & Specs; drop its old toggle.
-		$features = get_option( Feature_Settings::OPTION_KEY, array() );
-		if ( is_array( $features ) && array_key_exists( 'product_specs', $features ) ) {
-			unset( $features['product_specs'] );
-			update_option( Feature_Settings::OPTION_KEY, $features );
-		}
-
-		update_option( self::MIGRATED_OPTION, self::VERSION, false );
-	}
-
-	/**
-	 * Convert every guide that has a table and no chart yet, in batches, so
-	 * stores of any size are fully covered before the migration is marked done.
-	 *
-	 * @return int Guides converted.
-	 */
-	public static function migrate_all(): int {
-		$converted = 0;
-		$page      = 1;
-
-		do {
-			$ids = get_posts(
-				array(
-					'post_type'      => Size_Guide_Post_Type::POST_TYPE,
-					'post_status'    => array( 'publish', 'draft', 'private', 'pending', 'future' ),
-					'posts_per_page' => self::BATCH,
-					'paged'          => $page,
-					'orderby'        => 'ID',
-					'order'          => 'ASC',
-					'fields'         => 'ids',
-				)
-			);
-			foreach ( $ids as $id ) {
-				if ( self::migrate( (int) $id ) ) {
-					++$converted;
-				}
-			}
-			++$page;
-			$full = count( $ids ) === self::BATCH;
-		} while ( $full );
-
-		if ( $converted > 0 ) {
-			( new Size_Guide() )->flush_all_caches();
-		}
-
-		return $converted;
-	}
-
-	/**
-	 * Convert one guide automatically: only when it has no chart yet, has a
-	 * table, and converts without losing anything shoppers see.
-	 *
-	 * @param int $guide_id Size guide post ID.
-	 */
-	public static function migrate( int $guide_id ): bool {
-		if ( null !== Size_Chart::get( $guide_id ) ) {
-			return false;
-		}
-
-		$post = get_post( $guide_id );
-		if ( ! $post instanceof \WP_Post ) {
-			return false;
-		}
-
-		$imported = self::from_html( (string) do_blocks( $post->post_content ) );
-		if ( null === $imported || ! $imported['lossless'] ) {
-			return false;
-		}
-
-		update_post_meta( $guide_id, Size_Chart::META, $imported['chart'] );
-		if ( '' !== $imported['notes'] && '' === (string) get_post_meta( $guide_id, Size_Chart::NOTES, true ) ) {
-			update_post_meta( $guide_id, Size_Chart::NOTES, $imported['notes'] );
-		}
-		if ( $imported['diagram'] > 0 && 0 === (int) get_post_meta( $guide_id, Size_Chart::DIAGRAM, true ) ) {
-			update_post_meta( $guide_id, Size_Chart::DIAGRAM, $imported['diagram'] );
-		}
-
-		return true;
-	}
 
 	/**
 	 * A chart, notes, and diagram from free-form HTML, or null when it has no

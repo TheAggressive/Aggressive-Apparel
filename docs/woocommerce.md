@@ -334,12 +334,11 @@ unit comes from the column headers ("Chest (cm)"), then unambiguous words
 ("inches", "centimetres" — never a bare "in"), then the numbers (median above
 45 = cm).
 
-The automatic pass (first admin load; batched; flag
-`aggressive_apparel_size_charts_migrated` set only once every guide is done)
-converts only guides that lose nothing shoppers see. Richer guides (more
-images, embeds, extra tables) keep rendering as they are until converted from
-the editor, which previews the result and warns about what didn't carry over.
-The original content always stays on the post.
+Guides that haven't been converted keep rendering as they are until
+converted from the editor, which previews the result and warns about what
+didn't carry over. The original content always stays on the post. (A one-time
+automatic pass converted every lossless guide; it was removed after it ran in
+production.)
 
 ### Storefront
 
@@ -385,9 +384,10 @@ The original content always stays on the post.
   `_aa_size_diagram` on the guide (`Size_Chart`).
 - **Spec values:** product's own value → a product attribute named in the
   item's attribute list (a picked scale matches the text to a step name;
-  `g/m²` also reads ounces) → the product's size guide. One scalar meta per
-  item, `_aa_spec_{key}`, registered with `show_in_rest`, so it round-trips
-  through WooCommerce CSV import/export as `Meta: _aa_spec_{key}`.
+  `g/m²` also reads ounces) → the product's size guide. Values are ordinary
+  WooCommerce attributes, so they round-trip through the REST API and CSV
+  import/export. (Values once stored as `_aa_spec_{key}` meta were moved onto
+  attributes by a one-time migration, removed after it ran in production.)
   `Product_Specs::for_product()` is memoized per request and forgotten on any
   post/term meta, term, or watched option change.
 - **Translation:** guide names, chart labels, and spec names are stored text,
@@ -408,23 +408,18 @@ keeps their look and supplies every other surface.
 
 | Class                        | Purpose                                                                        |
 | ---------------------------- | ------------------------------------------------------------------------------ |
-| `Color_Attribute_Manager`    | Provisions `pa_color` and its default terms                                    |
 | `Color_Data_Manager`         | Reads/writes swatch meta for cards, Quick View, sticky add-to-cart and filters |
 | `Color_Block_Swatch_Manager` | Decorates WooCommerce's swatch chips so `color-swatches.css` styles them       |
-| `Color_Swatch_Migration`     | One-off move from the theme's old meta; enables the WooCommerce feature        |
 | `Swatch_Tooltips`            | Adds fabric name / composition (term fields) to the hover tooltip              |
 
 - **Requires WooCommerce's "Color swatches for attributes"** (Settings →
-  Advanced → Features; experimental, block themes only). The migration turns
-  it on, sets the type, and records itself done only once WooCommerce reports
-  the type changed; otherwise it retries hourly. Whenever product pages can't
-  get swatches (feature off, type not "Color / image", or a WooCommerce
-  without the feature) an admin notice says so and why.
-- **Nothing depends on the migration having run.** Colours resolve
-  WooCommerce's `image` / `color`; a term with neither stored falls back to
-  the theme's old meta (`color_type`, `color_pattern_id`, `color_value`), then
-  a colour guessed from the name (`Color_Data_Manager::resolve_swatch()`). The
-  old meta is a rollback copy, never consulted once WooCommerce meta exists.
+  Advanced → Features; experimental, block themes only) with `pa_color` set
+  to the "Color / image" type. WooCommerce seeds default colours when such an
+  attribute is created; the theme no longer provisions the attribute or terms. (The theme's old
+  swatch meta was moved onto WooCommerce's by a one-time migration, removed
+  after it ran in production.)
+- **Fallbacks.** Colours resolve WooCommerce's `image` / `color`, then a
+  colour guessed from the name (`Color_Data_Manager::resolve_swatch()`).
   Theme surfaces read that directly; WooCommerce's own storefront reads get it
   through `default_term_metadata`. Guesses are never stored, so they follow
   renames and a cleared swatch stays cleared; admin screens see only what is
@@ -447,6 +442,4 @@ keeps their look and supplies every other surface.
   classes (three) so the look doesn't depend on stylesheet order, and set only
   structural properties (box, padding, border width, display) — chip colours
   stay WooCommerce's and the editor's.
-- **Hex only.** WooCommerce stores hex; the migration converts `oklch()`
-  (detected from the value, whatever `color_format` says) to the matching
-  sRGB hex. The old meta is left as a rollback copy.
+- **Hex only.** WooCommerce stores hex; anything else in `color` is ignored.

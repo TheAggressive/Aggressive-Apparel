@@ -54,7 +54,7 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		$guide = $this->guide( 'Dad Hat' );
 		$other = $this->guide( 'Jersey Tee' );
 		$this->assertSame( array(), Size_Guide_Spec_Items::save( $guide, array( $this->text_item( 'Closure' ) ) ) );
-		update_post_meta( $guide, '_aa_spec_closure', 'Brass buckle' );
+		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $guide, array( 'closure' => 'Brass buckle' ) );
 
 		$hat = $this->product( $guide );
 		$tee = $this->product( $other );

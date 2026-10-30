@@ -78,10 +78,6 @@ class Font_Preload {
 	 * @return array<int, string> Unique font file URLs (woff2 only).
 	 */
 	private function get_critical_font_urls(): array {
-		if ( ! class_exists( '\WP_Font_Face_Resolver' ) || ! function_exists( 'wp_get_global_styles' ) ) {
-			return array();
-		}
-
 		$slugs = array_filter(
 			array(
 				$this->get_font_slug_from_styles( array( 'typography', 'fontFamily' ) ),

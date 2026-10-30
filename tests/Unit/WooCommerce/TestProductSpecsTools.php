@@ -80,7 +80,7 @@ class TestProductSpecsTools extends WP_UnitTestCase {
 	public function test_grid_lists_products(): void {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$product_id = $this->create_product( array( 'Fabric' => 'Cotton' ) );
-		update_post_meta( $product_id, '_aa_spec_fit', '2' );
+		\Aggressive_Apparel\WooCommerce\Product_Specs_Product_Writer::save( wc_get_product( $product_id ), array( 'fit' => '2' ) );
 
 		$request = new \WP_REST_Request( 'GET', '/aggressive-apparel/v1/product-specs/products' );
 		$request->set_param( 'search', 'Spec grid product' );
@@ -126,7 +126,6 @@ class TestProductSpecsTools extends WP_UnitTestCase {
 		$this->assertArrayHasKey( $fit['taxonomy'], $attributes );
 		$this->assertSame( array( $fit['step_terms'][3] ), $attributes[ $fit['taxonomy'] ]->get_options() );
 		$this->assertArrayNotHasKey( \Aggressive_Apparel\WooCommerce\Product_Specs_Registry::get()['items'][1]['taxonomy'], $attributes, 'An unusable number writes nothing.' );
-		$this->assertSame( '', get_post_meta( $page_id, '_aa_spec_fit', true ) );
 	}
 
 	/**

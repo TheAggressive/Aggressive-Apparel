@@ -149,7 +149,6 @@ class Bootstrap {
 		$this->container->register( 'security_hardening', fn() => new Core\Security_Hardening() );
 		$this->container->register( 'cache_health', fn() => new Core\Cache_Health() );
 		$this->container->register( 'page_cache_purge', fn() => new Core\Page_Cache_Purge() );
-		$this->container->register( 'image_loading', fn() => new Core\Image_Loading() );
 		$this->container->register( 'image_output_format', fn() => new Core\Image_Output_Format() );
 		$this->container->register( 'font_preload', fn() => new Core\Font_Preload() );
 
@@ -164,7 +163,6 @@ class Bootstrap {
 		if ( class_exists( 'WooCommerce' ) ) {
 			$this->container->register( 'wc_support', fn() => new WooCommerce\WooCommerce_Support() );
 			$this->container->register( 'cart', fn() => new WooCommerce\Cart() );
-			$this->container->register( 'wc_templates', fn() => new WooCommerce\Templates() );
 			$this->container->register( 'wc_block_styles', fn() => new WooCommerce\WooCommerce_Block_Styles() );
 			$this->container->register( 'wc_interactivity_defaults', fn() => new WooCommerce\WooCommerce_Interactivity_Defaults() );
 			$this->container->register( 'wc_block_asset_bailout', fn() => new WooCommerce\WooCommerce_Block_Asset_Bailout() );
@@ -174,8 +172,6 @@ class Bootstrap {
 			$this->container->register( 'product_gallery_nav', fn() => new WooCommerce\Product_Gallery_Nav() );
 
 			// Register color attribute services.
-			$this->container->register( 'color_attributes', fn() => new WooCommerce\Color_Attribute_Manager() );
-			$this->container->register( 'color_swatch_migration', fn() => new WooCommerce\Color_Swatch_Migration() );
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
 			$this->container->register( 'size_option_sorter', fn() => new WooCommerce\Size_Option_Sorter() );
 			$this->container->register( 'product_card_contract', fn() => new WooCommerce\Product_Card_Contract() );
@@ -229,7 +225,6 @@ class Bootstrap {
 		$this->container->get( 'security_hardening' )->init();
 		$this->container->get( 'cache_health' )->init();
 		$this->container->get( 'page_cache_purge' )->init();
-		$this->container->get( 'image_loading' )->init();
 		$this->container->get( 'image_output_format' )->init();
 		$this->container->get( 'font_preload' )->init();
 		Core\Brand_Icons::init();
@@ -266,7 +261,6 @@ class Bootstrap {
 		$this->container->get( 'wc_support' )->init();
 		WooCommerce\Rating::init();
 		$this->container->get( 'cart' )->init();
-		$this->container->get( 'wc_templates' )->init();
 		$this->container->get( 'wc_block_styles' )->init();
 		$this->container->get( 'wc_interactivity_defaults' )->init();
 		$this->container->get( 'wc_block_asset_bailout' )->init();
@@ -274,8 +268,7 @@ class Bootstrap {
 		$this->container->get( 'wc_mini_cart_style_defer' )->init();
 		$this->container->get( 'jquery_optimizer' )->init();
 		$this->container->get( 'product_gallery_nav' )->init();
-		$this->container->get( 'color_attributes' )->init();
-		$this->container->get( 'color_swatch_migration' )->init();
+		WooCommerce\Color_Data_Manager::register_hooks();
 		$this->container->get( 'color_block_swatch_manager' )->init();
 		$this->container->get( 'size_option_sorter' )->init();
 		$this->container->get( 'product_card_contract' )->init();
@@ -298,10 +291,6 @@ class Bootstrap {
 		WooCommerce\Attribute_Breadcrumb::init();
 		WooCommerce\Account_Page::init();
 		WooCommerce\Select2_A11y::init();
-
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			\WP_CLI::add_command( 'aggressive-apparel specs-migrate', WooCommerce\Product_Specs_Migration_Command::class );
-		}
 	}
 
 	/**

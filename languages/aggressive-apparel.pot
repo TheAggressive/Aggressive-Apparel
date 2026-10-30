@@ -431,20 +431,20 @@ msgid "All"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:109
-#: includes/Core/class-search-modal.php:264
-#: includes/Core/class-search-rest.php:156
+#: includes/Core/class-search-modal.php:266
+#: includes/Core/class-search-rest.php:136
 msgid "Products"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:111
-#: includes/Core/class-search-modal.php:265
-#: includes/Core/class-search-rest.php:167
+#: includes/Core/class-search-modal.php:267
+#: includes/Core/class-search-rest.php:147
 msgid "Articles"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:112
-#: includes/Core/class-search-modal.php:266
-#: includes/Core/class-search-rest.php:178
+#: includes/Core/class-search-modal.php:268
+#: includes/Core/class-search-rest.php:158
 msgid "Pages"
 msgstr ""
 
@@ -482,20 +482,20 @@ msgid "Searching…"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:211
-#: includes/Core/class-search-modal.php:259
+#: includes/Core/class-search-modal.php:261
 #: src/blocks-interactivity/wishlist/render.php:122
 msgid "Try again"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:212
-#: includes/Core/class-search-modal.php:253
+#: includes/Core/class-search-modal.php:255
 #: patterns/template-no-search-results.php:15
 msgid "No results found."
 msgstr ""
 
 #: includes/Core/class-search-modal.php:213
 #: includes/Core/class-search-modal.php:215
-#: includes/Core/class-search-modal.php:262
+#: includes/Core/class-search-modal.php:264
 msgid "View all results"
 msgstr ""
 
@@ -515,43 +515,43 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:254
+#: includes/Core/class-search-modal.php:256
 msgid "1 result found."
 msgstr ""
 
 #. translators: %d: number of search results.
-#: includes/Core/class-search-modal.php:256
+#: includes/Core/class-search-modal.php:258
 #, php-format
 msgid "%d results found."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:257
+#: includes/Core/class-search-modal.php:259
 msgid "Search is temporarily unavailable. Please try again."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:258
+#: includes/Core/class-search-modal.php:260
 msgid "Too many requests. Please slow down and try again."
 msgstr ""
 
 #. translators: 1: active tab label, 2: number of results in other types.
-#: includes/Core/class-search-modal.php:261
+#: includes/Core/class-search-modal.php:263
 #, php-format
 msgid "No %1$s found. View all results (%2$d) instead."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:349
+#: includes/Core/class-search-modal.php:351
 msgid "Find Your Fit…"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:351
+#: includes/Core/class-search-modal.php:353
 msgid "Read the Noise…"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:352
+#: includes/Core/class-search-modal.php:354
 msgid "Find Your Way…"
 msgstr ""
 
-#: includes/Core/class-search-rest.php:235
+#: includes/Core/class-search-rest.php:218
 msgid "Too many requests. Please slow down."
 msgstr ""
 
@@ -3995,15 +3995,15 @@ msgstr ""
 msgid "Shows top-selling catalogue products backed by WooCommerce total sales counts (honest bestseller cues). Quieter than live purchase notices."
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:207
+#: includes/WooCommerce/class-social-proof.php:205
 msgid "Dismiss"
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:236
+#: includes/WooCommerce/class-social-proof.php:234
 msgid "Social Proof preview: ON"
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:239
+#: includes/WooCommerce/class-social-proof.php:237
 msgid "Click to manage Social Proof settings"
 msgstr ""
 

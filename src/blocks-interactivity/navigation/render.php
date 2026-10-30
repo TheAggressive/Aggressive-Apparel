@@ -48,26 +48,24 @@ $context = aggressive_apparel_encode_nav_context(
 
 // Seed the global store with this nav's mutable state so the <nav> and its
 // submenus share reactive state through state._navs[navId].
-if ( function_exists( 'wp_interactivity_state' ) ) {
-	$current_state = wp_interactivity_state( 'aggressive-apparel/navigation' );
-	$navs_state    = $current_state['_navs'] ?? array();
+$current_state = wp_interactivity_state( 'aggressive-apparel/navigation' );
+$navs_state    = $current_state['_navs'] ?? array();
 
-	$navs_state[ $nav_id ] = array(
-		'isMobile'        => false,
-		'activeSubmenuId' => null,
-	);
+$navs_state[ $nav_id ] = array(
+	'isMobile'        => false,
+	'activeSubmenuId' => null,
+);
 
-	wp_interactivity_state(
-		'aggressive-apparel/navigation',
-		array(
-			'_navs' => $navs_state,
-			'i18n'  => array(
-				'submenuOpened' => __( 'Submenu opened', 'aggressive-apparel' ),
-				'submenuClosed' => __( 'Submenu closed', 'aggressive-apparel' ),
-			),
-		)
-	);
-}
+wp_interactivity_state(
+	'aggressive-apparel/navigation',
+	array(
+		'_navs' => $navs_state,
+		'i18n'  => array(
+			'submenuOpened' => __( 'Submenu opened', 'aggressive-apparel' ),
+			'submenuClosed' => __( 'Submenu closed', 'aggressive-apparel' ),
+		),
+	)
+);
 
 // ============================================================================
 // Separate inner block content into menu items vs utility blocks

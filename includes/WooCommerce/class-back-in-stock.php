@@ -178,7 +178,7 @@ class Back_In_Stock {
 	 * @return void
 	 */
 	public function output_interactivity_state(): void {
-		if ( is_admin() || ! function_exists( 'wp_interactivity_state' ) || ! $this->is_single_product() || ! $this->ready() ) {
+		if ( is_admin() || ! $this->is_single_product() || ! $this->ready() ) {
 			return;
 		}
 

@@ -50,9 +50,7 @@ class Block_Categories {
 		$categories = $this->get_pattern_categories();
 
 		foreach ( $categories as $category ) {
-			if ( function_exists( 'register_block_pattern_category' ) ) {
-				register_block_pattern_category( $category['slug'], $category );
-			}
+			register_block_pattern_category( $category['slug'], $category );
 		}
 	}
 

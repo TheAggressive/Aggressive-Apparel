@@ -226,50 +226,48 @@ class Search_Modal {
 	 * @return void
 	 */
 	private function ensure_assets(): void {
-		if ( $this->assets_prepared || ! function_exists( 'wp_register_script_module' ) ) {
+		if ( $this->assets_prepared ) {
 			return;
 		}
 		$this->assets_prepared = true;
 
 		$this->enqueue_overlay_modules();
 
-		if ( function_exists( 'wp_interactivity_state' ) ) {
-			wp_interactivity_state(
-				self::STORE,
-				array(
-					'restUrl'      => esc_url_raw( rest_url( Search_Rest::REST_NAMESPACE . Search_Rest::REST_ROUTE ) ),
-					'isOpen'       => false,
-					'query'        => '',
-					'scope'        => 'all',
-					'isLoading'    => false,
-					'hasSearched'  => false,
-					'hasError'     => false,
-					'errorCode'    => '',
-					'errorMessage' => '',
-					'groups'       => array(),
-					'total'        => 0,
-					'viewAllUrl'   => '',
-					'placeholders' => $this->get_placeholder_phrases(),
-					'i18n'         => array(
-						'noResults'      => __( 'No results found.', 'aggressive-apparel' ),
-						'resultSingular' => __( '1 result found.', 'aggressive-apparel' ),
-						/* translators: %d: number of search results. */
-						'resultPlural'   => __( '%d results found.', 'aggressive-apparel' ),
-						'searchError'    => __( 'Search is temporarily unavailable. Please try again.', 'aggressive-apparel' ),
-						'rateLimited'    => __( 'Too many requests. Please slow down and try again.', 'aggressive-apparel' ),
-						'retry'          => __( 'Try again', 'aggressive-apparel' ),
-						/* translators: 1: active tab label, 2: number of results in other types. */
-						'tabEmpty'       => __( 'No %1$s found. View all results (%2$d) instead.', 'aggressive-apparel' ),
-						'viewAllTab'     => __( 'View all results', 'aggressive-apparel' ),
-						'tabLabels'      => array(
-							'product' => __( 'Products', 'aggressive-apparel' ),
-							'post'    => __( 'Articles', 'aggressive-apparel' ),
-							'page'    => __( 'Pages', 'aggressive-apparel' ),
-						),
+		wp_interactivity_state(
+			self::STORE,
+			array(
+				'restUrl'      => esc_url_raw( rest_url( Search_Rest::REST_NAMESPACE . Search_Rest::REST_ROUTE ) ),
+				'isOpen'       => false,
+				'query'        => '',
+				'scope'        => 'all',
+				'isLoading'    => false,
+				'hasSearched'  => false,
+				'hasError'     => false,
+				'errorCode'    => '',
+				'errorMessage' => '',
+				'groups'       => array(),
+				'total'        => 0,
+				'viewAllUrl'   => '',
+				'placeholders' => $this->get_placeholder_phrases(),
+				'i18n'         => array(
+					'noResults'      => __( 'No results found.', 'aggressive-apparel' ),
+					'resultSingular' => __( '1 result found.', 'aggressive-apparel' ),
+					/* translators: %d: number of search results. */
+					'resultPlural'   => __( '%d results found.', 'aggressive-apparel' ),
+					'searchError'    => __( 'Search is temporarily unavailable. Please try again.', 'aggressive-apparel' ),
+					'rateLimited'    => __( 'Too many requests. Please slow down and try again.', 'aggressive-apparel' ),
+					'retry'          => __( 'Try again', 'aggressive-apparel' ),
+					/* translators: 1: active tab label, 2: number of results in other types. */
+					'tabEmpty'       => __( 'No %1$s found. View all results (%2$d) instead.', 'aggressive-apparel' ),
+					'viewAllTab'     => __( 'View all results', 'aggressive-apparel' ),
+					'tabLabels'      => array(
+						'product' => __( 'Products', 'aggressive-apparel' ),
+						'post'    => __( 'Articles', 'aggressive-apparel' ),
+						'page'    => __( 'Pages', 'aggressive-apparel' ),
 					),
-				)
-			);
-		}
+				),
+			)
+		);
 
 		wp_enqueue_style( 'aggressive-apparel-search-style' );
 	}
@@ -280,10 +278,6 @@ class Search_Modal {
 	 * @return void
 	 */
 	private function enqueue_overlay_modules(): void {
-		if ( ! function_exists( 'wp_enqueue_script_module' ) || ! function_exists( 'wp_register_script_module' ) ) {
-			return;
-		}
-
 		$this->register_shared_modules();
 		wp_enqueue_script_module( '@aggressive-apparel/use-overlay' );
 	}
@@ -341,10 +335,6 @@ class Search_Modal {
 	 * @return bool
 	 */
 	private function is_block_on_page(): bool {
-		if ( ! function_exists( 'has_block' ) ) {
-			return false;
-		}
-
 		return has_block( self::BLOCK_NAME );
 	}
 

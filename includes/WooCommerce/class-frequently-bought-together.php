@@ -118,10 +118,6 @@ class Frequently_Bought_Together {
 			return;
 		}
 
-		if ( ! function_exists( 'wp_interactivity_state' ) ) {
-			return;
-		}
-
 		$product = wc_get_product( get_the_ID() );
 		if ( ! $product ) {
 			return;

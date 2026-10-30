@@ -60,10 +60,6 @@ class WooCommerce_Interactivity_Defaults {
 	 * @return bool
 	 */
 	public static function should_register(): bool {
-		if ( ! function_exists( 'wp_interactivity_state' ) ) {
-			return false;
-		}
-
 		return WooCommerce_Block_Detector::request_needs_assets();
 	}
 
@@ -73,7 +69,7 @@ class WooCommerce_Interactivity_Defaults {
 	 * @return void
 	 */
 	public static function register_defaults(): void {
-		if ( self::$registered || ! function_exists( 'wp_interactivity_state' ) ) {
+		if ( self::$registered ) {
 			return;
 		}
 

@@ -50,7 +50,7 @@ add_filter( 'woocommerce_product_tabs', array( $product_tabs_service, 'add_custo
 
 // Enqueue Interactivity API state for tab behaviour (accordion/modern-tabs/scrollspy).
 $display_style = $option_override ?? $product_tabs_service->get_display_style();
-if ( 'inline' !== $display_style && function_exists( 'wp_interactivity_state' ) ) {
+if ( 'inline' !== $display_style ) {
 	wp_interactivity_state(
 		'aggressive-apparel/product-tabs',
 		array(

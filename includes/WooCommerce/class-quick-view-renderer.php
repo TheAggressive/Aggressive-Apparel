@@ -38,93 +38,91 @@ class Quick_View_Renderer {
 		}
 
 		// Provide initial state values to the Interactivity API store.
-		if ( function_exists( 'wp_interactivity_state' ) ) {
-			$price_config = Price_Display::interactivity_price_config();
+		$price_config = Price_Display::interactivity_price_config();
 
-			wp_interactivity_state(
-				'aggressive-apparel/quick-view',
-				array(
-					'restBase'              => esc_url_raw( rest_url( 'wc/store/v1/products/' ) ),
-					'cartApiUrl'            => esc_url_raw( rest_url( 'wc/store/v1/cart' ) ),
+		wp_interactivity_state(
+			'aggressive-apparel/quick-view',
+			array(
+				'restBase'              => esc_url_raw( rest_url( 'wc/store/v1/products/' ) ),
+				'cartApiUrl'            => esc_url_raw( rest_url( 'wc/store/v1/cart' ) ),
 
-					// Smart Price Display: collapse the variable-product range to
-					// a single "From $X" starting price, matching every other
-					// surface. The exact variation price replaces it on selection.
-					'collapseVariablePrice' => $price_config['collapseVariablePrice'],
-					'priceStartingPrefix'   => $price_config['priceStartingPrefix'],
+				// Smart Price Display: collapse the variable-product range to
+				// a single "From $X" starting price, matching every other
+				// surface. The exact variation price replaces it on selection.
+				'collapseVariablePrice' => $price_config['collapseVariablePrice'],
+				'priceStartingPrefix'   => $price_config['priceStartingPrefix'],
 
-					'isOpen'                => false,
-					'isSuccessOpen'         => false,
-					'isLoading'             => false,
-					'hasError'              => false,
-					'hasProduct'            => false,
-					'productImage'          => '',
-					'productImageAlt'       => '',
-					'productName'           => '',
-					'productPrice'          => '',
-					'productRegularPrice'   => '',
-					'productOnSale'         => false,
-					'productDescription'    => '',
-					'productLink'           => '',
-					'productType'           => 'simple',
-					'productAttributes'     => array(),
-					'productVariations'     => array(),
-					'selectedAttributes'    => (object) array(),
-					'matchedVariationId'    => 0,
-					'quantity'              => 1,
-					'cartNonce'             => wp_create_nonce( 'wc_store_api' ),
-					'isAddingToCart'        => false,
-					'cartError'             => '',
+				'isOpen'                => false,
+				'isSuccessOpen'         => false,
+				'isLoading'             => false,
+				'hasError'              => false,
+				'hasProduct'            => false,
+				'productImage'          => '',
+				'productImageAlt'       => '',
+				'productName'           => '',
+				'productPrice'          => '',
+				'productRegularPrice'   => '',
+				'productOnSale'         => false,
+				'productDescription'    => '',
+				'productLink'           => '',
+				'productType'           => 'simple',
+				'productAttributes'     => array(),
+				'productVariations'     => array(),
+				'selectedAttributes'    => (object) array(),
+				'matchedVariationId'    => 0,
+				'quantity'              => 1,
+				'cartNonce'             => wp_create_nonce( 'wc_store_api' ),
+				'isAddingToCart'        => false,
+				'cartError'             => '',
 
-					// Gallery support.
-					'productImages'         => array(),
-					'activeImageIndex'      => 0,
+				// Gallery support.
+				'productImages'         => array(),
+				'activeImageIndex'      => 0,
 
-					// Stock status.
-					'stockStatus'           => 'instock',
-					'stockQuantity'         => null,
-					'stockStatusLabel'      => '',
+				// Stock status.
+				'stockStatus'           => 'instock',
+				'stockQuantity'         => null,
+				'stockStatusLabel'      => '',
 
-					// Sale badge.
-					'salePercentage'        => 0,
+				// Sale badge.
+				'salePercentage'        => 0,
 
-					// Color swatch data.
-					'colorSwatchData'       => Color_Data_Manager::get_safe_swatch_data(),
+				// Color swatch data.
+				'colorSwatchData'       => Color_Data_Manager::get_safe_swatch_data(),
 
-					'cartUrl'               => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
-					'checkoutUrl'           => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
-					'isBuyingNow'           => false,
+				'cartUrl'               => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
+				'checkoutUrl'           => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
+				'isBuyingNow'           => false,
 
-					// Variation options drawer.
-					'isDrawerOpen'          => false,
+				// Variation options drawer.
+				'isDrawerOpen'          => false,
 
-					// Accessibility.
-					'announcement'          => '',
-					'i18n'                  => array(
-						'addToCartText'        => Feature_Settings::get_simple_product_button_text(),
-						'addingToCartText'     => __( 'Adding…', 'aggressive-apparel' ),
-						'addedToCartText'      => __( '✓ Added!', 'aggressive-apparel' ),
-						'outOfStockButtonText' => Feature_Settings::get_out_of_stock_button_text(),
-						'variableButtonText'   => Feature_Settings::get_variable_product_button_text(),
-						'buyNowText'           => Feature_Settings::get_buy_now_button_text(),
-						'redirectingText'      => __( 'Redirecting…', 'aggressive-apparel' ),
-						'viewCartText'         => Feature_Settings::get_view_cart_button_text(),
-						'continueShoppingText' => Feature_Settings::get_continue_shopping_button_text(),
-						'viewProductText'      => Feature_Settings::get_view_product_button_text(),
-						'addedToCartMessage'   => __( 'Added to cart!', 'aggressive-apparel' ),
-						'outOfStockLabel'      => __( 'Out of Stock', 'aggressive-apparel' ),
-						'inStockLabel'         => __( 'In Stock', 'aggressive-apparel' ),
-						/* translators: %d: remaining stock quantity. */
-						'onlyNLeft'            => __( 'Only %d left!', 'aggressive-apparel' ),
-						'addedSuccessAnnounce' => __( 'Product added to cart successfully', 'aggressive-apparel' ),
-						'addToCartError'       => __( 'Could not add to cart.', 'aggressive-apparel' ),
-						/* translators: %s: error message from the cart API. */
-						'errorAnnounce'        => __( 'Error: %s', 'aggressive-apparel' ),
-						'unavailableLabel'     => __( 'Unavailable', 'aggressive-apparel' ),
-					),
+				// Accessibility.
+				'announcement'          => '',
+				'i18n'                  => array(
+					'addToCartText'        => Feature_Settings::get_simple_product_button_text(),
+					'addingToCartText'     => __( 'Adding…', 'aggressive-apparel' ),
+					'addedToCartText'      => __( '✓ Added!', 'aggressive-apparel' ),
+					'outOfStockButtonText' => Feature_Settings::get_out_of_stock_button_text(),
+					'variableButtonText'   => Feature_Settings::get_variable_product_button_text(),
+					'buyNowText'           => Feature_Settings::get_buy_now_button_text(),
+					'redirectingText'      => __( 'Redirecting…', 'aggressive-apparel' ),
+					'viewCartText'         => Feature_Settings::get_view_cart_button_text(),
+					'continueShoppingText' => Feature_Settings::get_continue_shopping_button_text(),
+					'viewProductText'      => Feature_Settings::get_view_product_button_text(),
+					'addedToCartMessage'   => __( 'Added to cart!', 'aggressive-apparel' ),
+					'outOfStockLabel'      => __( 'Out of Stock', 'aggressive-apparel' ),
+					'inStockLabel'         => __( 'In Stock', 'aggressive-apparel' ),
+					/* translators: %d: remaining stock quantity. */
+					'onlyNLeft'            => __( 'Only %d left!', 'aggressive-apparel' ),
+					'addedSuccessAnnounce' => __( 'Product added to cart successfully', 'aggressive-apparel' ),
+					'addToCartError'       => __( 'Could not add to cart.', 'aggressive-apparel' ),
+					/* translators: %s: error message from the cart API. */
+					'errorAnnounce'        => __( 'Error: %s', 'aggressive-apparel' ),
+					'unavailableLabel'     => __( 'Unavailable', 'aggressive-apparel' ),
 				),
-			);
-		}
+			),
+		);
 
 		?>
 		<div

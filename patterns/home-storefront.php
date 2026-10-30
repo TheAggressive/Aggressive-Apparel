@@ -95,7 +95,7 @@
 
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)"><!-- wp:button {"className":"is-style-cta-outline-on-dark"} -->
-<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( home_url( '/shop/?collection=mens' ) ); ?>"><?php echo esc_html__( 'Shop Men\'s', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( home_url( '/shop/mens/' ) ); ?>"><?php echo esc_html__( 'Shop Men\'s', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div></div>
 <!-- /wp:cover --></div>
@@ -111,7 +111,7 @@
 
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)"><!-- wp:button {"className":"is-style-cta-outline-on-dark"} -->
-<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( home_url( '/shop/?collection=womens' ) ); ?>"><?php echo esc_html__( 'Shop Women\'s', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( home_url( '/shop/womens/' ) ); ?>"><?php echo esc_html__( 'Shop Women\'s', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div></div>
 <!-- /wp:cover --></div>

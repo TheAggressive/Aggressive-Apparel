@@ -12,7 +12,6 @@ namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Specs;
-use Aggressive_Apparel\WooCommerce\Product_Specs_Migration;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Product_Writer;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Settings;
@@ -39,7 +38,6 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 
 		update_option( Feature_Settings::OPTION_KEY, array( 'size_guide' => true ), false );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
-		delete_option( Product_Specs_Migration::OPTION );
 		wp_cache_flush();
 		delete_transient( 'wc_attribute_taxonomies' );
 		Product_Specs_Registry::flush();
@@ -164,34 +162,6 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$this->assertSame( array(), wc_get_product_terms( $else, $fabric, array( 'fields' => 'names' ) ) );
 	}
 
-	/** Old meta moves onto attributes and guide terms, never overwriting. */
-	public function test_migration_moves_old_values(): void {
-		$this->save_defaults( array() );
-		$this->attribute( 'Fabric', 'fabric', array( 'Linen' ) );
-		$guide = $this->guide();
-		$plain = $this->product( 0 );
-		$own   = $this->product( 0 );
-		update_post_meta( $plain, '_aa_spec_fabric', 'Silk' );
-		update_post_meta( $plain, '_aa_spec_fit', '2' );
-		update_post_meta( $own, '_aa_spec_fabric', 'Silk' );
-		update_post_meta( $guide, '_aa_spec_fit', '4' );
-		$this->set_term( $own, 'pa_fabric', 'Linen' );
-
-		$preview = Product_Specs_Migration::run( true, true );
-		$this->assertSame( 3, $preview['posts'] );
-		$this->assertSame( 'Silk', get_post_meta( $plain, '_aa_spec_fabric', true ), 'A dry run changes nothing.' );
-
-		$this->assertSame( array(), Product_Specs_Migration::run( false, true )['errors'] );
-		$fit = $this->items()['fit'];
-
-		$this->assertSame( array( 'Silk' ), wc_get_product_terms( $plain, 'pa_fabric', array( 'fields' => 'names' ) ) );
-		$this->assertSame( array( $fit['step_terms'][2] ), wc_get_product( $plain )->get_attributes()[ $fit['taxonomy'] ]->get_options() );
-		$this->assertSame( array( 'Linen' ), wc_get_product_terms( $own, 'pa_fabric', array( 'fields' => 'names' ) ), 'Existing attribute kept.' );
-		$this->assertSame( '4', Product_Specs_Values::guide( $guide )['values']['fit'] );
-		$this->assertSame( '', get_post_meta( $plain, '_aa_spec_fabric', true ) );
-		$this->assertSame( Product_Specs_Migration::VERSION, (int) get_option( Product_Specs_Migration::OPTION ) );
-	}
-
 	/** A Specs-tab save made from an older revision keeps changes saved since. */
 	public function test_registry_save_merges_changes_made_since(): void {
 		$this->save_defaults( array() );
@@ -241,19 +211,17 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$this->assertSame( array( $fitted, $regular ), array_slice( $connected['step_terms'], 0, 2 ) );
 	}
 
-	/** An unusable value fails without touching the old value; clearing removes it. */
-	public function test_writer_keeps_old_value_when_nothing_is_written(): void {
+	/** An unusable value fails and writes nothing; clearing is a write. */
+	public function test_writer_reports_unusable_values(): void {
 		Product_Specs_Registry::ensure_connected();
 		$product = $this->product( 0 );
-		update_post_meta( $product, '_aa_spec_weight', '180' );
 
 		$result = Product_Specs_Product_Writer::save( wc_get_product( $product ), array( 'weight' => 'heavy' ) );
 		$this->assertSame( array( 'weight' ), $result['failed'] );
-		$this->assertSame( '180', get_post_meta( $product, '_aa_spec_weight', true ) );
+		$this->assertSame( array(), $result['written'] );
 
 		$result = Product_Specs_Product_Writer::save( wc_get_product( $product ), array( 'weight' => '' ) );
 		$this->assertSame( array( 'weight' ), $result['written'] );
-		$this->assertSame( '', get_post_meta( $product, '_aa_spec_weight', true ) );
 	}
 
 	/** WooCommerce's reserved names get a suffix instead of failing the save. */
@@ -271,22 +239,6 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 
 		$this->assertNotSame( 'pa_type', Product_Specs_Taxonomy::new_taxonomy( $item ) );
 		$this->assertStringStartsWith( 'pa_type_', Product_Specs_Taxonomy::connect( $item )['taxonomy'] );
-	}
-
-	/** A value that can't move stays in theme meta and keeps showing. */
-	public function test_migration_keeps_values_it_cannot_move(): void {
-		$this->save_defaults( array() );
-		Product_Specs_Registry::ensure_connected();
-		$fit     = $this->items()['fit'];
-		$product = $this->product( 0 );
-		$this->set_term( $product, $fit['taxonomy'], get_term( $fit['step_terms'][2] )->name );
-		update_post_meta( $product, '_aa_spec_fit', '3' );
-
-		Product_Specs_Migration::run( false, true );
-
-		$this->assertSame( '3', get_post_meta( $product, '_aa_spec_fit', true ), 'Kept, not deleted.' );
-		$this->assertSame( 3, $this->resolved( $product )['fit']['step'], 'Still shown, as before.' );
-		$this->assertSame( Product_Specs_Migration::VERSION, (int) get_option( Product_Specs_Migration::OPTION ), 'Finished anyway.' );
 	}
 
 	/** A scale can't be switched to an attribute whose terms aren't its steps. */

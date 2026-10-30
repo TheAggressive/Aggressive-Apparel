@@ -228,7 +228,8 @@ if ($product_id <= 0) {
   return;
 }
 update_post_meta($product_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}');
-update_post_meta($product_id, '_aa_spec_fit', '2');
+// Fit is a product attribute, written the way the specs editor does.
+\\Aggressive_Apparel\\WooCommerce\\Product_Specs_Product_Writer::save(wc_get_product($product_id), array('fit' => '2'));
 
 foreach (array('Small', 'Medium', 'Large') as $size) {
   $variation = new WC_Product_Variation();

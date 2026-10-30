@@ -59,13 +59,11 @@ class Enhancements {
 			Size_Guide_Admin_Fields::class,
 			Size_Guide_Rest::class,
 			Size_Guide_Label_Link::class,
-			Size_Chart_Import::class,
 			Product_Specs_Meta::class,
 			Product_Specs_Admin::class,
 			Product_Specs_Settings::class,
 			Product_Specs_Table::class,
 			Product_Specs_Grid::class,
-			Product_Specs_Migration::class,
 			Printful_Rest::class,
 			Printful_Import::class,
 		),
@@ -196,10 +194,6 @@ class Enhancements {
 	 * @return void
 	 */
 	public function register_shared_modules(): void {
-		if ( ! function_exists( 'wp_register_script_module' ) ) {
-			return;
-		}
-
 		Asset_Loader::register_interactivity_module(
 			'@aggressive-apparel/scroll-lock',
 			'build/interactivity/scroll-lock',

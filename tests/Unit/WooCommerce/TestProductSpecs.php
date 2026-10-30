@@ -13,10 +13,12 @@ use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Specs;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Attributes;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Meta;
+use Aggressive_Apparel\WooCommerce\Product_Specs_Product_Writer;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Renderer;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Table;
+use Aggressive_Apparel\WooCommerce\Product_Specs_Values;
 use Aggressive_Apparel\WooCommerce\Size_Guide;
 use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
@@ -142,7 +144,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 			)
 		);
 		$product_id = $this->create_product();
-		update_post_meta( $product_id, '_aa_spec_fit', '4' );
+		$this->set_spec( $product_id, 'fit', '4' );
 
 		$items = $this->items( $product_id );
 
@@ -175,7 +177,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->save_defaults( array( 'fit' => '2' ) );
 		$product_id = $this->create_product( array() );
 		$tee        = $this->assign_guide( $product_id );
-		update_post_meta( $tee, '_aa_spec_fit', '5' );
+		$this->set_spec( $tee, 'fit', '5' );
 		$this->add_category( $product_id, array( '_aggressive_apparel_size_guide_id' => $tee ) );
 		$hat = self::factory()->post->create(
 			array(
@@ -185,7 +187,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 				'post_content' => '',
 			)
 		);
-		update_post_meta( $hat, '_aa_spec_fit', '3' );
+		$this->set_spec( $hat, 'fit', '3' );
 		update_post_meta( $product_id, '_aggressive_apparel_size_guide_id', $hat );
 		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
 
@@ -219,7 +221,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 
 		$this->assertSame( $tee, \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id )['id'] );
 
-		update_post_meta( $draft, '_aa_spec_fit', '3' );
+		$this->set_spec( $draft, 'fit', '3' );
 		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
 		$guide = \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id );
 
@@ -251,7 +253,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->save_defaults( array( 'fit' => '2' ) );
 		$product_id = $this->create_product( array() );
 		$tee        = $this->assign_guide( $product_id );
-		update_post_meta( $tee, '_aa_spec_fit', '5' );
+		$this->set_spec( $tee, 'fit', '5' );
 		$this->add_category( $product_id, array( '_aggressive_apparel_size_guide_id' => $tee ) );
 		update_option( \Aggressive_Apparel\WooCommerce\Size_Guide::CPT_OPTION_KEY, $tee );
 		update_post_meta( $product_id, '_aggressive_apparel_size_guide_id', \Aggressive_Apparel\WooCommerce\Size_Guide::NONE );
@@ -313,10 +315,10 @@ class TestProductSpecs extends WP_UnitTestCase {
 		);
 		$product_id = $this->create_product( array( 'Fabric' => 'Linen' ) );
 		$guide_id   = $this->assign_guide( $product_id );
-		update_post_meta( $guide_id, '_aa_spec_fit', '3' );
-		update_post_meta( $guide_id, '_aa_spec_weight', '240' );
-		update_post_meta( $guide_id, '_aa_spec_fabric', '100% cotton' );
-		update_post_meta( $product_id, '_aa_spec_weight', '180' );
+		$this->set_spec( $guide_id, 'fit', '3' );
+		$this->set_spec( $guide_id, 'weight', '240' );
+		$this->set_spec( $guide_id, 'fabric', '100% cotton' );
+		$this->set_spec( $product_id, 'weight', '180' );
 
 		$items = $this->items( $product_id );
 
@@ -328,7 +330,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->assertSame( 'Linen', $items['fabric']['display'] );
 		$this->assertSame( Product_Specs::SOURCE_ATTRIBUTE, $items['fabric']['source'] );
 
-		delete_post_meta( $guide_id, '_aa_spec_fit' );
+		$this->set_spec( $guide_id, 'fit', '' );
 		$this->assertSame( Product_Specs::SOURCE_DEFAULT, $this->items( $product_id )['fit']['source'], 'An empty guide value falls back to the default.' );
 	}
 
@@ -365,12 +367,13 @@ class TestProductSpecs extends WP_UnitTestCase {
 	/** Number steps use the nearest category's boundaries, else the spec's. */
 	public function test_category_boundaries(): void {
 		$product_id = $this->create_product();
-		update_post_meta( $product_id, '_aa_spec_weight', '305' );
+		$this->set_spec( $this->assign_guide( $product_id ), 'weight', '305' );
 
 		$this->assertSame( 4, $this->items( $product_id )['weight']['step'] );
 
+		// The saved items, as the Specs screen sends them back (connected).
 		$hoodies                     = $this->add_category( $product_id, array() );
-		$items                       = Product_Specs_Registry::defaults();
+		$items                       = Product_Specs_Registry::get()['items'];
 		$items[1]['category_steps']  = array(
 			array(
 				'category'   => $hoodies,
@@ -450,7 +453,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 			)
 		);
 		$product_id = $this->create_product();
-		update_post_meta( $product_id, '_aa_spec_stretch', '1' );
+		$this->set_spec( $product_id, 'stretch', '1' );
 
 		$html = Product_Specs_Renderer::render( $product_id, array( 'showNudge' => true ) );
 
@@ -463,7 +466,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 	/** Compact cards keep advice outside the meter; the footer carries every size's line. */
 	public function test_render_compact_card_and_footer(): void {
 		$product_id = $this->create_product();
-		update_post_meta( $product_id, '_aa_spec_fit', '2' );
+		$this->set_spec( $product_id, 'fit', '2' );
 		$guide_id = self::factory()->post->create(
 			array(
 				'post_type'   => \Aggressive_Apparel\WooCommerce\Size_Guide_Post_Type::POST_TYPE,
@@ -541,8 +544,8 @@ class TestProductSpecs extends WP_UnitTestCase {
 	/** Picking scales in the block never limits the details list. */
 	public function test_scale_picker_keeps_details(): void {
 		$product_id = $this->create_product();
-		update_post_meta( $product_id, '_aa_spec_fit', '2' );
-		update_post_meta( $product_id, '_aa_spec_fabric', 'Combed cotton' );
+		$this->set_spec( $product_id, 'fit', '2' );
+		$this->set_spec( $product_id, 'fabric', 'Combed cotton' );
 
 		$html = Product_Specs_Renderer::render(
 			$product_id,
@@ -584,7 +587,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$product_id = $this->create_product();
 		$this->assertSame( '', Product_Specs_Renderer::render( $product_id, array() ) );
 
-		update_post_meta( $product_id, '_aa_spec_fit', '2' );
+		$this->set_spec( $product_id, 'fit', '2' );
 		$this->assertStringContainsString( 'aria-label="Fit"', Product_Specs_Renderer::render( $product_id, array() ) );
 		$this->assertSame( '', Product_Specs_Renderer::render( $product_id, array( 'scales' => array( 'weight' ) ) ) );
 
@@ -599,8 +602,9 @@ class TestProductSpecs extends WP_UnitTestCase {
 	/** Specs add Additional information rows, skipping visible attributes. */
 	public function test_table_rows(): void {
 		$product_id = $this->create_product( array( 'Fabric' => 'Cotton' ) );
-		update_post_meta( $product_id, '_aa_spec_fit', '2' );
-		update_post_meta( $product_id, '_aa_spec_weight', '142' );
+		$guide_id   = $this->assign_guide( $product_id );
+		$this->set_spec( $guide_id, 'fit', '2' );
+		$this->set_spec( $guide_id, 'weight', '142' );
 
 		$rows = ( new Product_Specs_Table() )->rows_for( $product_id );
 
@@ -609,10 +613,10 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'aa-spec-fabric', $rows );
 	}
 
-	/** The tab appears for products with specs but no attributes. */
+	/** The tab appears for products with specs (from their guide) but no attributes. */
 	public function test_tab_added_for_specs_only_products(): void {
 		$product_id = $this->create_product();
-		update_post_meta( $product_id, '_aa_spec_fit', '2' );
+		$this->set_spec( $this->assign_guide( $product_id ), 'fit', '2' );
 		$this->go_to( get_permalink( $product_id ) );
 
 		$tabs = ( new Product_Specs_Table() )->ensure_tab( array() );
@@ -688,6 +692,23 @@ class TestProductSpecs extends WP_UnitTestCase {
 
 		$this->assertSame( array( 'Tees' ), $usage['categories'] );
 		$this->assertSame( 1, $usage['products'] );
+	}
+
+	/**
+	 * Store a spec value the way the editor does: a product attribute, or a
+	 * size guide term.
+	 *
+	 * @param int    $post_id Product or size guide ID.
+	 * @param string $key     Item key.
+	 * @param string $value   Value; '' clears it.
+	 */
+	private function set_spec( int $post_id, string $key, string $value ): void {
+		if ( 'product' === get_post_type( $post_id ) ) {
+			Product_Specs_Product_Writer::save( wc_get_product( $post_id ), array( $key => $value ) );
+			return;
+		}
+
+		Product_Specs_Values::save_guide( $post_id, array( $key => $value ) );
 	}
 
 	/**

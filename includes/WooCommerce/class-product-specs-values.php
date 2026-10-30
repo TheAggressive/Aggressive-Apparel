@@ -8,8 +8,7 @@
  * own values are product attributes (Product_Specs_Product_Writer).
  *
  * Values arrive and leave as the editor uses them: a step index, a number,
- * or text. Guide values saved before specs were attributes (`_aa_spec_*`
- * guide meta) still read until Product_Specs_Migration moves them.
+ * or text.
  *
  * @package Aggressive_Apparel
  */
@@ -63,16 +62,13 @@ final class Product_Specs_Values {
 
 			$raw = (string) $values[ $item['key'] ];
 			$ids = Product_Specs_Taxonomy::terms_for( $item, $raw );
+			// A value that isn't storable (no attribute yet, or unusable)
+			// leaves whatever the guide had.
 			if ( array() !== $ids ) {
 				$terms[ $item['key'] ] = $ids;
 			} elseif ( '' === trim( $raw ) ) {
 				unset( $terms[ $item['key'] ] );
-			} else {
-				// Not storable (no attribute yet, or unusable): keep whatever
-				// the guide had, old meta included.
-				continue;
 			}
-			delete_post_meta( $guide_id, Product_Specs_Meta::key( $item['key'] ) );
 		}
 
 		if ( array() === $terms ) {
@@ -122,7 +118,7 @@ final class Product_Specs_Values {
 		foreach ( Product_Specs_Registry::get()['items'] as $item ) {
 			$values[ $item['key'] ] = isset( $terms[ $item['key'] ] )
 				? Product_Specs_Taxonomy::value_of_terms( $item, $terms[ $item['key'] ] )
-				: self::clean( get_post_meta( $guide_id, Product_Specs_Meta::key( $item['key'] ), true ), $item );
+				: '';
 		}
 
 		return array(

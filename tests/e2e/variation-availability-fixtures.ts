@@ -1,4 +1,4 @@
-import { ownPostPhp, ownTermPhp } from './fixture-cleanup';
+import { ownAttributePhp, ownPostPhp, ownTermPhp } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 /**
@@ -18,8 +18,19 @@ const FIXTURE_PHP = `
 if (!function_exists('wc_get_product')) {
   throw new RuntimeException('WooCommerce product APIs are unavailable.');
 }
+// Swatches are WooCommerce's native "Color / image" attribute. A fresh site
+// has none, so create it (owned, so cleanup removes it again).
+update_option('woocommerce_feature_wc_visual_attribute_enabled', 'yes');
+if (!wc_attribute_taxonomy_id_by_name('color')) {
+  $color_attribute_id = wc_create_attribute(array('name' => 'Color', 'slug' => 'color', 'type' => 'wc-visual'));
+  if (is_wp_error($color_attribute_id)) {
+    throw new RuntimeException($color_attribute_id->get_error_message());
+  }
+  ${ownAttributePhp('$color_attribute_id')}
+}
+// WooCommerce registers new attribute taxonomies on the next request.
 if (!taxonomy_exists('pa_color')) {
-  throw new RuntimeException('The pa_color taxonomy is unavailable.');
+  register_taxonomy('pa_color', array('product'), array('hierarchical' => false));
 }
 
 $feature_key = '${FEATURE_OPTION}';
@@ -187,10 +198,6 @@ foreach ($variations as $slug => $spec) {
   $variation->save();
 }
 WC_Product_Variable::sync($product_id);
-
-// Swatches are WooCommerce's native visual attribute; on a fresh site no admin
-// page has run the one-off move yet, so run it here (idempotent).
-\\Aggressive_Apparel\\WooCommerce\\Color_Swatch_Migration::run();
 
 // Delay the option mutation until every fixture record exists. A setup
 // exception before this point cannot leak feature flags into a persistent site.

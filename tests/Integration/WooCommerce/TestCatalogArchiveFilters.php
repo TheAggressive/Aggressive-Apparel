@@ -32,7 +32,9 @@ class TestCatalogArchiveFilters extends WP_UnitTestCase {
 		// Other tests create attributes inside rolled-back transactions while
 		// WooCommerce caches the attribute list: never trust that cache here.
 		self::flush_attribute_cache();
-		if ( ! wc_attribute_taxonomy_id_by_name( 'color' ) ) {
+		if ( ! in_array( 'pa_color', wc_get_attribute_taxonomy_names(), true ) ) {
+			// A taxonomy left registered by a rolled-back test blocks the slug.
+			unregister_taxonomy( 'pa_color' );
 			wc_create_attribute(
 				array(
 					'name' => 'Color',

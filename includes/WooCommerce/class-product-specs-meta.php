@@ -5,9 +5,7 @@
  * Product meta for how specs present on one product: hidden items and
  * wording overrides. Spec values themselves are WooCommerce attributes
  * (Product_Specs_Taxonomy), so they show in the REST API and CSV
- * import/export as ordinary attributes. The `_aa_spec_{key}` keys here are
- * where values lived before; they are read until Product_Specs_Migration
- * moves them.
+ * import/export as ordinary attributes.
  *
  * @package Aggressive_Apparel
  */
@@ -27,13 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Item from Product_Specs_Registry
  */
 final class Product_Specs_Meta {
-
-	/**
-	 * Per-item value meta key prefix.
-	 *
-	 * @var string
-	 */
-	public const PREFIX = '_aa_spec_';
 
 	/**
 	 * Item keys hidden on one product.
@@ -61,15 +52,6 @@ final class Product_Specs_Meta {
 	 */
 	public function init(): void {
 		add_action( 'init', array( $this, 'register' ), 20 );
-	}
-
-	/**
-	 * Meta key for an item's value.
-	 *
-	 * @param string $item_key Item key.
-	 */
-	public static function key( string $item_key ): string {
-		return self::PREFIX . $item_key;
 	}
 
 	/**

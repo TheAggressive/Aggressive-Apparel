@@ -83,10 +83,48 @@ export function isSalesArchive(
   return state.currentCategorySlug === state.salesCategorySlug;
 }
 
+/** The Collection filter, which landing pages carry in their path. */
+const COLLECTION_FILTER = ATTRIBUTE_FILTERS.find(
+  filter => filter.urlParam === 'collection'
+);
+
+/**
+ * The audience and category of a landing pathname (/shop/mens/ or
+ * /shop/mens/t-shirts/, any page of it), or null for any other pathname.
+ * Mirrors Audience_Landing_Pages::rules().
+ */
+export function parseLandingPath(
+  state: ProductFiltersState,
+  pathname: string
+): { audience: string; category: string | null } | null {
+  if (!state.audienceBase || !pathname.startsWith(state.audienceBase)) {
+    return null;
+  }
+  const parts = pathname
+    .slice(state.audienceBase.length)
+    .replace(/(^|\/)page\/\d+\/?$/, '')
+    .split('/')
+    .filter(Boolean);
+  if (parts.length < 1 || parts.length > 2) return null;
+  if (!(state.audiences ?? []).includes(parts[0])) return null;
+  return { audience: parts[0], category: parts[1] ?? null };
+}
+
+/** A landing page pathname. */
+export function getLandingPath(
+  state: ProductFiltersState,
+  audience: string,
+  category: string | null
+): string {
+  return `${state.audienceBase}${audience}/${category ? `${category}/` : ''}`;
+}
+
 /** Category slug represented by the current pathname. */
 export function getCategorySlugFromPath(
   state: ProductFiltersState
 ): string | null {
+  const landing = parseLandingPath(state, window.location.pathname);
+  if (landing) return landing.category;
   for (const category of state.categories) {
     if (!category.link) continue;
     try {
@@ -169,11 +207,15 @@ export function buildFilterUrl(
   // The archive path already names its own term; don't repeat it as a param.
   const archiveAttribute = archivePath ? getArchiveAttribute(state) : undefined;
   let basePath: string;
+  // The category a landing page would name: null for the shop, undefined
+  // where no landing page applies (another archive, or no category path).
+  let landingCategory: string | null | undefined;
 
   if (archivePath) {
     basePath = archivePath;
   } else if (state.onSaleOnly && salesPath) {
     basePath = salesPath;
+    landingCategory = state.salesCategorySlug || undefined;
     if (visibleCategories.length > 0) {
       params.set('cat', visibleCategories.join(','));
     }
@@ -181,19 +223,34 @@ export function buildFilterUrl(
     const categoryPath = getCategoryPath(state, state.selectedCategories[0]);
     if (categoryPath) {
       basePath = categoryPath;
+      landingCategory = state.selectedCategories[0];
     } else {
       basePath = getShopPath(state);
       params.set('cat', state.selectedCategories[0]);
     }
   } else {
     basePath = getShopPath(state);
+    landingCategory = null;
     if (state.selectedCategories.length > 1) {
       params.set('cat', state.selectedCategories.join(','));
     }
   }
 
+  // One audience picked: its landing page names it in the path.
+  const audiences = COLLECTION_FILTER ? state[COLLECTION_FILTER.stateKey] : [];
+  const landingFilter =
+    landingCategory !== undefined &&
+    audiences.length === 1 &&
+    !!state.audienceBase &&
+    (state.audiences ?? []).includes(audiences[0])
+      ? COLLECTION_FILTER
+      : undefined;
+  if (landingFilter) {
+    basePath = getLandingPath(state, audiences[0], landingCategory ?? null);
+  }
+
   for (const filter of ATTRIBUTE_FILTERS) {
-    if (filter === archiveAttribute) continue;
+    if (filter === archiveAttribute || filter === landingFilter) continue;
     const selected = state[filter.stateKey];
     if (selected.length > 0) params.set(filter.urlParam, selected.join(','));
   }
@@ -233,6 +290,14 @@ export function applyUrlState(
     state[filter.stateKey] = (params.get(filter.urlParam) || '')
       .split(',')
       .filter(Boolean);
+  }
+  // A landing page's audience, from the path (/shop/mens/t-shirts/ →
+  // collection 'mens').
+  const landing = parseLandingPath(state, window.location.pathname);
+  if (landing && COLLECTION_FILTER) {
+    state[COLLECTION_FILTER.stateKey] = [
+      ...new Set([landing.audience, ...state[COLLECTION_FILTER.stateKey]]),
+    ];
   }
   // An attribute archive's own term, from the path (/collection/womens/ →
   // collection 'womens'), so its chip shows selected and facets stay scoped.

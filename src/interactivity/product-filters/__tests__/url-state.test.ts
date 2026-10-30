@@ -1,4 +1,4 @@
-import { applyUrlState, buildFilterUrl } from '../url-state';
+import { applyUrlState, buildFilterUrl, parseLandingPath } from '../url-state';
 import type { ProductFiltersState } from '../types';
 
 function state(
@@ -308,5 +308,140 @@ describe('attribute and tag archives', () => {
     applyUrlState(s, new URLSearchParams(''));
 
     expect(s.selectedCollections).toEqual([]);
+  });
+});
+
+/**
+ * Audience landing pages (/shop/mens/, /shop/mens/t-shirts/): one picked
+ * Collection lives in the path, mirroring Audience_Landing_Pages on the server.
+ */
+function audienceState(
+  overrides: Partial<ProductFiltersState> = {}
+): ProductFiltersState {
+  return {
+    shopUrl: 'http://localhost/shop/',
+    salesCategoryUrl: 'http://localhost/shop/sales/',
+    salesCategorySlug: 'sales',
+    currentCategorySlug: '',
+    archiveTerm: { taxonomy: '', slug: '', link: '' },
+    categories: [
+      {
+        slug: 't-shirts',
+        name: 'T-Shirts',
+        link: 'http://localhost/shop/t-shirts/',
+      },
+      {
+        slug: 'hoodies',
+        name: 'Hoodies',
+        link: 'http://localhost/shop/hoodies/',
+      },
+    ],
+    audiences: ['mens', 'womens'],
+    audienceBase: '/shop/',
+    selectedCategories: [],
+    selectedColors: [],
+    selectedSizes: [],
+    selectedCollections: [],
+    priceRange: { min: 0, max: 100 },
+    priceMin: 0,
+    priceMax: 100,
+    inStockOnly: false,
+    onSaleOnly: false,
+    orderby: '',
+    ...overrides,
+  } as unknown as ProductFiltersState;
+}
+
+function visitPath(path: string): URLSearchParams {
+  window.history.replaceState(null, '', path);
+  return new URLSearchParams(window.location.search);
+}
+
+describe('audience landing paths', () => {
+  it('parses the audience and category, on any page', () => {
+    const state = audienceState();
+    expect(parseLandingPath(state, '/shop/mens/')).toEqual({
+      audience: 'mens',
+      category: null,
+    });
+    expect(parseLandingPath(state, '/shop/mens/t-shirts/')).toEqual({
+      audience: 'mens',
+      category: 't-shirts',
+    });
+    expect(parseLandingPath(state, '/shop/womens/t-shirts/page/2/')).toEqual({
+      audience: 'womens',
+      category: 't-shirts',
+    });
+    expect(parseLandingPath(state, '/shop/mens/page/3/')).toEqual({
+      audience: 'mens',
+      category: null,
+    });
+  });
+
+  it('ignores other paths', () => {
+    const state = audienceState();
+    expect(parseLandingPath(state, '/shop/t-shirts/')).toBeNull();
+    expect(parseLandingPath(state, '/shop/')).toBeNull();
+    expect(parseLandingPath(state, '/shop/kids/t-shirts/')).toBeNull();
+    expect(parseLandingPath(state, '/shop/mens/a/b/')).toBeNull();
+    expect(
+      parseLandingPath(audienceState({ audienceBase: '' }), '/shop/mens/')
+    ).toBeNull();
+  });
+
+  it('reads the audience and category from a landing URL', () => {
+    const state = audienceState();
+    applyUrlState(state, visitPath('/shop/mens/t-shirts/?size=m'));
+    expect(state.selectedCollections).toEqual(['mens']);
+    expect(state.selectedCategories).toEqual(['t-shirts']);
+    expect(state.selectedSizes).toEqual(['m']);
+  });
+
+  it('writes one audience into the path', () => {
+    const state = audienceState({ selectedCollections: ['mens'] });
+    expect(buildFilterUrl(state, [])).toBe('/shop/mens/');
+
+    state.selectedCategories = ['t-shirts'];
+    state.selectedSizes = ['m'];
+    expect(buildFilterUrl(state, [])).toBe('/shop/mens/t-shirts/?size=m');
+  });
+
+  it('keeps two audiences, several categories and unknown audiences as filters', () => {
+    expect(
+      buildFilterUrl(
+        audienceState({
+          selectedCollections: ['mens', 'womens'],
+          selectedCategories: ['t-shirts'],
+        }),
+        []
+      )
+    ).toBe('/shop/t-shirts/?collection=mens%2Cwomens');
+    expect(
+      buildFilterUrl(
+        audienceState({
+          selectedCollections: ['mens'],
+          selectedCategories: ['t-shirts', 'hoodies'],
+        }),
+        []
+      )
+    ).toBe('/shop/mens/?cat=t-shirts%2Choodies');
+    expect(
+      buildFilterUrl(audienceState({ selectedCollections: ['kids'] }), [])
+    ).toBe('/shop/?collection=kids');
+  });
+
+  it('puts the Sales category under the audience', () => {
+    const state = audienceState({
+      selectedCollections: ['womens'],
+      onSaleOnly: true,
+    });
+    expect(buildFilterUrl(state, [])).toBe('/shop/womens/sales/');
+  });
+
+  it('round-trips: removing the audience leaves the landing page', () => {
+    const state = audienceState();
+    applyUrlState(state, visitPath('/shop/mens/t-shirts/'));
+    state.selectedCollections = [];
+    expect(buildFilterUrl(state, [])).toBe('/shop/t-shirts/');
   });
 });

@@ -16,6 +16,7 @@ parameters:
 		- stubs/wordpress-vip.php
 		- stubs/woocommerce-stock-notifications.php
 		- stubs/wp-cli.php
+		- stubs/rank-math.php
 
 	# Treat PHP code as if it always runs on PHP 8.2+
 	phpVersion: 80200

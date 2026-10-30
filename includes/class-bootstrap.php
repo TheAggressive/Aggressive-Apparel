@@ -182,6 +182,7 @@ class Bootstrap {
 			$this->container->register( 'wc_enhancements', fn( Service_Container $container ) => new WooCommerce\Enhancements( $container ) );
 			$this->container->register( 'storefront_rest_requests', fn() => new WooCommerce\Storefront_Rest_Requests() );
 			$this->container->register( 'catalog_archive_filters', fn() => new WooCommerce\Catalog_Archive_Filters() );
+			$this->container->register( 'audience_landing_pages', fn() => new WooCommerce\Audience_Landing_Pages() );
 			$this->container->register( 'wcpay_appearance', fn() => new WooCommerce\Wcpay_Appearance() );
 			$this->container->register( 'mini_cart_a11y', fn() => new WooCommerce\Mini_Cart_A11y() );
 			$this->container->register( 'cart_order_meta', fn() => new WooCommerce\Cart_Order_Meta() );
@@ -277,6 +278,7 @@ class Bootstrap {
 		$this->container->get( 'wc_enhancements' )->init();
 		$this->container->get( 'storefront_rest_requests' )->init();
 		$this->container->get( 'catalog_archive_filters' )->init();
+		$this->container->get( 'audience_landing_pages' )->init();
 		$this->container->get( 'wcpay_appearance' )->init();
 		$this->container->get( 'mini_cart_a11y' )->init();
 		$this->container->get( 'cart_order_meta' )->init();

@@ -273,16 +273,34 @@ Editor navigation, external links) must use `?collection=`.
 
 ### Men's / Women's landing pages
 
-Indexable audience pages are **native product subcategories** (e.g. *Men's
-T-Shirts* under *T-Shirts* → `/shop/t-shirts/mens-t-shirts/`), so Rank Math,
-sitemaps, breadcrumbs, menus and product feeds handle them with no theme code.
-Assign products to the subcategory as well as the Collection attribute.
-Category slugs are unique site-wide, hence `mens-t-shirts`, not `mens`.
+Each Collection term with products gets clean, indexable URLs under the
+category base (`Audience_Landing_Pages`):
 
-`?collection=` stays a **browsing filter**: applied by the product-filters
-script, not the server, and canonicalised to the category by Rank Math. A
-parent category's archive, facets and custom sorts include its subcategories'
-products.
+- `/shop/mens/` — every Men's product (the shop archive, Collection = Men's)
+- `/shop/mens/t-shirts/` — the T-Shirts category, Men's only (any category
+  slug, children included; `/page/N/` for later pages)
+
+They are **not terms**: each route is the shop or a category archive with the
+audience applied exactly as `?collection=mens` is (`Catalog_Url_Filters`), so
+products keep one category and their Collection terms (tag a product Men's
+*and* Women's to list it on both), and filters, facets, sorting and Load More
+work unchanged. Rules are built from the terms and rebuilt automatically when
+they change; a top-level product category with an audience's slug keeps its
+own archive (that audience gets no route).
+
+- **SEO:** H1 and title "Men's T-Shirts" (the Collection term's *name* — use
+  "Men's", not "Mens"), a self canonical, and the breadcrumb Home › Shop ›
+  Men's › T-Shirts. With Rank Math: its title and description for the archive
+  are prefixed with the audience, `og:url` follows the canonical, an empty
+  combination is `noindex`, and `audience-sitemap.xml` lists every
+  combination that has products.
+- **One URL per selection:** the product filters write the landing path when
+  one audience is picked (two audiences stay `?collection=mens,womens`,
+  canonicalised to the category). A single-audience `?collection=` URL, a
+  landing URL that repeats its audience, `?aa_audience=` and the Collection
+  attribute archive (`/collection/mens/`) 301 to the landing page.
+- **Navigation:** picking or dropping an audience is a full page load (new
+  title, H1 and breadcrumbs); other filters on a landing page swap in place.
 
 ### History
 

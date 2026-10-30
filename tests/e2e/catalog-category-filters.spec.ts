@@ -94,23 +94,24 @@ test.describe('filtered URLs', () => {
   test.use({ javaScriptEnabled: false });
 
   test('render the filtered products on the server', async ({ page }) => {
-    await page.goto(`/shop/?collection=${CHILD_COLLECTION}`);
+    // One Collection is an audience landing page (/shop/{collection}/).
+    await page.goto(`/shop/${CHILD_COLLECTION}/`);
     expect(await cardTitles(page)).toEqual(['E2E Filter Child Product']);
+    await expect(page.locator('h1').first()).toHaveText('E2E Child Only');
+
+    await page.goto(`/shop/${CHILD_COLLECTION}/${PARENT_CATEGORY}/`);
+    expect(await cardTitles(page)).toEqual(['E2E Filter Child Product']);
+    await expect(page.locator('h1').first()).toHaveText(
+      `E2E Child Only ${PARENT_NAME}`
+    );
 
     await page.goto('/shop/?collection=e2e-no-such-collection');
     await expect(page.locator('.aa-catalog-no-results')).toBeVisible();
   });
 });
 
-test('applying a filter swaps the grid in place; back restores it', async ({
-  page,
-}) => {
-  await page.goto('/shop/', { waitUntil: 'networkidle' });
-  const unfiltered = await cardTitles(page);
-  expect(unfiltered.length).toBeGreaterThan(1);
-  await page.evaluate(() => {
-    (window as Window & { aaSamePage?: boolean }).aaSamePage = true;
-  });
+test('picking one Collection opens its landing page', async ({ page }) => {
+  await page.goto(fixtures.parentUrl, { waitUntil: 'networkidle' });
 
   const chip = page
     .locator(
@@ -118,10 +119,50 @@ test('applying a filter swaps the grid in place; back restores it', async ({
     )
     .first();
   await reveal(page, chip);
-  await chip.click();
+
   await Promise.all([
     page.waitForURL(
-      url => url.searchParams.get('collection') === CHILD_COLLECTION
+      url => url.pathname === `/shop/${CHILD_COLLECTION}/${PARENT_CATEGORY}/`
+    ),
+    (async () => {
+      await chip.click();
+      await page.keyboard.press('Escape');
+    })(),
+  ]);
+  expect(await cardTitles(page)).toEqual(['E2E Filter Child Product']);
+
+  // Loaded directly, the landing page shows its Collection as picked.
+  await page.reload({ waitUntil: 'networkidle' });
+  const picked = page
+    .locator(
+      `.aa-product-filters__collection-chip[data-filter-value="${CHILD_COLLECTION}"]`
+    )
+    .first();
+  await reveal(page, picked);
+  await expect(picked).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('a filter on the same page swaps the grid in place; back restores it', async ({
+  page,
+}) => {
+  // A landing page keeps its path when another filter is added, so only the
+  // collection is swapped (picking an audience is a full navigation instead,
+  // so the new page's title and breadcrumbs come from the server).
+  await page.goto(`/shop/${CHILD_COLLECTION}/`, { waitUntil: 'networkidle' });
+  const unfiltered = await cardTitles(page);
+  expect(unfiltered).toEqual(['E2E Filter Child Product']);
+  await page.evaluate(() => {
+    (window as Window & { aaSamePage?: boolean }).aaSamePage = true;
+  });
+
+  const toggle = page.locator('.aa-product-filters__stock-checkbox').first();
+  await reveal(page, toggle);
+  await toggle.check();
+  await Promise.all([
+    page.waitForURL(
+      url =>
+        url.pathname === `/shop/${CHILD_COLLECTION}/` &&
+        url.searchParams.get('stock') === 'instock'
     ),
     page.keyboard.press('Escape'),
   ]);
@@ -140,12 +181,12 @@ test('applying a filter swaps the grid in place; back restores it', async ({
   );
 
   await page.goBack();
+  await expect(page).toHaveURL(url => !url.searchParams.has('stock'));
   await expect.poll(() => cardTitles(page)).toEqual(unfiltered);
-  await expect(chip).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('sorting keeps the active filters', async ({ page }) => {
-  await page.goto(`/shop/?collection=${CHILD_COLLECTION}`, {
+  await page.goto(`/shop/${CHILD_COLLECTION}/`, {
     waitUntil: 'networkidle',
   });
 
@@ -154,8 +195,6 @@ test('sorting keeps the active filters', async ({ page }) => {
     page.locator('select[name="orderby"]').first().selectOption('price'),
   ]);
 
-  expect(new URL(page.url()).searchParams.get('collection')).toBe(
-    CHILD_COLLECTION
-  );
+  expect(new URL(page.url()).pathname).toBe(`/shop/${CHILD_COLLECTION}/`);
   expect(await cardTitles(page)).toEqual(['E2E Filter Child Product']);
 });

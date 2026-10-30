@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-29T23:08:27+00:00\n"
+"POT-Creation-Date: 2026-10-30T03:50:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -46,7 +46,7 @@ msgid "Icon not found."
 msgstr ""
 
 #. translators: %s: navigation submenu label.
-#: includes/Blocks/class-navigation-functions.php:237
+#: includes/Blocks/class-navigation-functions.php:226
 #, php-format
 msgid "View all in %s"
 msgstr ""
@@ -57,76 +57,76 @@ msgstr ""
 msgid "Service '%s' not registered"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:68
+#: includes/Core/class-block-categories.php:66
 msgid "Aggressive"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:69
+#: includes/Core/class-block-categories.php:67
 msgid "Premium apparel patterns for the Aggressive brand."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:73
+#: includes/Core/class-block-categories.php:71
 msgid "Homepage"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:74
+#: includes/Core/class-block-categories.php:72
 msgid "Full homepage compositions and hero sections."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:78
+#: includes/Core/class-block-categories.php:76
 msgid "Shop & Products"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:79
+#: includes/Core/class-block-categories.php:77
 msgid "Product grids, collections, and shop-the-look layouts."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:83
+#: includes/Core/class-block-categories.php:81
 msgid "Shop Archive"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:84
+#: includes/Core/class-block-categories.php:82
 msgid "PLP headers, filters, and browse recovery states."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:88
+#: includes/Core/class-block-categories.php:86
 #: includes/WooCommerce/class-feature-settings.php:420
 msgid "Product Page"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:89
+#: includes/Core/class-block-categories.php:87
 msgid "PDP support modules: fit, shipping, cross-sells."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:93
+#: includes/Core/class-block-categories.php:91
 msgid "Drops & Culture"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:94
+#: includes/Core/class-block-categories.php:92
 msgid "Drop launches, collabs, creators, and events."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:98
+#: includes/Core/class-block-categories.php:96
 msgid "Social Proof"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:99
+#: includes/Core/class-block-categories.php:97
 msgid "UGC, reviews, press, and community."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:103
+#: includes/Core/class-block-categories.php:101
 msgid "Conversion"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:104
+#: includes/Core/class-block-categories.php:102
 msgid "Email capture, promos, loyalty, and urgency."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:108
+#: includes/Core/class-block-categories.php:106
 msgid "Brand & Content"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:109
+#: includes/Core/class-block-categories.php:107
 msgid "About, journal, FAQ, and brand story sections."
 msgstr ""
 
@@ -167,46 +167,46 @@ msgstr ""
 msgid "(opens in a new tab)"
 msgstr ""
 
-#: includes/Core/class-favicon.php:72
+#: includes/Core/class-favicon.php:78
 msgid "Dark Mode Site Icon"
 msgstr ""
 
-#: includes/Core/class-favicon.php:79
+#: includes/Core/class-favicon.php:85
 msgid "Dark Mode Icon"
 msgstr ""
 
-#: includes/Core/class-favicon.php:105
+#: includes/Core/class-favicon.php:111
 msgid "Set a separate icon to display when visitors are using dark mode. The Site Icon above is used for light mode."
 msgstr ""
 
-#: includes/Core/class-favicon.php:135
-#: includes/Core/class-favicon.php:193
+#: includes/Core/class-favicon.php:141
+#: includes/Core/class-favicon.php:199
 msgid "No icon"
 msgstr ""
 
-#: includes/Core/class-favicon.php:149
-#: includes/Core/class-favicon.php:184
+#: includes/Core/class-favicon.php:155
+#: includes/Core/class-favicon.php:190
 msgid "Change dark mode icon"
 msgstr ""
 
-#: includes/Core/class-favicon.php:149
-#: includes/Core/class-favicon.php:194
+#: includes/Core/class-favicon.php:155
+#: includes/Core/class-favicon.php:200
 msgid "Select dark mode icon"
 msgstr ""
 
-#: includes/Core/class-favicon.php:156
+#: includes/Core/class-favicon.php:162
 msgid "Remove dark mode icon"
 msgstr ""
 
-#: includes/Core/class-favicon.php:161
+#: includes/Core/class-favicon.php:167
 msgid "Recommended: 512×512 PNG or SVG. Shown when visitors use dark mode via OS preference or the theme toggle."
 msgstr ""
 
-#: includes/Core/class-favicon.php:175
+#: includes/Core/class-favicon.php:181
 msgid "Select Dark Mode Site Icon"
 msgstr ""
 
-#: includes/Core/class-favicon.php:176
+#: includes/Core/class-favicon.php:182
 msgid "Use as dark mode icon"
 msgstr ""
 
@@ -232,7 +232,7 @@ msgstr ""
 
 #: includes/Core/class-legal-identity.php:63
 #: includes/Core/class-legal-identity.php:64
-#: includes/Core/class-legal-identity.php:390
+#: includes/Core/class-legal-identity.php:396
 msgid "Terms"
 msgstr ""
 
@@ -282,130 +282,130 @@ msgstr ""
 msgid "This is a starter Terms of Service page. Replace this text with your store’s terms covering purchases, returns, shipping, and acceptable use."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:296
+#: includes/Core/class-legal-identity.php:302
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:309
+#: includes/Core/class-legal-identity.php:315
 msgid "The currently selected Terms of Service page does not exist. Please create or select a new page."
 msgstr ""
 
 #. translators: %s: URL to Pages Trash.
-#: includes/Core/class-legal-identity.php:318
+#: includes/Core/class-legal-identity.php:324
 #, php-format
 msgid "The currently selected Terms of Service page is in the Trash. Please create or select a new page or <a href=\"%s\">restore the current page</a>."
 msgstr ""
 
 #. translators: %s: URL to edit the Privacy Policy page.
-#: includes/Core/class-legal-identity.php:344
+#: includes/Core/class-legal-identity.php:350
 #, php-format
 msgid "Your Privacy Policy page is not published yet. <a href=\"%s\">Publish it</a> so visitors can open the Privacy link in the footer."
 msgstr ""
 
 #. translators: %s: URL to Settings → Privacy.
-#: includes/Core/class-legal-identity.php:355
+#: includes/Core/class-legal-identity.php:361
 #, php-format
 msgid "No usable Privacy Policy page is set. Choose one under <a href=\"%s\">Settings → Privacy</a>."
 msgstr ""
 
 #. translators: %s: URL to Settings → Privacy.
-#: includes/Core/class-legal-identity.php:367
+#: includes/Core/class-legal-identity.php:373
 #, php-format
 msgid "No Privacy Policy page is set. Choose one under <a href=\"%s\">Settings → Privacy</a> for the Copyright block Privacy link."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:393
+#: includes/Core/class-legal-identity.php:399
 msgid "Secondary menu"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:395
+#: includes/Core/class-legal-identity.php:401
 msgctxt "Terms Settings"
 msgid "Settings"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:398
+#: includes/Core/class-legal-identity.php:404
 msgid "Privacy"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:407
+#: includes/Core/class-legal-identity.php:413
 msgid "The Terms Settings require JavaScript."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:416
+#: includes/Core/class-legal-identity.php:422
 msgid "Terms of Service Settings"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:418
+#: includes/Core/class-legal-identity.php:424
 msgid "As a website owner, you may need to publish Terms of Service covering purchases, returns, and site use."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:419
+#: includes/Core/class-legal-identity.php:425
 msgid "If you already have a Terms page, please select it below. If not, please create one."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:422
+#: includes/Core/class-legal-identity.php:428
 msgid "After your Terms of Service page is set, you should edit it."
 msgstr ""
 
 #. translators: %s: URL to Settings → Privacy.
-#: includes/Core/class-legal-identity.php:427
+#: includes/Core/class-legal-identity.php:433
 #, php-format
 msgid "Your <a href=\"%s\">Privacy Policy</a> is managed separately under Settings → Privacy."
 msgstr ""
 
 #. translators: 1: URL to edit Terms page, 2: URL to view Terms page.
-#: includes/Core/class-legal-identity.php:456
+#: includes/Core/class-legal-identity.php:462
 #, php-format
 msgid "<a href=\"%1$s\">Edit</a> or <a href=\"%2$s\">view</a> your Terms of Service page content."
 msgstr ""
 
 #. translators: 1: URL to edit Terms page, 2: URL to preview Terms page.
-#: includes/Core/class-legal-identity.php:470
+#: includes/Core/class-legal-identity.php:476
 #, php-format
 msgid "<a href=\"%1$s\">Edit</a> or <a href=\"%2$s\">preview</a> your Terms of Service page content."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:494
+#: includes/Core/class-legal-identity.php:500
 msgid "Create a new Terms of Service page"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:496
+#: includes/Core/class-legal-identity.php:502
 msgid "There are no pages."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:507
+#: includes/Core/class-legal-identity.php:513
 msgid "Create"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:523
+#: includes/Core/class-legal-identity.php:529
 msgid "Change your Terms of Service page"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:525
+#: includes/Core/class-legal-identity.php:531
 msgid "Select a Terms of Service page"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:538
+#: includes/Core/class-legal-identity.php:544
 msgid "— Select —"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:546
+#: includes/Core/class-legal-identity.php:552
 msgid "Use This Page"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:561
+#: includes/Core/class-legal-identity.php:567
 msgid "Legal identity"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:563
+#: includes/Core/class-legal-identity.php:569
 msgid "Optional legal / organization name used by the Copyright block when Owner source is set to Legal name. Leave blank to fall back to the Site Title."
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:569
+#: includes/Core/class-legal-identity.php:575
 msgid "Legal / organization name"
 msgstr ""
 
-#: includes/Core/class-legal-identity.php:585
+#: includes/Core/class-legal-identity.php:591
 msgid "Save"
 msgstr ""
 
@@ -431,19 +431,19 @@ msgid "All"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:109
-#: includes/Core/class-search-modal.php:265
+#: includes/Core/class-search-modal.php:264
 #: includes/Core/class-search-rest.php:156
 msgid "Products"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:111
-#: includes/Core/class-search-modal.php:266
+#: includes/Core/class-search-modal.php:265
 #: includes/Core/class-search-rest.php:167
 msgid "Articles"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:112
-#: includes/Core/class-search-modal.php:267
+#: includes/Core/class-search-modal.php:266
 #: includes/Core/class-search-rest.php:178
 msgid "Pages"
 msgstr ""
@@ -458,8 +458,8 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:200
 #: includes/Core/class-search-modal.php:202
-#: includes/WooCommerce/class-mobile-bottom-nav.php:154
-#: includes/WooCommerce/class-mobile-bottom-nav.php:160
+#: includes/WooCommerce/class-mobile-bottom-nav.php:152
+#: includes/WooCommerce/class-mobile-bottom-nav.php:158
 #: src/blocks-interactivity/search/render.php:28
 msgid "Search"
 msgstr ""
@@ -469,7 +469,7 @@ msgid "Clear search"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:205
-#: includes/WooCommerce/class-mobile-bottom-nav.php:212
+#: includes/WooCommerce/class-mobile-bottom-nav.php:210
 msgid "Close search"
 msgstr ""
 
@@ -482,20 +482,20 @@ msgid "Searching…"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:211
-#: includes/Core/class-search-modal.php:260
+#: includes/Core/class-search-modal.php:259
 #: src/blocks-interactivity/wishlist/render.php:122
 msgid "Try again"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:212
-#: includes/Core/class-search-modal.php:254
+#: includes/Core/class-search-modal.php:253
 #: patterns/template-no-search-results.php:15
 msgid "No results found."
 msgstr ""
 
 #: includes/Core/class-search-modal.php:213
 #: includes/Core/class-search-modal.php:215
-#: includes/Core/class-search-modal.php:263
+#: includes/Core/class-search-modal.php:262
 msgid "View all results"
 msgstr ""
 
@@ -515,39 +515,39 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:255
+#: includes/Core/class-search-modal.php:254
 msgid "1 result found."
 msgstr ""
 
 #. translators: %d: number of search results.
-#: includes/Core/class-search-modal.php:257
+#: includes/Core/class-search-modal.php:256
 #, php-format
 msgid "%d results found."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:258
+#: includes/Core/class-search-modal.php:257
 msgid "Search is temporarily unavailable. Please try again."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:259
+#: includes/Core/class-search-modal.php:258
 msgid "Too many requests. Please slow down and try again."
 msgstr ""
 
 #. translators: 1: active tab label, 2: number of results in other types.
-#: includes/Core/class-search-modal.php:262
+#: includes/Core/class-search-modal.php:261
 #, php-format
 msgid "No %1$s found. View all results (%2$d) instead."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:359
+#: includes/Core/class-search-modal.php:349
 msgid "Find Your Fit…"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:361
+#: includes/Core/class-search-modal.php:351
 msgid "Read the Noise…"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:362
+#: includes/Core/class-search-modal.php:352
 msgid "Find Your Way…"
 msgstr ""
 
@@ -1110,7 +1110,6 @@ msgid "Back in Stock Notifications is on, but WooCommerce is not accepting signu
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock.php:116
-#: includes/WooCommerce/class-color-swatch-migration.php:205
 msgid "Open settings"
 msgstr ""
 
@@ -1420,7 +1419,7 @@ msgstr ""
 #: includes/WooCommerce/class-badge-rules-admin.php:47
 #: includes/WooCommerce/class-badge-rules-admin.php:105
 #: includes/WooCommerce/class-size-guide.php:219
-#: includes/WooCommerce/class-sticky-add-to-cart.php:299
+#: includes/WooCommerce/class-sticky-add-to-cart.php:297
 msgid "Close"
 msgstr ""
 
@@ -1698,18 +1697,6 @@ msgstr ""
 
 #: includes/WooCommerce/class-checkout-payment-note.php:63
 msgid "All transactions are secure and encrypted."
-msgstr ""
-
-#: includes/WooCommerce/class-color-swatch-migration.php:197
-msgid "WooCommerce draws them only while its \"Color swatches for attributes\" feature is on (Settings → Advanced → Features) and the Color attribute's type is \"Color / image\", which needs a block theme."
-msgstr ""
-
-#: includes/WooCommerce/class-color-swatch-migration.php:198
-msgid "This WooCommerce version has no \"Color swatches for attributes\" feature; update WooCommerce to show them."
-msgstr ""
-
-#: includes/WooCommerce/class-color-swatch-migration.php:202
-msgid "Product pages show colours as text, not swatches."
 msgstr ""
 
 #: includes/WooCommerce/class-custom-badge-taxonomy.php:511
@@ -2243,7 +2230,7 @@ msgid "Preview products in a modal from shop cards. Style and Wishlist pairing o
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:502
-#: includes/WooCommerce/class-frequently-bought-together.php:251
+#: includes/WooCommerce/class-frequently-bought-together.php:247
 msgid "Frequently Bought Together"
 msgstr ""
 
@@ -2252,8 +2239,8 @@ msgid "Show recommended products with checkboxes and combined add-to-cart on pro
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:509
+#: includes/WooCommerce/class-mobile-bottom-nav.php:178
 #: includes/WooCommerce/class-mobile-bottom-nav.php:180
-#: includes/WooCommerce/class-mobile-bottom-nav.php:182
 #: includes/WooCommerce/class-wishlist.php:204
 msgid "Wishlist"
 msgstr ""
@@ -2317,117 +2304,117 @@ msgstr ""
 msgid "%s UNLOCKED!"
 msgstr ""
 
-#: includes/WooCommerce/class-frequently-bought-together.php:177
-#: includes/WooCommerce/class-quick-view-renderer.php:105
+#: includes/WooCommerce/class-frequently-bought-together.php:173
+#: includes/WooCommerce/class-quick-view-renderer.php:104
 msgid "Adding…"
 msgstr ""
 
-#: includes/WooCommerce/class-frequently-bought-together.php:178
+#: includes/WooCommerce/class-frequently-bought-together.php:174
 msgid "Added!"
 msgstr ""
 
-#: includes/WooCommerce/class-frequently-bought-together.php:179
+#: includes/WooCommerce/class-frequently-bought-together.php:175
 msgid "Error — try again"
 msgstr ""
 
 #. translators: %d: number of selected products to add to cart.
 #. translators: %d: number of items.
-#: includes/WooCommerce/class-frequently-bought-together.php:181
-#: includes/WooCommerce/class-frequently-bought-together.php:279
+#: includes/WooCommerce/class-frequently-bought-together.php:177
+#: includes/WooCommerce/class-frequently-bought-together.php:275
 #, php-format
 msgid "Add all %d items to cart"
 msgstr ""
 
-#: includes/WooCommerce/class-frequently-bought-together.php:182
+#: includes/WooCommerce/class-frequently-bought-together.php:178
 msgid "All items have been added to your cart."
 msgstr ""
 
-#: includes/WooCommerce/class-frequently-bought-together.php:183
+#: includes/WooCommerce/class-frequently-bought-together.php:179
 msgid "There was an error adding items to cart."
 msgstr ""
 
-#: includes/WooCommerce/class-frequently-bought-together.php:249
+#: includes/WooCommerce/class-frequently-bought-together.php:245
 msgid "Frequently bought together"
 msgstr ""
 
-#: includes/WooCommerce/class-frequently-bought-together.php:263
+#: includes/WooCommerce/class-frequently-bought-together.php:259
 msgid "Total price:"
 msgstr ""
 
 #. translators: %s: product name.
-#: includes/WooCommerce/class-frequently-bought-together.php:341
+#: includes/WooCommerce/class-frequently-bought-together.php:337
 #, php-format
 msgid "Include %s"
 msgstr ""
 
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:150
-#: includes/WooCommerce/class-load-more.php:245
+#: includes/WooCommerce/class-load-more.php:149
+#: includes/WooCommerce/class-load-more.php:239
 #, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:208
+#: includes/WooCommerce/class-load-more.php:206
 msgid "More products could not be loaded."
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:210
+#: includes/WooCommerce/class-load-more.php:208
 msgid "Open the next page"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:242
+#: includes/WooCommerce/class-load-more.php:236
 msgid "Loading more products…"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:243
+#: includes/WooCommerce/class-load-more.php:237
 msgid "Products could not be loaded. Try again."
 msgstr ""
 
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:247
+#: includes/WooCommerce/class-load-more.php:241
 #, php-format
 msgid "%d more products loaded."
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:122
-#: includes/WooCommerce/class-mobile-bottom-nav.php:163
-#: includes/WooCommerce/class-mobile-bottom-nav.php:171
+#: includes/WooCommerce/class-mobile-bottom-nav.php:121
+#: includes/WooCommerce/class-mobile-bottom-nav.php:161
+#: includes/WooCommerce/class-mobile-bottom-nav.php:169
 #: patterns/template-cart-heading.php:15
 msgid "Cart"
 msgstr ""
 
 #. translators: %d: Number of items in the cart (one).
-#: includes/WooCommerce/class-mobile-bottom-nav.php:124
+#: includes/WooCommerce/class-mobile-bottom-nav.php:123
 #, php-format
 msgid "Cart (%d item)"
 msgstr ""
 
 #. translators: %d: Number of items in the cart (several).
-#: includes/WooCommerce/class-mobile-bottom-nav.php:126
+#: includes/WooCommerce/class-mobile-bottom-nav.php:125
 #, php-format
 msgid "Cart (%d items)"
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:143
+#: includes/WooCommerce/class-mobile-bottom-nav.php:141
 msgid "Mobile navigation"
 msgstr ""
 
+#: includes/WooCommerce/class-mobile-bottom-nav.php:143
 #: includes/WooCommerce/class-mobile-bottom-nav.php:145
-#: includes/WooCommerce/class-mobile-bottom-nav.php:147
 msgid "Home"
 msgstr ""
 
+#: includes/WooCommerce/class-mobile-bottom-nav.php:172
 #: includes/WooCommerce/class-mobile-bottom-nav.php:174
-#: includes/WooCommerce/class-mobile-bottom-nav.php:176
 msgid "Account"
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:199
-#: includes/WooCommerce/class-mobile-bottom-nav.php:208
+#: includes/WooCommerce/class-mobile-bottom-nav.php:197
+#: includes/WooCommerce/class-mobile-bottom-nav.php:206
 msgid "Search products"
 msgstr ""
 
-#: includes/WooCommerce/class-mobile-bottom-nav.php:207
+#: includes/WooCommerce/class-mobile-bottom-nav.php:205
 msgid "Search products…"
 msgstr ""
 
@@ -2462,12 +2449,12 @@ msgid "Printful didn’t answer (status %d). Try again in a moment."
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:232
-#: includes/WooCommerce/class-quick-view-renderer.php:116
+#: includes/WooCommerce/class-quick-view-renderer.php:115
 msgid "In Stock"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:236
-#: includes/WooCommerce/class-quick-view-renderer.php:115
+#: includes/WooCommerce/class-quick-view-renderer.php:114
 #: includes/WooCommerce/class-store-copy.php:98
 #: patterns/design-system-preview.php:157
 msgid "Out of Stock"
@@ -2548,12 +2535,12 @@ msgid "Maximum price"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:240
-#: includes/WooCommerce/class-product-filters.php:325
+#: includes/WooCommerce/class-product-filters.php:319
 msgid "In stock"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:245
-#: includes/WooCommerce/class-product-filters.php:326
+#: includes/WooCommerce/class-product-filters.php:320
 msgid "On sale"
 msgstr ""
 
@@ -2562,71 +2549,71 @@ msgid "Filter by category"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:320
+#: includes/WooCommerce/class-product-filters.php:314
 #, php-format
 msgid "(%s filter applied)"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:322
+#: includes/WooCommerce/class-product-filters.php:316
 #, php-format
 msgid "(%s filters applied)"
 msgstr ""
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:324
+#: includes/WooCommerce/class-product-filters.php:318
 #, php-format
 msgid "Additional filters: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:327
+#: includes/WooCommerce/class-product-filters.php:321
 msgid "All filters cleared."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:328
+#: includes/WooCommerce/class-product-filters.php:322
 msgid "No products found."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:329
+#: includes/WooCommerce/class-product-filters.php:323
 msgid "1 product found."
 msgstr ""
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:331
+#: includes/WooCommerce/class-product-filters.php:325
 #, php-format
 msgid "%d products found."
 msgstr ""
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:333
+#: includes/WooCommerce/class-product-filters.php:327
 #, php-format
 msgid "Remove %s filter"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:397
-#: includes/WooCommerce/class-product-filters.php:488
+#: includes/WooCommerce/class-product-filters.php:391
+#: includes/WooCommerce/class-product-filters.php:482
 msgid "Product filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:406
+#: includes/WooCommerce/class-product-filters.php:400
 msgid "Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:411
+#: includes/WooCommerce/class-product-filters.php:405
 msgid "Close filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:436
+#: includes/WooCommerce/class-product-filters.php:430
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 msgid "Clear All"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:442
-#: includes/WooCommerce/class-product-filters.php:498
+#: includes/WooCommerce/class-product-filters.php:436
+#: includes/WooCommerce/class-product-filters.php:492
 msgid "View Results"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:502
+#: includes/WooCommerce/class-product-filters.php:496
 msgid "Clear All Filters"
 msgstr ""
 
@@ -3611,7 +3598,7 @@ msgstr ""
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
 #: includes/WooCommerce/class-quick-view-card-actions.php:75
-#: includes/WooCommerce/class-wishlist.php:476
+#: includes/WooCommerce/class-wishlist.php:474
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -3626,96 +3613,96 @@ msgstr ""
 msgid "Product actions: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:106
+#: includes/WooCommerce/class-quick-view-renderer.php:105
 msgid "✓ Added!"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:110
-#: includes/WooCommerce/class-sticky-add-to-cart.php:133
+#: includes/WooCommerce/class-quick-view-renderer.php:109
+#: includes/WooCommerce/class-sticky-add-to-cart.php:132
 msgid "Redirecting…"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:114
-#: includes/WooCommerce/class-quick-view-renderer.php:641
-#: includes/WooCommerce/class-sticky-add-to-cart.php:136
-#: includes/WooCommerce/class-sticky-add-to-cart.php:426
+#: includes/WooCommerce/class-quick-view-renderer.php:113
+#: includes/WooCommerce/class-quick-view-renderer.php:639
+#: includes/WooCommerce/class-sticky-add-to-cart.php:135
+#: includes/WooCommerce/class-sticky-add-to-cart.php:424
 msgid "Added to cart!"
 msgstr ""
 
 #. translators: %d: remaining stock quantity.
-#: includes/WooCommerce/class-quick-view-renderer.php:118
+#: includes/WooCommerce/class-quick-view-renderer.php:117
 #, php-format
 msgid "Only %d left!"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:119
+#: includes/WooCommerce/class-quick-view-renderer.php:118
 msgid "Product added to cart successfully"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:120
+#: includes/WooCommerce/class-quick-view-renderer.php:119
 msgid "Could not add to cart."
 msgstr ""
 
 #. translators: %s: error message from the cart API.
-#: includes/WooCommerce/class-quick-view-renderer.php:122
+#: includes/WooCommerce/class-quick-view-renderer.php:121
 #, php-format
 msgid "Error: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:123
-#: includes/WooCommerce/class-sticky-add-to-cart.php:139
+#: includes/WooCommerce/class-quick-view-renderer.php:122
+#: includes/WooCommerce/class-sticky-add-to-cart.php:138
 #: patterns/design-system-preview.php:118
 msgid "Unavailable"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:150
+#: includes/WooCommerce/class-quick-view-renderer.php:148
 msgid "Close quick view"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:215
+#: includes/WooCommerce/class-quick-view-renderer.php:213
 msgid "Scroll thumbnails left"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:235
-#: includes/WooCommerce/class-quick-view-renderer.php:280
+#: includes/WooCommerce/class-quick-view-renderer.php:233
+#: includes/WooCommerce/class-quick-view-renderer.php:278
 msgid "View image"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:253
+#: includes/WooCommerce/class-quick-view-renderer.php:251
 msgid "Scroll thumbnails right"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:345
-#: includes/WooCommerce/class-quick-view-renderer.php:528
-#: includes/WooCommerce/class-sticky-add-to-cart.php:199
-#: includes/WooCommerce/class-sticky-add-to-cart.php:370
+#: includes/WooCommerce/class-quick-view-renderer.php:343
+#: includes/WooCommerce/class-quick-view-renderer.php:526
+#: includes/WooCommerce/class-sticky-add-to-cart.php:197
+#: includes/WooCommerce/class-sticky-add-to-cart.php:368
 msgid "Decrease quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:353
-#: includes/WooCommerce/class-quick-view-renderer.php:536
-#: includes/WooCommerce/class-sticky-add-to-cart.php:208
-#: includes/WooCommerce/class-sticky-add-to-cart.php:379
+#: includes/WooCommerce/class-quick-view-renderer.php:351
+#: includes/WooCommerce/class-quick-view-renderer.php:534
+#: includes/WooCommerce/class-sticky-add-to-cart.php:206
+#: includes/WooCommerce/class-sticky-add-to-cart.php:377
 msgid "Quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:359
-#: includes/WooCommerce/class-quick-view-renderer.php:542
-#: includes/WooCommerce/class-sticky-add-to-cart.php:214
-#: includes/WooCommerce/class-sticky-add-to-cart.php:385
+#: includes/WooCommerce/class-quick-view-renderer.php:357
+#: includes/WooCommerce/class-quick-view-renderer.php:540
+#: includes/WooCommerce/class-sticky-add-to-cart.php:212
+#: includes/WooCommerce/class-sticky-add-to-cart.php:383
 msgid "Increase quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:427
-#: includes/WooCommerce/class-sticky-add-to-cart.php:268
+#: includes/WooCommerce/class-quick-view-renderer.php:425
+#: includes/WooCommerce/class-sticky-add-to-cart.php:266
 msgid "Select product options"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:590
+#: includes/WooCommerce/class-quick-view-renderer.php:588
 msgid "Could not load product details. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:628
+#: includes/WooCommerce/class-quick-view-renderer.php:626
 msgid "Close cart confirmation"
 msgstr ""
 
@@ -4020,11 +4007,11 @@ msgstr ""
 msgid "Click to manage Social Proof settings"
 msgstr ""
 
-#: includes/WooCommerce/class-sticky-add-to-cart.php:137
+#: includes/WooCommerce/class-sticky-add-to-cart.php:136
 msgid "Added to cart"
 msgstr ""
 
-#: includes/WooCommerce/class-sticky-add-to-cart.php:138
+#: includes/WooCommerce/class-sticky-add-to-cart.php:137
 msgid "Error adding to cart"
 msgstr ""
 
@@ -4310,26 +4297,26 @@ msgstr ""
 msgid "Applies to product cards, Quick View and the WooCommerce product-page button. Individual Wishlist Button blocks can override these icons."
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:312
+#: includes/WooCommerce/class-wishlist.php:311
 #: src/blocks-interactivity/wishlist-item-actions/render.php:33
 msgid "Remove from wishlist"
 msgstr ""
 
 #. translators: %s: Product name.
-#: includes/WooCommerce/class-wishlist.php:314
+#: includes/WooCommerce/class-wishlist.php:313
 #, php-format
 msgid "Remove %s from wishlist"
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:315
+#: includes/WooCommerce/class-wishlist.php:314
 msgid "Your wishlist could not be updated. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:316
+#: includes/WooCommerce/class-wishlist.php:315
 msgid "Choose options"
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:317
+#: includes/WooCommerce/class-wishlist.php:316
 #: patterns/stacked-feature-products.php:42
 #: patterns/stacked-feature-products.php:116
 #: src/blocks-interactivity/lookbook/render.php:129
@@ -4337,7 +4324,7 @@ msgstr ""
 msgid "View product"
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:318
+#: includes/WooCommerce/class-wishlist.php:317
 msgid "Saved on this device"
 msgstr ""
 
@@ -4898,7 +4885,7 @@ msgstr ""
 
 #: patterns/contact-page.php:36
 #: patterns/return-policy.php:134
-msgid "support@aggressiveapparel.com"
+msgid "support@example.com"
 msgstr ""
 
 #: patterns/contact-page.php:40
@@ -4910,7 +4897,7 @@ msgid "Phone"
 msgstr ""
 
 #: patterns/contact-page.php:58
-msgid "+1 (XXX) XXX-XXXX"
+msgid "Your phone number"
 msgstr ""
 
 #: patterns/contact-page.php:62
@@ -5413,7 +5400,7 @@ msgid "Pre-shrunk and garment-washed. Less than 2% shrinkage on cold wash, hang 
 msgstr ""
 
 #: patterns/fabric-tech-specs.php:86
-msgid "Milled in Portugal. Cut and sewn in Los Angeles. OEKO-TEX Standard 100 certified."
+msgid "Where the fabric is milled, where it is cut and sewn, and any certifications it holds."
 msgstr ""
 
 #: patterns/faq-section.php
@@ -5961,24 +5948,15 @@ msgid "As Seen In"
 msgstr ""
 
 #: patterns/homepage-brand-led.php:112
-#: patterns/press-mentions.php:22
-msgid "GQ"
-msgstr ""
-
 #: patterns/homepage-brand-led.php:116
-#: patterns/press-mentions.php:26
-#: patterns/press-quote-feature.php:30
-msgid "Hypebeast"
-msgstr ""
-
 #: patterns/homepage-brand-led.php:120
-#: patterns/press-mentions.php:30
-msgid "Complex"
-msgstr ""
-
 #: patterns/homepage-brand-led.php:124
+#: patterns/press-mentions.php:22
+#: patterns/press-mentions.php:26
+#: patterns/press-mentions.php:30
 #: patterns/press-mentions.php:34
-msgid "Highsnobiety"
+#: patterns/press-quote-feature.php:30
+msgid "Publication"
 msgstr ""
 
 #: patterns/homepage-drop-composition.php
@@ -6571,38 +6549,27 @@ msgstr ""
 msgid "What people are saying"
 msgstr ""
 
-#: patterns/pdp-reviews-strip.php:36
-msgid "Based on 128 reviews"
-msgstr ""
-
+#: patterns/pdp-reviews-strip.php:32
 #: patterns/pdp-reviews-strip.php:52
 #: patterns/pdp-reviews-strip.php:68
 #: patterns/pdp-reviews-strip.php:84
-msgid "5.0 · Verified"
+msgid "Rating"
+msgstr ""
+
+#: patterns/pdp-reviews-strip.php:36
+msgid "Review count"
 msgstr ""
 
 #: patterns/pdp-reviews-strip.php:56
-msgid "\"Weight is perfect. Soft inside, structured outside. Already ordered a second color.\""
+#: patterns/pdp-reviews-strip.php:72
+#: patterns/pdp-reviews-strip.php:88
+msgid "\"Add a real customer review here.\""
 msgstr ""
 
 #: patterns/pdp-reviews-strip.php:60
-msgid "Maya R. · Size M · Verified"
-msgstr ""
-
-#: patterns/pdp-reviews-strip.php:72
-msgid "\"True to size with room to layer. Hardware feels premium — not the cheap zippers you get elsewhere.\""
-msgstr ""
-
 #: patterns/pdp-reviews-strip.php:76
-msgid "Jordan K. · Size L · Verified"
-msgstr ""
-
-#: patterns/pdp-reviews-strip.php:88
-msgid "\"Washes clean, no shrink drama. This is the hoodie I reach for every cold morning.\""
-msgstr ""
-
 #: patterns/pdp-reviews-strip.php:92
-msgid "Alex T. · Size S · Verified"
+msgid "Customer name · Size"
 msgstr ""
 
 #: patterns/pdp-reviews-strip.php:102
@@ -6630,15 +6597,15 @@ msgstr ""
 
 #: patterns/press-quote-feature.php
 msgctxt "Pattern description"
-msgid "Single oversized editorial press quote with publication attribution in Hypebeast / Complex style."
+msgid "Single oversized editorial press quote with publication attribution."
 msgstr ""
 
 #: patterns/press-quote-feature.php:20
-msgid "&ldquo;Aggressive Apparel isn't chasing trends — it's setting the pace for what streetwear can be when quality and attitude actually match.&rdquo;"
+msgid "&ldquo;Add a quote from real press coverage here.&rdquo;"
 msgstr ""
 
 #: patterns/press-quote-feature.php:38
-msgid "SS26 Brand Feature"
+msgid "Article title"
 msgstr ""
 
 #: patterns/product-collection-card-starter.php
@@ -7133,7 +7100,15 @@ msgid "Flagship Store"
 msgstr ""
 
 #: patterns/store-locator-split.php:28
-msgid "1247 Melrose Ave"
+msgid "Street address"
+msgstr ""
+
+#: patterns/store-locator-split.php:28
+msgid "City, State ZIP"
+msgstr ""
+
+#: patterns/store-locator-split.php:28
+msgid "Country"
 msgstr ""
 
 #: patterns/store-locator-split.php:34
@@ -7213,7 +7188,7 @@ msgid "Recycled Materials"
 msgstr ""
 
 #: patterns/sustainability-impact.php:40
-msgid "Our fabrics are sourced from recycled and organic materials, reducing waste while maintaining premium quality."
+msgid "Describe what your fabrics are made from and where they come from."
 msgstr ""
 
 #: patterns/sustainability-impact.php:52
@@ -7221,7 +7196,7 @@ msgid "Carbon Neutral Shipping"
 msgstr ""
 
 #: patterns/sustainability-impact.php:56
-msgid "Every order ships carbon neutral. We offset 100% of shipping emissions through verified environmental programs."
+msgid "Describe how orders ship and any emissions programs you take part in."
 msgstr ""
 
 #: patterns/sustainability-impact.php:68
@@ -7229,7 +7204,7 @@ msgid "Ethical Manufacturing"
 msgstr ""
 
 #: patterns/sustainability-impact.php:72
-msgid "Fair wages, safe conditions, no exceptions. Every factory we partner with meets our strict ethical standards."
+msgid "Describe who makes your products and the standards you hold them to."
 msgstr ""
 
 #: patterns/template-cart-empty.php
@@ -7351,19 +7326,19 @@ msgid "Single hero-sized customer testimonial with large quote text, star rating
 msgstr ""
 
 #: patterns/testimonial-large-quote.php:16
-msgid "Verified Customer · 5.0"
+msgid "Customer Review"
 msgstr ""
 
 #: patterns/testimonial-large-quote.php:20
-msgid "\"I've tried dozens of streetwear brands. Nothing comes close to the quality and design of Aggressive Apparel. This is the real deal.\""
+msgid "\"Add a real customer quote here, with their permission.\""
 msgstr ""
 
 #: patterns/testimonial-large-quote.php:32
-msgid "Chris D."
+msgid "Customer name"
 msgstr ""
 
 #: patterns/testimonial-large-quote.php:36
-msgid "Verified Customer &middot; Los Angeles, CA"
+msgid "Location"
 msgstr ""
 
 #: patterns/ugc-shoppable-wall.php
@@ -7541,7 +7516,7 @@ msgid "Replace this block with your application form."
 msgstr ""
 
 #: patterns/wholesale-trade-landing.php:128
-msgid "wholesale@aggressiveapparel.com"
+msgid "wholesale@example.com"
 msgstr ""
 
 #. translators: %s: human-readable time remaining, e.g. "3 days, 4 hours, 12 minutes".
@@ -7666,49 +7641,49 @@ msgstr ""
 msgid "Back from %s"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:141
+#: src/blocks-interactivity/navigation-panel/render.php:140
 msgid "Navigation menu opened"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:142
+#: src/blocks-interactivity/navigation-panel/render.php:141
 msgid "Navigation menu closed"
+msgstr ""
+
+#: src/blocks-interactivity/navigation-panel/render.php:142
+#: src/blocks-interactivity/navigation/render.php:64
+msgid "Submenu opened"
 msgstr ""
 
 #: src/blocks-interactivity/navigation-panel/render.php:143
 #: src/blocks-interactivity/navigation/render.php:65
-msgid "Submenu opened"
-msgstr ""
-
-#: src/blocks-interactivity/navigation-panel/render.php:144
-#: src/blocks-interactivity/navigation/render.php:66
 msgid "Submenu closed"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:145
+#: src/blocks-interactivity/navigation-panel/render.php:144
 msgid "submenu"
 msgstr ""
 
 #. translators: 1: submenu label, 2: drilldown level number.
-#: src/blocks-interactivity/navigation-panel/render.php:147
+#: src/blocks-interactivity/navigation-panel/render.php:146
 #, php-format
 msgid "Opened %1$s, level %2$s"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:148
+#: src/blocks-interactivity/navigation-panel/render.php:147
 msgid "Back to main menu"
 msgstr ""
 
 #. translators: %s: drilldown level number.
-#: src/blocks-interactivity/navigation-panel/render.php:150
+#: src/blocks-interactivity/navigation-panel/render.php:149
 #, php-format
 msgid "Back to level %s"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:242
+#: src/blocks-interactivity/navigation-panel/render.php:240
 msgid "Close menu"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:308
+#: src/blocks-interactivity/navigation-panel/render.php:306
 msgid "Navigation menu"
 msgstr ""
 

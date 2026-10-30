@@ -1,0 +1,26 @@
+diff --git a/lib/download-sources.js b/lib/download-sources.js
+index e2061b3a503dd5282b239113a18f596159cb916d..112a204cdac042e92c663bbc41b8a49851a181c6 100644
+--- a/lib/download-sources.js
++++ b/lib/download-sources.js
+@@ -6,7 +6,7 @@ const fs = require( 'fs' );
+ const path = require( 'path' );
+ const util = require( 'util' );
+ const got = require( 'got' );
+-const SimpleGit = require( 'simple-git' );
++const { simpleGit: SimpleGit } = require( 'simple-git' );
+ 
+ /**
+  * Promisified dependencies
+diff --git a/lib/runtime/docker/download-wp-phpunit.js b/lib/runtime/docker/download-wp-phpunit.js
+index fa0983e5b8e1733bd69f36c9768b71105502ebfb..6a001ed2a16d060372368fbd8e0b5b31b6e0d2fb 100644
+--- a/lib/runtime/docker/download-wp-phpunit.js
++++ b/lib/runtime/docker/download-wp-phpunit.js
+@@ -4,7 +4,7 @@
+  */
+ const fs = require( 'fs' );
+ const path = require( 'path' );
+-const SimpleGit = require( 'simple-git' );
++const { simpleGit: SimpleGit } = require( 'simple-git' );
+ 
+ /**
+  * @typedef {import('./config').WPConfig} WPConfig

@@ -540,7 +540,8 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'aggressive-apparel-recently-viewed__title', $html );
 		$this->assertStringContainsString( 'You looked at', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-recently-viewed__grid', $html );
-		$this->assertStringContainsString( 'data-wp-html="state.productsHtml"', $html );
+		$this->assertStringContainsString( 'data-wp-watch="callbacks.renderProducts"', $html );
+		$this->assertStringNotContainsString( 'data-wp-html', $html );
 
 		$context = html_entity_decode( $html, ENT_QUOTES );
 		$this->assertStringContainsString( 'wc\/store\/v1\/products', $context );

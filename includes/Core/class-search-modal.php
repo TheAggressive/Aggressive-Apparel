@@ -191,8 +191,8 @@ class Search_Modal {
 							<span class="aa-search__hint-item"><kbd>esc</kbd> %23$s</span>
 						</div>
 					</div>
+					<div class="screen-reader-text" aria-live="polite" aria-atomic="true" data-wp-text="state.announcement"></div>
 				</div>
-				<div class="screen-reader-text" aria-live="polite" data-wp-text="state.announcement"></div>
 			</div>',
 			esc_attr( self::MODAL_ID ),
 			esc_attr( self::YIELDS_NAV_FOCUS_ATTR ),
@@ -237,6 +237,8 @@ class Search_Modal {
 			self::STORE,
 			array(
 				'restUrl'      => esc_url_raw( rest_url( Search_Rest::REST_NAMESPACE . Search_Rest::REST_ROUTE ) ),
+				// Guest pages remain cacheable without an expiring nonce.
+				'restNonce'    => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 				'isOpen'       => false,
 				'query'        => '',
 				'scope'        => 'all',

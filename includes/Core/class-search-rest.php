@@ -2,7 +2,7 @@
 /**
  * Search REST Handler
  *
- * Public autocomplete endpoint: validation, rate limiting, caching, and grouping.
+ * Public autocomplete endpoint: validation, rate limiting, and grouping.
  *
  * @package Aggressive_Apparel
  */
@@ -47,20 +47,6 @@ class Search_Rest {
 	private const RATE_LIMIT_WINDOW = 60;
 
 	/**
-	 * Response cache lifetime in seconds.
-	 *
-	 * @var int
-	 */
-	private const CACHE_TTL = 300;
-
-	/**
-	 * Search index service.
-	 *
-	 * @var Search_Index
-	 */
-	private Search_Index $index;
-
-	/**
 	 * Result builder.
 	 *
 	 * @var Search_Results
@@ -70,11 +56,9 @@ class Search_Rest {
 	/**
 	 * Construct the REST handler.
 	 *
-	 * @param Search_Index   $index   Search index service.
 	 * @param Search_Results $results Result builder.
 	 */
-	public function __construct( Search_Index $index, Search_Results $results ) {
-		$this->index   = $index;
+	public function __construct( Search_Results $results ) {
 		$this->results = $results;
 	}
 
@@ -95,6 +79,8 @@ class Search_Rest {
 					'query' => array(
 						'type'              => 'string',
 						'required'          => true,
+						'maxLength'         => 200,
+						'validate_callback' => 'rest_validate_request_arg',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'scope' => array(
@@ -124,7 +110,7 @@ class Search_Rest {
 		$scope = (string) $request->get_param( 'scope' );
 
 		if ( mb_strlen( $query ) < 2 ) {
-			return rest_ensure_response(
+			return $this->response(
 				array(
 					'query'  => $query,
 					'groups' => array(),
@@ -138,14 +124,8 @@ class Search_Rest {
 		}
 
 		$show_products = Search_Visibility::products_are_public();
-		// Prices follow the shopper's currency (see Storefront_Rest_Requests).
-		$currency  = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : '';
-		$cache_key = 'aa_search_' . md5( $this->index->generation() . '|' . $scope . '|' . ( $show_products ? '1' : '0' ) . '|' . $currency . '|' . mb_strtolower( $query ) );
-		$cached    = get_transient( $cache_key );
-		if ( is_array( $cached ) ) {
-			return rest_ensure_response( $cached );
-		}
-
+		// Cache candidate IDs in Search_Index, not rendered responses: prices,
+		// taxes, visibility filters, and translated copy can vary per shopper.
 		$groups = array();
 
 		if ( ( 'all' === $scope || 'product' === $scope ) && $show_products ) {
@@ -190,13 +170,16 @@ class Search_Rest {
 			'viewAll' => add_query_arg( 's', rawurlencode( $query ), home_url( '/' ) ),
 		);
 
-		// Queries are caller-controlled; caching misses would let junk queries
-		// write unbounded rows (to wp_options without a persistent object cache).
-		if ( $total > 0 ) {
-			set_transient( $cache_key, $response, self::CACHE_TTL );
-		}
+		return $this->response( $response );
+	}
 
-		return rest_ensure_response( $response );
+	/**
+	 * Prevent browsers and shared proxies from caching shopper-specific data.
+	 *
+	 * @param array<string, mixed> $data Response data.
+	 */
+	private function response( array $data ): \WP_REST_Response {
+		return new \WP_REST_Response( $data, 200, array( 'Cache-Control' => 'private, no-store' ) );
 	}
 
 	/**
@@ -238,6 +221,7 @@ class Search_Rest {
 			429
 		);
 		$response->header( 'Retry-After', (string) $this->effective_window() );
+		$response->header( 'Cache-Control', 'private, no-store' );
 
 		return $response;
 	}

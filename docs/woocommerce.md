@@ -289,11 +289,12 @@ they change; a top-level product category with an audience's slug keeps its
 own archive (that audience gets no route).
 
 - **SEO:** H1 and title "Men's T-Shirts" (the Collection term's *name* — use
-  "Men's", not "Mens"), a self canonical, and the breadcrumb Home › Shop ›
-  Men's › T-Shirts. With Rank Math: its title and description for the archive
-  are prefixed with the audience, `og:url` follows the canonical, an empty
-  combination is `noindex`, and `audience-sitemap.xml` lists every
-  combination that has products.
+  "Men's", not "Mens"), and the breadcrumb Home › Shop › Men's › T-Shirts.
+  Empty combinations are `noindex` through WordPress's robots API and Rank
+  Math. With Rank Math: its title and description for the archive are prefixed
+  with the audience, the canonical points to the landing page, `og:url`
+  follows the canonical, and `audience-sitemap.xml` lists every combination
+  that has products.
 - **One URL per selection:** the product filters write the landing path when
   one audience is picked (two audiences stay `?collection=mens,womens`,
   canonicalised to the category). A single-audience `?collection=` URL, a

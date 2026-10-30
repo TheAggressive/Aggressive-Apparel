@@ -11,11 +11,11 @@ jest.mock(
 );
 jest.mock(
   '@aggressive-apparel/helpers',
-  () => ({ setupFocusTrap: () => () => undefined }),
+  () => jest.requireActual('../helpers'),
   { virtual: true }
 );
 
-import { closeOverlay } from '../use-overlay';
+import { activateOverlayFocus, closeOverlay } from '../use-overlay';
 
 function transitionEnd(target: HTMLElement, propertyName: string): void {
   const event = new Event('transitionend', { bubbles: true });
@@ -62,5 +62,22 @@ describe('closeOverlay', () => {
 
     jest.runAllTimers();
     expect(shell.hidden).toBe(true);
+  });
+});
+
+describe('activateOverlayFocus', () => {
+  it('does not steal focus after the overlay was closed before the next frame', () => {
+    jest.useFakeTimers();
+    document.body.innerHTML =
+      '<button id="trigger">Open</button><div id="shell"><button>Close</button></div>';
+    const shell = document.getElementById('shell')!;
+    const trigger = document.getElementById('trigger')!;
+    trigger.focus();
+    const cleanup = activateOverlayFocus({ shell, panel: shell });
+    cleanup();
+    jest.runAllTimers();
+    expect(document.activeElement).toBe(trigger);
+    document.body.innerHTML = '';
+    jest.useRealTimers();
   });
 });

@@ -54,6 +54,17 @@ class TestRestSecurity extends WP_UnitTestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 		do_action( 'rest_api_init' );
+		// Exercise optional controllers even when their storefront feature is off.
+		foreach ( array(
+			\Aggressive_Apparel\WooCommerce\Badge_Studio_Rest::class,
+			\Aggressive_Apparel\WooCommerce\Size_Guide_Rest::class,
+			\Aggressive_Apparel\WooCommerce\Product_Specs_Settings::class,
+			\Aggressive_Apparel\WooCommerce\Product_Specs_Grid::class,
+			\Aggressive_Apparel\WooCommerce\Printful_Rest::class,
+		) as $controller ) {
+			( new $controller() )->register_routes();
+		}
+		( new \Aggressive_Apparel\WooCommerce\Product_Facets_Controller() )->register_route();
 	}
 
 	/**
@@ -127,12 +138,77 @@ class TestRestSecurity extends WP_UnitTestCase {
 		}
 	}
 
+	/** Every privileged handler rejects guests and ordinary shopper accounts. */
+	public function test_protected_routes_reject_unprivileged_callers(): void {
+		$users = array(
+			0,
+			self::factory()->user->create( array( 'role' => 'subscriber' ) ),
+			self::factory()->user->create( array( 'role' => 'customer' ) ),
+		);
+		try {
+			foreach ( $users as $user_id ) {
+				wp_set_current_user( $user_id );
+				foreach ( $this->theme_routes() as $route => $callbacks ) {
+					foreach ( $callbacks as $callback ) {
+						if ( '__return_true' === $callback ) {
+							continue;
+						}
+						$request = new WP_REST_Request( 'POST', $route );
+						$request->set_url_params( array( 'id' => 123 ) );
+						$allowed = call_user_func( $callback, $request );
+						$this->assertTrue( false === $allowed || is_wp_error( $allowed ), "{$route} permitted user {$user_id}." );
+					}
+				}
+			}
+		} finally {
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/** Exercise REST dispatch as well as the permission callbacks themselves. */
+	public function test_store_management_routes_require_store_management_capabilities(): void {
+		$route = '/aggressive-apparel/v1/size-guides';
+		try {
+			foreach ( array( 'subscriber', 'author', 'editor', 'customer' ) as $role ) {
+				wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+				$this->assertSame( 403, $this->server->dispatch( new WP_REST_Request( 'GET', $route ) )->get_status(), $role );
+			}
+			wp_set_current_user( self::factory()->user->create( array( 'role' => 'shop_manager' ) ) );
+			$this->assertSame( 200, $this->server->dispatch( new WP_REST_Request( 'GET', $route ) )->get_status() );
+		} finally {
+			wp_set_current_user( 0 );
+		}
+	}
+
 	/**
 	 * A missing required "query" is a 400, not a 200 with garbage.
 	 */
 	public function test_search_requires_query_param(): void {
 		$response = $this->server->dispatch( new WP_REST_Request( 'GET', self::SEARCH ) );
 		$this->assertSame( 400, $response->get_status(), 'Missing required "query" should be a 400.' );
+	}
+
+	/** Bound work before tokenization and database lookup. */
+	public function test_search_rejects_oversized_queries(): void {
+		$request = new WP_REST_Request( 'GET', self::SEARCH );
+		$request->set_param( 'query', str_repeat( 'word ', 41 ) );
+		$this->assertSame( 400, $this->server->dispatch( $request )->get_status() );
+	}
+
+	/** Scalar facet arguments must not silently coerce arrays or invalid numbers. */
+	public function test_facets_reject_invalid_scalar_arguments(): void {
+		foreach ( array(
+			array( 'taxonomy', array( 'product_cat' ) ),
+			array( 'term', array( 'tees' ) ),
+			array( 'category', str_repeat( 'x', 301 ) ),
+			array( 'stock', array( 'instock' ) ),
+			array( 'min_price', 'invalid' ),
+			array( 'max_price', array( 100 ) ),
+		) as list( $key, $value ) ) {
+			$request = new WP_REST_Request( 'GET', '/aggressive-apparel/v1/catalog/facets' );
+			$request->set_param( $key, $value );
+			$this->assertSame( 400, $this->server->dispatch( $request )->get_status(), $key );
+		}
 	}
 
 	/**

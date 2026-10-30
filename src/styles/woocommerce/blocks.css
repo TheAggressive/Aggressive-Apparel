@@ -10,6 +10,11 @@
 @import './_cart.css';
 @import './_saved-for-later.css';
 
+/* Allow collection headings and their CTA to wrap when text is enlarged. */
+.wp-block-woocommerce-product-collection.is-style-commerce-grid > .wp-block-group.is-layout-flex {
+	flex-wrap: wrap;
+}
+
 /* Product collection rhythm. Keep visual defaults specificity-free so palette
    and typography classes saved by the Site Editor always win, including on
    cards appended by Load More / Infinite Scroll. */

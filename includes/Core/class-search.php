@@ -56,7 +56,7 @@ class Search {
 	public function __construct( ?Search_Index $index = null ) {
 		$this->index = $index ?? new Search_Index();
 		$results     = new Search_Results( $this->index );
-		$this->rest  = new Search_Rest( $this->index, $results );
+		$this->rest  = new Search_Rest( $results );
 		$this->modal = new Search_Modal();
 	}
 

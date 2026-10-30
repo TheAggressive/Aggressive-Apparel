@@ -7,6 +7,9 @@
  * @package Aggressive_Apparel
  */
 
+import { escapeHtml } from '../../utils/escape-html';
+export { escapeHtml };
+
 /** Kind of content a result group holds. */
 export type SearchResultType = 'product' | 'post' | 'page';
 
@@ -24,20 +27,6 @@ export interface SearchResultItem {
 
 /** Shortest query that is searched and highlighted. */
 export const MIN_QUERY_CHARS = 2;
-
-/**
- * Escape text for HTML element content and attribute values.
- *
- * @param value Raw text.
- */
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 /**
  * Defense-in-depth: only allow http(s) or root-relative URLs as navigation

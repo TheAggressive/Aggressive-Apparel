@@ -2,7 +2,22 @@
  * @jest-environment jsdom
  */
 
-import { chosenOption, isUnavailable, setFilterVisibility } from '../dom';
+import {
+  chosenOption,
+  escapeHtml,
+  isUnavailable,
+  setFilterVisibility,
+} from '../dom';
+
+it('keeps quoted filter labels inside their HTML attributes', () => {
+  const label = `Kids' " onmouseover="alert(1) & <sale>`;
+  const root = document.createElement('div');
+  root.innerHTML = `<button aria-label="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
+  const button = root.querySelector('button')!;
+  expect(button.getAttribute('aria-label')).toBe(label);
+  expect(button.textContent).toBe(label);
+  expect(button.getAttributeNames()).toEqual(['aria-label']);
+});
 
 const SWATCH = '.aa-product-filters__color-swatch';
 

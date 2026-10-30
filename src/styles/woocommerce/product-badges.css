@@ -199,12 +199,8 @@
 
 	&--shape-mode-mask {
 		mask-image: var(--badge-shape-mask);
-		mask-image: var(--badge-shape-mask);
-		mask-size: 100% 100%;
 		mask-size: 100% 100%;
 		mask-repeat: no-repeat;
-		mask-repeat: no-repeat;
-		mask-position: center;
 		mask-position: center;
 		border: 0;
 		outline: none;
@@ -216,8 +212,6 @@
 
 	&--glass {
 		backdrop-filter: blur(var(--badge-glass-blur, 12px)) saturate(1.35);
-		backdrop-filter: blur(var(--badge-glass-blur, 12px))
-			saturate(1.35);
 	}
 
 	&--icon-only .aggressive-apparel-product-badge__content {
@@ -263,7 +257,6 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.aggressive-apparel-product-badge--glass {
-		backdrop-filter: none;
 		backdrop-filter: none;
 	}
 }

@@ -18,6 +18,11 @@
 
 @media (width <= 1000px) {
 
+    /* Enlarged text can make the three header items wider than one row. */
+    .site-header.is-layout-flex {
+        flex-wrap: wrap;
+    }
+
     /* 2. Give all items equal width so the logo stays perfectly centered */
     .site-header > * {
         flex: 1;

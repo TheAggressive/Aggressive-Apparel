@@ -8,6 +8,8 @@
  * @since 1.22.0
  */
 
+export { escapeHtml } from '../utils/escape-html';
+
 export interface StoreApiPrices {
   price: string;
   regular_price?: string;
@@ -126,16 +128,21 @@ export function decodeEntities(str: string | null | undefined): string {
   // display an entity becomes markup. Numeric refs are held back as a sentinel
   // that cannot appear in the input, then released once the rest are done.
   const AMP = '\u0000AA_AMP\u0000';
+  const character = (value: number): string =>
+    Number.isInteger(value) &&
+    value > 0 &&
+    value <= 0x10ffff &&
+    (value < 0xd800 || value > 0xdfff)
+      ? String.fromCodePoint(value)
+      : '\ufffd';
 
   return str
     .replace(/&#0*38;|&#x0*26;/gi, AMP)
     .replace(/&amp;/g, AMP)
     .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
-      String.fromCodePoint(parseInt(hex, 16))
+      character(parseInt(hex, 16))
     )
-    .replace(/&#(\d+);/g, (_, dec: string) =>
-      String.fromCodePoint(parseInt(dec, 10))
-    )
+    .replace(/&#(\d+);/g, (_, dec: string) => character(parseInt(dec, 10)))
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
@@ -359,16 +366,6 @@ export function matchVariation(
 /*  filters, but client-rendered cards bypass that pipeline entirely.  */
 /* ------------------------------------------------------------------ */
 
-/**
- * Escape HTML for safe insertion via innerHTML/template strings.
- */
-export function escapeHtml(str: string | null | undefined): string {
-  if (!str) return '';
-  const el = document.createElement('span');
-  el.textContent = str;
-  return el.innerHTML;
-}
-
 /** Store API error codes that a fresh nonce resolves. */
 const STORE_API_NONCE_ERRORS = [
   'woocommerce_rest_invalid_nonce',
@@ -501,19 +498,35 @@ export function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function setupFocusTrap(container: HTMLElement): () => void {
+/** Controls that can participate in sequential keyboard navigation. */
+export function getFocusableElements(container: HTMLElement): HTMLElement[] {
   const FOCUSABLE_SELECTOR =
     'a[href], button:not([disabled]), input:not([disabled]), ' +
     'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  ).filter(el => {
+    if (
+      el.tabIndex < 0 ||
+      el.matches(':disabled') ||
+      el.closest('[hidden], [inert]') ||
+      el.getClientRects().length === 0
+    ) {
+      return false;
+    }
+    const { visibility } = getComputedStyle(el);
+    return visibility !== 'hidden' && visibility !== 'collapse';
+  });
+}
+
+export function setupFocusTrap(container: HTMLElement): () => void {
   const handleKeydown = (e: KeyboardEvent): void => {
     if (e.key !== 'Tab') {
       return;
     }
 
-    const focusable = Array.from(
-      container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-    ).filter(el => !el.closest('[hidden]') && !el.closest('[inert]'));
+    const focusable = getFocusableElements(container);
 
     if (focusable.length === 0) {
       e.preventDefault();

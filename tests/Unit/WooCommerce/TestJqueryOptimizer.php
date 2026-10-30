@@ -13,38 +13,36 @@ use Aggressive_Apparel\WooCommerce\Jquery_Optimizer;
 use WP_UnitTestCase;
 
 /**
- * jQuery stays blocking: plugins use the global without declaring it.
+ * jquery-migrate leaves the front end; jQuery itself is untouched.
  */
 class TestJqueryOptimizer extends WP_UnitTestCase {
 
-	/** Register a plugin script that uses jQuery without declaring it. */
-	public function setUp(): void {
-		parent::setUp();
-		wp_register_script( 'wc-add-to-cart', 'https://example.test/add-to-cart.js', array( 'jquery' ), '1', true );
-		wp_register_script( 'undeclared-jquery-user', 'https://example.test/plugin.js', array(), '1', true );
+	/** The front end loads jQuery without jquery-migrate. */
+	public function test_drops_migrate_on_front_end(): void {
+		$scripts = new \WP_Scripts();
+		$scripts->add( 'jquery', false, array( 'jquery-core', 'jquery-migrate' ) );
+
+		( new Jquery_Optimizer() )->remove_migrate( $scripts );
+
+		$this->assertSame( array( 'jquery-core' ), $scripts->registered['jquery']->deps );
 	}
 
-	/** Reset the strategies set by the test. */
-	public function tearDown(): void {
-		wp_deregister_script( 'wc-add-to-cart' );
-		wp_deregister_script( 'undeclared-jquery-user' );
-		parent::tearDown();
+	/** The admin keeps the full jQuery bundle. */
+	public function test_keeps_migrate_in_admin(): void {
+		set_current_screen( 'dashboard' );
+		$scripts = new \WP_Scripts();
+		$scripts->add( 'jquery', false, array( 'jquery-core', 'jquery-migrate' ) );
+
+		( new Jquery_Optimizer() )->remove_migrate( $scripts );
+
+		$this->assertSame( array( 'jquery-core', 'jquery-migrate' ), $scripts->registered['jquery']->deps );
+		set_current_screen( 'front' );
 	}
 
-	/** jQuery is never deferred; WooCommerce's dependents are. */
-	public function test_defers_woocommerce_scripts_but_not_jquery(): void {
-		( new Jquery_Optimizer() )->defer_scripts();
-
-		$this->assertNotSame( 'defer', wp_scripts()->get_data( 'jquery-core', 'strategy' ), 'Plugins use jQuery without declaring it.' );
-		$this->assertSame( 'defer', wp_scripts()->get_data( 'wc-add-to-cart', 'strategy' ) );
-		$this->assertNotContains( 'jquery-core', Jquery_Optimizer::DEFER_HANDLES );
-	}
-
-	/** A script using the jQuery global without declaring it still finds jQuery first. */
-	public function test_jquery_prints_blocking_before_undeclared_users(): void {
-		( new Jquery_Optimizer() )->defer_scripts();
+	/** jQuery is never deferred: plugins use the global without declaring it. */
+	public function test_jquery_stays_blocking(): void {
+		( new Jquery_Optimizer() )->init();
 		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'undeclared-jquery-user' );
 
 		$html = get_echo( 'wp_print_scripts' );
 

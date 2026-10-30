@@ -327,6 +327,10 @@ class Product_Filters {
 					'removeFilterAria'             => __( 'Remove %s filter', 'aggressive-apparel' ),
 				),
 				'salesCategorySlug'   => Sale_Category::TERM_SLUG,
+				// Audience landing pages (/shop/mens/t-shirts/): URL sync writes
+				// one picked audience into the path. Config, not per-visitor.
+				'audiences'           => array_keys( Audience_Landing_Pages::audiences() ),
+				'audienceBase'        => Audience_Landing_Pages::base_path(),
 			)
 		);
 	}

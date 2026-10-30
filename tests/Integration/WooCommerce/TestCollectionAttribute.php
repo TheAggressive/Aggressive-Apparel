@@ -188,13 +188,21 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 	 * @param string $label Attribute label.
 	 */
 	private function attribute( string $slug, string $label ): void {
-		if ( ! wc_attribute_taxonomy_id_by_name( $slug ) ) {
+		// Other tests create attributes inside rolled-back transactions while
+		// WooCommerce caches the attribute list: check the real list.
+		delete_transient( 'wc_attribute_taxonomies' );
+		\WC_Cache_Helper::invalidate_cache_group( 'woocommerce-attributes' );
+		if ( ! in_array( wc_attribute_taxonomy_name( $slug ), wc_get_attribute_taxonomy_names(), true ) ) {
+			// A taxonomy left registered by a rolled-back test blocks the slug.
+			unregister_taxonomy( wc_attribute_taxonomy_name( $slug ) );
 			wc_create_attribute(
 				array(
 					'name' => $label,
 					'slug' => $slug,
 				)
 			);
+			delete_transient( 'wc_attribute_taxonomies' );
+			\WC_Cache_Helper::invalidate_cache_group( 'woocommerce-attributes' );
 		}
 		$taxonomy = wc_attribute_taxonomy_name( $slug );
 		if ( ! taxonomy_exists( $taxonomy ) ) {

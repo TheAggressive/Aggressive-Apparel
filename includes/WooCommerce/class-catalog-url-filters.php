@@ -83,7 +83,15 @@ final class Catalog_Url_Filters {
 	public static function from_request(): array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public, read-only catalog filters.
 		$query = wp_unslash( $_GET );
+		$query = is_array( $query ) ? $query : array();
 
-		return self::from_query( is_array( $query ) ? $query : array() );
+		// An audience landing page (/shop/mens/t-shirts/) is the archive with
+		// that one Collection picked.
+		$audience = Audience_Landing_Pages::current();
+		if ( '' !== $audience ) {
+			$query['collection'] = $audience;
+		}
+
+		return self::from_query( $query );
 	}
 }

@@ -107,6 +107,10 @@ export interface ProductFiltersState {
   /** Tag / brand / attribute archive being browsed; empty strings elsewhere. */
   archiveTerm: ArchiveTerm;
   salesCategorySlug: string;
+  /** Collection slugs with landing pages (/shop/mens/, /shop/mens/t-shirts/). */
+  audiences: string[];
+  /** Pathname the landing pages live under, e.g. '/shop/'; '' when none. */
+  audienceBase: string;
   i18n: {
     filtersAppliedSingular: string;
     filtersAppliedPlural: string;

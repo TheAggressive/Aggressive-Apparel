@@ -25,11 +25,13 @@ export const CHILD_COLLECTION = 'e2e-child-only';
 
 export interface CategoryFilterFixtures {
   parentUrl: string;
+  audienceUrl: string;
+  audienceCategoryUrl: string;
 }
 
 export function ensureCategoryFilterFixtures(): CategoryFilterFixtures {
   backupOptions([FEATURE_OPTION]);
-  const parentUrl = wpCli([
+  const urls = wpCli([
     'eval',
     `$features = get_option('${FEATURE_OPTION}', array());
 $features = is_array($features) ? $features : array();
@@ -93,10 +95,14 @@ if (!wc_get_product_id_by_sku('e2e-filter-child-product')) {
 	}
 }
 
-echo get_term_link($parent_id, 'product_cat');`,
+echo wp_json_encode(array(
+	'parentUrl' => get_term_link($parent_id, 'product_cat'),
+	'audienceUrl' => \\Aggressive_Apparel\\WooCommerce\\Audience_Landing_Pages::url('${CHILD_COLLECTION}'),
+	'audienceCategoryUrl' => \\Aggressive_Apparel\\WooCommerce\\Audience_Landing_Pages::url('${CHILD_COLLECTION}', get_term($parent_id, 'product_cat')),
+));`,
   ]);
 
-  return { parentUrl };
+  return JSON.parse(urls) as CategoryFilterFixtures;
 }
 
 /** Remove the product and terms ensureCategoryFilterFixtures() created. */

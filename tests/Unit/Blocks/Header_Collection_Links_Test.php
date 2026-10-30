@@ -1,6 +1,6 @@
 <?php
 /**
- * The header's Men's / Women's menus route to the Collection filter.
+ * The header's Men's / Women's menus link to the audience landing pages.
  *
  * @package Aggressive_Apparel\Tests\Unit\Blocks
  */
@@ -11,7 +11,7 @@ namespace Aggressive_Apparel\Tests\Unit\Blocks;
 
 use WP_UnitTestCase;
 
-/** Audience menus link with `?collection=`, never the legacy `?fit=`. */
+/** Audience menus link to /shop/{audience}/…, never a `?collection=` or `?fit=` query. */
 class Header_Collection_Links_Test extends WP_UnitTestCase {
 
 	/**
@@ -27,7 +27,7 @@ class Header_Collection_Links_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Each submenu link carries exactly its own collection.
+	 * Each submenu link is its own audience's landing page, without a query.
 	 *
 	 * @dataProvider audiences
 	 * @param string $label      Submenu label.
@@ -38,15 +38,13 @@ class Header_Collection_Links_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( $links );
 
 		foreach ( $links as $name => $url ) {
-			$query = array();
-			wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
-			$this->assertSame( array( 'collection' => $collection ), $query, "{$label} → {$name} ({$url})" );
+			$this->assertMatchesRegularExpression( '#^/shop/' . $collection . '/([a-z0-9-]+/)?$#', $url, "{$label} → {$name}" );
 		}
 	}
 
 	/** Regression: Women's → Tank Tops used to point at the men's filter. */
 	public function test_womens_tank_tops_link(): void {
-		$this->assertSame( '/shop/tank-tops/?collection=womens', $this->submenu_links( 'WOMENS' )['TANK TOPS'] ?? '' );
+		$this->assertSame( '/shop/womens/tank-tops/', $this->submenu_links( 'WOMENS' )['TANK TOPS'] ?? '' );
 	}
 
 	/**

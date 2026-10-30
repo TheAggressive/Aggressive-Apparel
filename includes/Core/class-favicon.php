@@ -32,6 +32,13 @@ class Favicon {
 	private const OPTION_KEY = 'aggressive_apparel_dark_favicon_id';
 
 	/**
+	 * Tab icon sizes, matching the ones wp_site_icon() prints.
+	 *
+	 * @var array<int, int>
+	 */
+	private const SIZES = array( 32, 192 );
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -40,11 +47,10 @@ class Favicon {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 
-		// Front-end only: intercept WP's favicon output and replace with our own.
-		// Priority 1 ensures our script runs before wp_site_icon() at priority 99,
-		// so the browser receives the correct href on first parse — no swap, no flash.
-		add_filter( 'site_icon_meta_tags', array( $this, 'remove_icon_link_tags' ) );
+		// Dark icons print before wp_site_icon() (priority 99); the toggle
+		// script needs the light icons it prints, so it runs after.
 		add_action( 'wp_head', array( $this, 'output_head_tags' ), 1 );
+		add_action( 'wp_head', array( $this, 'output_override_script' ), 100 );
 	}
 
 	// -------------------------------------------------------------------------
@@ -204,45 +210,18 @@ class Favicon {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Remove <link rel="icon"> tags from wp_site_icon()'s output when a dark
-	 * favicon is configured. The apple-touch-icon and msapplication meta tags
-	 * are left intact — only the browser-tab favicon needs dark-mode handling.
+	 * Output the dark icons, in the sizes WordPress uses for the Site Icon.
 	 *
-	 * @param string[] $meta_tags Tags produced by wp_site_icon().
-	 * @return string[] Filtered tag list.
-	 */
-	public function remove_icon_link_tags( array $meta_tags ): array {
-		if ( ! $this->get_saved_id() ) {
-			return $meta_tags;
-		}
-
-		return array_values(
-			array_filter(
-				$meta_tags,
-				static function ( string $tag ): bool {
-					return strpos( $tag, 'rel="icon"' ) === false;
-				}
-			)
-		);
-	}
-
-	/**
-	 * Output static <link rel="icon"> tags and a manual-toggle script.
+	 * WordPress prints the light icons through wp_site_icon() (32px and 192px
+	 * tab icons, the apple-touch-icon and the tile image) at wp_head priority
+	 * 99, and those are left untouched. The dark pair prints here first, with
+	 * media="(prefers-color-scheme: dark)", so browsers that honour media on
+	 * icons follow the OS, and Safari (which ignores it and takes the last
+	 * icon) gets the light one.
 	 *
-	 * WHY STATIC TAGS: Chromium's favicon pre-scanner reads <link rel="icon">
-	 * directly from the HTML source before JavaScript executes. JS-created link
-	 * elements are invisible to it, so it falls back to /favicon.ico (the WP
-	 * logo). Static tags fix this completely.
-	 *
-	 * Two tags are output so OS preference is handled in pure HTML:
-	 *   1. Dark link with media="(prefers-color-scheme: dark)" — Chrome/Firefox/Edge.
-	 *   2. Light link with no media attribute — universal fallback; Safari (which
-	 *      ignores media on icons) picks this one because it is listed last.
-	 *
-	 * JS handles only the manual localStorage override from the dark-mode toggle.
-	 *
-	 * Falls back silently when no dark favicon is saved, leaving wp_site_icon()
-	 * to output the standard tags unmodified (the filter is a no-op in that case).
+	 * The tags are static because Chromium's favicon pre-scanner reads them
+	 * before JavaScript runs. With no Site Icon set, the dark icon stands in
+	 * for every mode.
 	 *
 	 * @return void
 	 */
@@ -252,56 +231,62 @@ class Favicon {
 			return;
 		}
 
-		$dark_url  = wp_get_attachment_url( $dark_id );
-		$light_url = has_site_icon() ? get_site_icon_url( 32 ) : '';
+		$follows_os = has_site_icon();
 
-		if ( ! $dark_url ) {
+		foreach ( self::SIZES as $size ) {
+			$url = wp_get_attachment_image_url( $dark_id, array( $size, $size ) );
+			if ( ! $url ) {
+				continue;
+			}
+
+			printf(
+				"<link rel=\"icon\" href=\"%s\" sizes=\"%dx%d\"%s data-aa-dark-icon>\n",
+				esc_url( $url ),
+				(int) $size,
+				(int) $size,
+				$follows_os ? ' media="(prefers-color-scheme: dark)"' : ''
+			);
+		}
+	}
+
+	/**
+	 * Follow the theme's manual dark-mode toggle.
+	 *
+	 * Runs after wp_site_icon() so the light icons exist. OS preference stays
+	 * on the media attribute; a stored manual choice overrides it by enabling
+	 * or disabling the dark icons and pointing the light icons at their dark
+	 * counterpart of the same size (for Safari, which only reads the last one).
+	 *
+	 * @return void
+	 */
+	public function output_override_script(): void {
+		if ( ! $this->get_saved_id() || ! has_site_icon() ) {
 			return;
 		}
 
-		if ( $light_url ) {
-			// Dark first, light last — Safari uses the last <link rel="icon">.
-			printf( "<link rel=\"icon\" href=\"%s\" media=\"(prefers-color-scheme: dark)\">\n", esc_url( $dark_url ) );
-			printf( "<link rel=\"icon\" id=\"aa-favicon\" href=\"%s\">\n", esc_url( $light_url ) );
-		} else {
-			// No light favicon configured — show the dark icon for all modes.
-			printf( "<link rel=\"icon\" id=\"aa-favicon\" href=\"%s\">\n", esc_url( $dark_url ) );
-		}
-
-		// JS is only needed when there are two icons to swap between.
-		if ( ! $light_url ) {
-			return;
-		}
-
-		$dark_json  = wp_json_encode( $dark_url );
-		$light_json = wp_json_encode( $light_url );
-		$read_fn    = Color_Scheme::js_read_stored_scheme_function();
-
-		if ( false === $dark_json || false === $light_json ) {
-			return;
-		}
+		$read_fn = Color_Scheme::js_read_stored_scheme_function();
 
 		wp_print_inline_script_tag(
 			<<<JS
 (function(){
-	var darkUrl={$dark_json};
-	var lightUrl={$light_json};
-	var mainLink=document.getElementById('aa-favicon');
-	var mediaLink=document.querySelector('link[rel="icon"][media]');
+	var dark=[].slice.call(document.querySelectorAll('link[rel="icon"][data-aa-dark-icon]'));
+	var light=[].slice.call(document.querySelectorAll('link[rel="icon"]:not([data-aa-dark-icon])'));
+	var lightHref=light.map(function(l){return l.href;});
+	var darkHref={};
+	dark.forEach(function(l){darkHref[l.getAttribute('sizes')]=l.href;});
 
 	{$read_fn}
 
 	function applyOverride(isDark){
-		if(mainLink)mainLink.href=isDark?darkUrl:lightUrl;
-		if(mediaLink)mediaLink.media=isDark?'all':'not all';
+		dark.forEach(function(l){l.media=isDark?'all':'not all';});
+		light.forEach(function(l,i){l.href=(isDark&&darkHref[l.getAttribute('sizes')])||lightHref[i];});
 	}
 
 	function clearOverride(){
-		if(mainLink)mainLink.href=lightUrl;
-		if(mediaLink)mediaLink.media='(prefers-color-scheme: dark)';
+		dark.forEach(function(l){l.media='(prefers-color-scheme: dark)';});
+		light.forEach(function(l,i){l.href=lightHref[i];});
 	}
 
-	// Manual preference only — OS preference stays on the media attribute.
 	// Prefer data-theme from Color_Scheme_Bootstrap; storage only gates
 	// whether a manual override is active.
 	if(aaReadStoredColorScheme()){

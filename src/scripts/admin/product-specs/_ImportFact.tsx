@@ -12,6 +12,7 @@
 
 import { useEffect, useRef, useState } from '@wordpress/element';
 import {
+  Button,
   CheckboxControl,
   SelectControl,
   TextControl,
@@ -131,6 +132,11 @@ export default function ImportFact({
         <div className='aa-ps-line__source'>
           <span className='aa-ps-line__status'>{STATUS[status]}</span>
           <p className='aa-ps-line__text'>{fact.text}</p>
+          {status === 'guess' && !mapping.confirmed && (
+            <Button variant='link' onClick={() => onMapping({ target })}>
+              {__('Looks right', 'aggressive-apparel')}
+            </Button>
+          )}
         </div>
 
         <SelectControl

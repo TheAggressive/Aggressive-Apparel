@@ -15,6 +15,17 @@ export function uid(): string {
   return `item-${Date.now()}-${counter}`;
 }
 
+/**
+ * Whether a store-wide spec gives this guide's products anything: a value set
+ * on the guide, or the spec's default (Product_Specs::resolve_item).
+ */
+export function isUsedOnGuide(
+  item: SpecItem,
+  values: Record<string, string>
+): boolean {
+  return (values[item.key] ?? '') !== '' || item.default !== '';
+}
+
 /** Meta-key-safe key from a name: "Fabric Weight" → "fabric_weight". */
 export function slugify(name: string): string {
   return name

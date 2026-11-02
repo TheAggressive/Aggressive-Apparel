@@ -193,9 +193,21 @@ export type ImportDraft = {
   notes: { garment: string; body: string };
   diagrams: { garment: string; body: string };
   facts: ImportFact[];
-  /** A guide already imported from this product (0 for none). */
+  /** The guide the store already has for this blank (0 for none). */
   guide: number;
+  /** Where the guide should apply (Printful_Import_Categories). */
+  where: {
+    /** The garment, for remembering the store's choice. */
+    key: string;
+    categories: number[];
+    source: '' | 'remembered' | 'matched';
+    /** Categories that fit but another guide already uses. */
+    taken: ImportTaken[];
+  };
 };
+
+/** A category that fits a blank but another guide already uses. */
+export type ImportTaken = { id: number; name: string; guide: string };
 
 /** A spec made while importing: new, or an existing attribute made a spec. */
 export type ImportAttribute = {
@@ -220,6 +232,8 @@ export type ImportMapping = {
   value: string;
   /** Set by the store (not inherited from another blank). */
   touched: boolean;
+  /** The store decided the same line on another blank. */
+  confirmed?: boolean;
 };
 
 /** The store's edits to one blank before it becomes a guide. */
@@ -228,12 +242,21 @@ export type ImportBlankState = {
   kind: 'garment' | 'body';
   /** Notes per chart, so switching charts keeps edits to either. */
   notes: { garment: string; body: string };
+  /** Whether the notes come along (kept while off, so turning back on restores them). */
+  withNotes: boolean;
   /** Whether the measuring diagram comes along. */
   diagram: boolean;
+  /** Make a guide even though the store already has one for this blank. */
+  secondGuide: boolean;
   categories: number[];
+  /** Categories that fit but another guide (or blank here) already has. */
+  taken: ImportTaken[];
   isDefault: boolean;
   mappings: ImportMapping[];
 };
+
+/** Why a blank can't go straight through, in the order to deal with them. */
+export type ImportStop = 'decide' | 'confirm' | 'name' | 'where' | 'empty';
 
 /** What an import made of one blank, for the summary. */
 export type ImportResult = {

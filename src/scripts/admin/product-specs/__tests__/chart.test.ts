@@ -2,6 +2,7 @@ import {
   convert,
   looksLikeMeasure,
   numbers,
+  displayInches,
   parseGrid,
   pasteGrid,
 } from '../_chart';
@@ -19,6 +20,7 @@ describe('numbers', () => {
     ['11¾', [11.75]],
     ['3/4', [0.75]],
     ['38-40', [38, 40]],
+    ['10 ⅓', [10 + 1 / 3]],
     ['S/M', []],
   ])('reads %s', (value, expected) => {
     expect(numbers(value)).toEqual(expected);
@@ -29,11 +31,46 @@ describe('convert', () => {
   it.each([
     ['11¾', 'in', '30'],
     ['38-40', 'in', '96.5–101.5'],
-    ['106.5', 'cm', '42'],
-    ['29', 'cm', '11½'],
+    ['106.5', 'cm', '41 ⅞'],
+    ['29', 'cm', '11 ⅜'],
+    ['10 ⅓', 'in', '26'],
+    ['18.94', 'in', '48'],
     ['One size', 'cm', 'One size'],
   ] as const)('converts %s from %s', (value, from, expected) => {
     expect(convert(value, from)).toBe(expected);
+  });
+});
+
+/* Mirrors TestSizeChart::test_display_inches() in PHP. */
+describe('displayInches', () => {
+  it.each([
+    ['18.90', '18 ⅞'],
+    ['18,90', '18 ⅞'],
+    ['16.5', '16 ½'],
+    ['28.00', '28'],
+    ['18.96', '19'],
+    ['0.5', '½'],
+    ['.25', '¼'],
+    ['18.9-20.5', '18 ⅞-20 ½'],
+    ['18.9 to 20.5', '18 ⅞ to 20 ½'],
+    ['18.9"', '18 ⅞"'],
+    ['17 1/2', '17 ½'],
+    ['18 ⅞', '18 ⅞'],
+    ['28', '28'],
+    ['38-40', '38-40'],
+    ['1/2-3/4', '½-¾'],
+    ['38 to 1/2', '38 to ½'],
+    ['0.04', '0.04'],
+    ['±0.05', '±0.05'],
+    ['8.5 US', '8.5 US'],
+    ['M1.5', 'M1.5'],
+    ['1,234', '1,234'],
+    ['1,234.5', '1,234.5'],
+    ['One size', 'One size'],
+    ['', ''],
+  ])('shows %s', (value, expected) => {
+    expect(displayInches(value)).toBe(expected);
+    expect(displayInches(expected)).toBe(expected);
   });
 });
 
@@ -76,6 +113,12 @@ describe('pasteGrid', () => {
       { size: 'XS', values: ['11 3/4', '2'] },
       { size: 'S', values: ['12 5/8', '4'] },
     ]);
+  });
+
+  it('keeps pasted decimals exactly, whatever the unit is set to yet', () => {
+    const chart = pasteGrid(template, parseGrid('48.3\n71.1'), 0, 0, limits);
+
+    expect(chart.rows.map(row => row.values[0])).toEqual(['48.3', '71.1', '']);
   });
 
   it('fills cells in place when values are pasted inside the grid', () => {

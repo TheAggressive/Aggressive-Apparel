@@ -1,4 +1,12 @@
-import { findSaved, guideRequest, type MadeKeys } from '../_importGuide';
+import {
+  findSaved,
+  guideRequest,
+  type MadeKeys,
+  freeSuggestions,
+  importStops,
+  keepsExisting,
+  liveTaken,
+} from '../_importGuide';
 import { blankItem } from '../_utils';
 import type {
   ImportAttribute,
@@ -54,14 +62,18 @@ const draft: ImportDraft = {
     },
   ],
   guide: 0,
+  where: { key: 'tshirt', categories: [3], source: 'matched', taken: [] },
 };
 
 const state = (patch: Partial<ImportBlankState> = {}): ImportBlankState => ({
   title: 'Bella + Canvas 3001',
   kind: 'garment',
   notes: { garment: 'Lay it flat.', body: '' },
+  withNotes: true,
   diagram: true,
+  secondGuide: false,
   categories: [3],
+  taken: [],
   isDefault: false,
   mappings: [
     { target: 'fabric', value: '100% cotton', touched: false },
@@ -146,6 +158,168 @@ describe('guideRequest', () => {
 
     expect(data).not.toHaveProperty('diagramUrl');
     expect(summary.diagram).toBe(false);
+  });
+
+  it('sends the notes by default', () => {
+    expect(request('store', new Map()).data.notes).toBe('Lay it flat.');
+  });
+
+  it('leaves the notes out when they are turned off', () => {
+    const { data } = request('store', new Map(), { withNotes: false });
+
+    expect(data.notes).toBe('');
+  });
+
+  it('sends the garment, so the category choice is remembered', () => {
+    expect(request('store', new Map()).data.importWhere).toBe('tshirt');
+  });
+});
+
+describe('category claims', () => {
+  const categories = [
+    { id: 3, name: 'Tshirts' },
+    { id: 4, name: 'Hoodies' },
+  ];
+  const tee = { title: 'Gildan 64000', categories: [3] };
+
+  it('suggests a category nothing else holds', () => {
+    expect(freeSuggestions(draft, [], {}, categories)).toEqual([3]);
+  });
+
+  it('gives it to the first blank that fits', () => {
+    expect(freeSuggestions(draft, [tee], {}, categories)).toEqual([]);
+  });
+
+  it('skips a category this import already gave a guide', () => {
+    expect(freeSuggestions(draft, [], { 3: 'Made' }, categories)).toEqual([]);
+  });
+
+  it('skips a category the screen has no chip for', () => {
+    expect(freeSuggestions(draft, [], {}, [categories[1]])).toEqual([]);
+  });
+
+  it('names who holds it, for as long as they do', () => {
+    const waiting = state({ categories: [] });
+
+    expect(liveTaken(draft, waiting, [tee], {}, categories)).toEqual([
+      { id: 3, name: 'Tshirts', guide: 'Gildan 64000' },
+    ]);
+    expect(
+      liveTaken(draft, waiting, [{ ...tee, categories: [4] }], {}, categories)
+    ).toEqual([]);
+    expect(liveTaken(draft, waiting, [], {}, categories)).toEqual([]);
+  });
+
+  it('asks again once the holder moves on', () => {
+    const waiting = state({ categories: [] });
+    const taken = liveTaken(draft, waiting, [tee], {}, categories);
+
+    expect(importStops(draft, { ...waiting, taken })).toEqual([]);
+    expect(importStops(draft, waiting)).toEqual(['where']);
+  });
+
+  it('names a guide this import made', () => {
+    expect(
+      liveTaken(draft, state({ categories: [] }), [], { 3: 'Made' }, categories)
+    ).toEqual([{ id: 3, name: 'Tshirts', guide: 'Made' }]);
+  });
+
+  it('keeps guides from before this import, once', () => {
+    const before = [{ id: 3, name: 'Tshirts', guide: 'Old' }];
+
+    expect(
+      liveTaken(
+        draft,
+        state({ categories: [], taken: before }),
+        [],
+        {},
+        categories
+      )
+    ).toEqual(before);
+  });
+
+  it('holds nothing against a category the blank has itself', () => {
+    expect(liveTaken(draft, state(), [tee], {}, categories)).toEqual([]);
+  });
+});
+
+describe('keepsExisting', () => {
+  const existing = { ...draft, guide: 9 };
+
+  it('leaves a guide already in place alone', () => {
+    expect(keepsExisting(existing, state())).toBe(true);
+  });
+
+  it('makes a second guide only when asked', () => {
+    expect(keepsExisting(existing, state({ secondGuide: true }))).toBe(false);
+  });
+
+  it('has nothing to keep on a new blank', () => {
+    expect(keepsExisting(draft, state())).toBe(false);
+  });
+});
+
+describe('importStops', () => {
+  const taken = [{ id: 3, name: 'Tshirts', guide: 'Bella + Canvas 3001' }];
+  const guess = {
+    ...draft,
+    facts: [
+      { ...draft.facts[0], status: 'guess' as const },
+      ...draft.facts.slice(1),
+    ],
+  };
+
+  it('has none when everything is settled', () => {
+    expect(importStops(draft, state())).toEqual([]);
+  });
+
+  it('stops on a line nobody has placed', () => {
+    const mappings = state().mappings.map((mapping, i) =>
+      i === 1 ? { ...mapping, target: '' } : mapping
+    );
+
+    expect(importStops(draft, state({ mappings }))).toEqual(['decide']);
+  });
+
+  it('stops on a best guess until the store signs it off', () => {
+    expect(importStops(guess, state())).toEqual(['confirm']);
+
+    const signOff = (patch: object) =>
+      state({
+        mappings: state().mappings.map((mapping, i) =>
+          i === 0 ? { ...mapping, ...patch } : mapping
+        ),
+      });
+
+    expect(importStops(guess, signOff({ touched: true }))).toEqual([]);
+    expect(importStops(guess, signOff({ confirmed: true }))).toEqual([]);
+    expect(importStops(guess, signOff({ target: 'skip' }))).toEqual([]);
+  });
+
+  it('stops on an empty name', () => {
+    expect(importStops(draft, state({ title: '  ' }))).toEqual(['name']);
+  });
+
+  it('stops when the guide would apply nowhere', () => {
+    expect(importStops(draft, state({ categories: [] }))).toEqual(['where']);
+    expect(
+      importStops(draft, state({ categories: [], isDefault: true }))
+    ).toEqual([]);
+  });
+
+  it('treats a category another guide has as settled', () => {
+    expect(importStops(draft, state({ categories: [], taken }))).toEqual([]);
+  });
+
+  it('stops on a guide with nothing in it', () => {
+    const none = { ...draft, charts: { garment: null, body: null } };
+    const skipped = state().mappings.map(mapping => ({
+      ...mapping,
+      target: 'skip',
+    }));
+
+    expect(importStops(none, state({ mappings: skipped }))).toEqual(['empty']);
+    expect(importStops(none, state())).toEqual([]);
   });
 });
 

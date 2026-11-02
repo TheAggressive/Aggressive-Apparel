@@ -15,6 +15,8 @@ import type {
   ImportBlankState,
   ImportDraft,
   ImportResult,
+  ImportStop,
+  ImportTaken,
   SpecItem,
 } from './_types';
 import { toStored } from './_utils';
@@ -42,6 +44,119 @@ export type GuideRequest = {
   /** What the guide gets, for the summary. */
   summary: Omit<ImportResult, 'guide' | 'error'>;
 };
+
+/**
+ * Whether a blank keeps the guide the store already has: nothing is created
+ * for it, so that guide and its edits stay as they are, unless the store asks
+ * for a second guide.
+ */
+export function keepsExisting(
+  draft: ImportDraft,
+  state: ImportBlankState
+): boolean {
+  return draft.guide > 0 && !state.secondGuide;
+}
+
+/** Another blank being imported, as far as its categories go. */
+export type ImportClaim = { title: string; categories: number[] };
+
+/** Guides this import has made, by category they hold. */
+export type ImportPlaced = Record<number, string>;
+
+/**
+ * The suggested categories nothing else in this import holds: a category holds
+ * one guide, so the first blank that fits gets it.
+ */
+export function freeSuggestions(
+  draft: ImportDraft,
+  claims: ImportClaim[],
+  placed: ImportPlaced,
+  categories: Category[]
+): number[] {
+  return draft.where.categories.filter(
+    id =>
+      categories.some(category => category.id === id) &&
+      !placed[id] &&
+      !claims.some(claim => claim.categories.includes(id))
+  );
+}
+
+/**
+ * Categories that fit this blank but something else holds right now: guides
+ * from before this import, then guides it made, then the other blanks in it.
+ * Worked out afresh, so a blank moving on or going away frees its category.
+ */
+export function liveTaken(
+  draft: ImportDraft,
+  state: ImportBlankState,
+  claims: ImportClaim[],
+  placed: ImportPlaced,
+  categories: Category[]
+): ImportTaken[] {
+  const taken = [...state.taken];
+  for (const id of draft.where.categories) {
+    const guide =
+      placed[id] ?? claims.find(claim => claim.categories.includes(id))?.title;
+    if (guide && !state.categories.includes(id)) {
+      taken.push({
+        id,
+        name: categories.find(category => category.id === id)?.name ?? '',
+        guide,
+      });
+    }
+  }
+  return taken;
+}
+
+/**
+ * What stands between a blank and one-click creation; none means it's ready.
+ *
+ * Only 'decide' and 'name' stop it being created at all. The rest are things
+ * nobody has signed off yet: a best guess, nowhere to apply, or a guide with
+ * nothing in it. A category another guide already has counts as settled: the
+ * guide applies only to products picking it.
+ */
+export function importStops(
+  draft: ImportDraft,
+  state: ImportBlankState
+): ImportStop[] {
+  const stops: ImportStop[] = [];
+  if (state.mappings.some(mapping => mapping.target === '')) {
+    stops.push('decide');
+  }
+  if (
+    draft.facts.some((fact, i) => {
+      const mapping = state.mappings[i];
+      return (
+        fact.status === 'guess' &&
+        mapping.target === fact.target &&
+        !mapping.touched &&
+        !mapping.confirmed
+      );
+    })
+  ) {
+    stops.push('confirm');
+  }
+  if (state.title.trim() === '') {
+    stops.push('name');
+  }
+  if (
+    state.categories.length === 0 &&
+    !state.isDefault &&
+    state.taken.length === 0
+  ) {
+    stops.push('where');
+  }
+  if (
+    !draft.charts[state.kind] &&
+    state.mappings.every(
+      mapping => mapping.target === 'skip' || mapping.value === ''
+    )
+  ) {
+    stops.push('empty');
+  }
+  return stops;
+}
 
 /** The key a new attribute's values go under: saved, else as sent. */
 export function savedKey(made: MadeKeys, attr: ImportAttribute): string {
@@ -111,13 +226,14 @@ export function guideRequest({
     data: {
       title: state.title,
       ...(chart && { chart }),
-      notes: state.notes[state.kind],
+      notes: state.withNotes ? state.notes[state.kind] : '',
       categories: state.categories,
       isDefault: state.isDefault,
       specs: values,
       ...(own.length > 0 && { specItems: own }),
       ...(store.length > 0 && { storeSpecItems: store }),
       importSource: draft.source,
+      importWhere: draft.where.key,
       ...(diagram && { diagramUrl: draft.diagrams[state.kind] }),
       importRules: draft.facts.map((fact, i) => {
         const target = state.mappings[i].target;

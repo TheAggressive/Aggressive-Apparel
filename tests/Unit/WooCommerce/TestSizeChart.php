@@ -55,6 +55,7 @@ class TestSizeChart extends WP_UnitTestCase {
 		$this->assertSame( array( 11.75 ), Size_Chart::numbers( '11¾' ) );
 		$this->assertSame( array( 0.75 ), Size_Chart::numbers( '3/4' ) );
 		$this->assertSame( array( 38.0, 40.0 ), Size_Chart::numbers( '38-40' ) );
+		$this->assertSame( Size_Chart::numbers( '10 1/3' ), Size_Chart::numbers( '10 ⅓' ), 'Every glyph shown can be read back.' );
 		$this->assertSame( array(), Size_Chart::numbers( 'S/M' ) );
 	}
 
@@ -62,9 +63,100 @@ class TestSizeChart extends WP_UnitTestCase {
 	public function test_convert(): void {
 		$this->assertSame( '30', Size_Chart::convert( '11¾', 'in' ) );
 		$this->assertSame( '96.5–101.5', Size_Chart::convert( '38-40', 'in' ) );
-		$this->assertSame( '42', Size_Chart::convert( '106.5', 'cm' ) );
-		$this->assertSame( '11½', Size_Chart::convert( '29', 'cm' ) );
+		$this->assertSame( '41 ⅞', Size_Chart::convert( '106.5', 'cm' ) );
+		$this->assertSame( '11 ⅜', Size_Chart::convert( '29', 'cm' ) );
+		$this->assertSame( '26', Size_Chart::convert( '10 ⅓', 'in' ) );
+		$this->assertSame( '48', Size_Chart::convert( '18.94', 'in' ) );
 		$this->assertSame( 'One size', Size_Chart::convert( 'One size', 'cm' ) );
+	}
+
+	/**
+	 * Plain inch values read in eighths, anything else stays as entered, and
+	 * showing a value twice changes nothing. Mirrors displayInches in chart.test.ts.
+	 */
+	public function test_display_inches(): void {
+		$cases = array(
+			'18.90'        => '18 ⅞',
+			'18,90'        => '18 ⅞',
+			'16.5'         => '16 ½',
+			'28.00'        => '28',
+			'18.96'        => '19',
+			'0.5'          => '½',
+			'.25'          => '¼',
+			'18.9-20.5'    => '18 ⅞-20 ½',
+			'18.9 to 20.5' => '18 ⅞ to 20 ½',
+			'18.9"'        => '18 ⅞"',
+			'17 1/2'       => '17 ½',
+			'18 ⅞'         => '18 ⅞',
+			'28'           => '28',
+			'38-40'        => '38-40',
+			'1/2-3/4'      => '½-¾',
+			'38 to 1/2'    => '38 to ½',
+			'0.04'         => '0.04',
+			'±0.05'        => '±0.05',
+			'8.5 US'       => '8.5 US',
+			'M1.5'         => 'M1.5',
+			'1,234'        => '1,234',
+			'1,234.5'      => '1,234.5',
+			'One size'     => 'One size',
+			''             => '',
+		);
+		foreach ( $cases as $value => $expected ) {
+			$this->assertSame( $expected, Size_Chart::display_inches( (string) $value ) );
+			$this->assertSame( $expected, Size_Chart::display_inches( $expected ) );
+		}
+	}
+
+	/**
+	 * Eighths are for display only: the chart keeps what was entered, and cm is
+	 * worked out from that, not from the rounded inches.
+	 */
+	public function test_inches_round_for_display_only(): void {
+		$raw = array(
+			'unit'    => 'in',
+			'columns' => array(
+				array(
+					'label' => 'Chest',
+					'type'  => 'measure',
+				),
+				array(
+					'label' => 'Fit',
+					'type'  => 'measure',
+				),
+				array(
+					'label' => 'EU',
+					'type'  => 'text',
+				),
+			),
+			'rows'    => array(
+				array(
+					'size'   => 'M',
+					'values' => array( '18.94', 'One size fits most', '38.5' ),
+				),
+			),
+		);
+
+		$chart = Size_Chart::sanitize( $raw );
+		$this->assertSame( array( '18.94', 'One size fits most', '38.5' ), $chart['rows'][0]['values'] );
+
+		$guide_id = $this->guide( 'Rounding' );
+		update_post_meta( $guide_id, Size_Chart::META, $chart );
+		$html = Size_Chart::render( $guide_id );
+
+		$this->assertStringContainsString( 'data-show="in">19&nbsp;<span', $html );
+		$this->assertStringContainsString( 'data-show="cm">48&nbsp;<span', $html, 'From 18.94, not the rounded 19.' );
+		$this->assertStringContainsString( 'One size fits most&nbsp;<span', $html, 'Free text can still wrap.' );
+		$this->assertStringContainsString( '<td>38.5</td>', $html, 'Text columns are never rounded.' );
+
+		$raw['unit']                  = 'cm';
+		$raw['rows'][0]['values'][0]  = '48.3';
+		update_post_meta( $guide_id, Size_Chart::META, Size_Chart::sanitize( $raw ) );
+		$this->assertStringContainsString( 'data-show="cm">48.3&nbsp;<span', Size_Chart::render( $guide_id ), 'A cm chart shows cm as entered.' );
+
+		$raw['unit']                  = 'in';
+		$raw['rows'][0]['values'][0]  = '18.90';
+		update_post_meta( $guide_id, Size_Chart::META, Size_Chart::sanitize( $raw ) );
+		$this->assertStringContainsString( 'data-show="in">18&nbsp;⅞&nbsp;<span', Size_Chart::render( $guide_id ), 'A number and its fraction stay on one line.' );
 	}
 
 	/** Typed fractions show as glyphs; ranges and other text are untouched. */
@@ -74,6 +166,8 @@ class TestSizeChart extends WP_UnitTestCase {
 		$this->assertSame( '⅜', Size_Chart::display_value( '3/8' ) );
 		$this->assertSame( '38-40', Size_Chart::display_value( '38-40' ) );
 		$this->assertSame( '11 ¾', Size_Chart::display_value( '11 ¾' ) );
+		$this->assertSame( '½-¾', Size_Chart::display_value( '1/2-3/4' ), 'A separator between fractions stays.' );
+		$this->assertSame( '38 to ½', Size_Chart::display_value( '38 to 1/2' ), 'So does a space after a word.' );
 	}
 
 	/** Size lines: capitals become sentence case, fractions glyphs, both units. */

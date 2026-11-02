@@ -13,8 +13,10 @@ namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Printful_Catalog;
 use Aggressive_Apparel\WooCommerce\Printful_Import;
+use Aggressive_Apparel\WooCommerce\Printful_Import_Categories;
 use Aggressive_Apparel\WooCommerce\Printful_Rest;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
+use Aggressive_Apparel\WooCommerce\Size_Guide;
 use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
 
@@ -48,6 +50,7 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		update_option( Feature_Settings::OPTION_KEY, array( 'size_guide' => true ), false );
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		delete_option( Printful_Import::RULES );
+		delete_option( Printful_Import_Categories::RULES );
 		foreach ( array( 'aa_printful_products', 'aa_printful_product_71', 'aa_printful_sizes_71' ) as $key ) {
 			delete_transient( $key );
 		}
@@ -174,6 +177,216 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$facts = array_column( Printful_Import::draft( 71 )['facts'], null, 'text' );
 		$this->assertSame( 'skipped', $this->fact( $facts, 'Pre-shrunk' )[1], 'The rule applies next time.' );
 		$this->assertSame( $guide, Printful_Import::draft( 71 )['guide'], 'The draft knows it was imported.' );
+	}
+
+	/**
+	 * The garment comes from the title, most specific first, and picks the
+	 * store's best-fitting category; nothing fits means no suggestion.
+	 *
+	 * @dataProvider garments
+	 *
+	 * @param string   $title    The blank's title.
+	 * @param string   $category The blank's catalog category.
+	 * @param string   $key      Garment expected.
+	 * @param string[] $expected Category names expected.
+	 */
+	public function test_suggests_categories_named_like_the_garment( string $title, string $category, string $key, array $expected ): void {
+		foreach ( array( 'Uncategorized', 'Clothing', 'Hoodies', 'Jackets', 'Shirts', 'Sweater', 'Tshirts', "Men's Shorts", "Women's Shorts" ) as $name ) {
+			self::factory()->term->create(
+				array(
+					'taxonomy' => 'product_cat',
+					'name'     => $name,
+				)
+			);
+		}
+
+		$where = Printful_Import_Categories::suggest( 'printful', $title, $category );
+
+		$this->assertSame( $key, $where['key'] );
+		$this->assertSame( array() === $expected ? '' : Printful_Import_Categories::MATCHED, $where['source'] );
+		$names = array_map( static fn( int $id ): string => html_entity_decode( get_term( $id )->name, ENT_QUOTES ), $where['categories'] );
+		sort( $names );
+		$this->assertSame( $expected, $names );
+	}
+
+	/**
+	 * Blanks and where they should go.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string, 3: list<string>}>
+	 */
+	public function garments(): array {
+		return array(
+			'a tee takes the exact word'      => array( 'Unisex Staple T-Shirt | Bella + Canvas 3001', 'T-shirts', 'tshirt', array( 'Tshirts' ) ),
+			'crew neck tee is still a tee'    => array( 'Unisex Performance Crew Neck T-Shirt', 'T-shirts', 'tshirt', array( 'Tshirts' ) ),
+			'a knitted tee is still a tee' => array( 'Unisex Knitted T-shirt', 'Knitwear', 'tshirt', array( 'Tshirts' ) ),
+			'title beats a broad category'    => array( 'Unisex Crewneck Sweatshirt', 'All hoodies & sweatshirts', 'sweatshirt', array( 'Sweater' ) ),
+			'hoodie'                          => array( 'Unisex Heavy Blend Hoodie', 'Hoodies', 'hoodie', array( 'Hoodies' ) ),
+			'polo falls back to shirts'       => array( 'Unisex Adidas Premium Polo Shirt', 'Polo shirts', 'polo', array( 'Shirts' ) ),
+			'long sleeve falls back to tees'  => array( 'Unisex Long Sleeve Tee', 'Long sleeve shirts', 'longsleeve', array( 'Tshirts' ) ),
+			'category names it if title not'  => array( 'Ultra Soft Classic', 'Hoodies', 'hoodie', array( 'Hoodies' ) ),
+			'a knit hat is a hat, not knit'   => array( 'Knitted Beanie', 'Beanies', 'hat', array() ),
+			'never a broad category'          => array( 'All-Over Print Cotton Bodycon Dress', 'Dresses', 'dress', array() ),
+			'unknown garment suggests none'   => array( 'Baby Bib', 'Baby Stuff', 'baby-stuff', array() ),
+			"men's skips women's categories"  => array( "Men's Fleece Shorts", 'Shorts', 'shorts', array( "Men's Shorts" ) ),
+			"women's skips men's categories"  => array( "Women's Biker Shorts", 'Shorts', 'shorts', array( "Women's Shorts" ) ),
+			'unisex fits both'                => array( 'Unisex Fleece Shorts', 'Shorts', 'shorts', array( "Men's Shorts", "Women's Shorts" ) ),
+		);
+	}
+
+	/**
+	 * Words that mean something else on their own don't pull a blank into an
+	 * unrelated category.
+	 *
+	 * @dataProvider loose_words
+	 *
+	 * @param string   $title    The blank's title.
+	 * @param string   $key      Garment expected.
+	 * @param string[] $expected Category names expected.
+	 */
+	public function test_loose_words_do_not_match( string $title, string $key, array $expected ): void {
+		foreach ( array( 'Short Sleeve Tees', 'Top Sellers', 'Cap Sleeve Styles', 'Hats' ) as $name ) {
+			self::factory()->term->create(
+				array(
+					'taxonomy' => 'product_cat',
+					'name'     => $name,
+				)
+			);
+		}
+
+		$where = Printful_Import_Categories::suggest( 'printful', $title, '' );
+		$names = array_map( static fn( int $id ): string => get_term( $id )->name, $where['categories'] );
+
+		$this->assertSame( $key, $where['key'] );
+		$this->assertSame( $expected, $names );
+	}
+
+	/**
+	 * Blanks that could be drawn into the wrong category.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: list<string>}>
+	 */
+	public function loose_words(): array {
+		return array(
+			'shorts aren\'t short sleeves'    => array( 'Unisex Fleece Shorts', 'shorts', array() ),
+			'tanks aren\'t top sellers'       => array( 'Unisex Staple Tank Top', 'tank', array() ),
+			'a cap sleeve tee is no hat'      => array( "Women's Cap Sleeve T-Shirt", 'tshirt', array( 'Short Sleeve Tees' ) ),
+			'a short sleeve tee is a tee'     => array( 'Unisex Short Sleeve Tee', 'tshirt', array( 'Short Sleeve Tees' ) ),
+			'a real hat still finds its home' => array( 'Dad Hat', 'hat', array( 'Hats' ) ),
+		);
+	}
+
+	/** The draft names the garment from the recorded catalog. */
+	public function test_draft_suggests_where_it_applies(): void {
+		$tees = self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'name'     => 'Tees',
+			)
+		);
+
+		$where = Printful_Import::draft( 71 )['where'];
+
+		$this->assertSame( 'tshirt', $where['key'] );
+		$this->assertSame( array( $tees ), $where['categories'] );
+	}
+
+	/** A category holds one guide, so one in use is reported, never suggested. */
+	public function test_a_category_in_use_is_not_suggested(): void {
+		$tees  = self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'name'     => 'Tshirts',
+			)
+		);
+		$other = self::factory()->post->create(
+			array(
+				'post_type'   => 'aa_size_guide',
+				'post_status' => 'publish',
+				'post_title'  => 'Comfort Colors 1717',
+			)
+		);
+		update_term_meta( $tees, Size_Guide::CPT_META_KEY, $other );
+
+		$where = Printful_Import_Categories::suggest( 'printful', 'Unisex Tee', 'T-shirts' );
+
+		$this->assertSame( array(), $where['categories'] );
+		$this->assertSame(
+			array(
+				array(
+					'id'    => $tees,
+					'name'  => 'Tshirts',
+					'guide' => 'Comfort Colors 1717',
+				),
+			),
+			$where['taken']
+		);
+
+		wp_trash_post( $other );
+		$this->assertSame( array( $tees ), Printful_Import_Categories::suggest( 'printful', 'Unisex Tee', 'T-shirts' )['categories'], 'A trashed guide holds nothing.' );
+	}
+
+	/** The store's last choice beats the name match; choosing none changes nothing. */
+	public function test_category_choice_is_remembered(): void {
+		$tees = self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'name'     => 'Tshirts',
+			)
+		);
+		$mine = self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'name'     => 'Band Merch',
+			)
+		);
+		$guide = self::factory()->post->create( array( 'post_type' => 'aa_size_guide' ) );
+		$body  = array(
+			'importSource' => array(
+				'provider' => 'printful',
+				'id'       => 71,
+			),
+			'importWhere'  => 'tshirt',
+		);
+
+		Printful_Import::created( $guide, $body + array( 'categories' => array( $mine ) ) );
+		$where = Printful_Import_Categories::suggest( 'printful', 'Unisex Tee', 'T-shirts' );
+		$this->assertSame( array( $mine ), $where['categories'] );
+		$this->assertSame( Printful_Import_Categories::REMEMBERED, $where['source'] );
+
+		Printful_Import::created( $guide, $body + array( 'categories' => array() ) );
+		$this->assertSame( array( $mine ), Printful_Import_Categories::suggest( 'printful', 'Unisex Tee', 'T-shirts' )['categories'], 'No category is not a choice.' );
+
+		wp_delete_term( $mine, 'product_cat' );
+		$where = Printful_Import_Categories::suggest( 'printful', 'Unisex Tee', 'T-shirts' );
+		$this->assertSame( array( $tees ), $where['categories'], 'With its category deleted, the name match takes over.' );
+		$this->assertSame( Printful_Import_Categories::MATCHED, $where['source'] );
+	}
+
+	/** A hand-made guide under the imported name is recognised and left alone. */
+	public function test_draft_finds_a_guide_made_by_hand(): void {
+		$this->assertSame( 0, Printful_Import::draft( 71 )['guide'], 'Nothing yet.' );
+
+		$title = Printful_Import::draft( 71 )['title'];
+		$mine  = self::factory()->post->create(
+			array(
+				'post_type'    => 'aa_size_guide',
+				'post_status'  => 'publish',
+				'post_title'   => $title,
+				'post_content' => 'My edits',
+			)
+		);
+
+		$this->assertSame( $mine, Printful_Import::draft( 71 )['guide'] );
+		$this->assertSame( 'My edits', get_post_field( 'post_content', $mine ), 'Reading a draft changes nothing.' );
+
+		wp_trash_post( $mine );
+		$this->assertSame( 0, Printful_Import::draft( 71 )['guide'], 'A trashed guide is not in place.' );
+	}
+
+	/** A category Printful doesn't list has no title, rather than an error. */
+	public function test_unknown_category_title_is_blank(): void {
+		$this->assertSame( 'T-shirts', Printful_Catalog::category_title( 24 ) );
+		$this->assertSame( '', Printful_Catalog::category_title( 999999 ) );
 	}
 
 	/** A diagram is only ever fetched from Printful's file CDN. */

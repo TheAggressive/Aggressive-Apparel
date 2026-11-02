@@ -9,12 +9,12 @@
  * @package Aggressive_Apparel
  */
 
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { Button, DropdownMenu, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import type { ClipboardEvent, KeyboardEvent } from 'react';
 import type { Chart, ChartColumn } from './_types';
-import { parseGrid, pasteGrid } from './_chart';
+import { displayInches, parseGrid, pasteGrid } from './_chart';
 
 type Props = {
   chart: Chart;
@@ -32,6 +32,10 @@ function move<T>(list: T[], from: number, to: number): T[] {
 export default function ChartEditor({ chart, limits, onChange }: Props) {
   const grid = useRef<HTMLTableElement>(null);
   const pendingFocus = useRef<string | null>(null);
+  // Like a spreadsheet: the focused cell shows what was entered, the others
+  // how it reads. The value itself never changes, so a later switch to
+  // centimetres or to a text column loses nothing.
+  const [focusedCell, setFocusedCell] = useState<string | null>(null);
 
   // Focus a cell after the chart re-renders (Enter on the last row, inserts).
   useEffect(() => {
@@ -350,10 +354,31 @@ export default function ChartEditor({ chart, limits, onChange }: Props) {
                     <input
                       className='aa-ps-chart__input'
                       data-cell={`${r}:${c}`}
-                      value={row.values[c] ?? ''}
+                      value={
+                        chart.unit === 'in' &&
+                        column.type === 'measure' &&
+                        focusedCell !== `${r}:${c}`
+                          ? displayInches(row.values[c] ?? '')
+                          : (row.values[c] ?? '')
+                      }
                       inputMode={column.type === 'measure' ? 'decimal' : 'text'}
                       aria-label={`${row.size || String(r + 1)}, ${column.label || String(c + 1)}`}
                       onChange={event => setCell(r, c, event.target.value)}
+                      onFocus={event => {
+                        // Swapping to what was entered drops the selection
+                        // Tab or Enter made: put it back, so typing replaces.
+                        const input = event.currentTarget;
+                        const entered = row.values[c] ?? '';
+                        setFocusedCell(`${r}:${c}`);
+                        if (input.value !== entered) {
+                          window.requestAnimationFrame(() => {
+                            if (input === input.ownerDocument.activeElement) {
+                              input.select();
+                            }
+                          });
+                        }
+                      }}
+                      onBlur={() => setFocusedCell(null)}
                       onPaste={onPaste(r, c)}
                       onKeyDown={onKeyDown(r, c)}
                     />

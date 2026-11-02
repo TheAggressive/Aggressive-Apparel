@@ -140,6 +140,24 @@ final class Printful_Catalog {
 	}
 
 	/**
+	 * A catalog category's title, cached ('' when unknown or unavailable: it
+	 * only sharpens a suggestion, so an outage shouldn't stop an import).
+	 *
+	 * @param int $id Printful catalog category ID.
+	 */
+	public static function category_title( int $id ): string {
+		$result     = self::cached( 'aa_printful_categories', '/categories' );
+		$categories = ! is_wp_error( $result ) && is_array( $result['categories'] ?? null ) ? $result['categories'] : array();
+		foreach ( $categories as $category ) {
+			if ( is_array( $category ) && (int) ( $category['id'] ?? 0 ) === $id ) {
+				return self::text( $category['title'] ?? '' );
+			}
+		}
+
+		return '';
+	}
+
+	/**
 	 * One product's size tables, cached.
 	 *
 	 * @param int $id Printful catalog product ID.

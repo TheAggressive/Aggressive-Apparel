@@ -10,7 +10,7 @@
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import type { Chart } from './_types';
-import { convert } from './_chart';
+import { convert, displayInches } from './_chart';
 
 export default function ChartPreview({ chart }: { chart: Chart }) {
   const [unit, setUnit] = useState<'in' | 'cm'>(chart.unit);
@@ -31,7 +31,11 @@ export default function ChartPreview({ chart }: { chart: Chart }) {
   const show = (value: string, isMeasure: boolean) =>
     isMeasure ? (
       <>
-        {unit === chart.unit ? value : convert(value, chart.unit)}
+        {unit !== chart.unit
+          ? convert(value, chart.unit)
+          : unit === 'in'
+            ? displayInches(value)
+            : value}
         {'\u00a0'}
         <span className='aa-ps-chart-preview__unit'>{unit}</span>
       </>

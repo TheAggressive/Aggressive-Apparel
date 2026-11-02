@@ -1,8 +1,8 @@
 /**
  * Product Specs settings — size chart helpers.
  *
- * Templates, spreadsheet paste, and the in/cm conversion. The conversion mirrors Size_Chart (PHP) so the editor
- * preview matches the product page.
+ * Templates, spreadsheet paste, the in/cm conversion, and how inches read. The
+ * last two mirror Size_Chart (PHP) so the editor preview matches the product page.
  *
  * @package Aggressive_Apparel
  */
@@ -11,15 +11,24 @@ import { __ } from '@wordpress/i18n';
 import type { Chart, ChartColumn } from './_types';
 
 const CM_PER_INCH = 2.54;
-const FRACTIONS: Record<string, string> = {
-  '¼': ' 1/4',
-  '½': ' 1/2',
-  '¾': ' 3/4',
-  '⅛': ' 1/8',
-  '⅜': ' 3/8',
-  '⅝': ' 5/8',
-  '⅞': ' 7/8',
+/** Typed fractions and their glyphs: the eighths in order, then thirds. */
+const FRACTION_GLYPHS: Record<string, string> = {
+  '1/8': '⅛',
+  '1/4': '¼',
+  '3/8': '⅜',
+  '1/2': '½',
+  '5/8': '⅝',
+  '3/4': '¾',
+  '7/8': '⅞',
+  '1/3': '⅓',
+  '2/3': '⅔',
 };
+/**
+ * A plain inch measurement: a number or range with an optional inch mark.
+ * Anything else ("8.5 US", "M1.5", "±0.05", "1,234") isn't rounded.
+ */
+const INCH_VALUE =
+  /^\s*(?:\d+(?:\.\d+|,\d{1,2})?|\.\d+)(?:\s*(?:-|–|—|to)\s*(?:\d+(?:\.\d+|,\d{1,2})?|\.\d+))?\s*(?:"|″|in\.?|inch(?:es)?)?\s*$/iu;
 
 export type Template = { name: string; chart: Chart };
 
@@ -80,8 +89,8 @@ export function templates(): Template[] {
 /** Numbers in a value: "11 3/4", "11¾", "11.75", "38-40". */
 export function numbers(value: string): number[] {
   let text = value.replace(/,/g, '.');
-  Object.entries(FRACTIONS).forEach(([glyph, fraction]) => {
-    text = text.split(glyph).join(fraction);
+  Object.entries(FRACTION_GLYPHS).forEach(([typed, glyph]) => {
+    text = text.split(glyph).join(` ${typed}`);
   });
   const found: number[] = [];
   for (const match of text.matchAll(
@@ -101,10 +110,44 @@ export function numbers(value: string): number[] {
 }
 
 function formatInches(inches: number): string {
-  const quarters = Math.round(inches * 4);
-  const whole = Math.floor(quarters / 4);
-  const glyph = ['', '¼', '½', '¾'][quarters % 4];
-  return (whole === 0 && glyph ? '' : String(whole)) + glyph;
+  const eighths = Math.max(0, Math.round(inches * 8));
+  const whole = Math.floor(eighths / 8);
+  const part = eighths % 8;
+  if (part === 0) {
+    return String(whole);
+  }
+  const glyph = Object.values(FRACTION_GLYPHS)[part - 1];
+  return whole === 0 ? glyph : `${whole} ${glyph}`;
+}
+
+/** Typed fractions as glyphs (Size_Chart::display_value): "17 1/2" → "17 ½". */
+function displayValue(value: string): string {
+  return value.replace(
+    /(?:(\d)[ \u00A0-]*)?(?<![\d/])([1-7]\/[2348])(?![\d/])/g,
+    (found, digit: string | undefined, fraction: string) => {
+      const glyph = FRACTION_GLYPHS[fraction];
+      if (!glyph) {
+        return found;
+      }
+      return digit ? `${digit} ${glyph}` : glyph;
+    }
+  );
+}
+
+/**
+ * A measurement in inches as shown (Size_Chart::display_inches): decimals to
+ * the nearest eighth and typed fractions as glyphs ("18.90" → "18 ⅞"). Only
+ * plain measurements round, and a value too small to show in eighths stays as
+ * entered rather than reading as zero.
+ */
+export function displayInches(value: string): string {
+  if (!INCH_VALUE.test(value)) {
+    return displayValue(value);
+  }
+  return value.replace(/\d+(?:\.\d+|,\d{1,2})|\.\d+/g, found => {
+    const number = Number(found.replace(',', '.'));
+    return number < 0.0625 ? found : formatInches(number);
+  });
 }
 
 function formatCm(cm: number): string {

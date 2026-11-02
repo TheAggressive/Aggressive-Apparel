@@ -51,21 +51,29 @@ final class Size_Chart {
 	private const KEEP_CAPS = '/^(US|UK|EU|IT|FR|DE|JP|AU|CN|KR|MX|BR|INTL|X*[SML])$/';
 
 	/**
-	 * Typed fractions and their glyphs.
+	 * Typed fractions and their glyphs: the eighths in order, then thirds.
 	 *
 	 * @var array<string, string>
 	 */
 	private const FRACTION_GLYPHS = array(
-		'1/2' => '½',
-		'1/4' => '¼',
-		'3/4' => '¾',
 		'1/8' => '⅛',
+		'1/4' => '¼',
 		'3/8' => '⅜',
+		'1/2' => '½',
 		'5/8' => '⅝',
+		'3/4' => '¾',
 		'7/8' => '⅞',
 		'1/3' => '⅓',
 		'2/3' => '⅔',
 	);
+
+	/**
+	 * A plain inch measurement: a number or range with an optional inch mark.
+	 * Anything else ("8.5 US", "M1.5", "±0.05", "1,234") isn't rounded.
+	 *
+	 * @var string
+	 */
+	private const INCH_VALUE = '~^\s*(?:\d+(?:\.\d+|,\d{1,2})?|\.\d+)(?:\s*(?:-|–|—|to)\s*(?:\d+(?:\.\d+|,\d{1,2})?|\.\d+))?\s*(?:"|″|in\.?|inch(?:es)?)?\s*$~ui';
 
 	/**
 	 * Measuring diagram (attachment ID) meta key.
@@ -113,6 +121,7 @@ final class Size_Chart {
 	 * Normalize a submitted or stored chart.
 	 *
 	 * Rows without a size are dropped; every row gets one value per column.
+	 * Values stay as entered: rounding is only ever for display (display_inches).
 	 *
 	 * @param mixed $raw Raw chart.
 	 * @return Chart
@@ -225,16 +234,7 @@ final class Size_Chart {
 	public static function numbers( string $value ): array {
 		$value = strtr(
 			$value,
-			array(
-				'¼' => ' 1/4',
-				'½' => ' 1/2',
-				'¾' => ' 3/4',
-				'⅛' => ' 1/8',
-				'⅜' => ' 3/8',
-				'⅝' => ' 5/8',
-				'⅞' => ' 7/8',
-				',' => '.',
-			)
+			array( ',' => '.' ) + array_map( static fn( string $typed ): string => ' ' . $typed, array_flip( self::FRACTION_GLYPHS ) )
 		);
 
 		// A bare fraction ("3/4") first, then a number with an optional
@@ -267,16 +267,56 @@ final class Size_Chart {
 	}
 
 	/**
-	 * Inches to the nearest quarter, with fraction glyphs ("11¾").
+	 * Inches to the nearest eighth, with fraction glyphs ("18 ⅞").
 	 *
 	 * @param float $inches Inches.
 	 */
 	public static function format_inches( float $inches ): string {
-		$quarters = (int) round( $inches * 4 );
-		$whole    = intdiv( $quarters, 4 );
-		$glyph    = array( '', '¼', '½', '¾' )[ $quarters % 4 ];
+		$eighths = max( 0, (int) round( $inches * 8 ) );
+		$whole   = intdiv( $eighths, 8 );
+		$part    = $eighths % 8;
 
-		return ( 0 === $whole && '' !== $glyph ? '' : (string) $whole ) . $glyph;
+		if ( 0 === $part ) {
+			return (string) $whole;
+		}
+
+		$glyph = array_values( self::FRACTION_GLYPHS )[ $part - 1 ];
+
+		return 0 === $whole ? $glyph : $whole . ' ' . $glyph;
+	}
+
+	/**
+	 * A measurement in inches as shown: decimals to the nearest eighth and
+	 * typed fractions as glyphs ("18.90" → "18 ⅞", "17 1/2" → "17 ½"). Only
+	 * plain measurements round (INCH_VALUE), and a value too small to show in
+	 * eighths stays as entered rather than reading as zero.
+	 *
+	 * @param string $value Measurement as entered.
+	 */
+	public static function display_inches( string $value ): string {
+		if ( 1 !== preg_match( self::INCH_VALUE, $value ) ) {
+			return self::display_value( $value );
+		}
+
+		return (string) preg_replace_callback(
+			'~\d+(?:\.\d+|,\d{1,2})|\.\d+~',
+			static function ( array $found ): string {
+				$number = (float) str_replace( ',', '.', $found[0] );
+
+				return $number < 0.0625 ? $found[0] : self::format_inches( $number );
+			},
+			$value
+		);
+	}
+
+	/**
+	 * A measurement as shown in the unit it was entered in.
+	 *
+	 * @param string $value Measurement as entered.
+	 * @param string $unit  Entered unit ('in' or 'cm').
+	 */
+	private static function entered_value( string $value, string $unit ): string {
+		return 'in' === $unit ? self::display_inches( $value ) : self::display_value( $value );
 	}
 
 	/**
@@ -347,7 +387,7 @@ final class Size_Chart {
 				if ( self::TYPE_MEASURE === $column['type'] ) {
 					$parts[ $chart['unit'] ][] = array(
 						'label' => $label,
-						'value' => self::display_value( $value ) . ' ' . $chart['unit'],
+						'value' => self::entered_value( $value, $chart['unit'] ) . ' ' . $chart['unit'],
 					);
 					$parts[ $other ][]         = array(
 						'label' => $label,
@@ -386,7 +426,7 @@ final class Size_Chart {
 	 */
 	public static function display_value( string $value ): string {
 		return (string) preg_replace_callback(
-			'~(\d?)[ \x{00A0}-]*(?<![\d/])([1-7]/[2348])(?![\d/])~u',
+			'~(?:(\d)[ \x{00A0}-]*)?(?<![\d/])([1-7]/[2348])(?![\d/])~u',
 			static function ( array $found ): string {
 				$glyph = self::FRACTION_GLYPHS[ $found[2] ] ?? null;
 				if ( null === $glyph ) {
@@ -481,7 +521,7 @@ final class Size_Chart {
 				if ( '' === $value ) {
 					$cells .= '<td><span class="aa-size-chart__empty" aria-hidden="true">–</span><span class="screen-reader-text">' . esc_html__( 'Not available', 'aggressive-apparel' ) . '</span></td>';
 				} elseif ( self::TYPE_MEASURE === $column['type'] ) {
-					$cells .= '<td>' . self::dual( self::with_unit( self::display_value( $value ), $chart['unit'] ), self::with_unit( self::convert( $value, $chart['unit'] ), $other ), $chart['unit'] ) . '</td>';
+					$cells .= '<td>' . self::dual( self::with_unit( self::entered_value( $value, $chart['unit'] ), $chart['unit'] ), self::with_unit( self::convert( $value, $chart['unit'] ), $other ), $chart['unit'] ) . '</td>';
 				} else {
 					$cells .= '<td>' . esc_html( $value ) . '</td>';
 				}
@@ -548,7 +588,9 @@ final class Size_Chart {
 	 * @param string $unit  Unit.
 	 */
 	private static function with_unit( string $value, string $unit ): string {
-		return esc_html( $value ) . '&nbsp;<span class="aa-size-chart__unit">' . esc_html( $unit ) . '</span>';
+		$value = (string) preg_replace( '~(\d) (?=[' . implode( '', self::FRACTION_GLYPHS ) . '])~u', '$1&nbsp;', esc_html( $value ) );
+
+		return $value . '&nbsp;<span class="aa-size-chart__unit">' . esc_html( $unit ) . '</span>';
 	}
 
 	/**

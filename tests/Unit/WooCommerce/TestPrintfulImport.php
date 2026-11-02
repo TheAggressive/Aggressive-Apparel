@@ -233,6 +233,48 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Words that mean something else on their own don't pull a blank into an
+	 * unrelated category.
+	 *
+	 * @dataProvider loose_words
+	 *
+	 * @param string   $title    The blank's title.
+	 * @param string   $key      Garment expected.
+	 * @param string[] $expected Category names expected.
+	 */
+	public function test_loose_words_do_not_match( string $title, string $key, array $expected ): void {
+		foreach ( array( 'Short Sleeve Tees', 'Top Sellers', 'Cap Sleeve Styles', 'Hats' ) as $name ) {
+			self::factory()->term->create(
+				array(
+					'taxonomy' => 'product_cat',
+					'name'     => $name,
+				)
+			);
+		}
+
+		$where = Printful_Import_Categories::suggest( 'printful', $title, '' );
+		$names = array_map( static fn( int $id ): string => get_term( $id )->name, $where['categories'] );
+
+		$this->assertSame( $key, $where['key'] );
+		$this->assertSame( $expected, $names );
+	}
+
+	/**
+	 * Blanks that could be drawn into the wrong category.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: list<string>}>
+	 */
+	public function loose_words(): array {
+		return array(
+			'shorts aren\'t short sleeves'    => array( 'Unisex Fleece Shorts', 'shorts', array() ),
+			'tanks aren\'t top sellers'       => array( 'Unisex Staple Tank Top', 'tank', array() ),
+			'a cap sleeve tee is no hat'      => array( "Women's Cap Sleeve T-Shirt", 'tshirt', array( 'Short Sleeve Tees' ) ),
+			'a short sleeve tee is a tee'     => array( 'Unisex Short Sleeve Tee', 'tshirt', array( 'Short Sleeve Tees' ) ),
+			'a real hat still finds its home' => array( 'Dad Hat', 'hat', array( 'Hats' ) ),
+		);
+	}
+
 	/** The draft names the garment from the recorded catalog. */
 	public function test_draft_suggests_where_it_applies(): void {
 		$tees = self::factory()->term->create(

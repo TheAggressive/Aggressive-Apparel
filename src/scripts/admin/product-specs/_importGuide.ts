@@ -16,6 +16,7 @@ import type {
   ImportDraft,
   ImportResult,
   ImportStop,
+  ImportTaken,
   SpecItem,
 } from './_types';
 import { toStored } from './_utils';
@@ -54,6 +55,57 @@ export function keepsExisting(
   state: ImportBlankState
 ): boolean {
   return draft.guide > 0 && !state.secondGuide;
+}
+
+/** Another blank being imported, as far as its categories go. */
+export type ImportClaim = { title: string; categories: number[] };
+
+/** Guides this import has made, by category they hold. */
+export type ImportPlaced = Record<number, string>;
+
+/**
+ * The suggested categories nothing else in this import holds: a category holds
+ * one guide, so the first blank that fits gets it.
+ */
+export function freeSuggestions(
+  draft: ImportDraft,
+  claims: ImportClaim[],
+  placed: ImportPlaced,
+  categories: Category[]
+): number[] {
+  return draft.where.categories.filter(
+    id =>
+      categories.some(category => category.id === id) &&
+      !placed[id] &&
+      !claims.some(claim => claim.categories.includes(id))
+  );
+}
+
+/**
+ * Categories that fit this blank but something else holds right now: guides
+ * from before this import, then guides it made, then the other blanks in it.
+ * Worked out afresh, so a blank moving on or going away frees its category.
+ */
+export function liveTaken(
+  draft: ImportDraft,
+  state: ImportBlankState,
+  claims: ImportClaim[],
+  placed: ImportPlaced,
+  categories: Category[]
+): ImportTaken[] {
+  const taken = [...state.taken];
+  for (const id of draft.where.categories) {
+    const guide =
+      placed[id] ?? claims.find(claim => claim.categories.includes(id))?.title;
+    if (guide && !state.categories.includes(id)) {
+      taken.push({
+        id,
+        name: categories.find(category => category.id === id)?.name ?? '',
+        guide,
+      });
+    }
+  }
+  return taken;
 }
 
 /**

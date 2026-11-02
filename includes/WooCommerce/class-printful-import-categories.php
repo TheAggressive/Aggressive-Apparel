@@ -61,6 +61,14 @@ final class Printful_Import_Categories {
 	private const MAX_RULES = 100;
 
 	/**
+	 * Category words that mean something else on their own ("Top Sellers", "Short
+	 * Sleeve"), so singular they only count as a category's whole name.
+	 *
+	 * @var list<string>
+	 */
+	private const LOOSE_WORDS = array( 'top', 'short', 'cap', 'bottom', 'crop' );
+
+	/**
 	 * Garments, most specific first (a "T-Shirt Dress" is a dress, a "Crew Neck
 	 * T-Shirt" a tee), and the category words each fits, best first.
 	 *
@@ -220,6 +228,8 @@ final class Printful_Import_Categories {
 	 * @param string $text Title or category.
 	 */
 	private static function garment( string $text ): string {
+		// A sleeve's length isn't a garment: "Cap Sleeve T-Shirt" is no hat.
+		$text = (string) preg_replace( '/\b(short|cap)[\s-]?sleeves?\b/i', '', $text );
 		foreach ( self::GARMENTS as $key => $garment ) {
 			if ( 1 === preg_match( $garment['match'], $text ) ) {
 				return $key;
@@ -250,7 +260,11 @@ final class Printful_Import_Categories {
 			$found = array();
 			foreach ( $terms as $id => $name ) {
 				$words = self::words( $name );
-				if ( array() === array_intersect( $words, $not ) && array() !== array_intersect( $words, array( $stem, $stem . 's', $stem . 'es' ) ) ) {
+				$forms = array( $stem . 's', $stem . 'es' );
+				if ( ! in_array( $stem, self::LOOSE_WORDS, true ) || array( $stem ) === $words ) {
+					$forms[] = $stem;
+				}
+				if ( array() === array_intersect( $words, $not ) && array() !== array_intersect( $words, $forms ) ) {
 					$found[ $id ] = $name;
 				}
 			}
@@ -270,7 +284,7 @@ final class Printful_Import_Categories {
 	 */
 	private static function words( string $name ): array {
 		$name  = strtolower( wp_specialchars_decode( $name, ENT_QUOTES ) );
-		$name  = (string) preg_replace( array( '/\bt[\s-]?shirt/', '/\blong[\s-]?sleeve/', '/[\'’]s\b/' ), array( 'tshirt', 'longsleeve', 's' ), $name );
+		$name  = (string) preg_replace( array( '/\bt[\s-]?shirt/', '/\b(long|short|cap)[\s-]?sleeve/', '/[\'’]s\b/' ), array( 'tshirt', '$1sleeve', 's' ), $name );
 		$words = preg_split( '/[^a-z0-9]+/', $name, -1, PREG_SPLIT_NO_EMPTY );
 
 		return false !== $words ? $words : array();

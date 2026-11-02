@@ -30,7 +30,6 @@ import type {
   ImportMapping,
   ImportResult,
   ImportStop,
-  ImportTaken,
   PrintfulProduct,
   Registry,
   SpecItem,
@@ -39,10 +38,14 @@ import { scrollBehavior, specKey } from './_utils';
 import { attributeItem, nameFrom, valueFor } from './_import';
 import {
   findSaved,
+  freeSuggestions,
   guideRequest,
   importStops,
   keepsExisting,
+  liveTaken,
   savedKey,
+  type ImportClaim,
+  type ImportPlaced,
 } from './_importGuide';
 import ImportSearch from './_ImportSearch';
 import ImportBlank from './_ImportBlank';
@@ -95,6 +98,8 @@ export default function ImportFlow({
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [batch, setBatch] = useState(0);
+  // Categories the guides made so far hold, so the blanks left know.
+  const [placed, setPlaced] = useState<ImportPlaced>({});
   const [notice, setNotice] = useState('');
   const [results, setResults] = useState<ImportResult[]>([]);
   const [jump, setJump] = useState(0);
@@ -128,30 +133,18 @@ export default function ImportFlow({
         : [...selected, product]
     );
 
-  /** A blank's first state; `earlier` holds the blanks already set up. */
+  /** A blank's first state; `claims` are the blanks already set up. */
   const startState = (
     draft: ImportDraft,
-    earlier: ImportBlankState[]
+    claims: ImportClaim[]
   ): ImportBlankState => {
     const kind =
       draft.charts.garment || !draft.charts.body ? 'garment' : 'body';
     // A blank that keeps the existing guide claims nothing from the others.
-    const suggested = (draft.guide > 0 ? [] : draft.where.categories).filter(
-      id => config.categories.some(category => category.id === id)
-    );
-    const taken: ImportTaken[] = [...draft.where.taken];
-    const categories = suggested.filter(id => {
-      const holder = earlier.find(state => state.categories.includes(id));
-      if (holder) {
-        taken.push({
-          id,
-          name:
-            config.categories.find(category => category.id === id)?.name ?? '',
-          guide: holder.title,
-        });
-      }
-      return !holder;
-    });
+    const categories =
+      draft.guide > 0
+        ? []
+        : freeSuggestions(draft, claims, placed, config.categories);
     return {
       title: draft.title,
       kind,
@@ -160,7 +153,7 @@ export default function ImportFlow({
       diagram: true,
       secondGuide: false,
       categories,
-      taken,
+      taken: draft.where.taken,
       isDefault: false,
       mappings: draft.facts.map(fact => {
         const attribute = created[fact.key];
@@ -207,9 +200,10 @@ export default function ImportFlow({
         return;
       }
       nextDrafts[product.id] = outcome.value;
+      // Only blanks still chosen count: one taken out holds nothing.
       nextStates[product.id] ??= startState(
         outcome.value,
-        Object.values(nextStates)
+        selected.flatMap(other => nextStates[other.id] ?? [])
       );
       ready.push(product);
     });
@@ -411,6 +405,15 @@ export default function ImportFlow({
     const remaining = selected.filter(
       product => !list.some(other => other.id === product.id)
     );
+    const nowPlaced: ImportPlaced = {};
+    done
+      .filter(result => result.guide > 0)
+      .forEach(result =>
+        states[result.id]?.categories.forEach(id => {
+          nowPlaced[id] = result.title;
+        })
+      );
+    setPlaced(current => ({ ...current, ...nowPlaced }));
     setDrafts(forget);
     setStates(forget);
     setResults([...results, ...done]);
@@ -468,6 +471,7 @@ export default function ImportFlow({
     setStates({});
     setCreated({});
     setResults([]);
+    setPlaced({});
     setNotice('');
     setStep(0);
   };
@@ -479,9 +483,22 @@ export default function ImportFlow({
   const queue = selected.filter(product => !kept(product.id));
   const waiting = selected.filter(product => pending(product.id) > 0);
   const blocked = selected.find(product => unnamed(product.id));
+  /** A blank's state with what other blanks hold right now. */
+  const live = (id: number): ImportBlankState => ({
+    ...states[id],
+    taken: liveTaken(
+      drafts[id],
+      states[id],
+      selected
+        .filter(other => other.id !== id && states[other.id] && !kept(other.id))
+        .map(other => states[other.id]),
+      placed,
+      config.categories
+    ),
+  });
   const stopsFor = (id: number): ImportStop[] =>
     drafts[id] && states[id] && !kept(id)
-      ? importStops(drafts[id], states[id])
+      ? importStops(drafts[id], live(id))
       : [];
   const ready = queue.filter(product => stopsFor(product.id).length === 0);
   const attention = queue.filter(product => stopsFor(product.id).length > 0);
@@ -666,7 +683,7 @@ export default function ImportFlow({
           </nav>
           <ImportBlank
             draft={current}
-            state={states[active]}
+            state={live(active)}
             specs={specs}
             attributes={free}
             created={created}

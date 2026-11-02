@@ -191,8 +191,17 @@ test.describe('Product tabs — front end', () => {
       );
       await new Promise(resolve => requestAnimationFrame(resolve));
       last.click();
+      // Let the collapse and any nudge finish: how far it scrolls, and so how
+      // long that takes, depends on how long the section above it is.
       await new Promise(resolve => setTimeout(resolve, 900));
-      return last.getBoundingClientRect().top;
+      let top = last.getBoundingClientRect().top;
+      for (let settled = 0, i = 0; settled < 3 && i < 40; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const next = last.getBoundingClientRect().top;
+        settled = next === top ? settled + 1 : 0;
+        top = next;
+      }
+      return top;
     });
 
     const openCount = await accordion.evaluate(

@@ -47,31 +47,40 @@ if (typeof site.url !== 'string' || !/^https?:\/\//u.test(site.url)) {
   process.exit(1);
 }
 
-const fixtureSource = path.join(
-  themeRoot,
-  'bin/wp-env/mu-plugins/e2e-product-tabs-style.php'
-);
-const fixtureLink = path.join(
-  sitePath,
-  'wp-content/mu-plugins/aa-e2e-product-tabs-style.php'
-);
-let removeFixtureLink = false;
-
-if (existsSync(fixtureLink)) {
-  if (realpathSync(fixtureLink) !== realpathSync(fixtureSource)) {
-    console.error(`studio-e2e: refusing to replace ${fixtureLink}.`);
-    process.exit(1);
-  }
-} else {
-  mkdirSync(path.dirname(fixtureLink), { recursive: true });
-  symlinkSync(fixtureSource, fixtureLink);
-  removeFixtureLink = true;
-}
+// Linked into the site for this run only, then removed.
+const fixtures = [
+  {
+    source: 'bin/wp-env/mu-plugins/e2e-product-tabs-style.php',
+    link: 'wp-content/mu-plugins/aa-e2e-product-tabs-style.php',
+  },
+  {
+    source: 'bin/local/mu-plugins/e2e-quiet-notices.php',
+    link: 'wp-content/mu-plugins/aa-e2e-quiet-notices.php',
+  },
+];
+const linked = [];
 
 function cleanup() {
-  if (removeFixtureLink && existsSync(fixtureLink)) unlinkSync(fixtureLink);
+  for (const link of linked) {
+    if (existsSync(link)) unlinkSync(link);
+  }
 }
 process.on('exit', cleanup);
+
+for (const fixture of fixtures) {
+  const source = path.join(themeRoot, fixture.source);
+  const link = path.join(sitePath, fixture.link);
+  if (existsSync(link)) {
+    if (realpathSync(link) !== realpathSync(source)) {
+      console.error(`studio-e2e: refusing to replace ${link}.`);
+      process.exit(1);
+    }
+    continue;
+  }
+  mkdirSync(path.dirname(link), { recursive: true });
+  symlinkSync(source, link);
+  linked.push(link);
+}
 
 const build = spawnSync('pnpm', ['build'], {
   cwd: themeRoot,

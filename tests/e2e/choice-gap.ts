@@ -30,7 +30,13 @@ export async function measureChoiceGaps(
         const label =
           input.closest('label') ??
           (input.id ? root.querySelector(`label[for="${input.id}"]`) : null);
-        if (!label || box.width === 0) {
+        // A native control can be an invisible hit area stretched over its row
+        // (checkout's payment methods): no box for the eye to measure from.
+        if (
+          !label ||
+          box.width === 0 ||
+          getComputedStyle(input).opacity === '0'
+        ) {
           return;
         }
 

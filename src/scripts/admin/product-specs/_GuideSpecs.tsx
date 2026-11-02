@@ -3,9 +3,10 @@
  *
  * One row per spec this guide's products show, with its value picked right
  * there: store-wide specs (defined on the Specs tab; a store-wide spec can
- * be hidden for this guide, and hidden ones fold into one line) and the
- * guide's own specs (shown only on products using it, editable in place).
- * New specs are added in one row; a live preview shows the result.
+ * be hidden for this guide, and hidden ones fold into one line, as do ones
+ * this guide doesn't use) and the guide's own specs (shown only on products
+ * using it, editable in place). New specs are added in one row; a live
+ * preview shows the result.
  *
  * Every spec is a WooCommerce attribute and every value one of its terms
  * (Product_Specs_Taxonomy). Products using the guide show these values
@@ -18,13 +19,13 @@
  * @package Aggressive_Apparel
  */
 
-import { useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import { Button, Notice } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, SpecItem } from './_types';
-import { newItem, specKey, splitValues } from './_utils';
+import { isUsedOnGuide, newItem, specKey, splitValues } from './_utils';
 import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
@@ -83,11 +84,39 @@ export default function GuideSpecs({
 }: Props) {
   const [open, setOpen] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  // Store-wide specs kept as rows while editing, so one being filled in or
+  // cleared doesn't fold away under the cursor.
+  const [kept, setKept] = useState<string[]>([]);
+  const keep = (key: string) =>
+    setKept(current => (current.includes(key) ? current : [...current, key]));
+  const specRows = useRef<HTMLDivElement>(null);
+  const pendingFocus = useRef<string | null>(null);
+  // A spec's button goes away when it becomes a row, so focus follows to its
+  // value field rather than falling back to the top of the page.
+  const reveal = (key: string) => {
+    keep(key);
+    pendingFocus.current = key;
+  };
+
+  useEffect(() => {
+    if (pendingFocus.current) {
+      specRows.current
+        ?.querySelector<HTMLElement>(
+          `[data-spec="${pendingFocus.current}"] .aa-ps-spec-row__value :is(input, select, textarea, button)`
+        )
+        ?.focus();
+      pendingFocus.current = null;
+    }
+  });
   const storeWide = items.filter(
     item => item.enabled && item.guides.length === 0
   );
   const showing = storeWide.filter(item => !hidden.includes(item.key));
   const hiddenItems = storeWide.filter(item => hidden.includes(item.key));
+  const used = showing.filter(
+    item => kept.includes(item.key) || isUsedOnGuide(item, values)
+  );
+  const unused = showing.filter(item => !used.includes(item));
   const shown = [...showing, ...own.filter(item => item.enabled)];
   // Mirrors Product_Specs_Values::guide_has_specs: any value, or a hidden spec.
   const hasSpecs =
@@ -170,7 +199,10 @@ export default function GuideSpecs({
           value={values[item.key] ?? ''}
           label={item.name}
           inherited={describe(item, item.default)}
-          onChange={value => setValue(item.key, value)}
+          onChange={value => {
+            keep(item.key);
+            setValue(item.key, value);
+          }}
         />
       </div>
       <div className='aa-ps-spec-row__action'>{action}</div>
@@ -203,14 +235,14 @@ export default function GuideSpecs({
       )}
 
       <div className='aa-ps-guide__chart'>
-        <div className='aa-ps-spec-rows'>
+        <div className='aa-ps-spec-rows' ref={specRows}>
           {storeWide.length > 0 && (
             <div className='aa-ps-spec-group'>
               <h3 className='aa-ps-spec-group__title'>
                 {__('Store-wide', 'aggressive-apparel')}
               </h3>
-              {showing.map(item => (
-                <div key={item.key}>
+              {used.map(item => (
+                <div key={item.key} data-spec={item.key}>
                   {row(
                     item,
                     '',
@@ -228,6 +260,27 @@ export default function GuideSpecs({
                   )}
                 </div>
               ))}
+              {unused.length > 0 && (
+                <p className='aa-ps-hidden-line'>
+                  <span>{__('Not set here:', 'aggressive-apparel')}</span>
+                  {unused.map(item => (
+                    <Button
+                      key={item.key}
+                      variant='secondary'
+                      size='small'
+                      icon='plus'
+                      label={sprintf(
+                        /* translators: %s: spec name. */
+                        __('Set %s on this guide', 'aggressive-apparel'),
+                        item.name
+                      )}
+                      onClick={() => reveal(item.key)}
+                    >
+                      {item.name}
+                    </Button>
+                  ))}
+                </p>
+              )}
               {hiddenItems.length > 0 && (
                 <p className='aa-ps-hidden-line'>
                   <span>{__('Hidden here:', 'aggressive-apparel')}</span>
@@ -242,9 +295,10 @@ export default function GuideSpecs({
                         __('Show %s on this guide', 'aggressive-apparel'),
                         item.name
                       )}
-                      onClick={() =>
-                        onHidden(hidden.filter(key => key !== item.key))
-                      }
+                      onClick={() => {
+                        reveal(item.key);
+                        onHidden(hidden.filter(key => key !== item.key));
+                      }}
                     >
                       {item.name}
                     </Button>

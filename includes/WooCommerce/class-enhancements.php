@@ -66,7 +66,6 @@ class Enhancements {
 			Product_Specs_Grid::class,
 			Printful_Rest::class,
 			Printful_Import::class,
-			Printful_Sync_Guard::class,
 			Printful_Size_Guide_Handoff::class,
 		),
 		'sticky_add_to_cart'         => array( Sticky_Add_To_Cart::class ),
@@ -87,6 +86,7 @@ class Enhancements {
 		Back_In_Stock::class,
 		Back_In_Stock_Links::class,
 		Back_In_Stock_Privacy::class,
+		Printful_Sync_Guard::class,
 	);
 
 	/**
@@ -164,6 +164,10 @@ class Enhancements {
 		// Native, system-managed Sales product category. This is catalogue
 		// infrastructure rather than an optional visual enhancement.
 		$this->container->get( Sale_Category::class )->init();
+
+		// Protects product edits from Printful syncs, which has nothing to do
+		// with any one feature: off, its records would drift from the products.
+		$this->container->get( Printful_Sync_Guard::class )->init();
 
 		// Seed system badges once the taxonomy exists.
 		if ( Feature_Settings::is_enabled( 'product_badges' ) ) {

@@ -7,7 +7,9 @@
  * WooCommerce REST API, which replaces whatever a request names. This steps in
  * just before such a request saves.
  *
- * Each field is judged by what Printful last wrote to it (SYNCED):
+ * Only fields a request names are touched, recorded or noted: a partial sync
+ * says nothing about the rest. Each is judged by what Printful last wrote to it
+ * (SYNCED):
  *
  * - The product still has that value: nobody edited it, so Printful's update
  *   goes through.
@@ -15,15 +17,18 @@
  *   the product editor says what Printful wanted instead (KEPT). Setting the
  *   field to Printful's value hands it back to the sync.
  * - Nothing recorded yet (synced before this existed): it can't be told apart
- *   from an edit, so the product's value stays.
+ *   from an edit, so the product's value stays, unless it's empty and there's
+ *   nothing to lose.
  *
  * Attributes merge rather than replace: ones that define variations are the
  * sync's (changing them would orphan the variations), and any other the product
- * has stays. New ones that would supply a spec are dropped, since a product's
- * attribute would otherwise outrank the size guide's value.
+ * has stays. New ones that would supply a spec never arrive, from a product's
+ * first sync on, since a product's attribute would otherwise outrank the size
+ * guide's value.
  *
  * Requests from anyone else are untouched, and so is everything a product keeps
- * outside these fields (size guide choice, spec settings, other meta).
+ * outside these fields (size guide choice, spec settings, other meta). This runs
+ * whatever features are on, so what it records never falls out of step.
  *
  * @package Aggressive_Apparel
  */
@@ -90,6 +95,17 @@ final class Printful_Sync_Guard {
 	private const VARIATION_FIELDS = array( 'description', 'status', 'regular_price', 'sale_price', 'image_id' );
 
 	/**
+	 * The request parameter that sets each field, where it isn't the field's name.
+	 *
+	 * @var array<string, string>
+	 */
+	private const PARAMS = array(
+		'category_ids'      => 'categories',
+		'tag_ids'           => 'tags',
+		'gallery_image_ids' => 'images',
+	);
+
+	/**
 	 * Fields kept in this request, by product ID, until the save finishes.
 	 *
 	 * @var Kept
@@ -117,20 +133,33 @@ final class Printful_Sync_Guard {
 	 * @return mixed
 	 */
 	public static function hold_edits( $product, $request, $creating ) {
-		if ( $creating || ! $product instanceof \WC_Product || ! self::is_printful( $request ) ) {
+		if ( ! $product instanceof \WC_Product || ! self::is_printful( $request ) ) {
 			return $product;
 		}
+
+		$kept = array();
+		if ( $creating ) {
+			if ( ! $product->is_type( 'variation' ) && isset( $request['attributes'] ) ) {
+				$product->set_attributes( self::merged_attributes( $product->get_attributes(), array(), $kept ) );
+			}
+
+			return $product;
+		}
+
 		$current = wc_get_product( $product->get_id() );
 		if ( ! $current instanceof \WC_Product ) {
 			return $product;
 		}
 
 		$synced = self::synced( $product->get_id() );
-		$kept   = array();
-		foreach ( self::fields( $product ) as $field ) {
+		foreach ( self::named_fields( $product, $request ) as $field ) {
 			$mine   = self::read( $current, $field );
 			$theirs = self::read( $product, $field );
-			if ( self::hash( $mine ) === self::hash( $theirs ) || self::hash( $mine ) === ( $synced[ $field ] ?? null ) ) {
+			if ( self::hash( $mine ) === self::hash( $theirs ) ) {
+				continue;
+			}
+			$untouched = isset( $synced[ $field ] ) ? self::hash( $mine ) === $synced[ $field ] : self::is_empty( $mine );
+			if ( $untouched ) {
 				continue;
 			}
 			self::write( $product, $field, $mine );
@@ -155,7 +184,6 @@ final class Printful_Sync_Guard {
 	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
 	 */
 	public static function record_sync( $product, $request, $creating ): void {
-		unset( $creating );
 		if ( ! $product instanceof \WC_Product || ! self::is_printful( $request ) ) {
 			return;
 		}
@@ -165,22 +193,31 @@ final class Printful_Sync_Guard {
 			return;
 		}
 
-		$kept   = self::$kept[ $id ] ?? array();
+		$kept = self::$kept[ $id ] ?? array();
+		unset( self::$kept[ $id ] );
+
+		// A new product is all Printful's, whatever the request happened to name.
+		$named  = $creating ? self::fields( $saved ) : self::named_fields( $saved, $request );
 		$synced = self::synced( $id );
-		foreach ( self::fields( $saved ) as $field ) {
+		foreach ( $named as $field ) {
 			if ( ! isset( $kept[ $field ] ) ) {
 				$synced[ $field ] = self::hash( self::read( $saved, $field ) );
 			}
 		}
 		update_post_meta( $id, self::SYNCED, $synced );
-		unset( self::$kept[ $id ] );
 
+		if ( ! $saved->is_type( 'variation' ) && isset( $request['attributes'] ) ) {
+			$named[] = 'attributes';
+		}
 		$parent = $saved->get_parent_id() > 0 ? $saved->get_parent_id() : $id;
 		$notes  = get_post_meta( $parent, self::KEPT, true );
 		$notes  = is_array( $notes ) ? $notes : array();
-		unset( $notes[ $id ] );
-		if ( array() !== $kept ) {
-			$notes[ $id ] = $kept;
+		$note   = is_array( $notes[ $id ] ?? null ) ? $notes[ $id ] : array();
+		$note   = array_diff_key( $note, array_flip( $named ) ) + $kept;
+		if ( array() === $note ) {
+			unset( $notes[ $id ] );
+		} else {
+			$notes[ $id ] = $note;
 		}
 		if ( array() === $notes ) {
 			delete_post_meta( $parent, self::KEPT );
@@ -285,7 +322,7 @@ final class Printful_Sync_Guard {
 	 *
 	 * @param array $incoming The sync's attributes.
 	 * @param array $current  The product's attributes.
-	 * @param array $kept     Filled with 'attributes' when any were held back.
+	 * @param array $kept     Filled with 'attributes': what Printful wanted, where the product's differ.
 	 * @phpstan-param array<mixed> $incoming
 	 * @phpstan-param array<mixed> $current
 	 * @phpstan-param array<string, string> $kept
@@ -293,7 +330,7 @@ final class Printful_Sync_Guard {
 	 */
 	private static function merged_attributes( array $incoming, array $current, array &$kept ): array {
 		$merged  = array();
-		$refused = false;
+		$refused = array();
 		foreach ( $incoming as $slug => $attribute ) {
 			if ( ! $attribute instanceof \WC_Product_Attribute || $attribute->get_variation() ) {
 				$merged[ $slug ] = $attribute;
@@ -302,24 +339,72 @@ final class Printful_Sync_Guard {
 			$mine = $current[ $slug ] ?? null;
 			if ( $mine instanceof \WC_Product_Attribute && ! $mine->get_variation() ) {
 				$merged[ $slug ] = $mine;
-				$refused         = $refused || $mine->get_options() !== $attribute->get_options();
-			} elseif ( Product_Specs_Attributes::supplies_spec( $attribute ) ) {
-				$refused = true;
-			} else {
+				$wanted          = self::option_names( $attribute );
+				if ( self::option_names( $mine ) !== $wanted ) {
+					$refused[] = $attribute->get_name() . ': ' . implode( ', ', $wanted );
+				}
+			} elseif ( ! Feature_Settings::is_enabled( 'size_guide' ) || ! Product_Specs_Attributes::supplies_spec( $attribute ) ) {
 				$merged[ $slug ] = $attribute;
 			}
 		}
 		foreach ( $current as $slug => $attribute ) {
 			if ( ! isset( $merged[ $slug ] ) && $attribute instanceof \WC_Product_Attribute && ! $attribute->get_variation() ) {
 				$merged[ $slug ] = $attribute;
-				$refused         = true;
 			}
 		}
-		if ( $refused ) {
-			$kept['attributes'] = '';
+		if ( array() !== $refused ) {
+			$kept['attributes'] = wp_html_excerpt( implode( '; ', $refused ), 120, '…' );
 		}
 
 		return $merged;
+	}
+
+	/**
+	 * An attribute's options as names, in order to compare: a saved global
+	 * attribute holds term IDs, but a request holds term names.
+	 *
+	 * @param \WC_Product_Attribute $attribute Attribute.
+	 * @return list<string>
+	 */
+	private static function option_names( \WC_Product_Attribute $attribute ): array {
+		$names = array();
+		foreach ( $attribute->get_options() as $option ) {
+			$term    = is_int( $option ) && $attribute->is_taxonomy() ? get_term( $option, $attribute->get_name() ) : null;
+			$names[] = $term instanceof \WP_Term ? $term->name : (string) $option;
+		}
+		$names = array_map( static fn( string $name ): string => wp_specialchars_decode( $name, ENT_QUOTES ), $names );
+		sort( $names );
+
+		return $names;
+	}
+
+	/**
+	 * The fields a request names. WooCommerce only sets what a request sends, so
+	 * the rest aren't Printful's to judge.
+	 *
+	 * @param \WC_Product      $product Product.
+	 * @param \WP_REST_Request $request Request.
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @return list<string>
+	 */
+	private static function named_fields( \WC_Product $product, $request ): array {
+		$image = $product->is_type( 'variation' ) ? 'image' : 'images';
+
+		return array_values(
+			array_filter(
+				self::fields( $product ),
+				static fn( string $field ): bool => isset( $request[ 'image_id' === $field ? $image : ( self::PARAMS[ $field ] ?? $field ) ] )
+			)
+		);
+	}
+
+	/**
+	 * Whether a field holds nothing worth protecting.
+	 *
+	 * @param mixed $value Value from read().
+	 */
+	private static function is_empty( $value ): bool {
+		return is_array( $value ) ? array() === $value : in_array( trim( is_scalar( $value ) ? (string) $value : '' ), array( '', '0' ), true );
 	}
 
 	/**
@@ -383,7 +468,8 @@ final class Printful_Sync_Guard {
 	}
 
 	/**
-	 * A value's fingerprint: IDs in any order and stray spaces don't matter.
+	 * A value's fingerprint: IDs in any order and stray spaces don't matter, nor
+	 * do slashes, since WooCommerce slashes a request's text but not what it reads.
 	 *
 	 * @param mixed $value Value from read().
 	 */
@@ -395,7 +481,7 @@ final class Printful_Sync_Guard {
 			return md5( (string) wp_json_encode( $value ) );
 		}
 
-		return md5( is_scalar( $value ) ? trim( (string) $value ) : '' );
+		return md5( is_scalar( $value ) ? trim( wp_unslash( (string) $value ) ) : '' );
 	}
 
 	/**
@@ -404,7 +490,7 @@ final class Printful_Sync_Guard {
 	 * @param mixed $value Value from read().
 	 */
 	private static function describe( $value ): string {
-		return is_scalar( $value ) ? wp_html_excerpt( (string) $value, 120, '…' ) : '';
+		return is_scalar( $value ) ? wp_html_excerpt( wp_unslash( (string) $value ), 120, '…' ) : '';
 	}
 
 	/**

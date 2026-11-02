@@ -13,10 +13,13 @@
  * - unsure:  no idea; the store picks a spec, makes one, or skips it;
  * - skipped: not about the garment (sourcing, disclaimers).
  *
+ * The draft also suggests where the guide applies (Printful_Import_Categories).
  * The store reviews and edits the draft, then creates an ordinary guide
  * (Size_Guide_Rest::create). On creation this copies the diagram into the
  * media library, records where the guide came from, and remembers each
- * mapping the store chose, so later imports ask less.
+ * mapping and category the store chose, so later imports ask less. It only
+ * ever creates: a guide already in place keeps its edits (the draft names it,
+ * and the review leaves it alone unless asked for a second guide).
  *
  * @package Aggressive_Apparel
  */
@@ -35,8 +38,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Item from Product_Specs_Registry
+ * @phpstan-import-type Where from Printful_Import_Categories
  * @phpstan-type Fact array{key: string, text: string, target: string, value: string, status: string}
- * @phpstan-type Draft array{source: array{provider: string, id: int, title: string}, title: string, image: string, charts: array{garment: Chart|null, body: Chart|null}, notes: array{garment: string, body: string}, diagrams: array{garment: string, body: string}, facts: list<Fact>, guide: int}
+ * @phpstan-type Draft array{source: array{provider: string, id: int, title: string}, title: string, image: string, charts: array{garment: Chart|null, body: Chart|null}, notes: array{garment: string, body: string}, diagrams: array{garment: string, body: string}, facts: list<Fact>, guide: int, where: Where}
  */
 final class Printful_Import {
 
@@ -145,6 +149,7 @@ final class Printful_Import {
 
 		$brand = self::text( $product['brand'] ?? '' );
 		$model = self::text( $product['model'] ?? '' );
+		$title = '' !== $brand && '' !== $model ? $brand . ' ' . $model : self::text( $product['title'] ?? '' );
 
 		return array(
 			'source'   => array(
@@ -152,7 +157,7 @@ final class Printful_Import {
 				'id'       => $id,
 				'title'    => self::text( $product['title'] ?? '' ),
 			),
-			'title'    => '' !== $brand && '' !== $model ? $brand . ' ' . $model : self::text( $product['title'] ?? '' ),
+			'title'    => $title,
 			'image'    => esc_url_raw( (string) ( $product['image'] ?? '' ) ),
 			'charts'   => array(
 				'garment' => isset( $tables['garment'] ) ? self::chart( $tables['garment'], $order ) : null,
@@ -167,7 +172,12 @@ final class Printful_Import {
 				'body'    => isset( $tables['body'] ) ? self::diagram_url( $tables['body']['image_url'] ?? '' ) : '',
 			),
 			'facts'    => self::facts( (string) ( $product['description'] ?? '' ) ),
-			'guide'    => self::guide_for( 'printful', $id ),
+			'guide'    => self::guide_for( 'printful', $id, $title ),
+			'where'    => Printful_Import_Categories::suggest(
+				'printful',
+				self::text( $product['title'] ?? '' ),
+				Printful_Catalog::category_title( (int) ( $product['main_category_id'] ?? 0 ) )
+			),
 		);
 	}
 
@@ -209,6 +219,7 @@ final class Printful_Import {
 		}
 
 		self::remember( 'printful', is_array( $body['importRules'] ?? null ) ? $body['importRules'] : array() );
+		Printful_Import_Categories::remember( 'printful', $body['importWhere'] ?? '', $body['categories'] ?? array() );
 		( new Size_Guide() )->flush_all_caches();
 	}
 
@@ -592,13 +603,33 @@ final class Printful_Import {
 	}
 
 	/**
-	 * The guide already imported from a source product (0 for none).
+	 * The guide the store already has for a source product (0 for none): the
+	 * one imported from it, else one it made by hand under the same name. Either
+	 * way the import leaves it alone rather than making a rival to it.
 	 *
 	 * @param string $provider Provider.
 	 * @param int    $id       Source product ID.
+	 * @param string $title    The name an imported guide would get.
 	 */
-	private static function guide_for( string $provider, int $id ): int {
-		return self::imported( $provider )[ $id ] ?? 0;
+	private static function guide_for( string $provider, int $id, string $title ): int {
+		$imported = self::imported( $provider )[ $id ] ?? 0;
+		if ( $imported > 0 || '' === $title ) {
+			return $imported;
+		}
+
+		$named = get_posts(
+			array(
+				'post_type'   => Size_Guide_Post_Type::POST_TYPE,
+				'post_status' => 'publish',
+				'title'       => $title,
+				'fields'      => 'ids',
+				'numberposts' => 1,
+				'orderby'     => 'ID',
+				'order'       => 'ASC',
+			)
+		);
+
+		return (int) ( $named[0] ?? 0 );
 	}
 
 	/**

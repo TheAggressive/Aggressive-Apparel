@@ -15,6 +15,7 @@ import type {
   ImportBlankState,
   ImportDraft,
   ImportResult,
+  ImportStop,
   SpecItem,
 } from './_types';
 import { toStored } from './_utils';
@@ -42,6 +43,68 @@ export type GuideRequest = {
   /** What the guide gets, for the summary. */
   summary: Omit<ImportResult, 'guide' | 'error'>;
 };
+
+/**
+ * Whether a blank keeps the guide the store already has: nothing is created
+ * for it, so that guide and its edits stay as they are, unless the store asks
+ * for a second guide.
+ */
+export function keepsExisting(
+  draft: ImportDraft,
+  state: ImportBlankState
+): boolean {
+  return draft.guide > 0 && !state.secondGuide;
+}
+
+/**
+ * What stands between a blank and one-click creation; none means it's ready.
+ *
+ * Only 'decide' and 'name' stop it being created at all. The rest are things
+ * nobody has signed off yet: a best guess, nowhere to apply, or a guide with
+ * nothing in it. A category another guide already has counts as settled: the
+ * guide applies only to products picking it.
+ */
+export function importStops(
+  draft: ImportDraft,
+  state: ImportBlankState
+): ImportStop[] {
+  const stops: ImportStop[] = [];
+  if (state.mappings.some(mapping => mapping.target === '')) {
+    stops.push('decide');
+  }
+  if (
+    draft.facts.some((fact, i) => {
+      const mapping = state.mappings[i];
+      return (
+        fact.status === 'guess' &&
+        mapping.target === fact.target &&
+        !mapping.touched &&
+        !mapping.confirmed
+      );
+    })
+  ) {
+    stops.push('confirm');
+  }
+  if (state.title.trim() === '') {
+    stops.push('name');
+  }
+  if (
+    state.categories.length === 0 &&
+    !state.isDefault &&
+    state.taken.length === 0
+  ) {
+    stops.push('where');
+  }
+  if (
+    !draft.charts[state.kind] &&
+    state.mappings.every(
+      mapping => mapping.target === 'skip' || mapping.value === ''
+    )
+  ) {
+    stops.push('empty');
+  }
+  return stops;
+}
 
 /** The key a new attribute's values go under: saved, else as sent. */
 export function savedKey(made: MadeKeys, attr: ImportAttribute): string {
@@ -111,13 +174,14 @@ export function guideRequest({
     data: {
       title: state.title,
       ...(chart && { chart }),
-      notes: state.notes[state.kind],
+      notes: state.withNotes ? state.notes[state.kind] : '',
       categories: state.categories,
       isDefault: state.isDefault,
       specs: values,
       ...(own.length > 0 && { specItems: own }),
       ...(store.length > 0 && { storeSpecItems: store }),
       importSource: draft.source,
+      importWhere: draft.where.key,
       ...(diagram && { diagramUrl: draft.diagrams[state.kind] }),
       importRules: draft.facts.map((fact, i) => {
         const target = state.mappings[i].target;

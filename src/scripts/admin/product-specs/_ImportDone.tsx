@@ -17,6 +17,8 @@ import ImportTag from './_ImportTag';
 type Props = {
   results: ImportResult[];
   products: PrintfulProduct[];
+  /** Blanks whose existing guide stayed, so nothing was created for them. */
+  kept: PrintfulProduct[];
   onOpen: (guide: number) => void;
   onRetry: () => void;
   onMore: () => void;
@@ -60,6 +62,7 @@ function whereLine(result: ImportResult): string {
 export default function ImportDone({
   results,
   products,
+  kept,
   onOpen,
   onRetry,
   onMore,
@@ -96,6 +99,18 @@ export default function ImportDone({
             {__(
               'Measuring diagrams are added in the background, so give them a minute to appear in each guide.',
               'aggressive-apparel'
+            )}
+          </p>
+        )}
+        {kept.length > 0 && (
+          <p>
+            {sprintf(
+              /* translators: %s: blank models, like "3001, 18500". */
+              __(
+                'Your existing guides stayed as they were: %s.',
+                'aggressive-apparel'
+              ),
+              kept.map(product => product.model || product.title).join(', ')
             )}
           </p>
         )}

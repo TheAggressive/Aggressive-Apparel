@@ -20,6 +20,10 @@ type Props = {
   pending?: number;
   /** Nothing left to decide. */
   ready?: boolean;
+  /** No lines to decide, but not ready: something to sign off. */
+  attention?: boolean;
+  /** The store's existing guide stays; nothing is created for this blank. */
+  kept?: boolean;
   /** Shows the tag as done. */
   done?: boolean;
   onSelect?: () => void;
@@ -31,6 +35,8 @@ export default function ImportTag({
   active = false,
   pending = 0,
   ready = false,
+  attention = false,
+  kept = false,
   done = false,
   onSelect,
   onRemove,
@@ -53,6 +59,16 @@ export default function ImportTag({
             _n('%d to decide', '%d to decide', pending, 'aggressive-apparel'),
             pending
           )}
+        </span>
+      )}
+      {kept && (
+        <span className='aa-ps-tag__done'>
+          {__('Keeping yours', 'aggressive-apparel')}
+        </span>
+      )}
+      {attention && !done && pending === 0 && (
+        <span className='aa-ps-tag__pending'>
+          {__('Needs a look', 'aggressive-apparel')}
         </span>
       )}
       {ready && !done && pending === 0 && (

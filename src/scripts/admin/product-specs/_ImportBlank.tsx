@@ -2,8 +2,9 @@
  * Product Specs settings — review one blank before it becomes a size guide.
  *
  * Its name, size chart (garment or body measurements, the measuring diagram
- * if wanted, and how-to-measure notes), where the guide applies (categories, store
- * default), and each description line's spec (_ImportFact).
+ * and how-to-measure notes, each if wanted), where the guide applies (suggested
+ * categories, store default), and each description line's spec (_ImportFact).
+ * Says what keeps it out of the one-click batch, if anything (importStops).
  *
  * @package Aggressive_Apparel
  */
@@ -22,6 +23,7 @@ import type {
   ImportBlankState,
   ImportDraft,
   ImportMapping,
+  ImportStop,
   SpecItem,
 } from './_types';
 import ChartPreview from './_ChartPreview';
@@ -35,6 +37,10 @@ type Props = {
   /** New attributes by description-line key, shared by every blank. */
   created: Record<string, ImportAttribute>;
   categories: Category[];
+  /** What keeps it out of the one-click batch. */
+  stops: ImportStop[];
+  /** Open the guide already in place. */
+  onOpen: (guide: number) => void;
   onState: (patch: Partial<ImportBlankState>) => void;
   onMapping: (index: number, patch: Partial<ImportMapping>) => void;
   onAttribute: (index: number, patch: Partial<ImportAttribute>) => void;
@@ -47,6 +53,8 @@ export default function ImportBlank({
   attributes,
   created,
   categories,
+  stops,
+  onOpen,
   onState,
   onMapping,
   onAttribute,
@@ -54,6 +62,34 @@ export default function ImportBlank({
   const kinds = (['garment', 'body'] as const).filter(
     kind => draft.charts[kind]
   );
+  // Lines to decide and a missing name show where they are; these don't.
+  const signOffs: string[] = [
+    ...(stops.includes('confirm')
+      ? [
+          __(
+            'Check the best guesses under “Specs from the description”.',
+            'aggressive-apparel'
+          ),
+        ]
+      : []),
+    ...(stops.includes('where')
+      ? [
+          __(
+            'Choose where it applies. Without a category, only products that pick this guide use it.',
+            'aggressive-apparel'
+          ),
+        ]
+      : []),
+    ...(stops.includes('empty')
+      ? [
+          __(
+            'It has no size chart or specs, so the guide wouldn’t show anything.',
+            'aggressive-apparel'
+          ),
+        ]
+      : []),
+  ];
+  const taken = state.taken.filter(item => !state.categories.includes(item.id));
   const chart = draft.charts[state.kind];
   const diagram = draft.diagrams[state.kind];
   // An attribute another line already turns into a spec isn't offered again.
@@ -73,6 +109,45 @@ export default function ImportBlank({
         ? state.categories.filter(other => other !== id)
         : [...state.categories, id],
     });
+
+  if (draft.guide > 0 && !state.secondGuide) {
+    return (
+      <div className='aa-ps-review__blank'>
+        <header className='aa-ps-review__head'>
+          {draft.image && <img src={draft.image} alt='' />}
+          <div className='aa-ps-review__name'>
+            <strong>{draft.title}</strong>
+            <p className='aa-ps-review__source'>
+              {sprintf(
+                /* translators: %s: Printful product name. */
+                __('From Printful: %s', 'aggressive-apparel'),
+                draft.source.title
+              )}
+            </p>
+          </div>
+        </header>
+        <Notice
+          status='info'
+          isDismissible={false}
+          actions={[
+            {
+              label: __('Open your guide', 'aggressive-apparel'),
+              onClick: () => onOpen(draft.guide),
+            },
+            {
+              label: __('Make a second guide instead', 'aggressive-apparel'),
+              onClick: () => onState({ secondGuide: true }),
+            },
+          ]}
+        >
+          {__(
+            'You already have a guide for this blank, so it stays exactly as it is, with your edits. Nothing here will be imported.',
+            'aggressive-apparel'
+          )}
+        </Notice>
+      </div>
+    );
+  }
 
   return (
     <div className='aa-ps-review__blank'>
@@ -97,11 +172,40 @@ export default function ImportBlank({
       </header>
 
       {draft.guide > 0 && (
-        <Notice status='warning' isDismissible={false}>
+        <Notice
+          status='warning'
+          isDismissible={false}
+          actions={[
+            {
+              label: __('Keep mine instead', 'aggressive-apparel'),
+              onClick: () => onState({ secondGuide: false }),
+            },
+          ]}
+        >
           {__(
-            'You already imported this blank. Creating it again makes a second guide.',
+            'This makes a second guide for the same blank. Your existing guide stays as it is.',
             'aggressive-apparel'
           )}
+        </Notice>
+      )}
+
+      {signOffs.length > 0 && (
+        <Notice
+          status='info'
+          isDismissible={false}
+          className='aa-ps-review__stops'
+        >
+          <p>
+            {__(
+              'This one needs a look before it can go with the ready guides:',
+              'aggressive-apparel'
+            )}
+          </p>
+          <ul>
+            {signOffs.map(line => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
         </Notice>
       )}
 
@@ -181,21 +285,50 @@ export default function ImportBlank({
             )}
           </p>
         )}
-        <details className='aa-ps-review__notes'>
-          <summary>
-            {__('How to measure (shown under the chart)', 'aggressive-apparel')}
-          </summary>
-          <TextareaControl
-            label={__('Notes', 'aggressive-apparel')}
-            hideLabelFromVision
-            value={state.notes[state.kind]}
-            rows={6}
-            onChange={notes =>
-              onState({ notes: { ...state.notes, [state.kind]: notes } })
+        {state.notes[state.kind].trim() !== '' && (
+          <ToggleControl
+            label={__('Use these notes', 'aggressive-apparel')}
+            help={
+              state.withNotes
+                ? __(
+                    'Shown under the chart on product pages.',
+                    'aggressive-apparel'
+                  )
+                : __(
+                    'Left out. You can add your own in the guide later.',
+                    'aggressive-apparel'
+                  )
             }
+            checked={state.withNotes}
+            onChange={on => onState({ withNotes: on })}
             __nextHasNoMarginBottom
           />
-        </details>
+        )}
+        {(state.withNotes || state.notes[state.kind].trim() === '') && (
+          <details className='aa-ps-review__notes'>
+            <summary>
+              {__(
+                'How to measure (shown under the chart)',
+                'aggressive-apparel'
+              )}
+            </summary>
+            <TextareaControl
+              label={__('Notes', 'aggressive-apparel')}
+              hideLabelFromVision
+              value={state.notes[state.kind]}
+              rows={6}
+              // Writing notes means wanting them, even on a chart whose
+              // empty notes were left off.
+              onChange={notes =>
+                onState({
+                  notes: { ...state.notes, [state.kind]: notes },
+                  withNotes: true,
+                })
+              }
+              __nextHasNoMarginBottom
+            />
+          </details>
+        )}
       </section>
 
       <section
@@ -231,6 +364,32 @@ export default function ImportBlank({
             </button>
           ))}
         </div>
+        {draft.where.source !== '' && state.categories.length > 0 && (
+          <p className='aa-ps-help'>
+            {draft.where.source === 'remembered'
+              ? __(
+                  'Picked from where you put this kind of garment last time.',
+                  'aggressive-apparel'
+                )
+              : __(
+                  'Picked from the garment’s name. Change it if it’s wrong, and your choice is used next time.',
+                  'aggressive-apparel'
+                )}
+          </p>
+        )}
+        {taken.map(item => (
+          <p key={item.id} className='aa-ps-help'>
+            {sprintf(
+              /* translators: 1: category name, 2: size guide name. */
+              __(
+                '%1$s stays with %2$s, so only products that pick this guide use it. Choose %1$s above to move it here instead.',
+                'aggressive-apparel'
+              ),
+              item.name,
+              item.guide
+            )}
+          </p>
+        ))}
         <ToggleControl
           label={__('Store-wide default', 'aggressive-apparel')}
           help={__(

@@ -8,6 +8,11 @@
  * others (store-wide) or shared with them (this guide only). Guides are made
  * through the ordinary create route, so each is a normal, editable guide.
  *
+ * A blank the store already has a guide for is left alone (keepsExisting).
+ * Blanks with nothing to sign off (importStops) can be created in one click
+ * while the rest stay in review. Each category goes to the first blank that
+ * fits it, since a category holds one guide.
+ *
  * @package Aggressive_Apparel
  */
 
@@ -24,13 +29,21 @@ import type {
   ImportDraft,
   ImportMapping,
   ImportResult,
+  ImportStop,
+  ImportTaken,
   PrintfulProduct,
   Registry,
   SpecItem,
 } from './_types';
 import { scrollBehavior, specKey } from './_utils';
 import { attributeItem, nameFrom, valueFor } from './_import';
-import { findSaved, guideRequest, savedKey } from './_importGuide';
+import {
+  findSaved,
+  guideRequest,
+  importStops,
+  keepsExisting,
+  savedKey,
+} from './_importGuide';
 import ImportSearch from './_ImportSearch';
 import ImportBlank from './_ImportBlank';
 import ImportTag from './_ImportTag';
@@ -53,6 +66,15 @@ const STEPS = [
   __('Done', 'aggressive-apparel'),
 ];
 
+/** The field or message to show for each thing a blank is waiting on. */
+const STOP_TARGET: Record<ImportStop, string> = {
+  decide: '.aa-ps-line.is-unsure select',
+  confirm: '.aa-ps-line.is-guess button',
+  name: '.aa-ps-review__name input',
+  where: '.aa-ps-chips button',
+  empty: '.aa-ps-review__stops',
+};
+
 export default function ImportFlow({
   config,
   items,
@@ -64,12 +86,16 @@ export default function ImportFlow({
   const path = `${config.guidesPath}/printful`;
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [selected, setSelected] = useState<PrintfulProduct[]>([]);
+  // Blanks already sent to create, so a partial import can carry on.
+  const [finished, setFinished] = useState<PrintfulProduct[]>([]);
   const [drafts, setDrafts] = useState<Record<number, ImportDraft>>({});
   const [states, setStates] = useState<Record<number, ImportBlankState>>({});
   const [created, setCreated] = useState<Record<string, ImportAttribute>>({});
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [batch, setBatch] = useState(0);
+  const [notice, setNotice] = useState('');
   const [results, setResults] = useState<ImportResult[]>([]);
   const [jump, setJump] = useState(0);
   // Specs made by this import: the key sent => the key saved. Kept across
@@ -83,8 +109,13 @@ export default function ImportFlow({
       ([taxonomy]) => !items.some(item => item.taxonomy === taxonomy)
     )
   );
+  const kept = (id: number) =>
+    Boolean(drafts[id] && states[id] && keepsExisting(drafts[id], states[id]));
   const pending = (id: number) =>
-    states[id]?.mappings.filter(mapping => mapping.target === '').length ?? 0;
+    kept(id)
+      ? 0
+      : (states[id]?.mappings.filter(mapping => mapping.target === '').length ??
+        0);
   const totalPending = selected.reduce(
     (sum, product) => sum + pending(product.id),
     0
@@ -97,15 +128,39 @@ export default function ImportFlow({
         : [...selected, product]
     );
 
-  const startState = (draft: ImportDraft): ImportBlankState => {
+  /** A blank's first state; `earlier` holds the blanks already set up. */
+  const startState = (
+    draft: ImportDraft,
+    earlier: ImportBlankState[]
+  ): ImportBlankState => {
     const kind =
       draft.charts.garment || !draft.charts.body ? 'garment' : 'body';
+    // A blank that keeps the existing guide claims nothing from the others.
+    const suggested = (draft.guide > 0 ? [] : draft.where.categories).filter(
+      id => config.categories.some(category => category.id === id)
+    );
+    const taken: ImportTaken[] = [...draft.where.taken];
+    const categories = suggested.filter(id => {
+      const holder = earlier.find(state => state.categories.includes(id));
+      if (holder) {
+        taken.push({
+          id,
+          name:
+            config.categories.find(category => category.id === id)?.name ?? '',
+          guide: holder.title,
+        });
+      }
+      return !holder;
+    });
     return {
       title: draft.title,
       kind,
       notes: { ...draft.notes },
+      withNotes: true,
       diagram: true,
-      categories: [],
+      secondGuide: false,
+      categories,
+      taken,
       isDefault: false,
       mappings: draft.facts.map(fact => {
         const attribute = created[fact.key];
@@ -152,7 +207,10 @@ export default function ImportFlow({
         return;
       }
       nextDrafts[product.id] = outcome.value;
-      nextStates[product.id] ??= startState(outcome.value);
+      nextStates[product.id] ??= startState(
+        outcome.value,
+        Object.values(nextStates)
+      );
       ready.push(product);
     });
     setLoading(false);
@@ -206,6 +264,7 @@ export default function ImportFlow({
             ...mapping,
             target: patch.target,
             value: spec ? valueFor(spec, draft.facts[i].text) : '',
+            confirmed: true,
           };
         }),
       };
@@ -265,8 +324,11 @@ export default function ImportFlow({
     setStates(next);
   };
 
-  const create = async () => {
+  /** Create these blanks' guides; the rest of the selection stays in review. */
+  const create = async (list: PrintfulProduct[]) => {
     setError('');
+    setNotice('');
+    setBatch(list.length);
     const made = madeRef.current;
     const before = new Set([...items.map(item => item.key), ...made.values()]);
     const done: ImportResult[] = [];
@@ -284,7 +346,7 @@ export default function ImportFlow({
         }
       }
     };
-    for (const [n, product] of selected.entries()) {
+    for (const [n, product] of list.entries()) {
       setProgress(n + 1);
       const { data, used, summary } = guideRequest({
         draft: drafts[product.id],
@@ -335,46 +397,108 @@ export default function ImportFlow({
       }
     }
     setProgress(0);
-    setResults(done);
-    setStep(2);
+
+    // A created blank is forgotten, so choosing it again loads it afresh and
+    // warns that it's already imported. A failed one stays for the retry.
+    // Functional: the blanks still in review stay editable while this runs.
+    const forget = <T,>(current: Record<number, T>): Record<number, T> => {
+      const next = { ...current };
+      done
+        .filter(result => result.guide > 0)
+        .forEach(result => delete next[result.id]);
+      return next;
+    };
+    const remaining = selected.filter(
+      product => !list.some(other => other.id === product.id)
+    );
+    setDrafts(forget);
+    setStates(forget);
+    setResults([...results, ...done]);
+    setFinished([...finished, ...list]);
+    setSelected(remaining);
+
+    const left = remaining.filter(product => !kept(product.id));
+    if (left.length === 0) {
+      setStep(2);
+      return;
+    }
+    setActive(left[0].id);
+    const succeeded = done.filter(result => result.guide > 0).length;
+    setNotice(
+      succeeded === done.length
+        ? sprintf(
+            /* translators: %d: number of guides. */
+            _n(
+              '%d size guide created. Here’s what’s left to look at.',
+              '%d size guides created. Here’s what’s left to look at.',
+              succeeded,
+              'aggressive-apparel'
+            ),
+            succeeded
+          )
+        : sprintf(
+            /* translators: 1: guides created, 2: guides attempted. */
+            __(
+              '%1$d of %2$d size guides created. You can retry the others once you finish these.',
+              'aggressive-apparel'
+            ),
+            succeeded,
+            done.length
+          )
+    );
   };
 
   /** Back to review with only the blanks that failed. */
   const retry = () => {
-    const failed = selected.filter(product =>
+    const failed = finished.filter(product =>
       results.some(result => result.id === product.id && result.guide === 0)
     );
+    setFinished(finished.filter(product => !failed.includes(product)));
     setSelected(failed);
     setActive(failed[0]?.id ?? 0);
-    setResults([]);
+    setResults(results.filter(result => result.guide > 0));
     setStep(1);
   };
 
   const restart = () => {
     madeRef.current = new Map();
     setSelected([]);
+    setFinished([]);
     setDrafts({});
     setStates({});
     setCreated({});
     setResults([]);
+    setNotice('');
     setStep(0);
   };
 
   const current = drafts[active];
   const label = (product: PrintfulProduct) => product.model || product.title;
-  const unnamed = (id: number) => states[id]?.title.trim() === '';
+  const unnamed = (id: number) => !kept(id) && states[id]?.title.trim() === '';
+  // What creating would make: never a rival to a guide already in place.
+  const queue = selected.filter(product => !kept(product.id));
   const waiting = selected.filter(product => pending(product.id) > 0);
   const blocked = selected.find(product => unnamed(product.id));
+  const stopsFor = (id: number): ImportStop[] =>
+    drafts[id] && states[id] && !kept(id)
+      ? importStops(drafts[id], states[id])
+      : [];
+  const ready = queue.filter(product => stopsFor(product.id).length === 0);
+  const attention = queue.filter(product => stopsFor(product.id).length > 0);
+  // Some can go now and some can't, so offer the ones that can.
+  const partial = ready.length > 0 && attention.length > 0;
 
-  /** Show the next thing that stops Create: a line to decide, or a name. */
+  /** Show the next thing a blank is waiting on. */
   const goNext = () => {
     const start = Math.max(
       0,
       selected.findIndex(product => product.id === active)
     );
-    const target = [...selected.slice(start), ...selected.slice(0, start)].find(
-      product => pending(product.id) > 0 || unnamed(product.id)
-    );
+    const order = [...selected.slice(start), ...selected.slice(0, start)];
+    // Lines to decide come first: only they stop everything being created.
+    const target =
+      order.find(product => pending(product.id) > 0) ??
+      order.find(product => stopsFor(product.id).length > 0);
     if (target) {
       setActive(target.id);
       setJump(jump + 1);
@@ -385,13 +509,15 @@ export default function ImportFlow({
     if (jump === 0) {
       return;
     }
-    const field =
-      document.querySelector<HTMLElement>(
-        '.aa-ps-review .aa-ps-line.is-unsure select'
-      ) ??
-      document.querySelector<HTMLInputElement>('.aa-ps-review__name input');
+    const stop = stopsFor(active)[0];
+    const field = stop
+      ? document.querySelector<HTMLElement>(
+          `.aa-ps-review ${STOP_TARGET[stop]}`
+        )
+      : null;
     field?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
     field?.focus({ preventScroll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on a jump.
   }, [jump]);
 
   let status: string = __('Everything is placed', 'aggressive-apparel');
@@ -400,7 +526,7 @@ export default function ImportFlow({
       /* translators: 1: guide being created, 2: all guides. */
       __('Creating %1$d of %2$d…', 'aggressive-apparel'),
       progress,
-      selected.length
+      batch
     );
   } else if (waiting.length === 1) {
     status = sprintf(
@@ -432,6 +558,31 @@ export default function ImportFlow({
       __('The %s guide needs a name', 'aggressive-apparel'),
       label(blocked)
     );
+  } else if (attention.length === 1) {
+    status = sprintf(
+      /* translators: %s: blank model, like 18500. */
+      __('%s needs a look', 'aggressive-apparel'),
+      label(attention[0])
+    );
+  } else if (attention.length > 1) {
+    status = sprintf(
+      /* translators: %d: number of blanks. */
+      __('%d blanks need a look', 'aggressive-apparel'),
+      attention.length
+    );
+  }
+  if (progress === 0 && queue.length === 0) {
+    status = __(
+      'You already have these guides, so there’s nothing to create.',
+      'aggressive-apparel'
+    );
+  }
+  if (progress === 0 && partial) {
+    status = `${sprintf(
+      /* translators: %d: number of blanks. */
+      __('%d ready to create.', 'aggressive-apparel'),
+      ready.length
+    )} ${status}`;
   }
 
   return (
@@ -469,6 +620,12 @@ export default function ImportFlow({
         </Notice>
       )}
 
+      {notice && step === 1 && (
+        <Notice status='success' onRemove={() => setNotice('')}>
+          {notice}
+        </Notice>
+      )}
+
       {step === 0 && (
         <>
           <p className='aa-ps-importer__lede'>
@@ -500,7 +657,9 @@ export default function ImportFlow({
                 product={product}
                 active={product.id === active}
                 pending={pending(product.id)}
-                ready={!unnamed(product.id)}
+                kept={kept(product.id)}
+                ready={!kept(product.id) && stopsFor(product.id).length === 0}
+                attention={stopsFor(product.id).length > 0}
                 onSelect={() => setActive(product.id)}
               />
             ))}
@@ -512,6 +671,8 @@ export default function ImportFlow({
             attributes={free}
             created={created}
             categories={config.categories}
+            stops={stopsFor(active)}
+            onOpen={onOpen}
             onState={patch =>
               setStates({
                 ...states,
@@ -525,7 +686,7 @@ export default function ImportFlow({
             <p className='aa-ps-importer__status' aria-live='polite'>
               {status}
             </p>
-            {progress === 0 && (waiting.length > 0 || blocked) && (
+            {progress === 0 && attention.length > 0 && (
               <Button variant='secondary' onClick={goNext}>
                 {waiting.length > 0
                   ? __('Go to next decision', 'aggressive-apparel')
@@ -539,23 +700,60 @@ export default function ImportFlow({
             >
               {__('Change blanks', 'aggressive-apparel')}
             </Button>
-            <Button
-              variant='primary'
-              disabled={totalPending > 0 || progress > 0 || Boolean(blocked)}
-              isBusy={progress > 0}
-              onClick={() => void create()}
-            >
-              {sprintf(
-                /* translators: %d: number of guides. */
-                _n(
-                  'Create %d size guide',
-                  'Create %d size guides',
-                  selected.length,
-                  'aggressive-apparel'
-                ),
-                selected.length
-              )}
-            </Button>
+            {partial && totalPending === 0 && !blocked && (
+              <Button
+                variant='secondary'
+                disabled={progress > 0}
+                onClick={() => void create(queue)}
+              >
+                {sprintf(
+                  /* translators: %d: number of guides. */
+                  __('Create all %d anyway', 'aggressive-apparel'),
+                  queue.length
+                )}
+              </Button>
+            )}
+            {partial ? (
+              <Button
+                variant='primary'
+                disabled={progress > 0}
+                isBusy={progress > 0}
+                onClick={() => void create(ready)}
+              >
+                {sprintf(
+                  /* translators: %d: number of guides. */
+                  _n(
+                    'Create %d ready guide',
+                    'Create %d ready guides',
+                    ready.length,
+                    'aggressive-apparel'
+                  ),
+                  ready.length
+                )}
+              </Button>
+            ) : queue.length === 0 ? (
+              <Button variant='primary' onClick={onCancel}>
+                {__('Back to size guides', 'aggressive-apparel')}
+              </Button>
+            ) : (
+              <Button
+                variant='primary'
+                disabled={totalPending > 0 || progress > 0 || Boolean(blocked)}
+                isBusy={progress > 0}
+                onClick={() => void create(queue)}
+              >
+                {sprintf(
+                  /* translators: %d: number of guides. */
+                  _n(
+                    'Create %d size guide',
+                    'Create %d size guides',
+                    queue.length,
+                    'aggressive-apparel'
+                  ),
+                  queue.length
+                )}
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -563,7 +761,8 @@ export default function ImportFlow({
       {step === 2 && (
         <ImportDone
           results={results}
-          products={selected}
+          products={finished}
+          kept={selected.filter(product => kept(product.id))}
           onOpen={onOpen}
           onRetry={retry}
           onMore={restart}

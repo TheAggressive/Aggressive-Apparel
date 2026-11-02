@@ -364,7 +364,20 @@ export default function ChartEditor({ chart, limits, onChange }: Props) {
                       inputMode={column.type === 'measure' ? 'decimal' : 'text'}
                       aria-label={`${row.size || String(r + 1)}, ${column.label || String(c + 1)}`}
                       onChange={event => setCell(r, c, event.target.value)}
-                      onFocus={() => setFocusedCell(`${r}:${c}`)}
+                      onFocus={event => {
+                        // Swapping to what was entered drops the selection
+                        // Tab or Enter made: put it back, so typing replaces.
+                        const input = event.currentTarget;
+                        const entered = row.values[c] ?? '';
+                        setFocusedCell(`${r}:${c}`);
+                        if (input.value !== entered) {
+                          window.requestAnimationFrame(() => {
+                            if (input === input.ownerDocument.activeElement) {
+                              input.select();
+                            }
+                          });
+                        }
+                      }}
                       onBlur={() => setFocusedCell(null)}
                       onPaste={onPaste(r, c)}
                       onKeyDown={onKeyDown(r, c)}

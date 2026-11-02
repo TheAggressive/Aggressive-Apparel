@@ -66,6 +66,8 @@ class Enhancements {
 			Product_Specs_Grid::class,
 			Printful_Rest::class,
 			Printful_Import::class,
+			Printful_Sync_Guard::class,
+			Printful_Size_Guide_Handoff::class,
 		),
 		'sticky_add_to_cart'         => array( Sticky_Add_To_Cart::class ),
 		'mobile_bottom_nav'          => array( Mobile_Bottom_Nav::class ),

@@ -113,6 +113,31 @@ final class Product_Specs_Attributes {
 	}
 
 	/**
+	 * Whether an attribute would supply a spec's value (values()): it's a spec's
+	 * own taxonomy, or named like one of a spec's attribute names.
+	 *
+	 * @param \WC_Product_Attribute $attribute Attribute.
+	 */
+	public static function supplies_spec( \WC_Product_Attribute $attribute ): bool {
+		$name  = $attribute->get_name();
+		$label = $attribute->is_taxonomy() ? wc_attribute_label( $name ) : $name;
+		foreach ( Product_Specs_Registry::items() as $item ) {
+			if ( $item['taxonomy'] === $name ) {
+				return true;
+			}
+			/** This filter is documented in values(). */
+			$names = apply_filters( 'aggressive_apparel_product_specs_attribute_names', $item['attributes'], $item['key'] );
+			foreach ( is_array( $names ) ? $names : array() as $other ) {
+				if ( is_scalar( $other ) && self::normalize( (string) $other ) === self::normalize( $label ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * A number from free text, in the item's unit.
 	 *
 	 * Fabric weights ("g/m²" units) prefer an explicit metric value

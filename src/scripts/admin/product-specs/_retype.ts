@@ -32,7 +32,15 @@ export function retype(
     return {};
   }
   if (type === 'text') {
-    return { type, steps: [], thresholds: [], advice: [], category_steps: [] };
+    const next = { ...item, type, steps: [], thresholds: [] };
+    return {
+      type,
+      steps: [],
+      thresholds: [],
+      advice: [],
+      category_steps: [],
+      default: convertValue(item, next, item.default),
+    };
   }
 
   let steps = item.steps;
@@ -47,13 +55,53 @@ export function retype(
     }
   }
 
-  return {
+  const patch = {
     type,
     steps,
     thresholds: type === 'number' ? bands(steps) : [],
     multiple: false,
     category_steps: [],
   };
+  return {
+    ...patch,
+    default: convertValue(item, { ...item, ...patch }, item.default),
+  };
+}
+
+/** Read a term's name as the new type, matching the server's value_from_text. */
+function valueFromText(item: SpecItem, text: string): string {
+  if (item.type === 'text') {
+    return text;
+  }
+  if (item.type === 'pick') {
+    const normalize = (name: string) =>
+      name.trim().replace(/\s+/g, ' ').toLowerCase();
+    const step = item.steps.findIndex(
+      name => normalize(name) === normalize(text)
+    );
+    return step >= 0 ? String(step) : '';
+  }
+  return valueFor(item, text) || valueFor({ ...item, unit: '' }, text);
+}
+
+/** Re-encode an editor value through its term name, never its old step index. */
+export function convertValue(
+  before: SpecItem,
+  after: SpecItem,
+  value: string
+): string {
+  if (value === '' || before.type === after.type) {
+    return value;
+  }
+  const text =
+    before.type === 'pick'
+      ? (before.steps[Number(value)] ?? '')
+      : before.type === 'number'
+        ? `${value} ${before.unit}`.trim()
+        : before.multiple
+          ? value.split('|')[0].trim()
+          : value;
+  return text === '' ? '' : valueFromText(after, text);
 }
 
 /** One existing value, and how the spec reads it as it is now set up. */
@@ -62,7 +110,7 @@ export type Reading = { from: string; to: string };
 /** How a spec reads each of its existing values ('' for one it can't read). */
 export function readings(item: SpecItem, names: string[]): Reading[] {
   return names.map(name => {
-    const value = valueFor(item, name);
+    const value = valueFromText(item, name);
     let to = value;
     if (value !== '' && item.type === 'pick') {
       to = item.steps[Number(value)] ?? '';

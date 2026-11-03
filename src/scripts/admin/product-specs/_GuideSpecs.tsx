@@ -46,6 +46,7 @@ type Props = {
   onValues: (values: Record<string, string>) => void;
   onHidden: (hidden: string[]) => void;
   onEdit: (item: DraftItem) => void;
+  onDiscardEdit: (key: string) => void;
   onAdded: (added: DraftItem[]) => void;
   /** Open the Specs tab. */
   onManage: () => void;
@@ -81,6 +82,7 @@ export default function GuideSpecs({
   onValues,
   onHidden,
   onEdit,
+  onDiscardEdit,
   onAdded,
   onManage,
   footer,
@@ -237,13 +239,16 @@ export default function GuideSpecs({
                   checked={forEvery}
                   label={__('Change it for every guide', 'aggressive-apparel')}
                   text={__('Change for every guide', 'aggressive-apparel')}
-                  onChange={every =>
+                  onChange={every => {
+                    if (!every) {
+                      onDiscardEdit(item.key);
+                    }
                     setEveryGuide(
                       every
                         ? [...everyGuide, item.key]
                         : everyGuide.filter(key => key !== item.key)
-                    )
-                  }
+                    );
+                  }}
                 />
               )}
             </div>

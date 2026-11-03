@@ -34,6 +34,7 @@ import saveRegistry from './_saveRegistry';
 import { errorText, toStored } from './_utils';
 import { readWording } from './_wording';
 import ApplyToProducts from './_ApplyToProducts';
+import { editGuideValues, guideValues, type ValueEdits } from './_guideValues';
 
 type Props = {
   config: Config;
@@ -105,6 +106,8 @@ export default function GuideEditor({
   // Specs edited or added here, saved with the guide.
   const [edits, setEdits] = useState<Record<string, DraftItem>>({});
   const [added, setAdded] = useState<DraftItem[]>([]);
+  const [valueItems, setValueItems] = useState(items);
+  const [valueEdits, setValueEdits] = useState<ValueEdits>({});
 
   const setDirty = (value: boolean) => {
     setDirtyState(value);
@@ -164,30 +167,48 @@ export default function GuideEditor({
     markDirty();
   };
 
+  const discardSpecEdit = (key: string) => {
+    if (!edits[key]) {
+      return;
+    }
+    setEdits(current => {
+      const { [key]: _discarded, ...rest } = current;
+      return rest;
+    });
+    markDirty();
+  };
+
   const updateAdded = (next: DraftItem[]) => {
     setAdded(next);
     markDirty();
   };
+
+  const currentItems = [
+    ...items.map(item => edits[item.key] ?? item),
+    ...added,
+  ];
+  const values = guideValues(guide.specs, valueItems, currentItems, valueEdits);
 
   /** Save the guide; true when it saved. */
   const save = async (): Promise<boolean> => {
     setSaving(true);
     setError('');
     try {
+      let savedItems = items;
       // Spec edits first, through the Specs tab's save, so the guide's
       // values below are saved against the specs as edited.
       const edited = Object.keys(edits);
       if (edited.length > 0) {
-        onRegistry(
-          await saveRegistry(config.restPath, {
-            items: items.map(item =>
-              edits[item.key] ? toStored(edits[item.key]) : item
-            ),
-            hideDimensions: registry.hideDimensions,
-            revision: registry.revision,
-            changed: edited,
-          })
-        );
+        const savedRegistry = await saveRegistry(config.restPath, {
+          items: items.map(item =>
+            edits[item.key] ? toStored(edits[item.key]) : item
+          ),
+          hideDimensions: registry.hideDimensions,
+          revision: registry.revision,
+          changed: edited,
+        });
+        savedItems = savedRegistry.items;
+        onRegistry(savedRegistry);
         setEdits({});
       }
       const result = (await apiFetch({
@@ -200,7 +221,11 @@ export default function GuideEditor({
           diagram: guide.diagram?.id ?? 0,
           showNotes: guide.showNotes,
           showDiagram: guide.showDiagram,
-          specs: guide.specs,
+          specs: guide.id
+            ? Object.fromEntries(
+                Object.keys(valueEdits).map(key => [key, values[key]])
+              )
+            : values,
           hidden: guide.hidden,
           wording: guide.wording,
           ...(added.length > 0 && { specItems: added.map(toStored) }),
@@ -211,6 +236,8 @@ export default function GuideEditor({
       const { registry: saved, ...detail } = result;
       setGuide({ ...detail, wording: readWording(detail.wording) });
       setAdded([]);
+      setValueItems(saved?.items ?? savedItems);
+      setValueEdits({});
       if (saved) {
         onRegistry(saved);
       }
@@ -394,7 +421,7 @@ export default function GuideEditor({
 
       <GuideStatusStrip
         status={guideStatus(
-          guide,
+          { ...guide, specs: values },
           guideSpecs(items, edits, added),
           config.categories
         )}
@@ -505,14 +532,20 @@ export default function GuideEditor({
         items={items}
         edits={edits}
         added={added}
-        values={guide.specs}
+        values={values}
         hasChart={hasChart(guide)}
         hidden={guide.hidden}
         wording={guide.wording}
         onWording={wording => update({ wording })}
-        onValues={specs => update({ specs })}
+        onValues={next => {
+          setValueEdits(
+            editGuideValues(values, next, currentItems, valueEdits)
+          );
+          markDirty();
+        }}
         onHidden={hidden => update({ hidden })}
         onEdit={editSpec}
+        onDiscardEdit={discardSpecEdit}
         onAdded={updateAdded}
         onManage={onManageSpecs}
         footer={

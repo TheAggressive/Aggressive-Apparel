@@ -1,6 +1,6 @@
 import type { SpecItem } from '../_types';
 import { blankItem } from '../_utils';
-import { readings, retype } from '../_retype';
+import { convertValue, readings, retype } from '../_retype';
 
 const limits = { minSteps: 2, maxSteps: 7 };
 
@@ -68,6 +68,53 @@ describe('retype', () => {
     expect(
       retype(spec({ type: 'pick', steps: ['A', 'B'] }), 'text', limits)
     ).toMatchObject({ type: 'text', steps: [], thresholds: [] });
+  });
+
+  it('converts a picked default through its step name', () => {
+    const fit = spec({
+      type: 'pick',
+      steps: ['Snug', 'Regular', 'Relaxed'],
+      default: '1',
+    });
+    expect(retype(fit, 'text', limits).default).toBe('Regular');
+  });
+
+  it('converts a text default to its new picked step', () => {
+    const fit = spec({
+      default: 'Regular',
+      terms: terms('Snug', 'Regular', 'Relaxed'),
+    });
+    expect(retype(fit, 'pick', limits).default).toBe('1');
+  });
+
+  it('reads a number default from text and retains units when becoming text', () => {
+    expect(
+      retype(spec({ default: '180 g/m²' }), 'number', limits).default
+    ).toBe('180');
+    expect(
+      retype(
+        spec({ type: 'number', unit: 'g/m²', default: '180' }),
+        'text',
+        limits
+      ).default
+    ).toBe('180 g/m²');
+  });
+});
+
+describe('convertValue', () => {
+  it('matches whole step names including non-Latin names', () => {
+    const text = spec({});
+    const pick = { ...text, type: 'pick' as const, steps: ['小', '中', '大'] };
+    expect(convertValue(text, pick, '中')).toBe('1');
+    expect(convertValue(text, pick, '中 cotton')).toBe('');
+  });
+
+  it('keeps exact text and falls back to unitless number parsing as the server does', () => {
+    const pick = spec({ type: 'pick', steps: ['soft (washed)', 'Regular'] });
+    expect(convertValue(pick, spec({}), '0')).toBe('soft (washed)');
+    expect(
+      convertValue(spec({}), spec({ type: 'number', unit: 'g/m²' }), '180')
+    ).toBe('180');
   });
 });
 

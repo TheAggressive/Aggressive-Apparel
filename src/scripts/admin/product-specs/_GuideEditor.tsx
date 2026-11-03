@@ -61,6 +61,8 @@ type Props = {
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
   onCreated: (id: number) => void;
+  /** Open the Specs tab, keeping this guide's unsaved edits. */
+  onManageSpecs: () => void;
   onDirty: (dirty: boolean) => void;
 };
 
@@ -91,6 +93,7 @@ export default function GuideEditor({
   onOpen,
   onCreated,
   onDirty,
+  onManageSpecs,
 }: Props) {
   const [guide, setGuide] = useState<GuideDetail | null>(
     guideId === 'new' ? blank() : null
@@ -525,6 +528,7 @@ export default function GuideEditor({
         hidden={guide.hidden}
         onValues={specs => update({ specs })}
         onHidden={hidden => update({ hidden })}
+        onManage={onManageSpecs}
         footer={
           guide.id > 0 && (
             <ApplyToProducts

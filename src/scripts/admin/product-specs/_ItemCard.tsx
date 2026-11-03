@@ -13,7 +13,6 @@ import type { ReactNode } from 'react';
 import {
   Button,
   CheckboxControl,
-  FormToggle,
   SelectControl,
   TextControl,
   ToggleControl,
@@ -27,6 +26,7 @@ import ValuePicker from './_ValuePicker';
 import AttributeSettings from './_AttributeSettings';
 import CategorySteps from './_CategorySteps';
 import StepsEditor from './_StepsEditor';
+import OnOff from './_OnOff';
 
 type Props = {
   item: DraftItem;
@@ -249,22 +249,15 @@ export default function ItemCard({
         </button>
         <div className='aa-ps-card__actions'>
           {switchable && (
-            <div className='aa-ps-card__switch'>
-              <FormToggle
-                checked={item.enabled}
-                aria-label={sprintf(
-                  /* translators: %s: spec name. */
-                  __('Use %s', 'aggressive-apparel'),
-                  item.name || __('this spec', 'aggressive-apparel')
-                )}
-                onChange={() => onChange({ enabled: !item.enabled })}
-              />
-              <span aria-hidden='true'>
-                {item.enabled
-                  ? __('On', 'aggressive-apparel')
-                  : __('Off', 'aggressive-apparel')}
-              </span>
-            </div>
+            <OnOff
+              checked={item.enabled}
+              label={sprintf(
+                /* translators: %s: spec name. */
+                __('Use %s', 'aggressive-apparel'),
+                item.name || __('this spec', 'aggressive-apparel')
+              )}
+              onChange={enabled => onChange({ enabled })}
+            />
           )}
           <Button
             icon='arrow-up-alt'

@@ -18,12 +18,13 @@
  */
 
 import type { ReactNode } from 'react';
-import { Button, FormToggle, Notice } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { SpecItem } from './_types';
 import { splitValues } from './_utils';
 import GuidePreview from './_GuidePreview';
+import OnOff from './_OnOff';
 import ValuePicker from './_ValuePicker';
 
 type Props = {
@@ -36,6 +37,8 @@ type Props = {
   hasChart: boolean;
   onValues: (values: Record<string, string>) => void;
   onHidden: (hidden: string[]) => void;
+  /** Open the Specs tab, where specs are added and managed. */
+  onManage: () => void;
   /** Shown under the specs (Apply to products). */
   footer?: ReactNode;
 };
@@ -54,14 +57,6 @@ function describe(item: SpecItem, value: string): string {
   return item.multiple ? splitValues(value).join(', ') : value;
 }
 
-/** The Specs tab, where specs are added and managed. */
-function specsTabUrl(): string {
-  const url = new URL(window.location.href);
-  url.searchParams.set('tab', 'specs');
-  url.searchParams.delete('guide');
-  return url.toString();
-}
-
 export default function GuideSpecs({
   items,
   values,
@@ -69,6 +64,7 @@ export default function GuideSpecs({
   hasChart,
   onValues,
   onHidden,
+  onManage,
   footer,
 }: Props) {
   const specs = items.filter(item => item.enabled);
@@ -92,7 +88,7 @@ export default function GuideSpecs({
             )}
           </p>
         </div>
-        <Button variant='secondary' href={specsTabUrl()}>
+        <Button variant='secondary' onClick={onManage}>
           {__('Manage specs', 'aggressive-apparel')}
         </Button>
       </div>
@@ -141,25 +137,18 @@ export default function GuideSpecs({
                     }
                   />
                 </div>
-                <div className='aa-ps-card__switch'>
-                  <FormToggle
-                    checked={on}
-                    aria-label={sprintf(
-                      /* translators: %s: spec name. */
-                      __(
-                        'Show %s on this guide’s products',
-                        'aggressive-apparel'
-                      ),
-                      item.name
-                    )}
-                    onChange={() => toggle(item.key, !on)}
-                  />
-                  <span aria-hidden='true'>
-                    {on
-                      ? __('On', 'aggressive-apparel')
-                      : __('Off', 'aggressive-apparel')}
-                  </span>
-                </div>
+                <OnOff
+                  checked={on}
+                  label={sprintf(
+                    /* translators: %s: spec name. */
+                    __(
+                      'Show %s on this guide’s products',
+                      'aggressive-apparel'
+                    ),
+                    item.name
+                  )}
+                  onChange={show => toggle(item.key, show)}
+                />
               </div>
             );
           })}

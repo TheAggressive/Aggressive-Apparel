@@ -455,6 +455,7 @@ export default function App({ config }: { config: Config }) {
         <div hidden={tab !== 'guides'}>
           <GuidesTab
             config={config}
+            onManageSpecs={() => selectTab('specs')}
             items={savedItems}
             taxonomies={taxonomies}
             onRegistry={registry => {

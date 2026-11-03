@@ -3,8 +3,9 @@
  *
  * Everything about a garment blank in one form: its name, size chart, notes
  * and measuring diagram, specs, and where it applies. One save writes it all
- * (Size_Guide_Rest). Specs themselves are made on the Specs tab; here the guide
- * gives them values.
+ * (Size_Guide_Rest), along with any spec edited or added here: edits save
+ * through the Specs tab's own save first (saveRegistry), new specs with the
+ * guide, which adds them to the store's specs (Size_Guide_Spec_Items).
  *
  * @package Aggressive_Apparel
  */
@@ -21,11 +22,19 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { Config, GuideDetail, Registry, SpecItem } from './_types';
+import type {
+  Config,
+  DraftItem,
+  GuideDetail,
+  Registry,
+  SpecItem,
+} from './_types';
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
 import GuideSpecs from './_GuideSpecs';
+import saveRegistry from './_saveRegistry';
+import { toStored } from './_utils';
 import ApplyToProducts from './_ApplyToProducts';
 
 type Attachment = {
@@ -61,8 +70,12 @@ type Props = {
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
   onCreated: (id: number) => void;
+  /** Global attributes, taxonomy => label (current, not as loaded). */
+  taxonomies: Record<string, string>;
   /** Open the Specs tab, keeping this guide's unsaved edits. */
   onManageSpecs: () => void;
+  /** The saved registry's revision and setting, for saving spec edits. */
+  registry: { revision: number; hideDimensions: boolean };
   onDirty: (dirty: boolean) => void;
 };
 
@@ -93,7 +106,9 @@ export default function GuideEditor({
   onOpen,
   onCreated,
   onDirty,
+  taxonomies,
   onManageSpecs,
+  registry,
 }: Props) {
   const [guide, setGuide] = useState<GuideDetail | null>(
     guideId === 'new' ? blank() : null
@@ -109,6 +124,9 @@ export default function GuideEditor({
   // untouched discards nothing worth asking about.
   const [touched, setTouched] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  // Specs edited or added here, saved with the guide.
+  const [edits, setEdits] = useState<Record<string, DraftItem>>({});
+  const [added, setAdded] = useState<DraftItem[]>([]);
 
   const setDirty = (value: boolean) => {
     setDirtyState(value);
@@ -158,11 +176,37 @@ export default function GuideEditor({
     markDirty();
   };
 
+  const editSpec = (item: DraftItem) => {
+    setEdits(current => ({ ...current, [item.key]: item }));
+    markDirty();
+  };
+
+  const updateAdded = (next: DraftItem[]) => {
+    setAdded(next);
+    markDirty();
+  };
+
   /** Save the guide; true when it saved. */
   const save = async (): Promise<boolean> => {
     setSaving(true);
     setError('');
     try {
+      // Spec edits first, through the Specs tab's save, so the guide's
+      // values below are saved against the specs as edited.
+      const edited = Object.keys(edits);
+      if (edited.length > 0) {
+        onRegistry(
+          await saveRegistry(config.restPath, {
+            items: items.map(item =>
+              edits[item.key] ? toStored(edits[item.key]) : item
+            ),
+            hideDimensions: registry.hideDimensions,
+            revision: registry.revision,
+            changed: edited,
+          })
+        );
+        setEdits({});
+      }
       const result = (await apiFetch({
         path: guide.id ? `${config.guidesPath}/${guide.id}` : config.guidesPath,
         method: 'POST',
@@ -173,14 +217,16 @@ export default function GuideEditor({
           diagram: guide.diagram?.id ?? 0,
           specs: guide.specs,
           hidden: guide.hidden,
+          ...(added.length > 0 && { specItems: added.map(toStored) }),
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
       })) as GuideDetail & { registry?: Registry };
-      const { registry, ...detail } = result;
+      const { registry: saved, ...detail } = result;
       setGuide(detail);
-      if (registry) {
-        onRegistry(registry);
+      setAdded([]);
+      if (saved) {
+        onRegistry(saved);
       }
       setDirty(false);
       setSaved(true);
@@ -517,7 +563,11 @@ export default function GuideEditor({
       </section>
 
       <GuideSpecs
+        config={config}
+        taxonomies={taxonomies}
         items={items}
+        edits={edits}
+        added={added}
         values={guide.specs}
         // Mirrors Size_Chart::sanitize (a row needs a size) and
         // Size_Guide::guide_content (old free-form content also counts).
@@ -528,6 +578,8 @@ export default function GuideEditor({
         hidden={guide.hidden}
         onValues={specs => update({ specs })}
         onHidden={hidden => update({ hidden })}
+        onEdit={editSpec}
+        onAdded={updateAdded}
         onManage={onManageSpecs}
         footer={
           guide.id > 0 && (

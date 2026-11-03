@@ -15,9 +15,18 @@ type Props = {
   /** What switching it does, for screen readers ("Use Fit"). */
   label: string;
   onChange: (checked: boolean) => void;
+  /** Words for each state, where On and Off alone could mislead. */
+  onText?: string;
+  offText?: string;
 };
 
-export default function OnOff({ checked, label, onChange }: Props) {
+export default function OnOff({
+  checked,
+  label,
+  onChange,
+  onText = __('On', 'aggressive-apparel'),
+  offText = __('Off', 'aggressive-apparel'),
+}: Props) {
   return (
     <div className='aa-ps-card__switch'>
       <FormToggle
@@ -25,11 +34,7 @@ export default function OnOff({ checked, label, onChange }: Props) {
         aria-label={label}
         onChange={() => onChange(!checked)}
       />
-      <span aria-hidden='true'>
-        {checked
-          ? __('On', 'aggressive-apparel')
-          : __('Off', 'aggressive-apparel')}
-      </span>
+      <span aria-hidden='true'>{checked ? onText : offText}</span>
     </div>
   );
 }

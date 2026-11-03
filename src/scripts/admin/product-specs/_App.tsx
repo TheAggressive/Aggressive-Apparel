@@ -15,14 +15,12 @@
 import { useEffect, useState } from '@wordpress/element';
 import type { KeyboardEvent } from 'react';
 import { Button, Notice, Spinner, ToggleControl } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type {
   Config,
   DraftItem,
   GuideSummary,
-  Registry,
   SpecItem,
   Suggestion,
   Tab,
@@ -32,6 +30,7 @@ import ItemCard from './_ItemCard';
 import GuidesTab from './_GuidesTab';
 import ProductsTab, { type ProductEdits } from './_ProductsTab';
 import { AddSpecButton, Suggestions } from './_AddSpec';
+import saveRegistry from './_saveRegistry';
 
 type SaveError = { message?: string; data?: { errors?: string[] } };
 
@@ -70,6 +69,12 @@ export default function App({ config }: { config: Config }) {
   // The revision the draft started from, and what it changed since: a save
   // from an older revision applies only these on top of the current list.
   const [revision, setRevision] = useState(config.registry.revision);
+  // The latest saved revision and setting, for a guide saving spec edits
+  // (the Specs tab's own draft may be older).
+  const [saved, setSaved] = useState({
+    revision: config.registry.revision,
+    hideDimensions: config.registry.hide_dimensions,
+  });
   // Global attributes, kept current: a save can create one.
   const [taxonomies, setTaxonomies] = useState(config.taxonomies);
   const [changed, setChanged] = useState<string[]>([]);
@@ -185,20 +190,20 @@ export default function App({ config }: { config: Config }) {
     setSpecsSaving(true);
     setSpecsErrors([]);
     try {
-      const registry = (await apiFetch({
-        path: config.restPath,
-        method: 'POST',
-        data: {
-          items: items.map(toStored),
-          hide_dimensions: hideDimensions,
-          revision,
-          changed: items
-            .filter(item => changed.includes(item.uid))
-            .map(item => toStored(item).key),
-          deleted,
-        },
-      })) as Registry;
+      const registry = await saveRegistry(config.restPath, {
+        items: items.map(toStored),
+        hideDimensions,
+        revision,
+        changed: items
+          .filter(item => changed.includes(item.uid))
+          .map(item => toStored(item).key),
+        deleted,
+      });
       setRevision(registry.revision);
+      setSaved({
+        revision: registry.revision,
+        hideDimensions: registry.hide_dimensions,
+      });
       setTaxonomies(registry.taxonomies ?? taxonomies);
       setChanged([]);
       setDeleted([]);
@@ -456,10 +461,15 @@ export default function App({ config }: { config: Config }) {
           <GuidesTab
             config={config}
             onManageSpecs={() => selectTab('specs')}
+            registry={saved}
             items={savedItems}
             taxonomies={taxonomies}
             onRegistry={registry => {
               setSavedItems(registry.items);
+              setSaved({
+                revision: registry.revision,
+                hideDimensions: registry.hide_dimensions,
+              });
               setTaxonomies(registry.taxonomies ?? taxonomies);
               // An untouched Specs tab follows. A dirty one keeps its draft
               // and older revision, so its save merges onto this one.

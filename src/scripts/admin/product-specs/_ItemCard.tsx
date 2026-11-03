@@ -27,6 +27,8 @@ import AttributeSettings from './_AttributeSettings';
 import CategorySteps from './_CategorySteps';
 import StepsEditor from './_StepsEditor';
 import OnOff from './_OnOff';
+import TypeChange from './_TypeChange';
+import { retype } from './_retype';
 
 type Props = {
   item: DraftItem;
@@ -43,6 +45,10 @@ type Props = {
   onDelete: () => void;
   /** Turns on and off from its header (Specs tab). */
   switchable?: boolean;
+  /** Shows the move arrows (where the list's order is set: the Specs tab). */
+  movable?: boolean;
+  /** Offers Delete (not for an existing spec edited inside a guide). */
+  deletable?: boolean;
   /** Replaces the Default value field (a size guide's own value). */
   valueField?: ReactNode;
   /** Extra header detail, such as the guide's value. */
@@ -169,12 +175,16 @@ export default function ItemCard({
   onMove,
   onDelete,
   switchable,
+  movable = true,
+  deletable = true,
   valueField,
   extraMeta,
   deleteText,
   taxonomies,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // The type it was saved as, to say what a change does to its values.
+  const [savedType] = useState(item.type);
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
@@ -259,20 +269,24 @@ export default function ItemCard({
               onChange={enabled => onChange({ enabled })}
             />
           )}
-          <Button
-            icon='arrow-up-alt'
-            label={__('Move up', 'aggressive-apparel')}
-            disabled={index === 0}
-            onClick={() => onMove(-1)}
-            size='small'
-          />
-          <Button
-            icon='arrow-down-alt'
-            label={__('Move down', 'aggressive-apparel')}
-            disabled={index === total - 1}
-            onClick={() => onMove(1)}
-            size='small'
-          />
+          {movable && (
+            <>
+              <Button
+                icon='arrow-up-alt'
+                label={__('Move up', 'aggressive-apparel')}
+                disabled={index === 0}
+                onClick={() => onMove(-1)}
+                size='small'
+              />
+              <Button
+                icon='arrow-down-alt'
+                label={__('Move down', 'aggressive-apparel')}
+                disabled={index === total - 1}
+                onClick={() => onMove(1)}
+                size='small'
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -289,50 +303,28 @@ export default function ItemCard({
               )}
               __next40pxDefaultSize
             />
-            {item.isNew ? (
-              <SelectControl
-                label={__('Type', 'aggressive-apparel')}
-                value={item.type}
-                options={[
-                  {
-                    value: 'pick',
-                    label: __('Scale (pick a step)', 'aggressive-apparel'),
-                  },
-                  {
-                    value: 'number',
-                    label: __('Scale from a number', 'aggressive-apparel'),
-                  },
-                  {
-                    value: 'text',
-                    label: __('Text detail', 'aggressive-apparel'),
-                  },
-                ]}
-                onChange={value =>
-                  onChange({
-                    type: value as DraftItem['type'],
-                    steps: value === 'text' ? [] : item.steps,
-                    thresholds:
-                      value === 'number'
-                        ? item.steps.slice(1).map((_, i) => (i + 1) * 10)
-                        : [],
-                  })
-                }
-                help={__('Fixed once saved.', 'aggressive-apparel')}
-                __next40pxDefaultSize
-              />
-            ) : (
-              <div className='aa-ps-static'>
-                <span className='aa-ps-static__label'>
-                  {__('Type', 'aggressive-apparel')}
-                </span>
-                <span className='aa-ps-static__value'>
-                  {typeLabel(item.type)}
-                </span>
-                <span className='aa-ps-help'>
-                  {__('Fixed once saved.', 'aggressive-apparel')}
-                </span>
-              </div>
-            )}
+            <SelectControl
+              label={__('Type', 'aggressive-apparel')}
+              value={item.type}
+              options={[
+                {
+                  value: 'pick',
+                  label: __('Scale (pick a step)', 'aggressive-apparel'),
+                },
+                {
+                  value: 'number',
+                  label: __('Scale from a number', 'aggressive-apparel'),
+                },
+                {
+                  value: 'text',
+                  label: __('Text detail', 'aggressive-apparel'),
+                },
+              ]}
+              onChange={value =>
+                onChange(retype(item, value as DraftItem['type'], limits))
+              }
+              __next40pxDefaultSize
+            />
             {isNumber && (
               <TextControl
                 label={__('Unit', 'aggressive-apparel')}
@@ -344,6 +336,8 @@ export default function ItemCard({
               />
             )}
           </div>
+
+          {!item.isNew && item.type !== savedType && <TypeChange item={item} />}
 
           {isScale && (
             <Section
@@ -655,36 +649,39 @@ export default function ItemCard({
 
           <Preview item={item} />
 
-          <div className='aa-ps-card__footer'>
-            {confirmDelete ? (
-              <>
-                <span className='aa-ps-help'>
-                  {deleteText?.confirm ??
-                    __(
-                      'Delete this spec? Saved values stay in the database but stop showing.',
-                      'aggressive-apparel'
-                    )}
-                </span>
-                <Button variant='secondary' isDestructive onClick={onDelete}>
-                  {__('Delete', 'aggressive-apparel')}
-                </Button>
+          {deletable && (
+            <div className='aa-ps-card__footer'>
+              {confirmDelete ? (
+                <>
+                  <span className='aa-ps-help'>
+                    {deleteText?.confirm ??
+                      __(
+                        'Delete this spec? Saved values stay in the database but stop showing.',
+                        'aggressive-apparel'
+                      )}
+                  </span>
+                  <Button variant='secondary' isDestructive onClick={onDelete}>
+                    {__('Delete', 'aggressive-apparel')}
+                  </Button>
+                  <Button
+                    variant='tertiary'
+                    onClick={() => setConfirmDelete(false)}
+                  >
+                    {__('Cancel', 'aggressive-apparel')}
+                  </Button>
+                </>
+              ) : (
                 <Button
                   variant='tertiary'
-                  onClick={() => setConfirmDelete(false)}
+                  isDestructive
+                  onClick={() => setConfirmDelete(true)}
                 >
-                  {__('Cancel', 'aggressive-apparel')}
+                  {deleteText?.button ??
+                    __('Delete spec', 'aggressive-apparel')}
                 </Button>
-              </>
-            ) : (
-              <Button
-                variant='tertiary'
-                isDestructive
-                onClick={() => setConfirmDelete(true)}
-              >
-                {deleteText?.button ?? __('Delete spec', 'aggressive-apparel')}
-              </Button>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

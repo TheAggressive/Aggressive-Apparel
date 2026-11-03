@@ -3,8 +3,9 @@
  *
  * The Specs tab's list, as this guide sees it: every spec that's on, in the
  * same order, each with this guide's value and a switch for whether this
- * guide's products show it. Specs are made and managed on the Specs tab only.
- * A live preview shows the result.
+ * guide's products show it. The Specs tab's own spec card and Add spec menu
+ * work here too: a spec edited here changes for every guide, and one added
+ * here joins the store's specs. All of it saves with the guide.
  *
  * Every spec is a WooCommerce attribute and every value one of its terms
  * (Product_Specs_Taxonomy). Products using the guide show these values
@@ -17,19 +18,29 @@
  * @package Aggressive_Apparel
  */
 
+import { useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import { Button, Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { SpecItem } from './_types';
-import { splitValues } from './_utils';
+import type { Config, DraftItem, SpecItem } from './_types';
+import { newItem, specKey, splitValues, toDraft } from './_utils';
+import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
+import ItemCard from './_ItemCard';
 import OnOff from './_OnOff';
 import ValuePicker from './_ValuePicker';
 
 type Props = {
+  config: Config;
+  /** Global attributes, taxonomy => label (current, not as loaded). */
+  taxonomies: Record<string, string>;
   /** Saved registry items: the store's specs. */
   items: SpecItem[];
+  /** Specs edited here, by key; they save with the guide. */
+  edits: Record<string, DraftItem>;
+  /** Specs added here; they save with the guide. */
+  added: DraftItem[];
   values: Record<string, string>;
   /** Specs hidden on this guide's products. */
   hidden: string[];
@@ -37,7 +48,9 @@ type Props = {
   hasChart: boolean;
   onValues: (values: Record<string, string>) => void;
   onHidden: (hidden: string[]) => void;
-  /** Open the Specs tab, where specs are added and managed. */
+  onEdit: (item: DraftItem) => void;
+  onAdded: (added: DraftItem[]) => void;
+  /** Open the Specs tab. */
   onManage: () => void;
   /** Shown under the specs (Apply to products). */
   footer?: ReactNode;
@@ -58,23 +71,178 @@ function describe(item: SpecItem, value: string): string {
 }
 
 export default function GuideSpecs({
+  config,
+  taxonomies,
   items,
+  edits,
+  added,
   values,
   hidden,
   hasChart,
   onValues,
   onHidden,
+  onEdit,
+  onAdded,
   onManage,
   footer,
 }: Props) {
-  const specs = items.filter(item => item.enabled);
-  const shown = specs.filter(item => !hidden.includes(item.key));
+  // The spec whose card is open, by key (saved) or uid (added here).
+  const [open, setOpen] = useState<string | null>(null);
+
+  const specs: DraftItem[] = items
+    .filter(item => item.enabled)
+    .map(item => edits[item.key] ?? toDraft(item));
+  const all = [...specs, ...added];
+  const shown = all.filter(item => item.enabled && !hidden.includes(item.key));
   // Mirrors Product_Specs_Values::guide_has_specs: any value, or a hidden spec.
   const hasSpecs =
     Object.values(values).some(value => value !== '') || hidden.length > 0;
+  const full = items.length + added.length >= config.limits.items;
+  // Keys are unique across the whole store.
+  const taken = (except = '') => [
+    ...items,
+    ...added.filter(other => other.uid !== except),
+  ];
 
-  const toggle = (key: string, show: boolean) =>
-    onHidden(show ? hidden.filter(other => other !== key) : [...hidden, key]);
+  // Attributes a spec can switch to: its own, and any no other spec uses.
+  const freeTaxonomies = (item: DraftItem) =>
+    Object.fromEntries(
+      Object.entries(taxonomies).filter(
+        ([taxonomy]) =>
+          taxonomy === item.taxonomy ||
+          !taken(item.uid).some(other => other.taxonomy === taxonomy)
+      )
+    );
+
+  // A new spec is keyed by its name as it's typed, so its value has a key
+  // to save under (the registry fixes keys once saved).
+  const updateAdded = (item: DraftItem, patch: Partial<DraftItem>) => {
+    const next =
+      patch.name !== undefined
+        ? { ...patch, key: specKey(patch.name, taken(item.uid)) }
+        : patch;
+    if (next.key !== undefined && next.key !== item.key) {
+      const { [item.key]: moved = '', ...rest } = values;
+      onValues(moved ? { ...rest, [next.key]: moved } : rest);
+    }
+    onAdded(
+      added.map(other =>
+        other.uid === item.uid ? { ...other, ...next } : other
+      )
+    );
+  };
+
+  const add = (partial: Partial<SpecItem> & Pick<SpecItem, 'type'>) => {
+    const item = newItem(partial, taken());
+    item.key = item.key || specKey(item.name, taken());
+    onAdded([...added, item]);
+    setOpen(item.uid);
+  };
+
+  const row = (item: DraftItem, isNew: boolean) => {
+    const id = isNew ? item.uid : item.key;
+    const isOpen = open === id;
+    const on = !hidden.includes(item.key);
+    return (
+      <div key={id} className={cx(isOpen && 'is-editing')}>
+        <div className={cx('aa-ps-spec-row', 'has-switch', !on && 'is-off')}>
+          <div className='aa-ps-spec-row__name'>
+            <span className='aa-ps-spec-row__title'>
+              {item.name || __('Untitled spec', 'aggressive-apparel')}
+            </span>
+            {isNew && (
+              <span className='aa-ps-spec-row__note'>
+                {__('New: saved with the guide', 'aggressive-apparel')}
+              </span>
+            )}
+          </div>
+          <div className='aa-ps-spec-row__value'>
+            <ValuePicker
+              item={item}
+              value={values[item.key] ?? ''}
+              label={item.name}
+              inherited={describe(item, item.default)}
+              onChange={value => onValues({ ...values, [item.key]: value })}
+            />
+          </div>
+          <div className='aa-ps-spec-row__actions'>
+            <Button
+              icon='edit'
+              size='compact'
+              label={sprintf(
+                /* translators: %s: spec name. */
+                __('Edit %s', 'aggressive-apparel'),
+                item.name || __('spec', 'aggressive-apparel')
+              )}
+              showTooltip
+              isPressed={isOpen}
+              aria-expanded={isOpen}
+              onClick={() => setOpen(isOpen ? null : id)}
+            />
+            <OnOff
+              checked={on}
+              label={sprintf(
+                /* translators: %s: spec name. */
+                __('Show %s on this guide’s products', 'aggressive-apparel'),
+                item.name
+              )}
+              onText={__('Shown here', 'aggressive-apparel')}
+              offText={__('Hidden here', 'aggressive-apparel')}
+              onChange={show =>
+                onHidden(
+                  show
+                    ? hidden.filter(other => other !== item.key)
+                    : [...hidden, item.key]
+                )
+              }
+            />
+          </div>
+        </div>
+        {isOpen && (
+          <>
+            {!isNew && (
+              <p className='aa-ps-help aa-ps-help--notice'>
+                {__(
+                  'Changes to this spec apply to every guide, and save with this one.',
+                  'aggressive-apparel'
+                )}
+              </p>
+            )}
+            <ItemCard
+              item={item}
+              index={0}
+              total={1}
+              categories={config.categories}
+              attributeNames={config.attributes}
+              limits={config.limits}
+              taxonomies={freeTaxonomies(item)}
+              open
+              movable={false}
+              deletable={isNew}
+              onToggle={() => setOpen(null)}
+              onChange={patch =>
+                isNew ? updateAdded(item, patch) : onEdit({ ...item, ...patch })
+              }
+              onMove={() => undefined}
+              onDelete={() => {
+                onAdded(added.filter(other => other.uid !== item.uid));
+                setOpen(null);
+              }}
+              // The value is picked in the row above.
+              valueField={<></>}
+              deleteText={{
+                button: __('Remove', 'aggressive-apparel'),
+                confirm: __(
+                  'Remove this new spec? It hasn’t been saved yet.',
+                  'aggressive-apparel'
+                ),
+              }}
+            />
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <section className='aa-ps-guide__section'>
@@ -83,12 +251,12 @@ export default function GuideSpecs({
           <h2>{__('Specs', 'aggressive-apparel')}</h2>
           <p className='aa-ps-help'>
             {__(
-              'The specs from the Specs tab, with this guide’s values. Products using this guide show them, unless a product has its own value. Switch one off to leave it off this guide’s products.',
+              'Every spec that’s on, with this guide’s values. Products using this guide show them, unless a product has its own value.',
               'aggressive-apparel'
             )}
           </p>
         </div>
-        <Button variant='secondary' onClick={onManage}>
+        <Button variant='tertiary' onClick={onManage}>
           {__('Manage specs', 'aggressive-apparel')}
         </Button>
       </div>
@@ -108,50 +276,16 @@ export default function GuideSpecs({
 
       <div className='aa-ps-guide__chart'>
         <div className='aa-ps-spec-rows'>
-          {specs.length === 0 && (
-            <p className='aa-ps-help'>
-              {__(
-                'No specs are on yet. Add or turn them on in the Specs tab.',
-                'aggressive-apparel'
-              )}
-            </p>
-          )}
-          {specs.map(item => {
-            const on = !hidden.includes(item.key);
-            return (
-              <div
-                key={item.key}
-                className={cx('aa-ps-spec-row', 'has-switch', !on && 'is-off')}
-              >
-                <div className='aa-ps-spec-row__name'>
-                  <span className='aa-ps-spec-row__title'>{item.name}</span>
-                </div>
-                <div className='aa-ps-spec-row__value'>
-                  <ValuePicker
-                    item={item}
-                    value={values[item.key] ?? ''}
-                    label={item.name}
-                    inherited={describe(item, item.default)}
-                    onChange={value =>
-                      onValues({ ...values, [item.key]: value })
-                    }
-                  />
-                </div>
-                <OnOff
-                  checked={on}
-                  label={sprintf(
-                    /* translators: %s: spec name. */
-                    __(
-                      'Show %s on this guide’s products',
-                      'aggressive-apparel'
-                    ),
-                    item.name
-                  )}
-                  onChange={show => toggle(item.key, show)}
-                />
-              </div>
-            );
-          })}
+          {specs.map(item => row(item, false))}
+          {added.map(item => row(item, true))}
+          <div className='aa-ps-add'>
+            <AddSpecButton
+              existing={all}
+              disabled={full}
+              onAdd={add}
+              variant='secondary'
+            />
+          </div>
         </div>
 
         <GuidePreview items={shown} values={values} />

@@ -183,6 +183,30 @@
 	align-items: center;
 }
 
+.aa-ps-spec-row__actions {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+/* What a type change does to existing values (_TypeChange). */
+.aa-ps-type-change ul {
+	display: grid;
+	grid-template-columns: max-content auto 1fr;
+	gap: 2px 8px;
+	margin: 4px 0 8px;
+	font-size: 12px;
+}
+
+.aa-ps-type-change li {
+	display: contents;
+}
+
+.aa-ps-type-change .is-lost {
+	color: var(--aa-ps-muted);
+	font-style: italic;
+}
+
 .aa-ps-spec-row.is-off .aa-ps-spec-row__title,
 .aa-ps-spec-row.is-off .aa-ps-spec-row__value {
 	opacity: 0.55;

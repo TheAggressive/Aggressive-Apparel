@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Size guide spec values and value normalization.
  *
  * @phpstan-import-type Item from Product_Specs_Registry
- * @phpstan-type GuideSpecs array{values: array<string, string>, hidden: list<string>}
+ * @phpstan-type GuideSpecs array{values: array<string, string>, hidden: list<string>, wording: array<string, array<string, string>>}
  */
 final class Product_Specs_Values {
 
@@ -44,6 +44,14 @@ final class Product_Specs_Values {
 	 * @var string
 	 */
 	public const GUIDE_HIDDEN = '_aa_guide_hidden';
+
+	/**
+	 * Guide meta: wording for this guide's products only, item key => field =>
+	 * text (the same shape as a product's own, Product_Specs::sanitize_wording).
+	 *
+	 * @var string
+	 */
+	public const GUIDE_WORDING = '_aa_guide_wording';
 
 	/**
 	 * Store a guide's submitted values. Items missing from $values are left
@@ -94,6 +102,21 @@ final class Product_Specs_Values {
 	}
 
 	/**
+	 * Store a guide's wording; empty fields fall back to the spec's own.
+	 *
+	 * @param int   $guide_id Size guide ID.
+	 * @param mixed $raw      Item key => field => text.
+	 */
+	public static function save_wording( int $guide_id, $raw ): void {
+		$wording = Product_Specs::sanitize_wording( $raw );
+		if ( array() === $wording ) {
+			delete_post_meta( $guide_id, self::GUIDE_WORDING );
+		} else {
+			update_post_meta( $guide_id, self::GUIDE_WORDING, $wording );
+		}
+	}
+
+	/**
 	 * Whether a guide sets anything for its products' specs: a value, or a
 	 * store-wide spec hidden. A guide with neither and no chart is empty
 	 * (still being built), so products keep their category or store guide.
@@ -122,8 +145,9 @@ final class Product_Specs_Values {
 		}
 
 		return array(
-			'values' => $values,
-			'hidden' => Product_Specs_Meta::sanitize_keys( get_post_meta( $guide_id, self::GUIDE_HIDDEN, true ) ),
+			'values'  => $values,
+			'hidden'  => Product_Specs_Meta::sanitize_keys( get_post_meta( $guide_id, self::GUIDE_HIDDEN, true ) ),
+			'wording' => Product_Specs::sanitize_wording( get_post_meta( $guide_id, self::GUIDE_WORDING, true ) ),
 		);
 	}
 

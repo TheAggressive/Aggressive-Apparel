@@ -93,6 +93,8 @@ export type GuideDetail = {
   specs: Record<string, string>;
   /** Store-wide specs hidden on this guide's products. */
   hidden: string[];
+  /** Wording for this guide's products only: item key => field => text. */
+  wording: Record<string, Record<string, string>>;
   /** Where the guide was imported from, if anywhere. */
   source: { provider: string; id: number; title: string } | null;
   categories: number[];

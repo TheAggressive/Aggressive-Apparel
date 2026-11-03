@@ -35,6 +35,7 @@ import ChartPreview from './_ChartPreview';
 import GuideSpecs from './_GuideSpecs';
 import saveRegistry from './_saveRegistry';
 import { toStored } from './_utils';
+import { readWording } from './_wording';
 import ApplyToProducts from './_ApplyToProducts';
 
 type Attachment = {
@@ -88,6 +89,7 @@ function blank(): GuideDetail {
     diagram: null,
     specs: {},
     hidden: [],
+    wording: {},
     source: null,
     categories: [],
     isDefault: false,
@@ -139,7 +141,10 @@ export default function GuideEditor({
       return;
     }
     apiFetch({ path: `${config.guidesPath}/${guideId}` })
-      .then(result => setGuide(result as GuideDetail))
+      .then(result => {
+        const detail = result as GuideDetail;
+        setGuide({ ...detail, wording: readWording(detail.wording) });
+      })
       .catch((failure: { message?: string }) =>
         setError(
           failure.message ??
@@ -217,13 +222,14 @@ export default function GuideEditor({
           diagram: guide.diagram?.id ?? 0,
           specs: guide.specs,
           hidden: guide.hidden,
+          wording: guide.wording,
           ...(added.length > 0 && { specItems: added.map(toStored) }),
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
       })) as GuideDetail & { registry?: Registry };
       const { registry: saved, ...detail } = result;
-      setGuide(detail);
+      setGuide({ ...detail, wording: readWording(detail.wording) });
       setAdded([]);
       if (saved) {
         onRegistry(saved);
@@ -576,6 +582,8 @@ export default function GuideEditor({
           guide.chart.rows.some(row => row.size.trim() !== '')
         }
         hidden={guide.hidden}
+        wording={guide.wording}
+        onWording={wording => update({ wording })}
         onValues={specs => update({ specs })}
         onHidden={hidden => update({ hidden })}
         onEdit={editSpec}

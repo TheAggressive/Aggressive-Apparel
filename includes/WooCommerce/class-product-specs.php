@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phpstan-import-type Item from Product_Specs_Registry
  * @phpstan-type Wording array<string, array<string, string>>
- * @phpstan-type GuideValues array{values: array<string, string>, hidden: list<string>, label: string}
+ * @phpstan-type GuideValues array{values: array<string, string>, hidden: list<string>, wording: Wording, label: string}
  * @phpstan-type Value array{step: int, number: float, text: string, source: string, label: string}
  * @phpstan-type ResolvedItem array{key: string, type: string, title: string, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, step: int, number: float, text: string, display: string, advice: string, source: string, label: string, own: string, inherited: Value, hidden: bool, in_table: bool, attribute_visible: bool, taxonomy: string, multiple: bool, links: list<array{name: string, url: string}>}
  * @phpstan-type Resolved array{items: list<ResolvedItem>}
@@ -186,7 +186,8 @@ final class Product_Specs {
 
 		// Nearest category first: a product's own categories, then ancestors.
 		$category_order = array_values( array_unique( $scope_ids ) );
-		$wording        = self::sanitize_wording( get_post_meta( $product_id, Product_Specs_Meta::WORDING, true ) );
+		// A product's own wording wins over its guide's, which wins over the spec's.
+		$wording = array_replace_recursive( $guide['wording'], self::sanitize_wording( get_post_meta( $product_id, Product_Specs_Meta::WORDING, true ) ) );
 
 		$resolved = array();
 		foreach ( $items as $item ) {
@@ -206,9 +207,10 @@ final class Product_Specs {
 	private static function guide_values( int $guide_id ): array {
 		if ( $guide_id <= 0 ) {
 			return array(
-				'values' => array(),
-				'hidden' => array(),
-				'label'  => '',
+				'values'  => array(),
+				'hidden'  => array(),
+				'wording' => array(),
+				'label'   => '',
 			);
 		}
 

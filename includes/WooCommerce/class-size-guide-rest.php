@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
  * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, source: array{provider: string, id: int, title: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, wording: array<string, array<string, string>>, source: array{provider: string, id: int, title: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -317,6 +317,7 @@ final class Size_Guide_Rest {
 				'diagram' => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
 				'specs'   => $source['specs'],
 				'hidden'  => $source['hidden'],
+				'wording' => $source['wording'],
 			)
 		);
 
@@ -399,6 +400,7 @@ final class Size_Guide_Rest {
 			) : null,
 			'specs'         => $specs['values'],
 			'hidden'        => $specs['hidden'],
+			'wording'       => $specs['wording'],
 			'source'        => Printful_Import::source( $id ),
 			'categories'    => Size_Guide_Assignments::categories( $id ),
 			'isDefault'     => Size_Guide_Assignments::is_default( $id ),
@@ -523,6 +525,9 @@ final class Size_Guide_Rest {
 			Product_Specs_Values::save_guide( $id, $data['specs'] );
 		}
 
+		if ( array_key_exists( 'wording', $data ) ) {
+			Product_Specs_Values::save_wording( $id, $data['wording'] );
+		}
 		if ( array_key_exists( 'hidden', $data ) ) {
 			Product_Specs_Values::save_hidden( $id, $data['hidden'] );
 		}

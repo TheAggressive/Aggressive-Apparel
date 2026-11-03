@@ -172,6 +172,54 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		$this->assertSame( $before, Product_Specs_Registry::get()['items'], 'The specs are left as they were.' );
 	}
 
+	/** Wording set on a guide shows on its products only; a product's own wins. */
+	public function test_guide_wording_shows_on_its_products(): void {
+		$tee_guide = $this->guide( 'Jersey Tee' );
+		$hat_guide = $this->guide( 'Dad Hat' );
+		$response  = ( new Size_Guide_Rest() )->update(
+			$this->request(
+				$tee_guide,
+				array(
+					'specs'   => array( 'fit' => '1' ),
+					'wording' => array(
+						'fit' => array(
+							'title' => 'Tee fit',
+							'step1' => 'Trim',
+						),
+					),
+				)
+			)
+		);
+		$this->assertSame( array( 'fit' => array( 'title' => 'Tee fit', 'step1' => 'Trim' ) ), $response->get_data()['wording'] );
+
+		$tee = $this->product( $tee_guide );
+		$fit = array_column( Product_Specs::for_product( $tee )['items'], null, 'key' )['fit'];
+		$this->assertSame( 'Tee fit', $fit['title'] );
+		$this->assertSame( 'Trim', $fit['steps'][1] );
+
+		$hat = array_column( Product_Specs::for_product( $this->product( $hat_guide ) )['items'], null, 'key' )['fit'];
+		$this->assertSame( 'Fit', $hat['title'], 'Another guide keeps the spec’s own wording.' );
+
+		update_post_meta( $tee, \Aggressive_Apparel\WooCommerce\Product_Specs_Meta::WORDING, array( 'fit' => array( 'title' => 'This tee’s fit' ) ) );
+		Product_Specs::flush();
+		$fit = array_column( Product_Specs::for_product( $tee )['items'], null, 'key' )['fit'];
+		$this->assertSame( 'This tee’s fit', $fit['title'], 'A product’s own wording wins.' );
+		$this->assertSame( 'Trim', $fit['steps'][1], 'Fields it leaves out still come from the guide.' );
+	}
+
+	/** Clearing a guide's wording goes back to the spec's; a copy keeps it. */
+	public function test_guide_wording_clears_and_copies(): void {
+		$guide = $this->guide( 'Jersey Tee' );
+		$rest  = new Size_Guide_Rest();
+		$rest->update( $this->request( $guide, array( 'wording' => array( 'fit' => array( 'title' => 'Tee fit' ) ) ) ) );
+
+		$copy = $rest->duplicate( $this->request( $guide ) )->get_data();
+		$this->assertSame( array( 'fit' => array( 'title' => 'Tee fit' ) ), $copy['wording'] );
+
+		$rest->update( $this->request( $guide, array( 'wording' => array( 'fit' => array( 'title' => '' ) ) ) ) );
+		$this->assertSame( '', get_post_meta( $guide, \Aggressive_Apparel\WooCommerce\Product_Specs_Values::GUIDE_WORDING, true ) );
+	}
+
 	/**
 	 * A text spec item.
 	 *

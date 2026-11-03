@@ -3,8 +3,9 @@
  *
  * The Specs tab's list, as this guide sees it: every spec that's on, in the
  * same order, each with this guide's value and a switch for whether this
- * guide's products show it. The Specs tab's own spec card and Add spec menu
- * work here too: a spec edited here changes for every guide, and one added
+ * guide's products show it. Edit rewords a spec for just this guide (_wording)
+ * or, chosen deliberately, opens the Specs tab's own spec card to change it for
+ * every guide. The Specs tab's Add spec menu works here too, and a spec added
  * here joins the store's specs. All of it saves with the guide.
  *
  * Every spec is a WooCommerce attribute and every value one of its terms
@@ -20,7 +21,7 @@
 
 import { useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
-import { Button, Notice } from '@wordpress/components';
+import { Button, Notice, TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, SpecItem } from './_types';
@@ -30,6 +31,7 @@ import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
 import OnOff from './_OnOff';
 import ValuePicker from './_ValuePicker';
+import { setWording, worded, type Wording } from './_wording';
 
 type Props = {
   config: Config;
@@ -44,6 +46,9 @@ type Props = {
   values: Record<string, string>;
   /** Specs hidden on this guide's products. */
   hidden: string[];
+  /** Wording for this guide's products only. */
+  wording: Wording;
+  onWording: (wording: Wording) => void;
   /** Whether the guide shows a Size Guide button (a chart or old content). */
   hasChart: boolean;
   onValues: (values: Record<string, string>) => void;
@@ -78,6 +83,8 @@ export default function GuideSpecs({
   added,
   values,
   hidden,
+  wording,
+  onWording,
   hasChart,
   onValues,
   onHidden,
@@ -88,12 +95,16 @@ export default function GuideSpecs({
 }: Props) {
   // The spec whose card is open, by key (saved) or uid (added here).
   const [open, setOpen] = useState<string | null>(null);
+  // Edits are for this guide only unless every guide is chosen, per spec.
+  const [everyGuide, setEveryGuide] = useState<string[]>([]);
 
   const specs: DraftItem[] = items
     .filter(item => item.enabled)
     .map(item => edits[item.key] ?? toDraft(item));
   const all = [...specs, ...added];
-  const shown = all.filter(item => item.enabled && !hidden.includes(item.key));
+  const shown = all
+    .filter(item => item.enabled && !hidden.includes(item.key))
+    .map(item => worded(item, wording));
   // Mirrors Product_Specs_Values::guide_has_specs: any value, or a hidden spec.
   const hasSpecs =
     Object.values(values).some(value => value !== '') || hidden.length > 0;
@@ -143,24 +154,32 @@ export default function GuideSpecs({
     const id = isNew ? item.uid : item.key;
     const isOpen = open === id;
     const on = !hidden.includes(item.key);
+    const here = worded(item, wording);
+    const reworded = !isNew && Boolean(wording[item.key]);
+    const forEvery = isNew || everyGuide.includes(item.key);
     return (
       <div key={id} className={cx(isOpen && 'is-editing')}>
         <div className={cx('aa-ps-spec-row', 'has-switch', !on && 'is-off')}>
           <div className='aa-ps-spec-row__name'>
             <span className='aa-ps-spec-row__title'>
-              {item.name || __('Untitled spec', 'aggressive-apparel')}
+              {here.name || __('Untitled spec', 'aggressive-apparel')}
             </span>
             {isNew && (
               <span className='aa-ps-spec-row__note'>
                 {__('New: saved with the guide', 'aggressive-apparel')}
               </span>
             )}
+            {reworded && (
+              <span className='aa-ps-spec-row__note'>
+                {__('Reworded for this guide', 'aggressive-apparel')}
+              </span>
+            )}
           </div>
           <div className='aa-ps-spec-row__value'>
             <ValuePicker
-              item={item}
+              item={here}
               value={values[item.key] ?? ''}
-              label={item.name}
+              label={here.name}
               inherited={describe(item, item.default)}
               onChange={value => onValues({ ...values, [item.key]: value })}
             />
@@ -201,6 +220,70 @@ export default function GuideSpecs({
         {isOpen && (
           <>
             {!isNew && (
+              <div
+                className='aa-ps-edit-scope'
+                role='group'
+                aria-label={__('Change it for', 'aggressive-apparel')}
+              >
+                <Button
+                  variant={forEvery ? 'secondary' : 'primary'}
+                  aria-pressed={!forEvery}
+                  onClick={() =>
+                    setEveryGuide(everyGuide.filter(key => key !== item.key))
+                  }
+                >
+                  {__('Just this guide', 'aggressive-apparel')}
+                </Button>
+                <Button
+                  variant={forEvery ? 'primary' : 'secondary'}
+                  aria-pressed={forEvery}
+                  onClick={() => setEveryGuide([...everyGuide, item.key])}
+                >
+                  {__('Every guide', 'aggressive-apparel')}
+                </Button>
+              </div>
+            )}
+            {!forEvery && (
+              <div className='aa-ps-guide-wording'>
+                <p className='aa-ps-help'>
+                  {__(
+                    'Reword it for this guide’s products. Blank fields keep the spec’s own wording, shown greyed out.',
+                    'aggressive-apparel'
+                  )}
+                </p>
+                <TextControl
+                  label={__('Name', 'aggressive-apparel')}
+                  value={wording[item.key]?.title ?? ''}
+                  placeholder={item.name}
+                  onChange={text =>
+                    onWording(setWording(wording, item.key, 'title', text))
+                  }
+                  __next40pxDefaultSize
+                  __nextHasNoMarginBottom
+                />
+                {item.type !== 'text' &&
+                  item.steps.map((step, i) => (
+                    <TextControl
+                      key={i}
+                      label={sprintf(
+                        /* translators: %d: step number. */
+                        __('Step %d', 'aggressive-apparel'),
+                        i + 1
+                      )}
+                      value={wording[item.key]?.[`step${i}`] ?? ''}
+                      placeholder={step}
+                      onChange={text =>
+                        onWording(
+                          setWording(wording, item.key, `step${i}`, text)
+                        )
+                      }
+                      __next40pxDefaultSize
+                      __nextHasNoMarginBottom
+                    />
+                  ))}
+              </div>
+            )}
+            {forEvery && !isNew && (
               <p className='aa-ps-help aa-ps-help--notice'>
                 {__(
                   'Changes to this spec apply to every guide, and save with this one.',
@@ -208,36 +291,40 @@ export default function GuideSpecs({
                 )}
               </p>
             )}
-            <ItemCard
-              item={item}
-              index={0}
-              total={1}
-              categories={config.categories}
-              attributeNames={config.attributes}
-              limits={config.limits}
-              taxonomies={freeTaxonomies(item)}
-              open
-              movable={false}
-              deletable={isNew}
-              onToggle={() => setOpen(null)}
-              onChange={patch =>
-                isNew ? updateAdded(item, patch) : onEdit({ ...item, ...patch })
-              }
-              onMove={() => undefined}
-              onDelete={() => {
-                onAdded(added.filter(other => other.uid !== item.uid));
-                setOpen(null);
-              }}
-              // The value is picked in the row above.
-              valueField={<></>}
-              deleteText={{
-                button: __('Remove', 'aggressive-apparel'),
-                confirm: __(
-                  'Remove this new spec? It hasn’t been saved yet.',
-                  'aggressive-apparel'
-                ),
-              }}
-            />
+            {forEvery && (
+              <ItemCard
+                item={item}
+                index={0}
+                total={1}
+                categories={config.categories}
+                attributeNames={config.attributes}
+                limits={config.limits}
+                taxonomies={freeTaxonomies(item)}
+                open
+                movable={false}
+                deletable={isNew}
+                onToggle={() => setOpen(null)}
+                onChange={patch =>
+                  isNew
+                    ? updateAdded(item, patch)
+                    : onEdit({ ...item, ...patch })
+                }
+                onMove={() => undefined}
+                onDelete={() => {
+                  onAdded(added.filter(other => other.uid !== item.uid));
+                  setOpen(null);
+                }}
+                // The value is picked in the row above.
+                valueField={<></>}
+                deleteText={{
+                  button: __('Remove', 'aggressive-apparel'),
+                  confirm: __(
+                    'Remove this new spec? It hasn’t been saved yet.',
+                    'aggressive-apparel'
+                  ),
+                }}
+              />
+            )}
           </>
         )}
       </div>

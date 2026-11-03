@@ -189,6 +189,26 @@
 	align-items: center;
 }
 
+/* Who an edit is for, and the wording for just this guide. */
+.aa-ps-edit-scope {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 4px 0 8px;
+}
+
+.aa-ps-guide-wording {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 8px 12px;
+	margin-bottom: 12px;
+}
+
+.aa-ps-guide-wording .aa-ps-help {
+	grid-column: 1 / -1;
+	margin: 0;
+}
+
 /* What a type change does to existing values (_TypeChange). */
 .aa-ps-type-change ul {
 	display: grid;

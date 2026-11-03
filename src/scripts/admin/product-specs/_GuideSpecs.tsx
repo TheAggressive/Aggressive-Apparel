@@ -218,40 +218,65 @@ export default function GuideSpecs({
           </div>
         </div>
         {isOpen && (
-          <>
-            {!isNew && (
-              <div
-                className='aa-ps-edit-scope'
-                role='group'
-                aria-label={__('Change it for', 'aggressive-apparel')}
-              >
-                <Button
-                  variant={forEvery ? 'secondary' : 'primary'}
-                  aria-pressed={!forEvery}
-                  onClick={() =>
-                    setEveryGuide(everyGuide.filter(key => key !== item.key))
-                  }
-                >
-                  {__('Just this guide', 'aggressive-apparel')}
-                </Button>
-                <Button
-                  variant={forEvery ? 'primary' : 'secondary'}
-                  aria-pressed={forEvery}
-                  onClick={() => setEveryGuide([...everyGuide, item.key])}
-                >
-                  {__('Every guide', 'aggressive-apparel')}
-                </Button>
-              </div>
+          <div
+            className='aa-ps-edit-panel'
+            role='region'
+            aria-label={sprintf(
+              /* translators: %s: spec name. */
+              __('Edit %s', 'aggressive-apparel'),
+              here.name || __('spec', 'aggressive-apparel')
             )}
+          >
+            <div className='aa-ps-edit-panel__head'>
+              <h3 className='aa-ps-edit-panel__title'>
+                {isNew
+                  ? __('New spec', 'aggressive-apparel')
+                  : sprintf(
+                      /* translators: %s: spec name. */
+                      __('Edit %s', 'aggressive-apparel'),
+                      item.name
+                    )}
+              </h3>
+              {!isNew && (
+                <OnOff
+                  checked={forEvery}
+                  label={__('Change it for every guide', 'aggressive-apparel')}
+                  // One fixed label: the help line below says which it is.
+                  onText={__('Change for every guide', 'aggressive-apparel')}
+                  offText={__('Change for every guide', 'aggressive-apparel')}
+                  onChange={every =>
+                    setEveryGuide(
+                      every
+                        ? [...everyGuide, item.key]
+                        : everyGuide.filter(key => key !== item.key)
+                    )
+                  }
+                />
+              )}
+            </div>
+            <p className='aa-ps-help'>
+              {isNew &&
+                __(
+                  'A new spec is added for every guide, switched on here. It saves with this guide.',
+                  'aggressive-apparel'
+                )}
+              {!isNew &&
+                !forEvery &&
+                __(
+                  'Reword it for this guide’s products only. Blank fields keep the spec’s own wording, shown greyed out.',
+                  'aggressive-apparel'
+                )}
+              {!isNew &&
+                forEvery &&
+                __(
+                  'Changes here apply to every guide and the Specs tab, and save with this guide.',
+                  'aggressive-apparel'
+                )}
+            </p>
             {!forEvery && (
               <div className='aa-ps-guide-wording'>
-                <p className='aa-ps-help'>
-                  {__(
-                    'Reword it for this guide’s products. Blank fields keep the spec’s own wording, shown greyed out.',
-                    'aggressive-apparel'
-                  )}
-                </p>
                 <TextControl
+                  className='aa-ps-guide-wording__name'
                   label={__('Name', 'aggressive-apparel')}
                   value={wording[item.key]?.title ?? ''}
                   placeholder={item.name}
@@ -283,14 +308,6 @@ export default function GuideSpecs({
                   ))}
               </div>
             )}
-            {forEvery && !isNew && (
-              <p className='aa-ps-help aa-ps-help--notice'>
-                {__(
-                  'Changes to this spec apply to every guide, and save with this one.',
-                  'aggressive-apparel'
-                )}
-              </p>
-            )}
             {forEvery && (
               <ItemCard
                 item={item}
@@ -302,7 +319,7 @@ export default function GuideSpecs({
                 taxonomies={freeTaxonomies(item)}
                 open
                 movable={false}
-                deletable={isNew}
+                deletable={false}
                 onToggle={() => setOpen(null)}
                 onChange={patch =>
                   isNew
@@ -310,22 +327,29 @@ export default function GuideSpecs({
                     : onEdit({ ...item, ...patch })
                 }
                 onMove={() => undefined}
-                onDelete={() => {
-                  onAdded(added.filter(other => other.uid !== item.uid));
-                  setOpen(null);
-                }}
+                onDelete={() => undefined}
                 // The value is picked in the row above.
                 valueField={<></>}
-                deleteText={{
-                  button: __('Remove', 'aggressive-apparel'),
-                  confirm: __(
-                    'Remove this new spec? It hasn’t been saved yet.',
-                    'aggressive-apparel'
-                  ),
-                }}
               />
             )}
-          </>
+            <div className='aa-ps-edit-panel__foot'>
+              {isNew && (
+                <Button
+                  variant='tertiary'
+                  isDestructive
+                  onClick={() => {
+                    onAdded(added.filter(other => other.uid !== item.uid));
+                    setOpen(null);
+                  }}
+                >
+                  {__('Remove new spec', 'aggressive-apparel')}
+                </Button>
+              )}
+              <Button variant='secondary' onClick={() => setOpen(null)}>
+                {__('Done', 'aggressive-apparel')}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     );

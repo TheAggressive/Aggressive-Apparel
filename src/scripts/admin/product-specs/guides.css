@@ -190,23 +190,66 @@
 }
 
 /* Who an edit is for, and the wording for just this guide. */
-.aa-ps-edit-scope {
+
+/* A spec's edit panel, under its row in a guide (_GuideSpecs). */
+.aa-ps-edit-panel {
+	margin: 0 0 12px;
+	padding: 12px 16px;
+	border: 1px solid var(--aa-ps-border);
+	border-left: 3px solid var(--aa-ps-accent);
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.aa-ps-edit-panel__head {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 6px;
-	margin: 4px 0 8px;
+	gap: 8px 16px;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.aa-ps-edit-panel__title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.aa-ps-edit-panel__head + .aa-ps-help {
+	margin: 4px 0 12px;
+}
+
+.aa-ps-edit-panel__foot {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	margin-top: 12px;
+}
+
+/* The full spec, edited in place: the panel is its frame and heading. */
+.aa-ps-edit-panel .aa-ps-card {
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+}
+
+.aa-ps-edit-panel .aa-ps-card__header {
+	display: none;
+}
+
+.aa-ps-edit-panel .aa-ps-card__body {
+	padding: 0;
 }
 
 .aa-ps-guide-wording {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 	gap: 8px 12px;
-	margin-bottom: 12px;
 }
 
-.aa-ps-guide-wording .aa-ps-help {
+.aa-ps-guide-wording__name {
 	grid-column: 1 / -1;
-	margin: 0;
+	max-width: 360px;
 }
 
 /* What a type change does to existing values (_TypeChange). */

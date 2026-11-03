@@ -176,7 +176,6 @@ final class Product_Specs {
 			array_filter(
 				Product_Specs_Registry::items(),
 				static fn( array $item ): bool => Product_Specs_Registry::applies( $item, $scope_ids )
-					&& Product_Specs_Registry::on_guide( $item, $guide_id )
 					&& ! in_array( $item['key'], $guide['hidden'], true )
 			)
 		);

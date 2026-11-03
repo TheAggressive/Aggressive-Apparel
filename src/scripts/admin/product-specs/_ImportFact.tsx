@@ -111,7 +111,6 @@ export default function ImportFact({
         taxonomy,
         name: attributes[taxonomy] ?? taxonomy,
         kind: 'multiple',
-        scope: 'store',
       });
       return;
     }
@@ -274,25 +273,6 @@ export default function ImportFact({
               __nextHasNoMarginBottom
             />
           )}
-          <SelectControl
-            label={__('Shows on', 'aggressive-apparel')}
-            value={attribute.scope}
-            options={[
-              {
-                value: 'guide',
-                label: __('This guide only', 'aggressive-apparel'),
-              },
-              {
-                value: 'store',
-                label: __('Every guide', 'aggressive-apparel'),
-              },
-            ]}
-            onChange={scope =>
-              onAttribute({ scope: scope as ImportAttribute['scope'] })
-            }
-            __next40pxDefaultSize
-            __nextHasNoMarginBottom
-          />
           {(attribute.kind === 'text' || attribute.kind === 'multiple') && (
             <CheckboxControl
               label={__(

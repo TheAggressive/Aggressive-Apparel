@@ -166,8 +166,7 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 	public function test_registry_save_merges_changes_made_since(): void {
 		$this->save_defaults( array() );
 		$loaded = Product_Specs_Registry::get();
-		Size_Guide_Spec_Items::save(
-			$this->guide(),
+		Size_Guide_Spec_Items::add(
 			array(
 				array(
 					'name' => 'Closure',
@@ -193,7 +192,7 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$saved = $this->items();
 
 		$this->assertSame( 'Material', $saved['fabric']['name'] );
-		$this->assertArrayHasKey( 'closure', $saved, 'The guide’s spec survives.' );
+		$this->assertArrayHasKey( 'closure', $saved, 'The spec added since survives.' );
 	}
 
 	/** A stale editor's misaligned step terms never relabel other terms. */
@@ -314,13 +313,19 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 	/** The grid writes only specs that apply to the product. */
 	public function test_grid_ignores_specs_that_do_not_apply(): void {
 		$this->save_defaults( array() );
-		$other = $this->guide();
-		Size_Guide_Spec_Items::save(
-			$other,
+		$hats = self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'name'     => 'Hats',
+			)
+		);
+		Size_Guide_Spec_Items::add(
 			array(
 				array(
-					'name' => 'Closure',
-					'type' => 'text',
+					'name'       => 'Closure',
+					'type'       => 'text',
+					'scope'      => 'only',
+					'categories' => array( $hats ),
 				),
 			)
 		);
@@ -331,7 +336,7 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$request->set_body( (string) wp_json_encode( array( 'products' => array( $product => array( 'closure' => 'Brass' ) ) ) ) );
 		( new \Aggressive_Apparel\WooCommerce\Product_Specs_Grid() )->save_products( $request );
 
-		$this->assertArrayNotHasKey( $this->items()['closure']['taxonomy'], wc_get_product( $product )->get_attributes(), 'Another guide’s spec is not written.' );
+		$this->assertArrayNotHasKey( $this->items()['closure']['taxonomy'], wc_get_product( $product )->get_attributes(), 'A spec for another category is not written.' );
 	}
 
 	/**

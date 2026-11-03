@@ -28,8 +28,6 @@ export type SpecItem = {
   in_table: boolean;
   /** Value every product gets unless it sets its own ('' for none). */
   default: string;
-  /** Size guides that own the spec; empty for a store-wide spec. */
-  guides: number[];
   /** WooCommerce attribute holding the values ('' until first saved). */
   taxonomy: string;
   /** A picked scale's terms, one per step (kept through renames). */
@@ -215,8 +213,6 @@ export type ImportAttribute = {
   key: string;
   name: string;
   kind: 'text' | 'multiple' | 'pick' | 'number';
-  /** This guide only, or every guide. */
-  scope: 'guide' | 'store';
   archives: boolean;
   /** Comma-separated steps, for a scale. */
   steps: string;

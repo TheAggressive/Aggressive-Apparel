@@ -32,7 +32,6 @@ import ItemCard from './_ItemCard';
 import GuidesTab from './_GuidesTab';
 import ProductsTab, { type ProductEdits } from './_ProductsTab';
 import { AddSpecButton, Suggestions } from './_AddSpec';
-import { usedOn, type UsedOn } from './_placement';
 
 type SaveError = { message?: string; data?: { errors?: string[] } };
 
@@ -241,19 +240,20 @@ export default function App({ config }: { config: Config }) {
     },
   ];
 
-  // A spec changes group once saved: a card being edited doesn't jump away.
-  const groupOf = (item: DraftItem): UsedOn =>
-    usedOn(
+  // A spec turned off sits in its own group once saved, so a card being
+  // edited doesn't jump away.
+  const isOff = (item: DraftItem): boolean =>
+    !(
       item.isNew
         ? item
         : (savedItems.find(saved => saved.key === item.key) ?? item)
-    );
+    ).enabled;
 
   const specsTab = (
     <div className='aa-ps-tab'>
       <p className='aa-ps-intro'>
         {__(
-          'The specs products can show, like Fit or Fabric weight. Choose the categories each applies to, so hats, tees, and bags can show different things, and set a default every product gets.',
+          'The specs products can show, like Fit or Fabric weight. A product shows a spec when it has a value, from the product, its size guide, or the spec’s default, so a spec that’s on shows nothing where it isn’t used. Turn one off to put it away for later.',
           'aggressive-apparel'
         )}
       </p>
@@ -281,27 +281,22 @@ export default function App({ config }: { config: Config }) {
         )}
         {[
           {
-            used: 'every' as const,
-            title: __('On every guide', 'aggressive-apparel'),
+            off: false,
+            title: __('On', 'aggressive-apparel'),
             help: '',
           },
           {
-            used: 'some' as const,
-            title: __('On some guides', 'aggressive-apparel'),
-            help: '',
-          },
-          {
-            used: 'nowhere' as const,
-            title: __('Kept for later', 'aggressive-apparel'),
+            off: true,
+            title: __('Off', 'aggressive-apparel'),
             help: __(
-              'Shown nowhere, with their settings and values kept. Pick where to use one to bring it back.',
+              'Shown nowhere, with settings and values kept. Turn one on to use it again.',
               'aggressive-apparel'
             ),
           },
         ].map(group => {
           const list = items
             .map((item, index) => ({ item, index }))
-            .filter(({ item }) => groupOf(item) === group.used);
+            .filter(({ item }) => isOff(item) === group.off);
           return (
             list.length > 0 && (
               <div key={group.title} className='aa-ps-list__group'>
@@ -316,7 +311,7 @@ export default function App({ config }: { config: Config }) {
                     categories={config.categories}
                     attributeNames={config.attributes}
                     limits={config.limits}
-                    guides={guides}
+                    switchable
                     taxonomies={freeTaxonomies(item)}
                     open={open === item.uid}
                     onToggle={() =>

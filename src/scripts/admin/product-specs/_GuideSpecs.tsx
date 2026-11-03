@@ -1,12 +1,11 @@
 /**
  * Product Specs settings — a size guide's specs.
  *
- * One row per spec this guide's products show, with its value picked right
- * there: store-wide specs (defined on the Specs tab; a store-wide spec can
- * be hidden for this guide, and hidden ones fold into one line, as do ones
- * this guide doesn't use) and the guide's own specs (shown only on products
- * using it, editable in place). New specs are added in one row; a live
- * preview shows the result.
+ * Every spec is site-wide, and a guide uses one by giving it a value: a row
+ * per spec this guide uses, with its value picked right there, then the rest
+ * folded into one line (Not set here) and any it hides into another. A spec
+ * added here joins the store's specs when the guide saves, so other guides
+ * can use it too. A live preview shows the result.
  *
  * Every spec is a WooCommerce attribute and every value one of its terms
  * (Product_Specs_Taxonomy). Products using the guide show these values
@@ -22,7 +21,7 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import { Button, Notice } from '@wordpress/components';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, SpecItem } from './_types';
 import { isUsedOnGuide, newItem, specKey, splitValues } from './_utils';
@@ -36,20 +35,18 @@ type Props = {
   config: Config;
   /** Global attributes, taxonomy => label (current, not as loaded). */
   taxonomies: Record<string, string>;
-  /** Saved guide ID (0 while new). */
-  guideId: number;
-  /** Saved registry items (every spec, any guide). */
+  /** Saved registry items: the store's specs. */
   items: SpecItem[];
-  /** This guide's own specs, as edited. */
-  own: DraftItem[];
+  /** Specs added here, saved with the guide. */
+  added: DraftItem[];
   values: Record<string, string>;
-  /** Store-wide specs hidden on this guide's products. */
+  /** Specs hidden on this guide's products. */
   hidden: string[];
   /** Whether the guide shows a Size Guide button (a chart or old content). */
   hasChart: boolean;
   onValues: (values: Record<string, string>) => void;
   onHidden: (hidden: string[]) => void;
-  onOwn: (own: DraftItem[]) => void;
+  onAdded: (added: DraftItem[]) => void;
   /** Shown under the specs (Apply to products). */
   footer?: ReactNode;
 };
@@ -71,21 +68,20 @@ function describe(item: SpecItem, value: string): string {
 export default function GuideSpecs({
   config,
   taxonomies,
-  guideId,
   items,
-  own,
+  added,
   values,
   hidden,
   hasChart,
   onValues,
   onHidden,
-  onOwn,
+  onAdded,
   footer,
 }: Props) {
   const [open, setOpen] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  // Store-wide specs kept as rows while editing, so one being filled in or
-  // cleared doesn't fold away under the cursor.
+  // Specs kept as rows while editing, so one being filled in or cleared
+  // doesn't fold away under the cursor.
   const [kept, setKept] = useState<string[]>([]);
   const keep = (key: string) =>
     setKept(current => (current.includes(key) ? current : [...current, key]));
@@ -108,23 +104,24 @@ export default function GuideSpecs({
       pendingFocus.current = null;
     }
   });
-  const storeWide = items.filter(
-    item => item.enabled && item.guides.length === 0
-  );
-  const showing = storeWide.filter(item => !hidden.includes(item.key));
-  const hiddenItems = storeWide.filter(item => hidden.includes(item.key));
+
+  const specs = items.filter(item => item.enabled);
+  const showing = specs.filter(item => !hidden.includes(item.key));
+  const hiddenItems = specs.filter(item => hidden.includes(item.key));
   const used = showing.filter(
     item => kept.includes(item.key) || isUsedOnGuide(item, values)
   );
   const unused = showing.filter(item => !used.includes(item));
-  const shown = [...showing, ...own.filter(item => item.enabled)];
+  const shown = [...showing, ...added.filter(item => item.enabled)];
   // Mirrors Product_Specs_Values::guide_has_specs: any value, or a hidden spec.
   const hasSpecs =
     Object.values(values).some(value => value !== '') || hidden.length > 0;
-  // Registry size after saving: every other item plus this guide's own.
-  const total =
-    items.filter(item => !item.guides.includes(guideId)).length + own.length;
-  const full = total >= config.limits.items;
+  const full = items.length + added.length >= config.limits.items;
+  // Keys are unique across the whole store.
+  const taken = (except = '') => [
+    ...items,
+    ...added.filter(other => other.uid !== except),
+  ];
 
   const setValue = (key: string, value: string) =>
     onValues({ ...values, [key]: value });
@@ -133,29 +130,25 @@ export default function GuideSpecs({
   // key to save under (the registry fixes keys once saved).
   const update = (item: DraftItem, patch: Partial<DraftItem>) => {
     const next =
-      item.isNew && patch.name !== undefined
-        ? {
-            ...patch,
-            key: specKey(patch.name, [
-              ...items.filter(other => !other.guides.includes(guideId)),
-              ...own.filter(other => other.uid !== item.uid),
-            ]),
-          }
+      patch.name !== undefined
+        ? { ...patch, key: specKey(patch.name, taken(item.uid)) }
         : patch;
     if (next.key !== undefined && next.key !== item.key) {
       const { [item.key]: moved = '', ...rest } = values;
       onValues(moved ? { ...rest, [next.key]: moved } : rest);
     }
-    onOwn(
-      own.map(other => (other.uid === item.uid ? { ...other, ...next } : other))
+    onAdded(
+      added.map(other =>
+        other.uid === item.uid ? { ...other, ...next } : other
+      )
     );
   };
 
   const move = (index: number, direction: -1 | 1) => {
-    const next = [...own];
+    const next = [...added];
     const [item] = next.splice(index, 1);
     next.splice(index + direction, 0, item);
-    onOwn(next);
+    onAdded(next);
   };
 
   const add = (
@@ -163,11 +156,9 @@ export default function GuideSpecs({
     value = '',
     more = true
   ) => {
-    // Keys are unique across the whole registry, not just this guide.
-    const taken = [...items, ...own];
-    const item = newItem(partial, taken);
-    item.key = item.key || specKey(item.name, taken);
-    onOwn([...own, item]);
+    const item = newItem(partial, taken());
+    item.key = item.key || specKey(item.name, taken());
+    onAdded([...added, item]);
     if (value !== '') {
       setValue(item.key, value);
     }
@@ -176,12 +167,12 @@ export default function GuideSpecs({
   };
 
   // Attributes a spec can switch to: its own, and any no other spec uses.
-  const freeTaxonomies = (item: DraftItem) =>
+  const freeTaxonomies = (item?: DraftItem) =>
     Object.fromEntries(
       Object.entries(taxonomies).filter(
         ([taxonomy]) =>
-          taxonomy === item.taxonomy ||
-          ![...items, ...own].some(other => other.taxonomy === taxonomy)
+          taxonomy === item?.taxonomy ||
+          !taken().some(other => other.taxonomy === taxonomy)
       )
     );
 
@@ -236,109 +227,37 @@ export default function GuideSpecs({
 
       <div className='aa-ps-guide__chart'>
         <div className='aa-ps-spec-rows' ref={specRows}>
-          {storeWide.length > 0 && (
-            <div className='aa-ps-spec-group'>
-              <h3 className='aa-ps-spec-group__title'>
-                {__('On every guide', 'aggressive-apparel')}
-              </h3>
-              {used.map(item => (
-                <div key={item.key} data-spec={item.key}>
-                  {row(
-                    item,
-                    '',
-                    <Button
-                      icon='hidden'
-                      size='compact'
-                      label={sprintf(
-                        /* translators: %s: spec name. */
-                        __('Hide %s on this guide', 'aggressive-apparel'),
-                        item.name
-                      )}
-                      showTooltip
-                      onClick={() => onHidden([...hidden, item.key])}
-                    />
-                  )}
-                </div>
-              ))}
-              {unused.length > 0 && (
-                <p className='aa-ps-hidden-line'>
-                  <span>{__('Not set here:', 'aggressive-apparel')}</span>
-                  {unused.map(item => (
-                    <Button
-                      key={item.key}
-                      variant='secondary'
-                      size='small'
-                      icon='plus'
-                      label={sprintf(
-                        /* translators: %s: spec name. */
-                        __('Set %s on this guide', 'aggressive-apparel'),
-                        item.name
-                      )}
-                      onClick={() => reveal(item.key)}
-                    >
-                      {item.name}
-                    </Button>
-                  ))}
-                </p>
-              )}
-              {hiddenItems.length > 0 && (
-                <p className='aa-ps-hidden-line'>
-                  <span>{__('Hidden here:', 'aggressive-apparel')}</span>
-                  {hiddenItems.map(item => (
-                    <Button
-                      key={item.key}
-                      variant='secondary'
-                      size='small'
-                      icon='visibility'
-                      label={sprintf(
-                        /* translators: %s: spec name. */
-                        __('Show %s on this guide', 'aggressive-apparel'),
-                        item.name
-                      )}
-                      onClick={() => {
-                        reveal(item.key);
-                        onHidden(hidden.filter(key => key !== item.key));
-                      }}
-                    >
-                      {item.name}
-                    </Button>
-                  ))}
-                </p>
-              )}
-            </div>
-          )}
-
           <div className='aa-ps-spec-group'>
-            <h3 className='aa-ps-spec-group__title'>
-              {__('This guide', 'aggressive-apparel')}
-            </h3>
-            {own.length === 0 && !adding && (
-              <p className='aa-ps-help'>
-                {__(
-                  'Specs only this garment has, like Closure or Stretch. They show only on products using this guide.',
-                  'aggressive-apparel'
+            {used.map(item => (
+              <div key={item.key} data-spec={item.key}>
+                {row(
+                  item,
+                  '',
+                  <Button
+                    icon='hidden'
+                    size='compact'
+                    label={sprintf(
+                      /* translators: %s: spec name. */
+                      __('Hide %s on this guide', 'aggressive-apparel'),
+                      item.name
+                    )}
+                    showTooltip
+                    onClick={() => onHidden([...hidden, item.key])}
+                  />
                 )}
-              </p>
-            )}
-            {own.map((item, index) => {
-              const others = item.guides.filter(id => id !== guideId).length;
+              </div>
+            ))}
+
+            {added.map((item, index) => {
               const isOpen = open === item.uid;
               return (
                 <div key={item.uid} className={cx(isOpen && 'is-editing')}>
                   {row(
                     item,
-                    others > 0
-                      ? sprintf(
-                          /* translators: %d: number of other size guides. */
-                          _n(
-                            'Shared with %d other guide',
-                            'Shared with %d other guides',
-                            others,
-                            'aggressive-apparel'
-                          ),
-                          others
-                        )
-                      : '',
+                    __(
+                      'New: saved with the guide, for any guide to use',
+                      'aggressive-apparel'
+                    ),
                     <Button
                       icon='edit'
                       size='compact'
@@ -357,7 +276,7 @@ export default function GuideSpecs({
                     <ItemCard
                       item={item}
                       index={index}
-                      total={own.length}
+                      total={added.length}
                       categories={config.categories}
                       attributeNames={config.attributes}
                       limits={config.limits}
@@ -367,47 +286,73 @@ export default function GuideSpecs({
                       onChange={patch => update(item, patch)}
                       onMove={direction => move(index, direction)}
                       onDelete={() => {
-                        onOwn(own.filter(other => other.uid !== item.uid));
+                        onAdded(added.filter(other => other.uid !== item.uid));
                         setOpen(null);
                       }}
                       // The value is picked in the row above.
                       valueField={<></>}
-                      deleteText={
-                        others > 0
-                          ? {
-                              button: __(
-                                'Remove from this guide',
-                                'aggressive-apparel'
-                              ),
-                              confirm: __(
-                                'Remove from this guide? The other guides sharing it keep it.',
-                                'aggressive-apparel'
-                              ),
-                            }
-                          : {
-                              button: __('Delete spec', 'aggressive-apparel'),
-                              confirm: __(
-                                'Delete this spec? Its WooCommerce attribute and the values on products stay.',
-                                'aggressive-apparel'
-                              ),
-                            }
-                      }
+                      deleteText={{
+                        button: __('Remove', 'aggressive-apparel'),
+                        confirm: __(
+                          'Remove this new spec? It hasn’t been saved yet.',
+                          'aggressive-apparel'
+                        ),
+                      }}
                     />
                   )}
                 </div>
               );
             })}
 
+            {unused.length > 0 && (
+              <p className='aa-ps-hidden-line'>
+                <span>{__('Not set here:', 'aggressive-apparel')}</span>
+                {unused.map(item => (
+                  <Button
+                    key={item.key}
+                    variant='secondary'
+                    size='small'
+                    icon='plus'
+                    label={sprintf(
+                      /* translators: %s: spec name. */
+                      __('Set %s on this guide', 'aggressive-apparel'),
+                      item.name
+                    )}
+                    onClick={() => reveal(item.key)}
+                  >
+                    {item.name}
+                  </Button>
+                ))}
+              </p>
+            )}
+            {hiddenItems.length > 0 && (
+              <p className='aa-ps-hidden-line'>
+                <span>{__('Hidden here:', 'aggressive-apparel')}</span>
+                {hiddenItems.map(item => (
+                  <Button
+                    key={item.key}
+                    variant='secondary'
+                    size='small'
+                    icon='visibility'
+                    label={sprintf(
+                      /* translators: %s: spec name. */
+                      __('Show %s on this guide', 'aggressive-apparel'),
+                      item.name
+                    )}
+                    onClick={() => {
+                      reveal(item.key);
+                      onHidden(hidden.filter(key => key !== item.key));
+                    }}
+                  >
+                    {item.name}
+                  </Button>
+                ))}
+              </p>
+            )}
+
             {adding ? (
               <QuickAdd
-                taxonomies={Object.fromEntries(
-                  Object.entries(taxonomies).filter(
-                    ([taxonomy]) =>
-                      ![...items, ...own].some(
-                        other => other.taxonomy === taxonomy
-                      )
-                  )
-                )}
+                taxonomies={freeTaxonomies()}
                 attributePath={`${config.restPath}/attribute`}
                 onAdd={add}
                 onCancel={() => setAdding(false)}
@@ -423,7 +368,7 @@ export default function GuideSpecs({
                   {__('Add a spec', 'aggressive-apparel')}
                 </Button>
                 <AddSpecButton
-                  existing={shown}
+                  existing={[...items, ...added]}
                   disabled={full}
                   onAdd={partial => add(partial)}
                   label={__('From a preset…', 'aggressive-apparel')}

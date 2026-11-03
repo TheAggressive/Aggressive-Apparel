@@ -750,19 +750,12 @@
 	}
 }
 
-/* Where a spec is used: changeable from the header without opening the card. */
-.aa-ps-card__used-on {
-	min-width: 9.5rem;
-}
-
-.aa-ps-used-on {
+/* On or off from the header, without opening the card. */
+.aa-ps-card__switch {
 	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.aa-ps-used-on__choices {
-	display: flex;
-	flex-wrap: wrap;
 	gap: 6px;
+	align-items: center;
+	min-width: 4.5rem;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
 }

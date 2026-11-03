@@ -319,7 +319,6 @@ final class Size_Guide_Rest {
 				'hidden'  => $source['hidden'],
 			)
 		);
-		Size_Guide_Spec_Items::share( $source['id'], $id );
 
 		return rest_ensure_response( self::saved( $id ) );
 	}
@@ -420,7 +419,7 @@ final class Size_Guide_Rest {
 	}
 
 	/**
-	 * Save the guide's own spec items when submitted.
+	 * Add the specs made while editing or importing the guide, when submitted.
 	 *
 	 * A spec whose key had to change (taken since the editor loaded) has
 	 * its value and import rules moved to the saved key, so neither is lost.
@@ -430,16 +429,20 @@ final class Size_Guide_Rest {
 	 * @return \WP_Error|null Null when saved or not submitted.
 	 */
 	private static function save_spec_items( int $id, array &$data ): ?\WP_Error {
-		$owned = isset( $data['specItems'] ) && is_array( $data['specItems'] ) ? $data['specItems'] : null;
-		$store = isset( $data['storeSpecItems'] ) && is_array( $data['storeSpecItems'] ) ? $data['storeSpecItems'] : array();
-		if ( null === $owned && array() === $store ) {
+		unset( $id );
+		// storeSpecItems is what imports sent when specs could belong to a guide.
+		$added = array();
+		foreach ( array( 'specItems', 'storeSpecItems' ) as $field ) {
+			if ( isset( $data[ $field ] ) && is_array( $data[ $field ] ) ) {
+				$added = array_merge( $added, array_values( $data[ $field ] ) );
+			}
+		}
+		if ( array() === $added ) {
 			return null;
 		}
 
-		// Without specItems the guide's own specs stay as they are.
-		$keep    = array_values( array_filter( Product_Specs_Registry::get()['items'], static fn( array $item ): bool => in_array( $id, $item['guides'], true ) ) );
 		$renamed = array();
-		$errors  = Size_Guide_Spec_Items::save( $id, $owned ?? $keep, $store, $renamed );
+		$errors  = Size_Guide_Spec_Items::add( $added, $renamed );
 		if ( array() === $errors ) {
 			self::rekey( $data, $renamed );
 			return null;

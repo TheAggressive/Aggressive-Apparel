@@ -88,7 +88,6 @@ export function blankItem(type: ItemType, steps: string[]): DraftItem {
     in_table: true,
     default: '',
     default_term: 0,
-    guides: [],
     taxonomy: '',
     step_terms: [],
     multiple: false,

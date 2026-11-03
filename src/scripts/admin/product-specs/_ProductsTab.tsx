@@ -64,13 +64,7 @@ export default function ProductsTab({
   } | null>(null);
   const [reload, setReload] = useState(0);
 
-  // A size guide's own spec gets a column only when a product on this page
-  // uses that guide, so guide specs never crowd the grid.
-  const pageGuides = new Set((data?.products ?? []).map(row => row.guide));
-  const specs = enabled.filter(
-    item =>
-      item.guides.length === 0 || item.guides.some(id => pageGuides.has(id))
-  );
+  const specs = enabled;
 
   // Debounce typing into the search box.
   useEffect(() => {

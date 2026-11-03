@@ -1,9 +1,9 @@
 /**
  * Product Specs settings — one spec item card.
  *
- * Collapsed, the card summarizes the spec and says where it's used, which can
- * be changed right there; open, it edits it in sections (basics, where it's
- * used, steps, labels, advice, source, categories) above a live preview.
+ * Collapsed, the card summarizes the spec, and on the Specs tab it turns on or
+ * off right there; open, it edits it in sections (basics, steps, labels,
+ * advice, source, categories) above a live preview.
  *
  * @package Aggressive_Apparel
  */
@@ -13,27 +13,20 @@ import type { ReactNode } from 'react';
 import {
   Button,
   CheckboxControl,
+  FormToggle,
   SelectControl,
   TextControl,
   ToggleControl,
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { Category, DraftItem, GuideSummary, Scope } from './_types';
+import type { Category, DraftItem, Scope } from './_types';
 import { edgeLabels } from './_utils';
 import Preview from './_Preview';
 import ValuePicker from './_ValuePicker';
 import AttributeSettings from './_AttributeSettings';
 import CategorySteps from './_CategorySteps';
 import StepsEditor from './_StepsEditor';
-import UsedOnPicker from './_UsedOn';
-import {
-  guideSummary,
-  usedOn,
-  usedOnLabel,
-  usedOnPatch,
-  type UsedOn,
-} from './_placement';
 
 type Props = {
   item: DraftItem;
@@ -48,8 +41,8 @@ type Props = {
   onChange: (patch: Partial<DraftItem>) => void;
   onMove: (direction: -1 | 1) => void;
   onDelete: () => void;
-  /** Size guides, to pick which ones the spec shows with (Specs tab). */
-  guides?: GuideSummary[];
+  /** Turns on and off from its header (Specs tab). */
+  switchable?: boolean;
   /** Replaces the Default value field (a size guide's own value). */
   valueField?: ReactNode;
   /** Extra header detail, such as the guide's value. */
@@ -175,26 +168,13 @@ export default function ItemCard({
   onChange,
   onMove,
   onDelete,
-  guides,
+  switchable,
   valueField,
   extraMeta,
   deleteText,
   taxonomies,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  // Some guides, picked before any guide is ticked: shown as chosen, though it
-  // would save as every guide until one is.
-  const [picking, setPicking] = useState(false);
-  const choice: UsedOn =
-    picking && item.enabled && item.guides.length === 0 ? 'some' : usedOn(item);
-  const choose = (value: UsedOn) => {
-    setPicking(value === 'some');
-    onChange(usedOnPatch(value));
-    // Picking guides happens inside the card.
-    if (value === 'some' && !open) {
-      onToggle();
-    }
-  };
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
@@ -236,7 +216,6 @@ export default function ItemCard({
         ),
         item.category_steps.length
       ),
-    guides && guideSummary(item, guides),
     extraMeta,
   ].filter(Boolean);
 
@@ -259,7 +238,7 @@ export default function ItemCard({
           <span className='aa-ps-card__text'>
             <span className='aa-ps-card__name'>
               {item.name || __('Untitled spec', 'aggressive-apparel')}
-              {!item.enabled && (
+              {!item.enabled && !switchable && (
                 <span className='aa-ps-badge'>
                   {__('Off', 'aggressive-apparel')}
                 </span>
@@ -269,20 +248,23 @@ export default function ItemCard({
           </span>
         </button>
         <div className='aa-ps-card__actions'>
-          {guides && (
-            <SelectControl
-              className='aa-ps-card__used-on'
-              label={__('Used on', 'aggressive-apparel')}
-              hideLabelFromVision
-              value={choice}
-              options={(['every', 'some', 'nowhere'] as const).map(value => ({
-                value,
-                label: usedOnLabel(value),
-              }))}
-              onChange={value => choose(value as UsedOn)}
-              size='compact'
-              __nextHasNoMarginBottom
-            />
+          {switchable && (
+            <div className='aa-ps-card__switch'>
+              <FormToggle
+                checked={item.enabled}
+                aria-label={sprintf(
+                  /* translators: %s: spec name. */
+                  __('Use %s', 'aggressive-apparel'),
+                  item.name || __('this spec', 'aggressive-apparel')
+                )}
+                onChange={() => onChange({ enabled: !item.enabled })}
+              />
+              <span aria-hidden='true'>
+                {item.enabled
+                  ? __('On', 'aggressive-apparel')
+                  : __('Off', 'aggressive-apparel')}
+              </span>
+            </div>
           )}
           <Button
             icon='arrow-up-alt'
@@ -369,18 +351,6 @@ export default function ItemCard({
               />
             )}
           </div>
-
-          {guides && (
-            <Section title={__('Used on', 'aggressive-apparel')}>
-              <UsedOnPicker
-                item={item}
-                guides={guides}
-                choice={choice}
-                onChoose={choose}
-                onGuides={value => onChange({ guides: value })}
-              />
-            </Section>
-          )}
 
           {isScale && (
             <Section
@@ -687,17 +657,6 @@ export default function ItemCard({
                 checked={item.in_table}
                 onChange={in_table => onChange({ in_table })}
               />
-              {!guides && (
-                <ToggleControl
-                  label={__('Show this spec', 'aggressive-apparel')}
-                  help={__(
-                    'Turning a spec off hides it everywhere but keeps its saved values.',
-                    'aggressive-apparel'
-                  )}
-                  checked={item.enabled}
-                  onChange={enabled => onChange({ enabled })}
-                />
-              )}
             </div>
           </Section>
 

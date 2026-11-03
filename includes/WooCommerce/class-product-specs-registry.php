@@ -16,9 +16,11 @@
  * like an attribute with several terms); `archives` mirrors the attribute's
  * own "Enable archives" setting, which links values to their archive pages.
  *
- * An item with no `guides` is store-wide. One created inside a size guide
- * lists that guide (and any it was shared with) and shows only on products
- * using one of them (Size_Guide_Spec_Items).
+ * Every spec is site-wide: a product shows one when it has a value, from
+ * itself, its size guide or the spec's default, so a guide uses a spec just by
+ * giving it a value. A spec turned off (`enabled`) shows nowhere and keeps its
+ * settings for later. Specs that once belonged to particular guides (a stored
+ * `guides` list) are read as site-wide.
  *
  * Until the store saves its own list, the defaults below apply: Fit and Fabric
  * weight scales plus Fabric and Construction details.
@@ -38,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Spec item registry.
  *
- * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool, default: string, default_term: int, guides: list<int>, taxonomy: string, step_terms: list<int>, multiple: bool, archives: bool}
+ * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool, default: string, default_term: int, taxonomy: string, step_terms: list<int>, multiple: bool, archives: bool}
  * @phpstan-type CategorySteps array{category: int, thresholds: list<float>}
  * @phpstan-type RegistryInput array{items: list<Item>, hide_dimensions: bool}
  * @phpstan-type Registry array{items: list<Item>, hide_dimensions: bool, revision: int}
@@ -277,18 +279,6 @@ final class Product_Specs_Registry {
 	}
 
 	/**
-	 * Whether an item shows with this size guide: store-wide items always do,
-	 * guide-owned items only with one of their guides.
-	 *
-	 * @param array $item     Item.
-	 * @param int   $guide_id The product's size guide, or 0 for none.
-	 * @phpstan-param Item $item
-	 */
-	public static function on_guide( array $item, int $guide_id ): bool {
-		return array() === $item['guides'] || in_array( $guide_id, $item['guides'], true );
-	}
-
-	/**
 	 * Labels under a scale: the given start/middle/end, or the first,
 	 * middle (odd step counts only), and last step names when left empty.
 	 *
@@ -461,7 +451,6 @@ final class Product_Specs_Registry {
 					'categories'     => array_values( array_unique( array_filter( array_map( 'absint', is_array( $entry['categories'] ?? null ) ? $entry['categories'] : array() ) ) ) ),
 					'in_table'       => ! empty( $entry['in_table'] ),
 					'category_steps' => self::category_steps( $entry['category_steps'] ?? array() ),
-					'guides'         => array_values( array_unique( array_filter( array_map( 'absint', is_array( $entry['guides'] ?? null ) ? $entry['guides'] : array() ) ) ) ),
 					'taxonomy'       => is_string( $entry['taxonomy'] ?? null ) && 1 === preg_match( '/^pa_[\p{Ll}\p{Lo}\p{N}_\-]{1,29}$/u', $entry['taxonomy'] ) ? $entry['taxonomy'] : '',
 					'step_terms'     => array_values( array_map( 'absint', is_array( $entry['step_terms'] ?? null ) ? $entry['step_terms'] : array() ) ),
 					'default_term'   => absint( $entry['default_term'] ?? 0 ),
@@ -595,7 +584,6 @@ final class Product_Specs_Registry {
 				'in_table'       => true,
 				'default'        => '',
 				'default_term'   => 0,
-				'guides'         => array(),
 				'taxonomy'       => '',
 				'step_terms'     => array(),
 				'multiple'       => false,

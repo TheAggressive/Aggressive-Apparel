@@ -3,8 +3,8 @@
  *
  * Everything about a garment blank in one form: its name, size chart, notes
  * and measuring diagram, specs, and where it applies. One save writes it all
- * (Size_Guide_Rest), including the specs the guide owns, which the server
- * merges into the spec registry (Size_Guide_Spec_Items).
+ * (Size_Guide_Rest), including any specs added here, which join the store's
+ * specs (Size_Guide_Spec_Items).
  *
  * @package Aggressive_Apparel
  */
@@ -28,7 +28,7 @@ import type {
   Registry,
   SpecItem,
 } from './_types';
-import { toDraft, toStored } from './_utils';
+import { toStored } from './_utils';
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
@@ -115,23 +115,8 @@ export default function GuideEditor({
   // untouched discards nothing worth asking about.
   const [touched, setTouched] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-  // The guide's own specs, edited here and saved with the guide.
-  const [own, setOwn] = useState<DraftItem[]>([]);
-  const [ownDirty, setOwnDirty] = useState(false);
-  const savedId = guide?.id ?? 0;
-
-  // Follow the saved registry (after this or another save) unless the
-  // guide's own specs have unsaved edits.
-  useEffect(() => {
-    if (!ownDirty) {
-      setOwn(
-        savedId > 0
-          ? items.filter(item => item.guides.includes(savedId)).map(toDraft)
-          : []
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- ownDirty only gates.
-  }, [items, savedId]);
+  // Specs added here: saved with the guide, then they're the store's.
+  const [added, setAdded] = useState<DraftItem[]>([]);
 
   const setDirty = (value: boolean) => {
     setDirtyState(value);
@@ -181,9 +166,8 @@ export default function GuideEditor({
     markDirty();
   };
 
-  const updateOwn = (next: DraftItem[]) => {
-    setOwn(next);
-    setOwnDirty(true);
+  const updateAdded = (next: DraftItem[]) => {
+    setAdded(next);
     markDirty();
   };
 
@@ -202,14 +186,14 @@ export default function GuideEditor({
           diagram: guide.diagram?.id ?? 0,
           specs: guide.specs,
           hidden: guide.hidden,
-          ...(ownDirty && { specItems: own.map(toStored) }),
+          ...(added.length > 0 && { specItems: added.map(toStored) }),
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
       })) as GuideDetail & { registry?: Registry };
       const { registry, ...detail } = result;
       setGuide(detail);
-      setOwnDirty(false);
+      setAdded([]);
       if (registry) {
         onRegistry(registry);
       }
@@ -550,9 +534,8 @@ export default function GuideEditor({
       <GuideSpecs
         config={config}
         taxonomies={taxonomies}
-        guideId={guide.id}
         items={items}
-        own={own}
+        added={added}
         values={guide.specs}
         // Mirrors Size_Chart::sanitize (a row needs a size) and
         // Size_Guide::guide_content (old free-form content also counts).
@@ -563,7 +546,7 @@ export default function GuideEditor({
         hidden={guide.hidden}
         onValues={specs => update({ specs })}
         onHidden={hidden => update({ hidden })}
-        onOwn={updateOwn}
+        onAdded={updateAdded}
         footer={
           guide.id > 0 && (
             <ApplyToProducts

@@ -297,10 +297,10 @@ final class Printful_Import {
 	 * @return list<Fact>
 	 */
 	public static function facts( string $description ): array {
-		// Only specs the review can offer: store-wide and on. A rule or match
+		// Only specs the review can offer: ones that are on. A rule or match
 		// pointing anywhere else would be silently lost, so it isn't used.
 		$items = array_column(
-			array_filter( Product_Specs_Registry::get()['items'], static fn( array $item ): bool => $item['enabled'] && array() === $item['guides'] ),
+			Product_Specs_Registry::items(),
 			null,
 			'key'
 		);

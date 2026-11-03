@@ -89,6 +89,9 @@ export type GuideDetail = {
   chart: Chart;
   notes: string;
   diagram: { id: number; url: string } | null;
+  /** Notes and diagram show on product pages; off keeps them, hidden. */
+  showNotes: boolean;
+  showDiagram: boolean;
   /** Spec values products using the guide inherit (item key => value). */
   specs: Record<string, string>;
   /** Store-wide specs hidden on this guide's products. */

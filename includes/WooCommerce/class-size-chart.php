@@ -83,6 +83,20 @@ final class Size_Chart {
 	public const DIAGRAM = '_aa_size_diagram';
 
 	/**
+	 * Notes kept on the guide but hidden on product pages (flag meta key).
+	 *
+	 * @var string
+	 */
+	public const NOTES_OFF = '_aa_size_notes_off';
+
+	/**
+	 * Measuring diagram kept on the guide but hidden on product pages.
+	 *
+	 * @var string
+	 */
+	public const DIAGRAM_OFF = '_aa_size_diagram_off';
+
+	/**
 	 * A measurement column, converted between units.
 	 *
 	 * @var string
@@ -539,18 +553,18 @@ final class Size_Chart {
 	}
 
 	/**
-	 * Notes and measuring diagram.
+	 * Notes and measuring diagram, each unless it's switched off.
 	 *
 	 * @param int $guide_id Size guide ID.
 	 */
 	private static function notes( int $guide_id ): string {
 		$html  = '';
-		$notes = (string) get_post_meta( $guide_id, self::NOTES, true );
+		$notes = self::shows( $guide_id, 'notes' ) ? (string) get_post_meta( $guide_id, self::NOTES, true ) : '';
 		if ( '' !== trim( $notes ) ) {
 			$html .= '<div class="aa-size-chart__notes">' . wpautop( make_clickable( esc_html( $notes ) ) ) . '</div>';
 		}
 
-		$diagram = (int) get_post_meta( $guide_id, self::DIAGRAM, true );
+		$diagram = self::shows( $guide_id, 'diagram' ) ? (int) get_post_meta( $guide_id, self::DIAGRAM, true ) : 0;
 		if ( $diagram > 0 && wp_attachment_is_image( $diagram ) ) {
 			$alt   = (string) get_post_meta( $diagram, '_wp_attachment_image_alt', true );
 			$html .= '<figure class="aa-size-chart__diagram">' . wp_get_attachment_image(
@@ -565,6 +579,33 @@ final class Size_Chart {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Whether a guide shows its notes or diagram: on unless switched off, so
+	 * switching one off keeps it on the guide to switch back on.
+	 *
+	 * @param int    $guide_id Size guide ID.
+	 * @param string $part     'notes' or 'diagram'.
+	 */
+	public static function shows( int $guide_id, string $part ): bool {
+		return '' === (string) get_post_meta( $guide_id, 'notes' === $part ? self::NOTES_OFF : self::DIAGRAM_OFF, true );
+	}
+
+	/**
+	 * Switch a guide's notes or diagram on or off for product pages.
+	 *
+	 * @param int    $guide_id Size guide ID.
+	 * @param string $part     'notes' or 'diagram'.
+	 * @param bool   $on       Show it.
+	 */
+	public static function show( int $guide_id, string $part, bool $on ): void {
+		$key = 'notes' === $part ? self::NOTES_OFF : self::DIAGRAM_OFF;
+		if ( $on ) {
+			delete_post_meta( $guide_id, $key );
+		} else {
+			update_post_meta( $guide_id, $key, '1' );
+		}
 	}
 
 	/**

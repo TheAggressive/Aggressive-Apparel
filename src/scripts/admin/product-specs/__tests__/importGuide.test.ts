@@ -141,21 +141,26 @@ describe('guideRequest', () => {
     expect(later.summary.attributes).toEqual([]);
   });
 
-  it('leaves the diagram out when it is turned off', () => {
+  it('keeps a diagram turned off, hidden, so the guide can turn it back on', () => {
     const { data, summary } = request(new Map(), { diagram: false });
 
-    expect(data).not.toHaveProperty('diagramUrl');
+    expect(data.diagramUrl).toBe(draft.diagrams.garment);
+    expect(data.showDiagram).toBe(false);
     expect(summary.diagram).toBe(false);
   });
 
-  it('sends the notes by default', () => {
-    expect(request(new Map()).data.notes).toBe('Lay it flat.');
+  it('sends the notes, shown, by default', () => {
+    const { data } = request(new Map());
+
+    expect(data.notes).toBe('Lay it flat.');
+    expect(data.showNotes).toBe(true);
   });
 
-  it('leaves the notes out when they are turned off', () => {
+  it('keeps notes turned off, hidden, so the guide can turn them back on', () => {
     const { data } = request(new Map(), { withNotes: false });
 
-    expect(data.notes).toBe('');
+    expect(data.notes).toBe('Lay it flat.');
+    expect(data.showNotes).toBe(false);
   });
 
   it('sends the garment, so the category choice is remembered', () => {

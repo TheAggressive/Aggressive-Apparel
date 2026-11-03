@@ -211,20 +211,27 @@ export function guideRequest({
   }
 
   const chart = draft.charts[state.kind];
-  const diagram = Boolean(chart && state.diagram && draft.diagrams[state.kind]);
+  // Notes and a diagram switched off still come along, hidden on product
+  // pages, so the guide can switch them back on later.
+  const hasDiagram = Boolean(chart && draft.diagrams[state.kind]);
+  const diagram = hasDiagram && state.diagram;
 
   return {
     data: {
       title: state.title,
       ...(chart && { chart }),
-      notes: state.withNotes ? state.notes[state.kind] : '',
+      notes: state.notes[state.kind],
+      showNotes: state.withNotes,
       categories: state.categories,
       isDefault: state.isDefault,
       specs: values,
       ...(added.length > 0 && { specItems: added }),
       importSource: draft.source,
       importWhere: draft.where.key,
-      ...(diagram && { diagramUrl: draft.diagrams[state.kind] }),
+      ...(hasDiagram && {
+        diagramUrl: draft.diagrams[state.kind],
+        showDiagram: state.diagram,
+      }),
       importRules: draft.facts.map((fact, i) => {
         const target = state.mappings[i].target;
         if (target !== 'new') {

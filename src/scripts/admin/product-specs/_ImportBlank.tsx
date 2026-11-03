@@ -266,7 +266,7 @@ export default function ImportBlank({
                           'aggressive-apparel'
                         )
                       : __(
-                          'Left out. You can add your own in the guide later.',
+                          'Hidden on product pages. Switch it back on in the guide any time.',
                           'aggressive-apparel'
                         )
                   }
@@ -295,7 +295,7 @@ export default function ImportBlank({
                     'aggressive-apparel'
                   )
                 : __(
-                    'Left out. You can add your own in the guide later.',
+                    'Hidden on product pages. Switch them back on in the guide any time.',
                     'aggressive-apparel'
                   )
             }

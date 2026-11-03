@@ -454,6 +454,51 @@ class TestSizeChart extends WP_UnitTestCase {
 		$this->assertSame( array(), Size_Guide_Assignments::categories( $id ) );
 	}
 
+	/** Notes switched off stay on the guide, hidden on product pages, and switch back on. */
+	public function test_notes_switch_off_without_losing_them(): void {
+		$rest  = new Size_Guide_Rest();
+		$chart = array(
+			'unit'    => 'in',
+			'columns' => array(
+				array(
+					'label' => 'Chest',
+					'type'  => 'measure',
+				),
+			),
+			'rows'    => array(
+				array(
+					'size'   => 'M',
+					'values' => array( '20' ),
+				),
+			),
+		);
+
+		$created = $rest->create(
+			$this->request(
+				'POST',
+				array(
+					'title'     => 'Crop Tee',
+					'chart'     => $chart,
+					'notes'     => 'Lay it flat.',
+					'showNotes' => false,
+				)
+			)
+		)->get_data();
+		$id      = (int) $created['id'];
+
+		$this->assertFalse( $created['showNotes'] );
+		$this->assertTrue( $created['showDiagram'], 'Shown unless switched off.' );
+		$this->assertSame( 'Lay it flat.', $created['notes'], 'Hidden notes are kept.' );
+		$this->assertStringNotContainsString( 'Lay it flat.', Size_Chart::render( $id ) );
+
+		$copy = $rest->duplicate( $this->request( 'POST', array(), $id ) )->get_data();
+		$this->assertFalse( $copy['showNotes'], 'A copy keeps the switch.' );
+
+		$rest->update( $this->request( 'POST', array( 'showNotes' => true ), $id ) );
+		$this->assertStringContainsString( 'Lay it flat.', Size_Chart::render( $id ) );
+		$this->assertSame( '', (string) get_post_meta( $id, Size_Chart::NOTES_OFF, true ), 'On leaves no flag behind.' );
+	}
+
 	/** Guides without a chart keep rendering their old content. */
 	public function test_legacy_guides_still_render(): void {
 		$guide_id = $this->guide( 'Old', '<p>Legacy chart</p>' );

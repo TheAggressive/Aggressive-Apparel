@@ -824,18 +824,61 @@
 }
 
 /* Diagram */
+
+/* Notes and diagram (_GuideNotes): side by side, each with its switch. */
+.aa-ps-guide-parts {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+	gap: 16px;
+}
+
+.aa-ps-guide-part {
+	padding: 12px 16px 16px;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 4px;
+}
+
+.aa-ps-guide-part__head {
+	display: flex;
+	gap: 8px 16px;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 32px;
+	margin-bottom: 8px;
+}
+
+.aa-ps-guide-part__title {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.aa-ps-guide-part .aa-ps-help--notice {
+	margin: 0 0 8px;
+}
+
+/* Hidden on product pages: dimmed, but still editable. */
+.aa-ps-guide-part.is-off .aa-ps-guide-part__body {
+	opacity: 0.6;
+}
+
+.aa-ps-guide-part.is-off .aa-ps-guide-part__body:focus-within {
+	opacity: 1;
+}
+
 .aa-ps-diagram {
 	display: flex;
-	gap: 16px;
+	flex-wrap: wrap;
+	gap: 12px 16px;
 	align-items: center;
 }
 
 .aa-ps-diagram img,
 .aa-ps-diagram__empty {
-	width: 96px;
-	height: 96px;
+	width: 160px;
+	height: 120px;
 	border-radius: 4px;
-	object-fit: cover;
+	object-fit: contain;
 	background: #f0f0f1;
 }
 
@@ -846,6 +889,10 @@
 }
 
 @media (width <= 1100px) {
+
+	.aa-ps-guide-parts {
+		grid-template-columns: 1fr;
+	}
 
 	.aa-ps-guide__chart {
 		grid-template-columns: minmax(0, 1fr);

@@ -17,7 +17,6 @@ import {
   Notice,
   Spinner,
   TextControl,
-  TextareaControl,
   ToggleControl,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
@@ -32,25 +31,12 @@ import type {
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
+import GuideNotes from './_GuideNotes';
 import GuideSpecs from './_GuideSpecs';
 import saveRegistry from './_saveRegistry';
 import { toStored } from './_utils';
 import { readWording } from './_wording';
 import ApplyToProducts from './_ApplyToProducts';
-
-type Attachment = {
-  id: number;
-  url: string;
-  sizes?: { medium?: { url: string } };
-};
-
-type MediaFrame = {
-  on: (event: string, callback: () => void) => void;
-  open: () => void;
-  state: () => {
-    get: (key: string) => { first: () => { toJSON: () => unknown } };
-  };
-};
 
 type SaveError = { message?: string; data?: { errors?: string[] } };
 
@@ -87,6 +73,8 @@ function blank(): GuideDetail {
     chart: templates()[0].chart,
     notes: '',
     diagram: null,
+    showNotes: true,
+    showDiagram: true,
     specs: {},
     hidden: [],
     wording: {},
@@ -220,6 +208,8 @@ export default function GuideEditor({
           chart: guide.chart,
           notes: guide.notes,
           diagram: guide.diagram?.id ?? 0,
+          showNotes: guide.showNotes,
+          showDiagram: guide.showDiagram,
           specs: guide.specs,
           hidden: guide.hidden,
           wording: guide.wording,
@@ -299,32 +289,6 @@ export default function GuideEditor({
     } finally {
       setSaving(false);
     }
-  };
-
-  const pickDiagram = () => {
-    const media = (
-      window as unknown as { wp?: { media?: (options: object) => MediaFrame } }
-    ).wp?.media;
-    if (!media) {
-      return;
-    }
-    const frame = media({
-      title: __('Measuring diagram', 'aggressive-apparel'),
-      library: { type: 'image' },
-      multiple: false,
-      button: { text: __('Use this image', 'aggressive-apparel') },
-    });
-    frame.on('select', () => {
-      const image = frame
-        .state()
-        .get('selection')
-        .first()
-        .toJSON() as Attachment;
-      update({
-        diagram: { id: image.id, url: image.sizes?.medium?.url ?? image.url },
-      });
-    });
-    frame.open();
   };
 
   const convertLegacy = async () => {
@@ -527,46 +491,13 @@ export default function GuideEditor({
         </section>
       )}
 
-      <section className='aa-ps-guide__section aa-ps-guide__notes'>
-        <h2>{__('Notes and diagram', 'aggressive-apparel')}</h2>
-        <TextareaControl
-          label={__('Notes', 'aggressive-apparel')}
-          value={guide.notes}
-          rows={4}
-          placeholder={__(
-            'How to measure, or fit notes like “Model is 6’1” wearing M”.',
-            'aggressive-apparel'
-          )}
-          onChange={notes => update({ notes })}
-          help={__(
-            'Shown under the chart. Links become clickable.',
-            'aggressive-apparel'
-          )}
-        />
-        <div className='aa-ps-diagram'>
-          {guide.diagram ? (
-            <img src={guide.diagram.url} alt='' />
-          ) : (
-            <span className='aa-ps-diagram__empty' aria-hidden='true' />
-          )}
-          <div className='aa-ps-diagram__actions'>
-            <Button variant='secondary' onClick={pickDiagram}>
-              {guide.diagram
-                ? __('Replace diagram', 'aggressive-apparel')
-                : __('Add a measuring diagram', 'aggressive-apparel')}
-            </Button>
-            {guide.diagram && (
-              <Button
-                variant='tertiary'
-                isDestructive
-                onClick={() => update({ diagram: null })}
-              >
-                {__('Remove', 'aggressive-apparel')}
-              </Button>
-            )}
-          </div>
-        </div>
-      </section>
+      <GuideNotes
+        notes={guide.notes}
+        diagram={guide.diagram}
+        showNotes={guide.showNotes}
+        showDiagram={guide.showDiagram}
+        onChange={update}
+      />
 
       <GuideSpecs
         config={config}

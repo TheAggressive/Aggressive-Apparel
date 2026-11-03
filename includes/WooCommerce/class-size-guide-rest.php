@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
  * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, wording: array<string, array<string, string>>, source: array{provider: string, id: int, title: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, showNotes: bool, showDiagram: bool, specs: array<string, string>, hidden: list<string>, wording: array<string, array<string, string>>, source: array{provider: string, id: int, title: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -312,12 +312,14 @@ final class Size_Guide_Rest {
 		self::save(
 			$id,
 			array(
-				'chart'   => $source['chart'],
-				'notes'   => $source['notes'],
-				'diagram' => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
-				'specs'   => $source['specs'],
-				'hidden'  => $source['hidden'],
-				'wording' => $source['wording'],
+				'chart'       => $source['chart'],
+				'notes'       => $source['notes'],
+				'diagram'     => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
+				'showNotes'   => $source['showNotes'],
+				'showDiagram' => $source['showDiagram'],
+				'specs'       => $source['specs'],
+				'hidden'      => $source['hidden'],
+				'wording'     => $source['wording'],
 			)
 		);
 
@@ -398,6 +400,8 @@ final class Size_Guide_Rest {
 				'id'  => $diagram,
 				'url' => $image,
 			) : null,
+			'showNotes'     => Size_Chart::shows( $id, 'notes' ),
+			'showDiagram'   => Size_Chart::shows( $id, 'diagram' ),
 			'specs'         => $specs['values'],
 			'hidden'        => $specs['hidden'],
 			'wording'       => $specs['wording'],
@@ -518,6 +522,15 @@ final class Size_Guide_Rest {
 				update_post_meta( $id, Size_Chart::DIAGRAM, $diagram );
 			} else {
 				delete_post_meta( $id, Size_Chart::DIAGRAM );
+			}
+		}
+
+		foreach ( array(
+			'showNotes'   => 'notes',
+			'showDiagram' => 'diagram',
+		) as $field => $part ) {
+			if ( array_key_exists( $field, $data ) ) {
+				Size_Chart::show( $id, $part, (bool) $data[ $field ] );
 			}
 		}
 

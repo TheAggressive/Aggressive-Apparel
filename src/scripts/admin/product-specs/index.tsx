@@ -10,10 +10,14 @@ import App from './_App';
 import type { Config } from './_types';
 
 import './style.css';
+import './chips.css';
 import './grids.css';
 import './add-spec.css';
 import './guides.css';
+import './guide-specs.css';
+import './chart.css';
 import './import.css';
+import './import-review.css';
 
 domReady(() => {
   const root = document.getElementById('aa-product-specs-root');

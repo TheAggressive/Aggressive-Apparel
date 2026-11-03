@@ -6,7 +6,6 @@ const attribute = (patch: Partial<ImportAttribute>): ImportAttribute => ({
   key: 'spec',
   name: 'Spec',
   kind: 'text',
-  scope: 'guide',
   archives: false,
   steps: '',
   unit: '',
@@ -69,7 +68,6 @@ describe('attributeItem', () => {
       multiple: true,
       archives: true,
       taxonomy: 'pa_collection',
-      guides: [],
     });
     expect(
       attributeItem(attribute({ kind: 'pick', steps: 'Low, High' })).steps

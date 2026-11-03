@@ -109,94 +109,17 @@
 	background: #fff;
 }
 
+/* Clear of the admin bar when the status strip jumps here. */
+.aa-ps-guide__section,
+.aa-ps-legacy {
+	scroll-margin-top: 48px;
+}
+
 .aa-ps-spec-rows {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
 	min-width: 0;
-}
-
-.aa-ps-spec-group {
-	display: flex;
-	flex-direction: column;
-}
-
-.aa-ps-spec-group__title {
-	margin: 0 0 4px;
-	color: var(--aa-ps-muted);
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-}
-
-/* One spec: name, value, one action. Every row uses the same fixed tracks,
-   so names, fields, and icons line up down the list. */
-.aa-ps-spec-row {
-	display: grid;
-	grid-template-columns: 160px minmax(0, 1fr) 36px;
-	gap: 12px;
-	align-items: start;
-	padding: 10px 0;
-	border-bottom: 1px solid var(--aa-ps-divider);
-}
-
-.aa-ps-spec-row__name {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	justify-content: center;
-	min-height: var(--aa-ps-control-height);
-}
-
-.aa-ps-spec-row__title {
-	color: #1e1e1e;
-	font-size: 13px;
-	font-weight: 500;
-	overflow-wrap: anywhere;
-}
-
-.aa-ps-spec-row__note {
-	color: var(--aa-ps-muted);
-	font-size: 12px;
-}
-
-.aa-ps-spec-row__action {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-height: var(--aa-ps-control-height);
-}
-
-.aa-ps-spec-row__action .components-button:not(.is-pressed) {
-	color: var(--aa-ps-muted);
-}
-
-.aa-ps-spec-row__action .components-button:not(.is-pressed):hover,
-.aa-ps-spec-row__action .components-button:not(.is-pressed):focus-visible {
-	color: var(--aa-ps-accent);
-}
-
-.is-editing > .aa-ps-spec-row {
-	border-bottom-color: transparent;
-}
-
-.aa-ps-spec-group .aa-ps-card {
-	margin: 0 0 12px;
-}
-
-.aa-ps-spec-group .aa-ps-add {
-	padding-top: 12px;
-}
-
-.aa-ps-hidden-line {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	align-items: center;
-	margin: 10px 0 0;
-	color: var(--aa-ps-muted);
-	font-size: 12px;
 }
 
 /* Value pickers: every control is the same height as a text field. */
@@ -301,76 +224,6 @@
 	white-space: nowrap;
 }
 
-.aa-ps-quick-add {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	margin-top: 12px;
-	padding: 16px;
-	border: 1px solid var(--aa-ps-border);
-	border-radius: 4px;
-	background: #f6f7f7;
-}
-
-.aa-ps-quick-add__fields {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-	gap: 12px 16px;
-	align-items: start;
-}
-
-.aa-ps-quick-add__matches,
-.aa-ps-quick-add__options {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px 16px;
-	align-items: center;
-}
-
-.aa-ps-quick-add__options .components-base-control__field {
-	margin: 0;
-}
-
-.aa-ps-quick-add__linked {
-	margin: 0;
-}
-
-.aa-ps-picker__chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-}
-
-.aa-ps-chip {
-	display: inline-flex;
-	gap: 6px;
-	align-items: center;
-	min-height: 28px;
-	margin: 0;
-	padding: 2px 10px;
-	border: 1px solid var(--aa-ps-border);
-	border-radius: 14px;
-	background: #fff;
-	color: #1e1e1e;
-	font: inherit;
-	font-size: 12px;
-	cursor: pointer;
-}
-
-.aa-ps-chip:hover {
-	border-color: var(--aa-ps-accent);
-	color: var(--aa-ps-accent);
-}
-
-.aa-ps-chip:focus-visible {
-	outline: 2px solid var(--aa-ps-accent);
-	outline-offset: 1px;
-}
-
-.aa-ps-chip__count {
-	color: var(--aa-ps-muted);
-}
-
 /* The spec's name sits beside the field, so its own label is for screen
    readers only. */
 .aa-ps-picker--tokens .components-form-token-field__label {
@@ -453,26 +306,7 @@
 	gap: var(--aa-ps-gap);
 }
 
-/* Same look as the guide editor's group titles. */
-.aa-ps-list__group h3 {
-	margin: 8px 0 0;
-	color: var(--aa-ps-muted);
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-}
-
 @media (width <= 782px) {
-
-	.aa-ps-spec-row {
-		grid-template-columns: minmax(0, 1fr) 36px;
-	}
-
-	.aa-ps-spec-row__value {
-		grid-column: 1 / -1;
-		grid-row: 2;
-	}
 
 	.aa-ps-apply {
 		grid-template-columns: 1fr;
@@ -530,194 +364,11 @@
 	box-shadow: 0 -4px 12px rgb(0 0 0 / 6%);
 }
 
-/* Spreadsheet grid */
-.aa-ps-chart {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	min-width: 0;
-}
-
-.aa-ps-chart__bar {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px 20px;
-	align-items: flex-start;
-}
-
-.aa-ps-chart__bar .components-base-control {
-	flex: 0 0 220px;
-}
-
-.aa-ps-chart__tip {
-	flex: 1 1 240px;
-	padding-top: 24px;
-}
-
-.aa-ps-chart__scroll {
-	overflow-x: auto;
-	border: 1px solid var(--aa-ps-border);
-	border-radius: 4px;
-}
-
-.aa-ps-chart__grid {
-	border-collapse: collapse;
-}
-
-.aa-ps-chart__grid th,
-.aa-ps-chart__grid td {
-	padding: 0;
-	border-right: 1px solid var(--aa-ps-divider);
-	border-bottom: 1px solid var(--aa-ps-divider);
-	vertical-align: middle;
-}
-
-.aa-ps-chart__grid thead th {
-	padding: 6px 4px 4px;
-	background: #f6f7f7;
-	font-weight: 600;
-	text-align: left;
-}
-
-.aa-ps-chart__grid thead th.aa-ps-chart__corner {
-	padding-left: 10px;
+/* Where an imported guide came from. */
+.aa-ps-guide__source {
+	margin: -8px 0 0;
 	color: var(--aa-ps-muted);
 	font-size: 12px;
-}
-
-.aa-ps-chart__grid tbody th {
-	background: #fbfbfc;
-}
-
-.aa-ps-chart__head {
-	display: flex;
-	gap: 2px;
-	align-items: center;
-}
-
-.aa-ps-chart__input {
-	box-sizing: border-box;
-	width: 100%;
-	min-width: 88px;
-	height: 38px;
-	margin: 0;
-	padding: 0 10px;
-	border: 0;
-	border-radius: 0;
-	background: transparent;
-	box-shadow: none;
-	font-variant-numeric: tabular-nums;
-}
-
-.aa-ps-chart__input:focus {
-	position: relative;
-	z-index: 1;
-	border-radius: 2px;
-	background: #fff;
-	box-shadow: inset 0 0 0 2px var(--aa-ps-accent);
-	outline: none;
-}
-
-.aa-ps-chart__input--head {
-	min-width: 110px;
-	font-weight: 600;
-}
-
-.aa-ps-chart__input--size {
-	min-width: 64px;
-	font-weight: 600;
-}
-
-.aa-ps-chart__type {
-	display: block;
-	padding: 0 10px 2px;
-	color: var(--aa-ps-muted);
-	font-size: 11px;
-	font-weight: 400;
-}
-
-.aa-ps-chart__grid thead th.aa-ps-chart__add-col {
-	width: 40px;
-	border-right: 0;
-	text-align: center;
-}
-
-.aa-ps-chart__actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px;
-	align-items: center;
-}
-
-/* Preview (mirrors the product page table) */
-.aa-ps-chart-preview {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.aa-ps-chart-preview__unit {
-	font-size: 0.85em;
-}
-
-.aa-ps-chart-preview__units {
-	display: inline-flex;
-	align-self: flex-end;
-	padding: 2px;
-	border: 1px solid var(--aa-ps-border);
-	border-radius: 999px;
-	background: #fff;
-}
-
-.aa-ps-chart-preview__units button {
-	min-width: 40px;
-	padding: 4px 10px;
-	border: 0;
-	border-radius: 999px;
-	background: none;
-	color: var(--aa-ps-muted);
-	font-size: 11px;
-	font-weight: 700;
-	text-transform: uppercase;
-	cursor: pointer;
-}
-
-.aa-ps-chart-preview__units button[aria-pressed="true"] {
-	background: #1e1e1e;
-	color: #fff;
-}
-
-.aa-ps-chart-preview__scroll {
-	overflow-x: auto;
-}
-
-.aa-ps-chart-preview table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 13px;
-	font-variant-numeric: tabular-nums;
-	text-align: center;
-}
-
-.aa-ps-chart-preview th,
-.aa-ps-chart-preview td {
-	padding: 7px 8px;
-	border-bottom: 1px solid var(--aa-ps-border);
-	white-space: nowrap;
-}
-
-.aa-ps-chart-preview thead th {
-	font-size: 12px;
-}
-
-.aa-ps-chart-preview thead th span {
-	color: var(--aa-ps-muted);
-	font-weight: 400;
-}
-
-.aa-ps-chart-preview thead th:first-child,
-.aa-ps-chart-preview tbody th {
-	text-align: left;
 }
 
 /* Old free-form guides */
@@ -759,20 +410,169 @@
 	border: 1px solid var(--aa-ps-divider);
 }
 
-/* Diagram */
+/* Notes and diagram (_GuideNotes): side by side, each with its switch. */
+.aa-ps-guide-parts {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+	gap: 16px;
+}
+
+.aa-ps-guide-part {
+	padding: 12px 16px 16px;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 4px;
+}
+
+.aa-ps-guide-part__head {
+	display: flex;
+	gap: 8px 16px;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 32px;
+	margin-bottom: 8px;
+}
+
+.aa-ps-guide-part__title {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.aa-ps-guide-part .aa-ps-help--notice {
+	margin: 0 0 8px;
+}
+
+/* Hidden on product pages: dimmed, but still editable. */
+.aa-ps-guide-part.is-off .aa-ps-guide-part__body {
+	opacity: 0.6;
+}
+
+.aa-ps-guide-part.is-off .aa-ps-guide-part__body:focus-within {
+	opacity: 1;
+}
+
 .aa-ps-diagram {
 	display: flex;
-	gap: 16px;
+	flex-wrap: wrap;
+	gap: 12px 16px;
 	align-items: center;
 }
 
-.aa-ps-diagram img,
-.aa-ps-diagram__empty {
-	width: 96px;
-	height: 96px;
+.aa-ps-diagram img {
+	width: 160px;
+	height: 120px;
 	border-radius: 4px;
-	object-fit: cover;
+	object-fit: contain;
 	background: #f0f0f1;
+}
+
+/* No diagram yet: the empty frame is the button. */
+.aa-ps-diagram__add {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	min-height: 120px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	background: #f6f7f7;
+	color: var(--aa-ps-accent);
+	font: inherit;
+	cursor: pointer;
+}
+
+.aa-ps-diagram__add:hover {
+	border-color: var(--aa-ps-accent);
+}
+
+.aa-ps-diagram__add:focus-visible {
+	outline: 2px solid var(--aa-ps-accent);
+	outline-offset: 2px;
+}
+
+.aa-ps-diagram__add .dashicons {
+	width: 28px;
+	height: 28px;
+	font-size: 28px;
+}
+
+/* The notes and diagram under the chart preview (NotesPreview). */
+.aa-ps-notes-preview {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 280px;
+	margin-top: 12px;
+	padding-top: 12px;
+	overflow-y: auto;
+	border-top: 1px solid var(--aa-ps-border);
+	font-size: 12px;
+}
+
+.aa-ps-notes-preview p {
+	margin: 0;
+	white-space: pre-line;
+}
+
+.aa-ps-notes-preview img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* The guide at a glance (_GuideStatus): each part links to its section. */
+.aa-ps-guide-status {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 8px;
+	margin: 16px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.aa-ps-guide-status li {
+	margin: 0;
+}
+
+.aa-ps-guide-status__item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	height: 100%;
+	padding: 8px 12px;
+	box-sizing: border-box;
+	border: 1px solid var(--aa-ps-border);
+	border-left: 3px solid var(--aa-ps-accent);
+	border-radius: 4px;
+	background: #fff;
+	color: #1e1e1e;
+	text-decoration: none;
+}
+
+.aa-ps-guide-status__item.is-empty {
+	border-left-color: #c3c4c7;
+}
+
+.aa-ps-guide-status__item:hover {
+	border-color: var(--aa-ps-accent);
+	color: #1e1e1e;
+}
+
+.aa-ps-guide-status__item:focus-visible {
+	outline: 2px solid var(--aa-ps-accent);
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+.aa-ps-guide-status__text {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.aa-ps-guide-status__item.is-empty .aa-ps-guide-status__text {
+	color: var(--aa-ps-muted);
+	font-weight: 400;
 }
 
 .aa-ps-diagram__actions {
@@ -782,6 +582,10 @@
 }
 
 @media (width <= 1100px) {
+
+	.aa-ps-guide-parts {
+		grid-template-columns: 1fr;
+	}
 
 	.aa-ps-guide__chart {
 		grid-template-columns: minmax(0, 1fr);

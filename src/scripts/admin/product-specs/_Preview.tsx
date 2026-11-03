@@ -7,11 +7,30 @@
  * @package Aggressive_Apparel
  */
 
+import type { ReactNode } from 'react';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import type { SpecItem } from './_types';
 import { cx } from '../../../utils/product-specs-data';
 import { edgeLabels, stepFor } from './_utils';
+
+/** The frame every shopper preview sits in, under one label. */
+export function ShopperPreview({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={cx('aa-ps-guide__preview', className)}>
+      <p className='aa-ps-eyebrow'>
+        {__('What shoppers see', 'aggressive-apparel')}
+      </p>
+      {children}
+    </div>
+  );
+}
 
 /** One scale as the block draws it, with a step lit. */
 export function Scale({ item, step }: { item: SpecItem; step: number }) {
@@ -59,7 +78,7 @@ export default function Preview({ item }: { item: SpecItem }) {
   return (
     <div className='aa-ps-preview'>
       <div className='aa-ps-preview__head'>
-        <span className='aa-ps-preview__label'>
+        <span className='aa-ps-eyebrow'>
           {__('Preview', 'aggressive-apparel')}
         </span>
         {item.type === 'number' && (

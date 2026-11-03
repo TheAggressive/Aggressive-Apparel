@@ -166,8 +166,7 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 	public function test_registry_save_merges_changes_made_since(): void {
 		$this->save_defaults( array() );
 		$loaded = Product_Specs_Registry::get();
-		Size_Guide_Spec_Items::save(
-			$this->guide(),
+		Size_Guide_Spec_Items::add(
 			array(
 				array(
 					'name' => 'Closure',
@@ -193,7 +192,104 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$saved = $this->items();
 
 		$this->assertSame( 'Material', $saved['fabric']['name'] );
-		$this->assertArrayHasKey( 'closure', $saved, 'The guide’s spec survives.' );
+		$this->assertArrayHasKey( 'closure', $saved, 'The spec added since survives.' );
+	}
+
+	/** Changing a spec's type keeps its values: the same terms, read anew. */
+	public function test_type_change_keeps_values(): void {
+		$this->save_defaults( array() );
+		Size_Guide_Spec_Items::add(
+			array(
+				array(
+					'name' => 'Cut',
+					'type' => 'text',
+				),
+			)
+		);
+		$product = $this->product( 0 );
+		Product_Specs_Product_Writer::save( wc_get_product( $product ), array( 'cut' => 'Relaxed' ) );
+		$this->assertSame( 'Relaxed', $this->resolved( $product )['cut']['display'] );
+
+		$this->retype(
+			'cut',
+			array(
+				'type'  => 'pick',
+				'steps' => array( 'Snug', 'Regular', 'Relaxed' ),
+			)
+		);
+		$cut = $this->resolved( $product )['cut'];
+		$this->assertSame( 2, $cut['step'], 'As a scale, the value is the step it names.' );
+		$this->assertSame( 'Relaxed', $cut['display'] );
+
+		$this->retype(
+			'cut',
+			array(
+				'type'  => 'text',
+				'steps' => array(),
+			)
+		);
+		$this->assertSame( 'Relaxed', $this->resolved( $product )['cut']['display'], 'And as text again, unchanged.' );
+	}
+
+	/** A scale that leaves out a value in use is refused, so no value is lost. */
+	public function test_scale_must_keep_values_in_use(): void {
+		$this->save_defaults( array() );
+		Size_Guide_Spec_Items::add(
+			array(
+				array(
+					'name' => 'Cut',
+					'type' => 'text',
+				),
+			)
+		);
+		$product = $this->product( 0 );
+		Product_Specs_Product_Writer::save( wc_get_product( $product ), array( 'cut' => 'Boxy' ) );
+
+		$items                = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
+		$items['cut']['type']  = 'pick';
+		$items['cut']['steps'] = array( 'Snug', 'Regular', 'Relaxed' );
+		$request               = new \WP_REST_Request( 'POST' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			(string) wp_json_encode(
+				array(
+					'items'    => array_values( $items ),
+					'revision' => Product_Specs_Registry::get()['revision'],
+					'changed'  => array( 'cut' ),
+				)
+			)
+		);
+
+		$this->assertWPError( ( new Product_Specs_Settings() )->save_registry( $request ) );
+		$this->assertSame( 'text', $this->items()['cut']['type'] );
+		$this->assertSame( 'Boxy', $this->resolved( $product )['cut']['display'] );
+	}
+
+	/** A text value with a number in it reads as that number. */
+	public function test_text_becomes_a_number(): void {
+		$this->save_defaults( array() );
+		Size_Guide_Spec_Items::add(
+			array(
+				array(
+					'name' => 'Weight note',
+					'type' => 'text',
+				),
+			)
+		);
+		$product = $this->product( 0 );
+		Product_Specs_Product_Writer::save( wc_get_product( $product ), array( 'weight_note' => '180 g/m²' ) );
+
+		$this->retype(
+			'weight_note',
+			array(
+				'type'       => 'number',
+				'unit'       => 'g/m²',
+				'steps'      => array( 'Light', 'Mid', 'Heavy' ),
+				'thresholds' => array( 150, 220 ),
+			)
+		);
+
+		$this->assertSame( 180.0, (float) $this->resolved( $product )['weight_note']['number'] );
 	}
 
 	/** A stale editor's misaligned step terms never relabel other terms. */
@@ -314,13 +410,19 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 	/** The grid writes only specs that apply to the product. */
 	public function test_grid_ignores_specs_that_do_not_apply(): void {
 		$this->save_defaults( array() );
-		$other = $this->guide();
-		Size_Guide_Spec_Items::save(
-			$other,
+		$hats = self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'name'     => 'Hats',
+			)
+		);
+		Size_Guide_Spec_Items::add(
 			array(
 				array(
-					'name' => 'Closure',
-					'type' => 'text',
+					'name'       => 'Closure',
+					'type'       => 'text',
+					'scope'      => 'only',
+					'categories' => array( $hats ),
 				),
 			)
 		);
@@ -331,7 +433,7 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$request->set_body( (string) wp_json_encode( array( 'products' => array( $product => array( 'closure' => 'Brass' ) ) ) ) );
 		( new \Aggressive_Apparel\WooCommerce\Product_Specs_Grid() )->save_products( $request );
 
-		$this->assertArrayNotHasKey( $this->items()['closure']['taxonomy'], wc_get_product( $product )->get_attributes(), 'Another guide’s spec is not written.' );
+		$this->assertArrayNotHasKey( $this->items()['closure']['taxonomy'], wc_get_product( $product )->get_attributes(), 'A spec for another category is not written.' );
 	}
 
 	/**
@@ -351,6 +453,30 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 	 */
 	private function resolved( int $product_id ): array {
 		return array_column( Product_Specs::for_product( $product_id )['items'], null, 'key' );
+	}
+
+	/**
+	 * Change one spec through the Specs tab's save route.
+	 *
+	 * @param string               $key   Spec key.
+	 * @param array<string, mixed> $patch Fields to change.
+	 */
+	private function retype( string $key, array $patch ): void {
+		$registry = Product_Specs_Registry::get();
+		$items    = array_map( static fn( array $item ): array => $key === $item['key'] ? array_merge( $item, $patch ) : $item, $registry['items'] );
+		$request  = new \WP_REST_Request( 'POST' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			(string) wp_json_encode(
+				array(
+					'items'    => $items,
+					'revision' => $registry['revision'],
+					'changed'  => array( $key ),
+				)
+			)
+		);
+		$this->assertNotWPError( ( new Product_Specs_Settings() )->save_registry( $request ) );
+		Product_Specs::flush();
 	}
 
 	/**

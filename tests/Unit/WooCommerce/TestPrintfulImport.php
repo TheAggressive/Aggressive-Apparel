@@ -446,8 +446,8 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$this->assertSame( 'fabric', $facts['Fabric: French terry'] );
 	}
 
-	/** Creating a guide can add a store-wide spec and join another guide's spec. */
-	public function test_create_adds_store_specs_and_joins_guide_specs(): void {
+	/** Specs a guide brings are site-wide, and a later blank reuses one by key. */
+	public function test_create_adds_specs_and_later_blanks_reuse_them(): void {
 		// The feature registers this on boot; the test registers it itself.
 		if ( false === has_action( 'aggressive_apparel_size_guide_created', array( Printful_Import::class, 'created' ) ) ) {
 			( new Printful_Import() )->init();
@@ -456,16 +456,9 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$first = $rest->create(
 			$this->json(
 				array(
-					'title'          => 'Bella + Canvas 3001',
-					'categories'     => array(),
-					'specItems'      => array(
-						array(
-							'key'  => 'pre_shrunk',
-							'name' => 'Pre-shrunk',
-							'type' => 'text',
-						),
-					),
-					'storeSpecItems' => array(
+					'title'        => 'Bella + Canvas 3001',
+					'categories'   => array(),
+					'specItems'    => array(
 						array(
 							'key'      => 'closure',
 							'name'     => 'Closure',
@@ -473,11 +466,8 @@ class TestPrintfulImport extends WP_UnitTestCase {
 							'multiple' => true,
 						),
 					),
-					'specs'          => array(
-						'pre_shrunk' => 'Yes',
-						'closure'    => 'Zip | Snap',
-					),
-					'importSource'   => array(
+					'specs'        => array( 'closure' => 'Zip | Snap' ),
+					'importSource' => array(
 						'provider' => 'printful',
 						'id'       => 71,
 						'title'    => 'Unisex Staple T-Shirt',
@@ -488,24 +478,17 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$second = $rest->create(
 			$this->json(
 				array(
-					'title'     => 'Gildan 18500',
-					'specItems' => array(
-						array(
-							'key'  => 'pre_shrunk',
-							'name' => 'Pre-shrunk',
-							'join' => true,
-						),
-					),
+					'title' => 'Gildan 18500',
+					'specs' => array( 'closure' => 'Zip' ),
 				)
 			)
 		)->get_data();
 
 		$items = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
-		$this->assertSame( array(), $items['closure']['guides'], 'Store-wide.' );
 		$this->assertTrue( $items['closure']['multiple'] );
-		$this->assertSame( array( $first['id'], $second['id'] ), $items['pre_shrunk']['guides'], 'One spec, shared.' );
-		$this->assertArrayNotHasKey( 'pre_shrunk_2', $items, 'No duplicate.' );
+		$this->assertArrayNotHasKey( 'closure_2', $items, 'No duplicate.' );
 		$this->assertSame( 'Zip | Snap', $first['specs']['closure'] );
+		$this->assertSame( 'Zip', $second['specs']['closure'] );
 		$this->assertSame( 'Unisex Staple T-Shirt', $first['source']['title'] );
 	}
 
@@ -549,14 +532,11 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$this->assertSame( 'Chest', $draft['charts']['body']['columns'][0]['label'] );
 	}
 
-	/** Rules and matches only target store-wide specs that are on. */
-	public function test_facts_only_target_store_wide_specs(): void {
+	/** Rules and matches only target specs that are on. */
+	public function test_facts_only_target_specs_that_are_on(): void {
 		$items = Product_Specs_Registry::get()['items'];
 		foreach ( $items as &$item ) {
-			if ( 'construction' === $item['key'] ) {
-				$item['guides'] = array( self::factory()->post->create( array( 'post_type' => 'aa_size_guide' ) ) );
-			}
-			if ( 'fabric' === $item['key'] ) {
+			if ( 'fabric' === $item['key'] || 'construction' === $item['key'] ) {
 				$item['enabled'] = false;
 			}
 		}
@@ -571,9 +551,9 @@ class TestPrintfulImport extends WP_UnitTestCase {
 
 		$facts = array_column( Printful_Import::facts( "• Side-seamed\n• Pre-shrunk fabric\n• 100% cotton" ), 'target', 'text' );
 
-		$this->assertSame( '', $facts['Side-seamed'], 'Not a spec of one guide.' );
-		$this->assertSame( '', $facts['Pre-shrunk fabric'], 'A rule for a guide spec is ignored.' );
-		$this->assertSame( '', $facts['100% cotton'], 'Not a disabled spec.' );
+		$this->assertSame( '', $facts['Side-seamed'], 'Not a spec that is off.' );
+		$this->assertSame( '', $facts['Pre-shrunk fabric'], 'A rule for a spec that is off is ignored.' );
+		$this->assertSame( '', $facts['100% cotton'], 'Not a spec that is off.' );
 	}
 
 	/** A line's key never ends in half a character. */
@@ -615,21 +595,21 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$guide = ( new \Aggressive_Apparel\WooCommerce\Size_Guide_Rest() )->create(
 			$this->json(
 				array(
-					'title'          => 'Tee',
+					'title'        => 'Tee',
 					// "fabric" is already a store-wide spec, so this one is re-keyed.
-					'storeSpecItems' => array(
+					'specItems'    => array(
 						array(
 							'key'  => 'fabric',
 							'name' => 'Shell fabric',
 							'type' => 'text',
 						),
 					),
-					'specs'          => array( 'fabric' => 'Nylon' ),
-					'importSource'   => array(
+					'specs'        => array( 'fabric' => 'Nylon' ),
+					'importSource' => array(
 						'provider' => 'printful',
 						'id'       => 71,
 					),
-					'importRules'    => array(
+					'importRules'  => array(
 						array(
 							'key'    => 'shell: nylon',
 							'target' => 'fabric',

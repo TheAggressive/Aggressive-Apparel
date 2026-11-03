@@ -192,8 +192,8 @@ export function guideRequest({
     .map(key => created[key])
     .filter((value): value is ImportAttribute => Boolean(value));
 
-  const own: object[] = [];
-  const store: object[] = [];
+  // Every spec is site-wide: one an earlier blank made is reused by key.
+  const added: object[] = [];
   for (const attr of used) {
     const item = attributeItem(attr);
     values[savedKey(made, attr)] = combine(
@@ -205,36 +205,33 @@ export function guideRequest({
           : []
       )
     );
-    if (attr.scope === 'store') {
-      if (!made.has(attr.key)) {
-        store.push(toStored({ ...item, uid: '', isNew: true }));
-      }
-    } else {
-      // A later blank joins the spec the first one created.
-      own.push(
-        made.has(attr.key)
-          ? { key: savedKey(made, attr), name: attr.name, join: true }
-          : toStored({ ...item, uid: '', isNew: true })
-      );
+    if (!made.has(attr.key)) {
+      added.push(toStored({ ...item, uid: '', isNew: true }));
     }
   }
 
   const chart = draft.charts[state.kind];
-  const diagram = Boolean(chart && state.diagram && draft.diagrams[state.kind]);
+  // Notes and a diagram switched off still come along, hidden on product
+  // pages, so the guide can switch them back on later.
+  const hasDiagram = Boolean(chart && draft.diagrams[state.kind]);
+  const diagram = hasDiagram && state.diagram;
 
   return {
     data: {
       title: state.title,
       ...(chart && { chart }),
-      notes: state.withNotes ? state.notes[state.kind] : '',
+      notes: state.notes[state.kind],
+      showNotes: state.withNotes,
       categories: state.categories,
       isDefault: state.isDefault,
       specs: values,
-      ...(own.length > 0 && { specItems: own }),
-      ...(store.length > 0 && { storeSpecItems: store }),
+      ...(added.length > 0 && { specItems: added }),
       importSource: draft.source,
       importWhere: draft.where.key,
-      ...(diagram && { diagramUrl: draft.diagrams[state.kind] }),
+      ...(hasDiagram && {
+        diagramUrl: draft.diagrams[state.kind],
+        showDiagram: state.diagram,
+      }),
       importRules: draft.facts.map((fact, i) => {
         const target = state.mappings[i].target;
         if (target !== 'new') {
@@ -265,22 +262,14 @@ export function guideRequest({
 
 /**
  * The registry item a save made for a new attribute: a key not there
- * before, the same name, and the right scope (on this guide, when known).
+ * before, with the same name.
  */
 export function findSaved(
   items: SpecItem[],
   attr: ImportAttribute,
-  before: Set<string>,
-  guide: number
+  before: Set<string>
 ): SpecItem | undefined {
   return items.find(
-    other =>
-      !before.has(other.key) &&
-      other.name === attr.name &&
-      (attr.scope === 'store'
-        ? other.guides.length === 0
-        : guide > 0
-          ? other.guides.includes(guide)
-          : other.guides.length > 0)
+    other => !before.has(other.key) && other.name === attr.name
   );
 }

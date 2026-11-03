@@ -101,6 +101,5 @@ export function attributeItem(attribute: ImportAttribute): DraftItem {
     multiple: attribute.kind === 'multiple',
     archives: type === 'text' && attribute.archives,
     taxonomy: attribute.taxonomy,
-    guides: [],
   };
 }

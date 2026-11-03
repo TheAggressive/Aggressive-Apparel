@@ -34,7 +34,7 @@ import type {
   Registry,
   SpecItem,
 } from './_types';
-import { scrollBehavior, specKey } from './_utils';
+import { errorText, scrollBehavior, specKey } from './_utils';
 import { attributeItem, nameFrom, valueFor } from './_import';
 import {
   findSaved,
@@ -108,7 +108,7 @@ export default function ImportFlow({
   const madeRef = useRef(new Map<string, string>());
   const [error, setError] = useState('');
 
-  const specs = items.filter(item => item.enabled && item.guides.length === 0);
+  const specs = items.filter(item => item.enabled);
   const free = Object.fromEntries(
     Object.entries(taxonomies).filter(
       ([taxonomy]) => !items.some(item => item.taxonomy === taxonomy)
@@ -193,8 +193,10 @@ export default function ImportFlow({
             /* translators: 1: blank name, 2: error message. */
             __('%1$s: %2$s', 'aggressive-apparel'),
             product.model || product.title,
-            (outcome.reason as { message?: string })?.message ??
+            errorText(
+              outcome.reason,
               __('It could not be loaded from Printful.', 'aggressive-apparel')
+            )
           )
         );
         return;
@@ -280,7 +282,6 @@ export default function ImportFlow({
       key: '',
       name: nameFrom(fact.text),
       kind: 'text',
-      scope: 'guide',
       archives: false,
       steps: 'Low, Medium, High',
       unit: '',
@@ -327,13 +328,9 @@ export default function ImportFlow({
     const before = new Set([...items.map(item => item.key), ...made.values()]);
     const done: ImportResult[] = [];
     /** Record the specs a save made, as the registry now has them. */
-    const reconcile = (
-      registry: Registry,
-      used: ImportAttribute[],
-      guide: number
-    ) => {
+    const reconcile = (registry: Registry, used: ImportAttribute[]) => {
       for (const attr of used.filter(other => !made.has(other.key))) {
-        const item = findSaved(registry.items, attr, before, guide);
+        const item = findSaved(registry.items, attr, before);
         if (item) {
           made.set(attr.key, item.key);
           before.add(item.key);
@@ -358,7 +355,7 @@ export default function ImportFlow({
           data,
         })) as GuideDetail & { registry?: Registry };
         if (result.registry) {
-          reconcile(result.registry, used, result.id);
+          reconcile(result.registry, used);
           onRegistry(result.registry);
         }
         used.forEach(attr => made.set(attr.key, savedKey(made, attr)));
@@ -370,23 +367,18 @@ export default function ImportFlow({
           const registry = (await apiFetch({
             path: config.restPath,
           })) as Registry;
-          reconcile(registry, used, 0);
+          reconcile(registry, used);
           onRegistry(registry);
         } catch {
           // Nothing more to learn; the next blank sends the spec again.
         }
-        const { message, data } = failure as {
-          message?: string;
-          data?: { errors?: string[] };
-        };
         done.push({
           ...summary,
           guide: 0,
-          error: [
-            message ??
-              __('The guide could not be created.', 'aggressive-apparel'),
-            ...(data?.errors ?? []),
-          ].join(' '),
+          error: errorText(
+            failure,
+            __('The guide could not be created.', 'aggressive-apparel')
+          ),
         });
       }
     }

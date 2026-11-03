@@ -15,14 +15,12 @@
 import { useEffect, useState } from '@wordpress/element';
 import type { KeyboardEvent } from 'react';
 import { Button, Notice, Spinner, ToggleControl } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type {
   Config,
   DraftItem,
   GuideSummary,
-  Registry,
   SpecItem,
   Suggestion,
   Tab,
@@ -32,6 +30,7 @@ import ItemCard from './_ItemCard';
 import GuidesTab from './_GuidesTab';
 import ProductsTab, { type ProductEdits } from './_ProductsTab';
 import { AddSpecButton, Suggestions } from './_AddSpec';
+import saveRegistry from './_saveRegistry';
 
 type SaveError = { message?: string; data?: { errors?: string[] } };
 
@@ -70,6 +69,12 @@ export default function App({ config }: { config: Config }) {
   // The revision the draft started from, and what it changed since: a save
   // from an older revision applies only these on top of the current list.
   const [revision, setRevision] = useState(config.registry.revision);
+  // The latest saved revision and setting, for a guide saving spec edits
+  // (the Specs tab's own draft may be older).
+  const [saved, setSaved] = useState({
+    revision: config.registry.revision,
+    hideDimensions: config.registry.hide_dimensions,
+  });
   // Global attributes, kept current: a save can create one.
   const [taxonomies, setTaxonomies] = useState(config.taxonomies);
   const [changed, setChanged] = useState<string[]>([]);
@@ -141,10 +146,11 @@ export default function App({ config }: { config: Config }) {
     touch(items.filter(other => other.uid !== item.uid));
   };
 
-  const move = (index: number, direction: -1 | 1) => {
+  // Groups interleave in the saved list, so a card trades places with its
+  // neighbour in its own group, not whatever happens to sit next to it there.
+  const swap = (from: number, to: number) => {
     const next = [...items];
-    const [item] = next.splice(index, 1);
-    next.splice(index + direction, 0, item);
+    [next[from], next[to]] = [next[to], next[from]];
     touch(next);
   };
 
@@ -184,20 +190,20 @@ export default function App({ config }: { config: Config }) {
     setSpecsSaving(true);
     setSpecsErrors([]);
     try {
-      const registry = (await apiFetch({
-        path: config.restPath,
-        method: 'POST',
-        data: {
-          items: items.map(toStored),
-          hide_dimensions: hideDimensions,
-          revision,
-          changed: items
-            .filter(item => changed.includes(item.uid))
-            .map(item => toStored(item).key),
-          deleted,
-        },
-      })) as Registry;
+      const registry = await saveRegistry(config.restPath, {
+        items: items.map(toStored),
+        hideDimensions,
+        revision,
+        changed: items
+          .filter(item => changed.includes(item.uid))
+          .map(item => toStored(item).key),
+        deleted,
+      });
       setRevision(registry.revision);
+      setSaved({
+        revision: registry.revision,
+        hideDimensions: registry.hide_dimensions,
+      });
       setTaxonomies(registry.taxonomies ?? taxonomies);
       setChanged([]);
       setDeleted([]);
@@ -239,11 +245,20 @@ export default function App({ config }: { config: Config }) {
     },
   ];
 
+  // A spec turned off sits in its own group once saved, so a card being
+  // edited doesn't jump away.
+  const isOff = (item: DraftItem): boolean =>
+    !(
+      item.isNew
+        ? item
+        : (savedItems.find(saved => saved.key === item.key) ?? item)
+    ).enabled;
+
   const specsTab = (
     <div className='aa-ps-tab'>
       <p className='aa-ps-intro'>
         {__(
-          'The specs products can show, like Fit or Fabric weight. Choose the categories each applies to, so hats, tees, and bags can show different things, and set a default every product gets.',
+          'The specs products can show, like Fit or Fabric weight. A product shows a spec when it has a value, from the product, its size guide, or the spec’s default, so a spec that’s on shows nothing where it isn’t used. Turn one off to put it away for later.',
           'aggressive-apparel'
         )}
       </p>
@@ -271,38 +286,46 @@ export default function App({ config }: { config: Config }) {
         )}
         {[
           {
-            title: __('Store-wide specs', 'aggressive-apparel'),
-            owned: false,
+            off: false,
+            title: __('On', 'aggressive-apparel'),
+            help: '',
           },
           {
-            title: __('Size guide specs', 'aggressive-apparel'),
-            owned: true,
+            off: true,
+            title: __('Off', 'aggressive-apparel'),
+            help: __(
+              'Shown nowhere, with settings and values kept. Turn one on to use it again.',
+              'aggressive-apparel'
+            ),
           },
         ].map(group => {
           const list = items
             .map((item, index) => ({ item, index }))
-            .filter(({ item }) => item.guides.length > 0 === group.owned);
+            .filter(({ item }) => isOff(item) === group.off);
           return (
             list.length > 0 && (
               <div key={group.title} className='aa-ps-list__group'>
-                <h3>{group.title}</h3>
-                {list.map(({ item, index }) => (
+                <h3 className='aa-ps-eyebrow'>{group.title}</h3>
+                {group.help && <p className='aa-ps-help'>{group.help}</p>}
+                {list.map(({ item, index }, position) => (
                   <ItemCard
                     key={item.uid}
                     item={item}
-                    index={index}
-                    total={items.length}
+                    index={position}
+                    total={list.length}
                     categories={config.categories}
                     attributeNames={config.attributes}
                     limits={config.limits}
-                    guides={guides}
+                    switchable
                     taxonomies={freeTaxonomies(item)}
                     open={open === item.uid}
                     onToggle={() =>
                       setOpen(open === item.uid ? null : item.uid)
                     }
                     onChange={patch => update(item.uid, patch)}
-                    onMove={direction => move(index, direction)}
+                    onMove={direction =>
+                      swap(index, list[position + direction].index)
+                    }
                     onDelete={() => remove(item)}
                   />
                 ))}
@@ -437,10 +460,16 @@ export default function App({ config }: { config: Config }) {
         <div hidden={tab !== 'guides'}>
           <GuidesTab
             config={config}
+            onManageSpecs={() => selectTab('specs')}
+            registry={saved}
             items={savedItems}
             taxonomies={taxonomies}
             onRegistry={registry => {
               setSavedItems(registry.items);
+              setSaved({
+                revision: registry.revision,
+                hideDimensions: registry.hide_dimensions,
+              });
               setTaxonomies(registry.taxonomies ?? taxonomies);
               // An untouched Specs tab follows. A dirty one keeps its draft
               // and older revision, so its save merges onto this one.

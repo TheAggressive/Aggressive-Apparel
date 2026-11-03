@@ -1,6 +1,6 @@
 <?php
 /**
- * Guide-owned spec items: ownership, merging, sharing, and resolution.
+ * Specs added from a size guide: site-wide, opt-in by value, never editing others.
  *
  * @package Aggressive_Apparel\Tests\Unit\WooCommerce
  */
@@ -18,7 +18,7 @@ use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
 use WP_UnitTestCase;
 
 /**
- * Covers specs created inside a size guide.
+ * Covers specs added while editing or importing a size guide.
  */
 class TestSizeGuideSpecItems extends WP_UnitTestCase {
 
@@ -49,61 +49,59 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	/** A guide's own spec shows only on products using that guide. */
-	public function test_owned_spec_shows_only_with_its_guide(): void {
-		$guide = $this->guide( 'Dad Hat' );
-		$other = $this->guide( 'Jersey Tee' );
-		$this->assertSame( array(), Size_Guide_Spec_Items::save( $guide, array( $this->text_item( 'Closure' ) ) ) );
-		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $guide, array( 'closure' => 'Brass buckle' ) );
+	/** A spec added from a guide is site-wide, and shows where it has a value. */
+	public function test_added_spec_shows_where_it_has_a_value(): void {
+		$hat_guide = $this->guide( 'Dad Hat' );
+		$tee_guide = $this->guide( 'Jersey Tee' );
+		$this->assertSame( array(), Size_Guide_Spec_Items::add( array( $this->text_item( 'Closure' ) ) ) );
+		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $hat_guide, array( 'closure' => 'Brass buckle' ) );
 
-		$hat = $this->product( $guide );
-		$tee = $this->product( $other );
+		$hat = $this->product( $hat_guide );
+		$tee = $this->product( $tee_guide );
 
-		$keys = array_column( Product_Specs::for_product( $hat )['items'], 'display', 'key' );
-		$this->assertSame( 'Brass buckle', $keys['closure'] );
-		$this->assertArrayHasKey( 'fit', $keys, 'Store-wide specs still apply.' );
-		$this->assertNotContains( 'closure', array_column( Product_Specs::for_product( $tee )['items'], 'key' ) );
+		$items = array_column( Product_Specs::for_product( $hat )['items'], 'display', 'key' );
+		$this->assertSame( 'Brass buckle', $items['closure'] );
+		$this->assertArrayHasKey( 'fit', $items, 'The store’s other specs still apply.' );
+		$tee_items = array_column( Product_Specs::for_product( $tee )['items'], 'display', 'key' );
+		$this->assertSame( '', $tee_items['closure'], 'Another guide uses it only by giving it a value.' );
+		$this->assertArrayNotHasKey( 'guides', Product_Specs_Registry::get()['items'][0] );
 	}
 
-	/** Saving a guide never changes store-wide items or another guide's. */
-	public function test_save_only_touches_owned_items(): void {
-		$guide = $this->guide( 'Dad Hat' );
-		$other = $this->guide( 'Jersey Tee' );
-		Size_Guide_Spec_Items::save( $other, array( $this->text_item( 'Neck tape' ) ) );
+	/** Adding never changes a spec already there: a taken key gets a fresh one. */
+	public function test_add_never_touches_existing_specs(): void {
+		Size_Guide_Spec_Items::add( array( $this->text_item( 'Neck tape' ) ) );
 
-		// Same keys as a store-wide item and another guide's item.
-		$fit             = $this->text_item( 'Fit' );
-		$fit['key']      = 'fit';
-		$tape            = $this->text_item( 'Neck tape' );
-		$tape['guides']  = array();
-		$errors          = Size_Guide_Spec_Items::save( $guide, array( $fit, $tape ) );
-		$items           = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
+		$fit        = $this->text_item( 'Fit' );
+		$fit['key'] = 'fit';
+		$renamed    = array();
+		$errors     = Size_Guide_Spec_Items::add( array( $fit, $this->text_item( 'Neck tape' ) ), $renamed );
+		$items      = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
 
 		$this->assertSame( array(), $errors );
-		$this->assertSame( 'pick', $items['fit']['type'], 'The store-wide Fit is untouched.' );
-		$this->assertSame( array(), $items['fit']['guides'] );
-		$this->assertSame( array( $other ), $items['neck_tape']['guides'] );
-		$this->assertSame( array( $guide ), $items['fit_2']['guides'], 'A taken key gets a fresh one.' );
-		$this->assertSame( array( $guide ), $items['neck_tape_2']['guides'], 'Submitted guides are ignored.' );
+		$this->assertSame( 'pick', $items['fit']['type'], 'The store’s Fit is untouched.' );
+		$this->assertSame( 'text', $items['fit_2']['type'] );
+		$this->assertArrayHasKey( 'neck_tape_2', $items );
+		$this->assertSame( array( 'fit' => 'fit_2' ), $renamed );
 	}
 
-	/** Left-out items leave the guide; shared ones survive on the other guide. */
-	public function test_removing_and_sharing(): void {
-		$guide = $this->guide( 'Dad Hat' );
-		Size_Guide_Spec_Items::save( $guide, array( $this->text_item( 'Closure' ), $this->text_item( 'Crown' ) ) );
+	/** Specs that once belonged to particular guides read as site-wide. */
+	public function test_guide_only_specs_from_before_are_site_wide(): void {
+		$hat_guide = $this->guide( 'Dad Hat' );
+		$tee_guide = $this->guide( 'Jersey Tee' );
+		Size_Guide_Spec_Items::add( array( $this->text_item( 'Closure' ) ) );
+		$stored = get_option( Product_Specs_Registry::OPTION_KEY );
+		foreach ( $stored['items'] as &$item ) {
+			if ( 'closure' === $item['key'] ) {
+				$item['guides'] = array( $hat_guide );
+			}
+		}
+		unset( $item );
+		update_option( Product_Specs_Registry::OPTION_KEY, $stored );
+		Product_Specs_Registry::flush();
+		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $tee_guide, array( 'closure' => 'Snap' ) );
 
-		$copy = ( new Size_Guide_Rest() )->duplicate( $this->request( $guide ) )->get_data();
-		$copy = (int) $copy['id'];
-		$keys = array_column( Product_Specs_Registry::get()['items'], 'guides', 'key' );
-		$this->assertSame( array( $guide, $copy ), $keys['closure'], 'A duplicate shares the guide’s specs.' );
-
-		Size_Guide_Spec_Items::save( $guide, array( $this->text_item( 'Crown' ) ) );
-		$keys = array_column( Product_Specs_Registry::get()['items'], 'guides', 'key' );
-		$this->assertSame( array( $copy ), $keys['closure'], 'Still on the copy.' );
-
-		Size_Guide_Spec_Items::save( $copy, array( $this->text_item( 'Crown' ) ) );
-		$keys = array_column( Product_Specs_Registry::get()['items'], 'guides', 'key' );
-		$this->assertArrayNotHasKey( 'closure', $keys, 'Deleted once no guide has it.' );
+		$items = array_column( Product_Specs::for_product( $this->product( $tee_guide ) )['items'], 'display', 'key' );
+		$this->assertSame( 'Snap', $items['closure'] );
 	}
 
 	/** An invalid spec saves nothing, and the REST update reports why. */
@@ -115,7 +113,7 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 			'steps' => array( 'Only one' ),
 		);
 
-		$this->assertNotSame( array(), Size_Guide_Spec_Items::save( $guide, array( $bad ) ) );
+		$this->assertNotSame( array(), Size_Guide_Spec_Items::add( array( $bad ) ) );
 		$this->assertNotContains( 'stretch', array_column( Product_Specs_Registry::get()['items'], 'key' ) );
 
 		$response = ( new Size_Guide_Rest() )->update(
@@ -131,22 +129,95 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		$this->assertSame( 'Dad Hat', get_the_title( $guide ), 'Nothing else is written either.' );
 	}
 
-	/** A new guide's specs and values save in one request. */
+	/** A new guide's specs and values save in one request, under the keys saved. */
 	public function test_create_with_spec_items(): void {
 		$created = ( new Size_Guide_Rest() )->create(
 			$this->request(
 				0,
 				array(
 					'title'     => 'Bucket Hat',
-					'specItems' => array( $this->text_item( 'Brim' ) ),
-					'specs'     => array( 'brim' => '6 cm' ),
+					'specItems' => array(
+						$this->text_item( 'Brim' ),
+						array(
+							'key'  => 'fabric',
+							'name' => 'Shell fabric',
+							'type' => 'text',
+						),
+					),
+					'specs'     => array(
+						'brim'   => '6 cm',
+						'fabric' => 'Nylon',
+					),
 				)
 			)
 		)->get_data();
 
-		$keys = array_column( $created['registry']['items'], 'guides', 'key' );
-		$this->assertSame( array( (int) $created['id'] ), $keys['brim'] );
+		$keys = array_column( $created['registry']['items'], 'name', 'key' );
+		$this->assertSame( 'Brim', $keys['brim'] );
+		$this->assertSame( 'Shell fabric', $keys['fabric_2'], 'A taken key gets a fresh one.' );
 		$this->assertSame( '6 cm', $created['specs']['brim'] );
+		$this->assertSame( 'Nylon', $created['specs']['fabric_2'], 'Its value follows it.' );
+	}
+
+	/** Duplicating a guide copies its values, with no specs to share. */
+	public function test_duplicate_copies_values(): void {
+		$guide = $this->guide( 'Dad Hat' );
+		Size_Guide_Spec_Items::add( array( $this->text_item( 'Closure' ) ) );
+		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $guide, array( 'closure' => 'Brass buckle' ) );
+		$before = Product_Specs_Registry::get()['items'];
+
+		$copy = ( new Size_Guide_Rest() )->duplicate( $this->request( $guide ) )->get_data();
+
+		$this->assertSame( 'Brass buckle', $copy['specs']['closure'] );
+		$this->assertSame( $before, Product_Specs_Registry::get()['items'], 'The specs are left as they were.' );
+	}
+
+	/** Wording set on a guide shows on its products only; a product's own wins. */
+	public function test_guide_wording_shows_on_its_products(): void {
+		$tee_guide = $this->guide( 'Jersey Tee' );
+		$hat_guide = $this->guide( 'Dad Hat' );
+		$response  = ( new Size_Guide_Rest() )->update(
+			$this->request(
+				$tee_guide,
+				array(
+					'specs'   => array( 'fit' => '1' ),
+					'wording' => array(
+						'fit' => array(
+							'title' => 'Tee fit',
+							'step1' => 'Trim',
+						),
+					),
+				)
+			)
+		);
+		$this->assertSame( array( 'fit' => array( 'title' => 'Tee fit', 'step1' => 'Trim' ) ), $response->get_data()['wording'] );
+
+		$tee = $this->product( $tee_guide );
+		$fit = array_column( Product_Specs::for_product( $tee )['items'], null, 'key' )['fit'];
+		$this->assertSame( 'Tee fit', $fit['title'] );
+		$this->assertSame( 'Trim', $fit['steps'][1] );
+
+		$hat = array_column( Product_Specs::for_product( $this->product( $hat_guide ) )['items'], null, 'key' )['fit'];
+		$this->assertSame( 'Fit', $hat['title'], 'Another guide keeps the spec’s own wording.' );
+
+		update_post_meta( $tee, \Aggressive_Apparel\WooCommerce\Product_Specs_Meta::WORDING, array( 'fit' => array( 'title' => 'This tee’s fit' ) ) );
+		Product_Specs::flush();
+		$fit = array_column( Product_Specs::for_product( $tee )['items'], null, 'key' )['fit'];
+		$this->assertSame( 'This tee’s fit', $fit['title'], 'A product’s own wording wins.' );
+		$this->assertSame( 'Trim', $fit['steps'][1], 'Fields it leaves out still come from the guide.' );
+	}
+
+	/** Clearing a guide's wording goes back to the spec's; a copy keeps it. */
+	public function test_guide_wording_clears_and_copies(): void {
+		$guide = $this->guide( 'Jersey Tee' );
+		$rest  = new Size_Guide_Rest();
+		$rest->update( $this->request( $guide, array( 'wording' => array( 'fit' => array( 'title' => 'Tee fit' ) ) ) ) );
+
+		$copy = $rest->duplicate( $this->request( $guide ) )->get_data();
+		$this->assertSame( array( 'fit' => array( 'title' => 'Tee fit' ) ), $copy['wording'] );
+
+		$rest->update( $this->request( $guide, array( 'wording' => array( 'fit' => array( 'title' => '' ) ) ) ) );
+		$this->assertSame( '', get_post_meta( $guide, \Aggressive_Apparel\WooCommerce\Product_Specs_Values::GUIDE_WORDING, true ) );
 	}
 
 	/**

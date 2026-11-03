@@ -26,6 +26,10 @@ type Props = {
   guides: GuideSummary[];
   onGuides: (guides: GuideSummary[]) => void;
   onDirty: (dirty: boolean) => void;
+  /** Open the Specs tab (a guide's edits stay, since this tab stays mounted). */
+  onManageSpecs: () => void;
+  /** The saved registry's revision and setting, for saving spec edits. */
+  registry: { revision: number; hideDimensions: boolean };
 };
 
 function setGuideParam(value: number | 'new' | null): void {
@@ -66,6 +70,8 @@ export default function GuidesTab({
   guides,
   onGuides,
   onDirty,
+  onManageSpecs,
+  registry,
 }: Props) {
   const [open, setOpen] = useState<number | 'new' | null>(
     config.guide === 'new' || config.guide > 0 ? config.guide : null
@@ -114,9 +120,11 @@ export default function GuidesTab({
         config={config}
         items={items}
         onRegistry={onRegistry}
-        taxonomies={taxonomies}
         guideId={open}
         onDirty={onDirty}
+        onManageSpecs={onManageSpecs}
+        registry={registry}
+        taxonomies={taxonomies}
         onOpen={id => {
           show(id);
           void refresh();

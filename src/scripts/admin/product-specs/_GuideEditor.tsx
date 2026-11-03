@@ -3,22 +3,15 @@
  *
  * Everything about a garment blank in one form: its name, size chart, notes
  * and measuring diagram, specs, and where it applies. One save writes it all
- * (Size_Guide_Rest), including the specs the guide owns, which the server
- * merges into the spec registry (Size_Guide_Spec_Items).
+ * (Size_Guide_Rest), along with any spec edited or added here: edits save
+ * through the Specs tab's own save first (saveRegistry), new specs with the
+ * guide, which adds them to the store's specs (Size_Guide_Spec_Items).
  *
  * @package Aggressive_Apparel
  */
 
 import { useEffect, useState } from '@wordpress/element';
-import {
-  Button,
-  CheckboxControl,
-  Notice,
-  Spinner,
-  TextControl,
-  TextareaControl,
-  ToggleControl,
-} from '@wordpress/components';
+import { Button, Notice, Spinner, TextControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type {
@@ -28,34 +21,20 @@ import type {
   Registry,
   SpecItem,
 } from './_types';
-import { toDraft, toStored } from './_utils';
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
+import GuideNotes, { NotesPreview } from './_GuideNotes';
 import GuideSpecs from './_GuideSpecs';
+import GuideStatusStrip from './_GuideStatus';
+import WhereItApplies from './_WhereItApplies';
+import { ShopperPreview } from './_Preview';
+import { SECTION, guideSpecs, guideStatus, hasChart } from './_guideSummary';
+import saveRegistry from './_saveRegistry';
+import { errorText, toStored } from './_utils';
+import { readWording } from './_wording';
 import ApplyToProducts from './_ApplyToProducts';
-
-type Attachment = {
-  id: number;
-  url: string;
-  sizes?: { medium?: { url: string } };
-};
-
-type MediaFrame = {
-  on: (event: string, callback: () => void) => void;
-  open: () => void;
-  state: () => {
-    get: (key: string) => { first: () => { toJSON: () => unknown } };
-  };
-};
-
-type SaveError = { message?: string; data?: { errors?: string[] } };
-
-/** Error text plus any per-spec problems the server listed. */
-function errorText(failure: unknown, fallback: string): string {
-  const { message, data } = failure as SaveError;
-  return [message ?? fallback, ...(data?.errors ?? [])].join(' ');
-}
+import { editGuideValues, guideValues, type ValueEdits } from './_guideValues';
 
 type Props = {
   config: Config;
@@ -64,11 +43,15 @@ type Props = {
   guideId: number | 'new';
   /** A save changed the spec registry. */
   onRegistry: (registry: Registry) => void;
-  /** Global attributes, taxonomy => label. */
-  taxonomies: Record<string, string>;
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
   onCreated: (id: number) => void;
+  /** Global attributes, taxonomy => label (current, not as loaded). */
+  taxonomies: Record<string, string>;
+  /** Open the Specs tab, keeping this guide's unsaved edits. */
+  onManageSpecs: () => void;
+  /** The saved registry's revision and setting, for saving spec edits. */
+  registry: { revision: number; hideDimensions: boolean };
   onDirty: (dirty: boolean) => void;
 };
 
@@ -79,8 +62,11 @@ function blank(): GuideDetail {
     chart: templates()[0].chart,
     notes: '',
     diagram: null,
+    showNotes: true,
+    showDiagram: true,
     specs: {},
     hidden: [],
+    wording: {},
     source: null,
     categories: [],
     isDefault: false,
@@ -95,11 +81,13 @@ export default function GuideEditor({
   items,
   guideId,
   onRegistry,
-  taxonomies,
   onClose,
   onOpen,
   onCreated,
   onDirty,
+  taxonomies,
+  onManageSpecs,
+  registry,
 }: Props) {
   const [guide, setGuide] = useState<GuideDetail | null>(
     guideId === 'new' ? blank() : null
@@ -115,23 +103,11 @@ export default function GuideEditor({
   // untouched discards nothing worth asking about.
   const [touched, setTouched] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-  // The guide's own specs, edited here and saved with the guide.
-  const [own, setOwn] = useState<DraftItem[]>([]);
-  const [ownDirty, setOwnDirty] = useState(false);
-  const savedId = guide?.id ?? 0;
-
-  // Follow the saved registry (after this or another save) unless the
-  // guide's own specs have unsaved edits.
-  useEffect(() => {
-    if (!ownDirty) {
-      setOwn(
-        savedId > 0
-          ? items.filter(item => item.guides.includes(savedId)).map(toDraft)
-          : []
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- ownDirty only gates.
-  }, [items, savedId]);
+  // Specs edited or added here, saved with the guide.
+  const [edits, setEdits] = useState<Record<string, DraftItem>>({});
+  const [added, setAdded] = useState<DraftItem[]>([]);
+  const [valueItems, setValueItems] = useState(items);
+  const [valueEdits, setValueEdits] = useState<ValueEdits>({});
 
   const setDirty = (value: boolean) => {
     setDirtyState(value);
@@ -144,11 +120,16 @@ export default function GuideEditor({
       return;
     }
     apiFetch({ path: `${config.guidesPath}/${guideId}` })
-      .then(result => setGuide(result as GuideDetail))
-      .catch((failure: { message?: string }) =>
+      .then(result => {
+        const detail = result as GuideDetail;
+        setGuide({ ...detail, wording: readWording(detail.wording) });
+      })
+      .catch((failure: unknown) =>
         setError(
-          failure.message ??
+          errorText(
+            failure,
             __('The size guide could not be loaded.', 'aggressive-apparel')
+          )
         )
       );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load once per guide.
@@ -181,17 +162,55 @@ export default function GuideEditor({
     markDirty();
   };
 
-  const updateOwn = (next: DraftItem[]) => {
-    setOwn(next);
-    setOwnDirty(true);
+  const editSpec = (item: DraftItem) => {
+    setEdits(current => ({ ...current, [item.key]: item }));
     markDirty();
   };
+
+  const discardSpecEdit = (key: string) => {
+    if (!edits[key]) {
+      return;
+    }
+    setEdits(current => {
+      const { [key]: _discarded, ...rest } = current;
+      return rest;
+    });
+    markDirty();
+  };
+
+  const updateAdded = (next: DraftItem[]) => {
+    setAdded(next);
+    markDirty();
+  };
+
+  const currentItems = [
+    ...items.map(item => edits[item.key] ?? item),
+    ...added,
+  ];
+  const values = guideValues(guide.specs, valueItems, currentItems, valueEdits);
 
   /** Save the guide; true when it saved. */
   const save = async (): Promise<boolean> => {
     setSaving(true);
     setError('');
     try {
+      let savedItems = items;
+      // Spec edits first, through the Specs tab's save, so the guide's
+      // values below are saved against the specs as edited.
+      const edited = Object.keys(edits);
+      if (edited.length > 0) {
+        const savedRegistry = await saveRegistry(config.restPath, {
+          items: items.map(item =>
+            edits[item.key] ? toStored(edits[item.key]) : item
+          ),
+          hideDimensions: registry.hideDimensions,
+          revision: registry.revision,
+          changed: edited,
+        });
+        savedItems = savedRegistry.items;
+        onRegistry(savedRegistry);
+        setEdits({});
+      }
       const result = (await apiFetch({
         path: guide.id ? `${config.guidesPath}/${guide.id}` : config.guidesPath,
         method: 'POST',
@@ -200,18 +219,27 @@ export default function GuideEditor({
           chart: guide.chart,
           notes: guide.notes,
           diagram: guide.diagram?.id ?? 0,
-          specs: guide.specs,
+          showNotes: guide.showNotes,
+          showDiagram: guide.showDiagram,
+          specs: guide.id
+            ? Object.fromEntries(
+                Object.keys(valueEdits).map(key => [key, values[key]])
+              )
+            : values,
           hidden: guide.hidden,
-          ...(ownDirty && { specItems: own.map(toStored) }),
+          wording: guide.wording,
+          ...(added.length > 0 && { specItems: added.map(toStored) }),
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
       })) as GuideDetail & { registry?: Registry };
-      const { registry, ...detail } = result;
-      setGuide(detail);
-      setOwnDirty(false);
-      if (registry) {
-        onRegistry(registry);
+      const { registry: saved, ...detail } = result;
+      setGuide({ ...detail, wording: readWording(detail.wording) });
+      setAdded([]);
+      setValueItems(saved?.items ?? savedItems);
+      setValueEdits({});
+      if (saved) {
+        onRegistry(saved);
       }
       setDirty(false);
       setSaved(true);
@@ -251,8 +279,10 @@ export default function GuideEditor({
       onOpen(copy.id);
     } catch (failure) {
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('The guide could not be duplicated.', 'aggressive-apparel')
+        )
       );
     } finally {
       setSaving(false);
@@ -272,38 +302,14 @@ export default function GuideEditor({
     } catch (failure) {
       setConfirmDelete(false);
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('The guide could not be deleted.', 'aggressive-apparel')
+        )
       );
     } finally {
       setSaving(false);
     }
-  };
-
-  const pickDiagram = () => {
-    const media = (
-      window as unknown as { wp?: { media?: (options: object) => MediaFrame } }
-    ).wp?.media;
-    if (!media) {
-      return;
-    }
-    const frame = media({
-      title: __('Measuring diagram', 'aggressive-apparel'),
-      library: { type: 'image' },
-      multiple: false,
-      button: { text: __('Use this image', 'aggressive-apparel') },
-    });
-    frame.on('select', () => {
-      const image = frame
-        .state()
-        .get('selection')
-        .first()
-        .toJSON() as Attachment;
-      update({
-        diagram: { id: image.id, url: image.sizes?.medium?.url ?? image.url },
-      });
-    });
-    frame.open();
   };
 
   const convertLegacy = async () => {
@@ -324,21 +330,16 @@ export default function GuideEditor({
       setPartial(!imported.lossless);
     } catch (failure) {
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('The guide could not be converted.', 'aggressive-apparel')
+        )
       );
     }
   };
 
   const startChart = () =>
     update({ chart: templates()[0].chart, legacyHtml: '' });
-
-  const toggleCategory = (id: number, checked: boolean) =>
-    update({
-      categories: checked
-        ? [...guide.categories, id]
-        : guide.categories.filter(category => category !== id),
-    });
 
   return (
     <div className='aa-ps-guide'>
@@ -418,8 +419,16 @@ export default function GuideEditor({
         __next40pxDefaultSize
       />
 
+      <GuideStatusStrip
+        status={guideStatus(
+          { ...guide, specs: values },
+          guideSpecs(items, edits, added),
+          config.categories
+        )}
+      />
+
       {guide.legacyHtml && (
-        <div className='aa-ps-legacy'>
+        <div id={SECTION.chart} className='aa-ps-legacy'>
           <p>
             <strong>
               {__(
@@ -457,7 +466,7 @@ export default function GuideEditor({
       )}
 
       {!guide.legacyHtml && (
-        <section className='aa-ps-guide__section'>
+        <section id={SECTION.chart} className='aa-ps-guide__section'>
           <div className='aa-ps-guide__section-head'>
             <h2>{__('Size chart', 'aggressive-apparel')}</h2>
             {guide.id === 0 && (
@@ -496,74 +505,49 @@ export default function GuideEditor({
               limits={config.limits}
               onChange={chart => update({ chart })}
             />
-            <div className='aa-ps-guide__preview'>
-              <p className='aa-ps-preview__label'>
-                {__('What shoppers see', 'aggressive-apparel')}
-              </p>
+            <ShopperPreview>
               <ChartPreview chart={guide.chart} />
-            </div>
+              <NotesPreview
+                notes={guide.notes}
+                diagram={guide.diagram}
+                showNotes={guide.showNotes}
+                showDiagram={guide.showDiagram}
+              />
+            </ShopperPreview>
           </div>
         </section>
       )}
 
-      <section className='aa-ps-guide__section aa-ps-guide__notes'>
-        <h2>{__('Notes and diagram', 'aggressive-apparel')}</h2>
-        <TextareaControl
-          label={__('Notes', 'aggressive-apparel')}
-          value={guide.notes}
-          rows={4}
-          placeholder={__(
-            'How to measure, or fit notes like “Model is 6’1” wearing M”.',
-            'aggressive-apparel'
-          )}
-          onChange={notes => update({ notes })}
-          help={__(
-            'Shown under the chart. Links become clickable.',
-            'aggressive-apparel'
-          )}
-        />
-        <div className='aa-ps-diagram'>
-          {guide.diagram ? (
-            <img src={guide.diagram.url} alt='' />
-          ) : (
-            <span className='aa-ps-diagram__empty' aria-hidden='true' />
-          )}
-          <div className='aa-ps-diagram__actions'>
-            <Button variant='secondary' onClick={pickDiagram}>
-              {guide.diagram
-                ? __('Replace diagram', 'aggressive-apparel')
-                : __('Add a measuring diagram', 'aggressive-apparel')}
-            </Button>
-            {guide.diagram && (
-              <Button
-                variant='tertiary'
-                isDestructive
-                onClick={() => update({ diagram: null })}
-              >
-                {__('Remove', 'aggressive-apparel')}
-              </Button>
-            )}
-          </div>
-        </div>
-      </section>
+      <GuideNotes
+        notes={guide.notes}
+        diagram={guide.diagram}
+        showNotes={guide.showNotes}
+        showDiagram={guide.showDiagram}
+        onChange={update}
+      />
 
       <GuideSpecs
         config={config}
         taxonomies={taxonomies}
-        guideId={guide.id}
         items={items}
-        own={own}
-        values={guide.specs}
-        // Mirrors Size_Chart::sanitize (a row needs a size) and
-        // Size_Guide::guide_content (old free-form content also counts).
-        hasChart={
-          guide.legacyHtml !== '' ||
-          guide.chart.rows.some(row => row.size.trim() !== '')
-        }
+        edits={edits}
+        added={added}
+        values={values}
+        hasChart={hasChart(guide)}
         hidden={guide.hidden}
-        onValues={specs => update({ specs })}
+        wording={guide.wording}
+        onWording={wording => update({ wording })}
+        onValues={next => {
+          setValueEdits(
+            editGuideValues(values, next, currentItems, valueEdits)
+          );
+          markDirty();
+        }}
         onHidden={hidden => update({ hidden })}
-        onOwn={updateOwn}
+        onEdit={editSpec}
+        onDiscardEdit={discardSpecEdit}
+        onAdded={updateAdded}
+        onManage={onManageSpecs}
         footer={
           guide.id > 0 && (
             <ApplyToProducts
@@ -575,32 +559,14 @@ export default function GuideEditor({
         }
       />
 
-      <section className='aa-ps-guide__section'>
+      <section id={SECTION.where} className='aa-ps-guide__section'>
         <h2>{__('Where it applies', 'aggressive-apparel')}</h2>
-        <p className='aa-ps-help'>
-          {__(
-            'Products in these categories use this guide unless they pick another on their Size & specs tab.',
-            'aggressive-apparel'
-          )}
-        </p>
-        <div className='aa-ps-categories'>
-          {config.categories.map(category => (
-            <CheckboxControl
-              key={category.id}
-              label={category.name}
-              checked={guide.categories.includes(category.id)}
-              onChange={checked => toggleCategory(category.id, checked)}
-            />
-          ))}
-        </div>
-        <ToggleControl
-          label={__('Store-wide default', 'aggressive-apparel')}
-          help={__(
-            'Used for products with no guide of their own or from their category.',
-            'aggressive-apparel'
-          )}
-          checked={guide.isDefault}
-          onChange={isDefault => update({ isDefault })}
+        <WhereItApplies
+          categories={config.categories}
+          selected={guide.categories}
+          onCategories={categories => update({ categories })}
+          isDefault={guide.isDefault}
+          onDefault={isDefault => update({ isDefault })}
         />
       </section>
 

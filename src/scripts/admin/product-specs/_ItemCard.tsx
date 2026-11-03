@@ -1,8 +1,9 @@
 /**
  * Product Specs settings — one spec item card.
  *
- * Collapsed, the card summarizes the spec; open, it edits it in sections
- * (basics, steps, labels, advice, source, visibility) above a live preview.
+ * Collapsed, the card summarizes the spec, and on the Specs tab it turns on or
+ * off right there; open, it edits it in sections (basics, steps, labels,
+ * advice, source, categories) above a live preview.
  *
  * @package Aggressive_Apparel
  */
@@ -11,21 +12,23 @@ import { useId, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import {
   Button,
-  CheckboxControl,
   SelectControl,
   TextControl,
   ToggleControl,
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { Category, DraftItem, GuideSummary, Scope } from './_types';
+import type { Category, DraftItem, Scope } from './_types';
 import { edgeLabels } from './_utils';
 import Preview from './_Preview';
 import ValuePicker from './_ValuePicker';
 import AttributeSettings from './_AttributeSettings';
 import CategorySteps from './_CategorySteps';
 import StepsEditor from './_StepsEditor';
-import GuideScope, { guideSummary } from './_GuideScope';
+import OnOff from './_OnOff';
+import TypeChange from './_TypeChange';
+import CategoryPicker from './_CategoryPicker';
+import { retype } from './_retype';
 
 type Props = {
   item: DraftItem;
@@ -40,8 +43,12 @@ type Props = {
   onChange: (patch: Partial<DraftItem>) => void;
   onMove: (direction: -1 | 1) => void;
   onDelete: () => void;
-  /** Size guides, to pick which ones the spec shows with (Specs tab). */
-  guides?: GuideSummary[];
+  /** Turns on and off from its header (Specs tab). */
+  switchable?: boolean;
+  /** Shows the move arrows (where the list's order is set: the Specs tab). */
+  movable?: boolean;
+  /** Offers Delete (not for an existing spec edited inside a guide). */
+  deletable?: boolean;
   /** Replaces the Default value field (a size guide's own value). */
   valueField?: ReactNode;
   /** Extra header detail, such as the guide's value. */
@@ -167,13 +174,17 @@ export default function ItemCard({
   onChange,
   onMove,
   onDelete,
-  guides,
+  switchable,
+  movable = true,
+  deletable = true,
   valueField,
   extraMeta,
   deleteText,
   taxonomies,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // The type it was saved as, to say what a change does to its values.
+  const [savedType] = useState(item.type);
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
@@ -187,13 +198,6 @@ export default function ItemCard({
     advice[i] = value;
     onChange({ advice });
   };
-
-  const toggleCategory = (id: number, checked: boolean) =>
-    onChange({
-      categories: checked
-        ? [...item.categories, id]
-        : item.categories.filter(category => category !== id),
-    });
 
   const meta = [
     typeLabel(item.type),
@@ -215,7 +219,6 @@ export default function ItemCard({
         ),
         item.category_steps.length
       ),
-    guides && guideSummary(item, guides),
     extraMeta,
   ].filter(Boolean);
 
@@ -238,7 +241,7 @@ export default function ItemCard({
           <span className='aa-ps-card__text'>
             <span className='aa-ps-card__name'>
               {item.name || __('Untitled spec', 'aggressive-apparel')}
-              {!item.enabled && (
+              {!item.enabled && !switchable && (
                 <span className='aa-ps-badge'>
                   {__('Off', 'aggressive-apparel')}
                 </span>
@@ -248,20 +251,35 @@ export default function ItemCard({
           </span>
         </button>
         <div className='aa-ps-card__actions'>
-          <Button
-            icon='arrow-up-alt'
-            label={__('Move up', 'aggressive-apparel')}
-            disabled={index === 0}
-            onClick={() => onMove(-1)}
-            size='small'
-          />
-          <Button
-            icon='arrow-down-alt'
-            label={__('Move down', 'aggressive-apparel')}
-            disabled={index === total - 1}
-            onClick={() => onMove(1)}
-            size='small'
-          />
+          {switchable && (
+            <OnOff
+              checked={item.enabled}
+              label={sprintf(
+                /* translators: %s: spec name. */
+                __('Use %s', 'aggressive-apparel'),
+                item.name || __('this spec', 'aggressive-apparel')
+              )}
+              onChange={enabled => onChange({ enabled })}
+            />
+          )}
+          {movable && (
+            <>
+              <Button
+                icon='arrow-up-alt'
+                label={__('Move up', 'aggressive-apparel')}
+                disabled={index === 0}
+                onClick={() => onMove(-1)}
+                size='small'
+              />
+              <Button
+                icon='arrow-down-alt'
+                label={__('Move down', 'aggressive-apparel')}
+                disabled={index === total - 1}
+                onClick={() => onMove(1)}
+                size='small'
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -278,50 +296,28 @@ export default function ItemCard({
               )}
               __next40pxDefaultSize
             />
-            {item.isNew ? (
-              <SelectControl
-                label={__('Type', 'aggressive-apparel')}
-                value={item.type}
-                options={[
-                  {
-                    value: 'pick',
-                    label: __('Scale (pick a step)', 'aggressive-apparel'),
-                  },
-                  {
-                    value: 'number',
-                    label: __('Scale from a number', 'aggressive-apparel'),
-                  },
-                  {
-                    value: 'text',
-                    label: __('Text detail', 'aggressive-apparel'),
-                  },
-                ]}
-                onChange={value =>
-                  onChange({
-                    type: value as DraftItem['type'],
-                    steps: value === 'text' ? [] : item.steps,
-                    thresholds:
-                      value === 'number'
-                        ? item.steps.slice(1).map((_, i) => (i + 1) * 10)
-                        : [],
-                  })
-                }
-                help={__('Fixed once saved.', 'aggressive-apparel')}
-                __next40pxDefaultSize
-              />
-            ) : (
-              <div className='aa-ps-static'>
-                <span className='aa-ps-static__label'>
-                  {__('Type', 'aggressive-apparel')}
-                </span>
-                <span className='aa-ps-static__value'>
-                  {typeLabel(item.type)}
-                </span>
-                <span className='aa-ps-help'>
-                  {__('Fixed once saved.', 'aggressive-apparel')}
-                </span>
-              </div>
-            )}
+            <SelectControl
+              label={__('Type', 'aggressive-apparel')}
+              value={item.type}
+              options={[
+                {
+                  value: 'pick',
+                  label: __('Scale (pick a step)', 'aggressive-apparel'),
+                },
+                {
+                  value: 'number',
+                  label: __('Scale from a number', 'aggressive-apparel'),
+                },
+                {
+                  value: 'text',
+                  label: __('Text detail', 'aggressive-apparel'),
+                },
+              ]}
+              onChange={value =>
+                onChange(retype(item, value as DraftItem['type'], limits))
+              }
+              __next40pxDefaultSize
+            />
             {isNumber && (
               <TextControl
                 label={__('Unit', 'aggressive-apparel')}
@@ -333,6 +329,8 @@ export default function ItemCard({
               />
             )}
           </div>
+
+          {!item.isNew && item.type !== savedType && <TypeChange item={item} />}
 
           {isScale && (
             <Section
@@ -573,13 +571,11 @@ export default function ItemCard({
           </Section>
 
           <Section
-            title={__('Where it shows', 'aggressive-apparel')}
+            title={__('Categories and placement', 'aggressive-apparel')}
             summary={[
               scopeSummary(item, categories),
-              guides && guideSummary(item, guides),
               item.in_table &&
                 __('in Additional information', 'aggressive-apparel'),
-              !item.enabled && __('turned off', 'aggressive-apparel'),
             ]
               .filter(Boolean)
               .join(' · ')}
@@ -612,27 +608,11 @@ export default function ItemCard({
               __next40pxDefaultSize
             />
             {item.scope !== 'all' && (
-              <div className='aa-ps-categories'>
-                {categories.length === 0 && (
-                  <p className='aa-ps-help'>
-                    {__('No product categories yet.', 'aggressive-apparel')}
-                  </p>
-                )}
-                {categories.map(category => (
-                  <CheckboxControl
-                    key={category.id}
-                    label={category.name}
-                    checked={item.categories.includes(category.id)}
-                    onChange={checked => toggleCategory(category.id, checked)}
-                  />
-                ))}
-              </div>
-            )}
-            {guides && (
-              <GuideScope
-                item={item}
-                guides={guides}
-                onChange={value => onChange({ guides: value })}
+              <CategoryPicker
+                categories={categories}
+                selected={item.categories}
+                onChange={selected => onChange({ categories: selected })}
+                label={__('Categories', 'aggressive-apparel')}
               />
             )}
             <div className='aa-ps-toggles'>
@@ -648,50 +628,44 @@ export default function ItemCard({
                 checked={item.in_table}
                 onChange={in_table => onChange({ in_table })}
               />
-              <ToggleControl
-                label={__('Show this spec', 'aggressive-apparel')}
-                help={__(
-                  'Turning a spec off hides it everywhere but keeps its saved values.',
-                  'aggressive-apparel'
-                )}
-                checked={item.enabled}
-                onChange={enabled => onChange({ enabled })}
-              />
             </div>
           </Section>
 
           <Preview item={item} />
 
-          <div className='aa-ps-card__footer'>
-            {confirmDelete ? (
-              <>
-                <span className='aa-ps-help'>
-                  {deleteText?.confirm ??
-                    __(
-                      'Delete this spec? Saved values stay in the database but stop showing.',
-                      'aggressive-apparel'
-                    )}
-                </span>
-                <Button variant='secondary' isDestructive onClick={onDelete}>
-                  {__('Delete', 'aggressive-apparel')}
-                </Button>
+          {deletable && (
+            <div className='aa-ps-card__footer'>
+              {confirmDelete ? (
+                <>
+                  <span className='aa-ps-help'>
+                    {deleteText?.confirm ??
+                      __(
+                        'Delete this spec? Saved values stay in the database but stop showing.',
+                        'aggressive-apparel'
+                      )}
+                  </span>
+                  <Button variant='secondary' isDestructive onClick={onDelete}>
+                    {__('Delete', 'aggressive-apparel')}
+                  </Button>
+                  <Button
+                    variant='tertiary'
+                    onClick={() => setConfirmDelete(false)}
+                  >
+                    {__('Cancel', 'aggressive-apparel')}
+                  </Button>
+                </>
+              ) : (
                 <Button
                   variant='tertiary'
-                  onClick={() => setConfirmDelete(false)}
+                  isDestructive
+                  onClick={() => setConfirmDelete(true)}
                 >
-                  {__('Cancel', 'aggressive-apparel')}
+                  {deleteText?.button ??
+                    __('Delete spec', 'aggressive-apparel')}
                 </Button>
-              </>
-            ) : (
-              <Button
-                variant='tertiary'
-                isDestructive
-                onClick={() => setConfirmDelete(true)}
-              >
-                {deleteText?.button ?? __('Delete spec', 'aggressive-apparel')}
-              </Button>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -10,20 +10,21 @@ import type { DraftItem, ItemType, SpecItem } from './_types';
 let counter = 0;
 
 /** Stable React key for an item that has no saved key yet. */
+/**
+ * A failed request's message, else the fallback, plus any per-item problems
+ * the server listed (data.errors).
+ */
+export function errorText(failure: unknown, fallback: string): string {
+  const { message, data } = (failure ?? {}) as {
+    message?: string;
+    data?: { errors?: string[] };
+  };
+  return [message || fallback, ...(data?.errors ?? [])].join(' ');
+}
+
 export function uid(): string {
   counter += 1;
   return `item-${Date.now()}-${counter}`;
-}
-
-/**
- * Whether a store-wide spec gives this guide's products anything: a value set
- * on the guide, or the spec's default (Product_Specs::resolve_item).
- */
-export function isUsedOnGuide(
-  item: SpecItem,
-  values: Record<string, string>
-): boolean {
-  return (values[item.key] ?? '') !== '' || item.default !== '';
 }
 
 /** Meta-key-safe key from a name: "Fabric Weight" → "fabric_weight". */
@@ -88,7 +89,6 @@ export function blankItem(type: ItemType, steps: string[]): DraftItem {
     in_table: true,
     default: '',
     default_term: 0,
-    guides: [],
     taxonomy: '',
     step_terms: [],
     multiple: false,

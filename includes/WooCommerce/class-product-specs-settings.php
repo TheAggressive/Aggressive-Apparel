@@ -307,8 +307,9 @@ final class Product_Specs_Settings {
 
 	/**
 	 * The registry for the editor: pick steps named as their terms are now,
-	 * each text spec's existing values (its terms) to pick from, and the
-	 * global attributes as they are after this save (a save can create one).
+	 * each spec's existing values (its terms), to pick from and to show what a
+	 * type change does to them, and the global attributes as they are after
+	 * this save (a save can create one).
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -322,7 +323,7 @@ final class Product_Specs_Settings {
 				$item['archives'] = Product_Specs_Taxonomy::has_archives( $item['taxonomy'] );
 			}
 			$items[] = $item + array(
-				'terms' => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::usage( $item['taxonomy'] ) : array(),
+				'terms' => Product_Specs_Taxonomy::usage( $item['taxonomy'] ),
 			);
 		}
 

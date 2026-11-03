@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
  * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, source: array{provider: string, id: int, title: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, showNotes: bool, showDiagram: bool, specs: array<string, string>, hidden: list<string>, wording: array<string, array<string, string>>, source: array{provider: string, id: int, title: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -199,7 +199,7 @@ final class Size_Guide_Rest {
 		}
 
 		// Specs need the new ID; an invalid one leaves no half-made guide.
-		$invalid = self::save_spec_items( $id, $body );
+		$invalid = self::save_spec_items( $body );
 		if ( null !== $invalid ) {
 			wp_delete_post( $id, true );
 			return $invalid;
@@ -229,7 +229,7 @@ final class Size_Guide_Rest {
 	public function update( \WP_REST_Request $request ) {
 		$id      = (int) $request['id'];
 		$body    = self::body( $request );
-		$invalid = self::save_spec_items( $id, $body );
+		$invalid = self::save_spec_items( $body );
 		if ( null !== $invalid ) {
 			return $invalid;
 		}
@@ -312,14 +312,16 @@ final class Size_Guide_Rest {
 		self::save(
 			$id,
 			array(
-				'chart'   => $source['chart'],
-				'notes'   => $source['notes'],
-				'diagram' => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
-				'specs'   => $source['specs'],
-				'hidden'  => $source['hidden'],
+				'chart'       => $source['chart'],
+				'notes'       => $source['notes'],
+				'diagram'     => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
+				'showNotes'   => $source['showNotes'],
+				'showDiagram' => $source['showDiagram'],
+				'specs'       => $source['specs'],
+				'hidden'      => $source['hidden'],
+				'wording'     => $source['wording'],
 			)
 		);
-		Size_Guide_Spec_Items::share( $source['id'], $id );
 
 		return rest_ensure_response( self::saved( $id ) );
 	}
@@ -398,8 +400,11 @@ final class Size_Guide_Rest {
 				'id'  => $diagram,
 				'url' => $image,
 			) : null,
+			'showNotes'     => Size_Chart::shows( $id, 'notes' ),
+			'showDiagram'   => Size_Chart::shows( $id, 'diagram' ),
 			'specs'         => $specs['values'],
 			'hidden'        => $specs['hidden'],
+			'wording'       => $specs['wording'],
 			'source'        => Printful_Import::source( $id ),
 			'categories'    => Size_Guide_Assignments::categories( $id ),
 			'isDefault'     => Size_Guide_Assignments::is_default( $id ),
@@ -420,26 +425,22 @@ final class Size_Guide_Rest {
 	}
 
 	/**
-	 * Save the guide's own spec items when submitted.
+	 * Add the specs made while editing or importing the guide, when submitted.
 	 *
 	 * A spec whose key had to change (taken since the editor loaded) has
 	 * its value and import rules moved to the saved key, so neither is lost.
 	 *
-	 * @param int                  $id   Size guide post ID.
 	 * @param array<string, mixed> $data Submitted fields; spec keys are rewritten when renamed.
 	 * @return \WP_Error|null Null when saved or not submitted.
 	 */
-	private static function save_spec_items( int $id, array &$data ): ?\WP_Error {
-		$owned = isset( $data['specItems'] ) && is_array( $data['specItems'] ) ? $data['specItems'] : null;
-		$store = isset( $data['storeSpecItems'] ) && is_array( $data['storeSpecItems'] ) ? $data['storeSpecItems'] : array();
-		if ( null === $owned && array() === $store ) {
+	private static function save_spec_items( array &$data ): ?\WP_Error {
+		$added = isset( $data['specItems'] ) && is_array( $data['specItems'] ) ? array_values( $data['specItems'] ) : array();
+		if ( array() === $added ) {
 			return null;
 		}
 
-		// Without specItems the guide's own specs stay as they are.
-		$keep    = array_values( array_filter( Product_Specs_Registry::get()['items'], static fn( array $item ): bool => in_array( $id, $item['guides'], true ) ) );
 		$renamed = array();
-		$errors  = Size_Guide_Spec_Items::save( $id, $owned ?? $keep, $store, $renamed );
+		$errors  = Size_Guide_Spec_Items::add( $added, $renamed );
 		if ( array() === $errors ) {
 			self::rekey( $data, $renamed );
 			return null;
@@ -516,10 +517,22 @@ final class Size_Guide_Rest {
 			}
 		}
 
+		foreach ( array(
+			'showNotes'   => 'notes',
+			'showDiagram' => 'diagram',
+		) as $field => $part ) {
+			if ( array_key_exists( $field, $data ) ) {
+				Size_Chart::show( $id, $part, (bool) $data[ $field ] );
+			}
+		}
+
 		if ( isset( $data['specs'] ) && is_array( $data['specs'] ) ) {
 			Product_Specs_Values::save_guide( $id, $data['specs'] );
 		}
 
+		if ( array_key_exists( 'wording', $data ) ) {
+			Product_Specs_Values::save_wording( $id, $data['wording'] );
+		}
 		if ( array_key_exists( 'hidden', $data ) ) {
 			Product_Specs_Values::save_hidden( $id, $data['hidden'] );
 		}

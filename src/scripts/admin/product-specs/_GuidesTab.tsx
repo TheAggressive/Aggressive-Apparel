@@ -114,7 +114,6 @@ export default function GuidesTab({
         config={config}
         items={items}
         onRegistry={onRegistry}
-        taxonomies={taxonomies}
         guideId={open}
         onDirty={onDirty}
         onOpen={id => {

@@ -3,8 +3,8 @@
  *
  * Everything about a garment blank in one form: its name, size chart, notes
  * and measuring diagram, specs, and where it applies. One save writes it all
- * (Size_Guide_Rest), including any specs added here, which join the store's
- * specs (Size_Guide_Spec_Items).
+ * (Size_Guide_Rest). Specs themselves are made on the Specs tab; here the guide
+ * gives them values.
  *
  * @package Aggressive_Apparel
  */
@@ -21,14 +21,7 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type {
-  Config,
-  DraftItem,
-  GuideDetail,
-  Registry,
-  SpecItem,
-} from './_types';
-import { toStored } from './_utils';
+import type { Config, GuideDetail, Registry, SpecItem } from './_types';
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
@@ -65,7 +58,6 @@ type Props = {
   /** A save changed the spec registry. */
   onRegistry: (registry: Registry) => void;
   /** Global attributes, taxonomy => label. */
-  taxonomies: Record<string, string>;
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
   onCreated: (id: number) => void;
@@ -95,7 +87,6 @@ export default function GuideEditor({
   items,
   guideId,
   onRegistry,
-  taxonomies,
   onClose,
   onOpen,
   onCreated,
@@ -115,8 +106,6 @@ export default function GuideEditor({
   // untouched discards nothing worth asking about.
   const [touched, setTouched] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-  // Specs added here: saved with the guide, then they're the store's.
-  const [added, setAdded] = useState<DraftItem[]>([]);
 
   const setDirty = (value: boolean) => {
     setDirtyState(value);
@@ -166,11 +155,6 @@ export default function GuideEditor({
     markDirty();
   };
 
-  const updateAdded = (next: DraftItem[]) => {
-    setAdded(next);
-    markDirty();
-  };
-
   /** Save the guide; true when it saved. */
   const save = async (): Promise<boolean> => {
     setSaving(true);
@@ -186,14 +170,12 @@ export default function GuideEditor({
           diagram: guide.diagram?.id ?? 0,
           specs: guide.specs,
           hidden: guide.hidden,
-          ...(added.length > 0 && { specItems: added.map(toStored) }),
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
       })) as GuideDetail & { registry?: Registry };
       const { registry, ...detail } = result;
       setGuide(detail);
-      setAdded([]);
       if (registry) {
         onRegistry(registry);
       }
@@ -532,10 +514,7 @@ export default function GuideEditor({
       </section>
 
       <GuideSpecs
-        config={config}
-        taxonomies={taxonomies}
         items={items}
-        added={added}
         values={guide.specs}
         // Mirrors Size_Chart::sanitize (a row needs a size) and
         // Size_Guide::guide_content (old free-form content also counts).
@@ -546,7 +525,6 @@ export default function GuideEditor({
         hidden={guide.hidden}
         onValues={specs => update({ specs })}
         onHidden={hidden => update({ hidden })}
-        onAdded={updateAdded}
         footer={
           guide.id > 0 && (
             <ApplyToProducts

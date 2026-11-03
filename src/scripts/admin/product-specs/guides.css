@@ -177,6 +177,17 @@
 	color: var(--aa-ps-accent);
 }
 
+/* A spec row with a switch (a guide's specs), and one switched off. */
+.aa-ps-spec-row.has-switch {
+	grid-template-columns: 160px minmax(0, 1fr) auto;
+	align-items: center;
+}
+
+.aa-ps-spec-row.is-off .aa-ps-spec-row__title,
+.aa-ps-spec-row.is-off .aa-ps-spec-row__value {
+	opacity: 0.55;
+}
+
 .is-editing > .aa-ps-spec-row {
 	border-bottom-color: transparent;
 }
@@ -299,40 +310,6 @@
 	color: var(--aa-ps-muted);
 	font-size: 12px;
 	white-space: nowrap;
-}
-
-.aa-ps-quick-add {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	margin-top: 12px;
-	padding: 16px;
-	border: 1px solid var(--aa-ps-border);
-	border-radius: 4px;
-	background: #f6f7f7;
-}
-
-.aa-ps-quick-add__fields {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-	gap: 12px 16px;
-	align-items: start;
-}
-
-.aa-ps-quick-add__matches,
-.aa-ps-quick-add__options {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px 16px;
-	align-items: center;
-}
-
-.aa-ps-quick-add__options .components-base-control__field {
-	margin: 0;
-}
-
-.aa-ps-quick-add__linked {
-	margin: 0;
 }
 
 .aa-ps-picker__chips {

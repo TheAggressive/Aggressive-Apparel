@@ -11,14 +11,7 @@
  */
 
 import { useEffect, useState } from '@wordpress/element';
-import {
-  Button,
-  CheckboxControl,
-  Notice,
-  Spinner,
-  TextControl,
-  ToggleControl,
-} from '@wordpress/components';
+import { Button, Notice, Spinner, TextControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type {
@@ -31,20 +24,16 @@ import type {
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
-import GuideNotes from './_GuideNotes';
+import GuideNotes, { NotesPreview } from './_GuideNotes';
 import GuideSpecs from './_GuideSpecs';
+import GuideStatusStrip from './_GuideStatus';
+import WhereItApplies from './_WhereItApplies';
+import { ShopperPreview } from './_Preview';
+import { SECTION, guideSpecs, guideStatus, hasChart } from './_guideSummary';
 import saveRegistry from './_saveRegistry';
-import { toStored } from './_utils';
+import { errorText, toStored } from './_utils';
 import { readWording } from './_wording';
 import ApplyToProducts from './_ApplyToProducts';
-
-type SaveError = { message?: string; data?: { errors?: string[] } };
-
-/** Error text plus any per-spec problems the server listed. */
-function errorText(failure: unknown, fallback: string): string {
-  const { message, data } = failure as SaveError;
-  return [message ?? fallback, ...(data?.errors ?? [])].join(' ');
-}
 
 type Props = {
   config: Config;
@@ -53,7 +42,6 @@ type Props = {
   guideId: number | 'new';
   /** A save changed the spec registry. */
   onRegistry: (registry: Registry) => void;
-  /** Global attributes, taxonomy => label. */
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
   onCreated: (id: number) => void;
@@ -133,10 +121,12 @@ export default function GuideEditor({
         const detail = result as GuideDetail;
         setGuide({ ...detail, wording: readWording(detail.wording) });
       })
-      .catch((failure: { message?: string }) =>
+      .catch((failure: unknown) =>
         setError(
-          failure.message ??
+          errorText(
+            failure,
             __('The size guide could not be loaded.', 'aggressive-apparel')
+          )
         )
       );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load once per guide.
@@ -262,8 +252,10 @@ export default function GuideEditor({
       onOpen(copy.id);
     } catch (failure) {
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('The guide could not be duplicated.', 'aggressive-apparel')
+        )
       );
     } finally {
       setSaving(false);
@@ -283,8 +275,10 @@ export default function GuideEditor({
     } catch (failure) {
       setConfirmDelete(false);
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('The guide could not be deleted.', 'aggressive-apparel')
+        )
       );
     } finally {
       setSaving(false);
@@ -309,21 +303,16 @@ export default function GuideEditor({
       setPartial(!imported.lossless);
     } catch (failure) {
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('The guide could not be converted.', 'aggressive-apparel')
+        )
       );
     }
   };
 
   const startChart = () =>
     update({ chart: templates()[0].chart, legacyHtml: '' });
-
-  const toggleCategory = (id: number, checked: boolean) =>
-    update({
-      categories: checked
-        ? [...guide.categories, id]
-        : guide.categories.filter(category => category !== id),
-    });
 
   return (
     <div className='aa-ps-guide'>
@@ -403,8 +392,16 @@ export default function GuideEditor({
         __next40pxDefaultSize
       />
 
+      <GuideStatusStrip
+        status={guideStatus(
+          guide,
+          guideSpecs(items, edits, added),
+          config.categories
+        )}
+      />
+
       {guide.legacyHtml && (
-        <div className='aa-ps-legacy'>
+        <div id={SECTION.chart} className='aa-ps-legacy'>
           <p>
             <strong>
               {__(
@@ -442,7 +439,7 @@ export default function GuideEditor({
       )}
 
       {!guide.legacyHtml && (
-        <section className='aa-ps-guide__section'>
+        <section id={SECTION.chart} className='aa-ps-guide__section'>
           <div className='aa-ps-guide__section-head'>
             <h2>{__('Size chart', 'aggressive-apparel')}</h2>
             {guide.id === 0 && (
@@ -481,12 +478,15 @@ export default function GuideEditor({
               limits={config.limits}
               onChange={chart => update({ chart })}
             />
-            <div className='aa-ps-guide__preview'>
-              <p className='aa-ps-preview__label'>
-                {__('What shoppers see', 'aggressive-apparel')}
-              </p>
+            <ShopperPreview>
               <ChartPreview chart={guide.chart} />
-            </div>
+              <NotesPreview
+                notes={guide.notes}
+                diagram={guide.diagram}
+                showNotes={guide.showNotes}
+                showDiagram={guide.showDiagram}
+              />
+            </ShopperPreview>
           </div>
         </section>
       )}
@@ -506,12 +506,7 @@ export default function GuideEditor({
         edits={edits}
         added={added}
         values={guide.specs}
-        // Mirrors Size_Chart::sanitize (a row needs a size) and
-        // Size_Guide::guide_content (old free-form content also counts).
-        hasChart={
-          guide.legacyHtml !== '' ||
-          guide.chart.rows.some(row => row.size.trim() !== '')
-        }
+        hasChart={hasChart(guide)}
         hidden={guide.hidden}
         wording={guide.wording}
         onWording={wording => update({ wording })}
@@ -531,32 +526,14 @@ export default function GuideEditor({
         }
       />
 
-      <section className='aa-ps-guide__section'>
+      <section id={SECTION.where} className='aa-ps-guide__section'>
         <h2>{__('Where it applies', 'aggressive-apparel')}</h2>
-        <p className='aa-ps-help'>
-          {__(
-            'Products in these categories use this guide unless they pick another on their Size & specs tab.',
-            'aggressive-apparel'
-          )}
-        </p>
-        <div className='aa-ps-categories'>
-          {config.categories.map(category => (
-            <CheckboxControl
-              key={category.id}
-              label={category.name}
-              checked={guide.categories.includes(category.id)}
-              onChange={checked => toggleCategory(category.id, checked)}
-            />
-          ))}
-        </div>
-        <ToggleControl
-          label={__('Store-wide default', 'aggressive-apparel')}
-          help={__(
-            'Used for products with no guide of their own or from their category.',
-            'aggressive-apparel'
-          )}
-          checked={guide.isDefault}
-          onChange={isDefault => update({ isDefault })}
+        <WhereItApplies
+          categories={config.categories}
+          selected={guide.categories}
+          onCategories={categories => update({ categories })}
+          isDefault={guide.isDefault}
+          onDefault={isDefault => update({ isDefault })}
         />
       </section>
 

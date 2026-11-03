@@ -496,7 +496,7 @@ class TestSizeChart extends WP_UnitTestCase {
 
 		$rest->update( $this->request( 'POST', array( 'showNotes' => true ), $id ) );
 		$this->assertStringContainsString( 'Lay it flat.', Size_Chart::render( $id ) );
-		$this->assertSame( '', (string) get_post_meta( $id, Size_Chart::NOTES_OFF, true ), 'On leaves no flag behind.' );
+		$this->assertSame( '', (string) get_post_meta( $id, Size_Chart::OFF['notes'], true ), 'On leaves no flag behind.' );
 	}
 
 	/** Guides without a chart keep rendering their old content. */

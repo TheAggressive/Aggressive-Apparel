@@ -83,18 +83,15 @@ final class Size_Chart {
 	public const DIAGRAM = '_aa_size_diagram';
 
 	/**
-	 * Notes kept on the guide but hidden on product pages (flag meta key).
+	 * Flag meta keys for notes and a diagram kept on the guide but switched
+	 * off on product pages.
 	 *
-	 * @var string
+	 * @var array{notes: string, diagram: string}
 	 */
-	public const NOTES_OFF = '_aa_size_notes_off';
-
-	/**
-	 * Measuring diagram kept on the guide but hidden on product pages.
-	 *
-	 * @var string
-	 */
-	public const DIAGRAM_OFF = '_aa_size_diagram_off';
+	public const OFF = array(
+		'notes'   => '_aa_size_notes_off',
+		'diagram' => '_aa_size_diagram_off',
+	);
 
 	/**
 	 * A measurement column, converted between units.
@@ -582,14 +579,14 @@ final class Size_Chart {
 	}
 
 	/**
-	 * Whether a guide shows its notes or diagram: on unless switched off, so
-	 * switching one off keeps it on the guide to switch back on.
+	 * Whether a guide shows its notes or diagram: on unless switched off.
 	 *
 	 * @param int    $guide_id Size guide ID.
 	 * @param string $part     'notes' or 'diagram'.
+	 * @phpstan-param key-of<self::OFF> $part
 	 */
 	public static function shows( int $guide_id, string $part ): bool {
-		return '' === (string) get_post_meta( $guide_id, 'notes' === $part ? self::NOTES_OFF : self::DIAGRAM_OFF, true );
+		return '' === (string) get_post_meta( $guide_id, self::OFF[ $part ], true );
 	}
 
 	/**
@@ -598,13 +595,13 @@ final class Size_Chart {
 	 * @param int    $guide_id Size guide ID.
 	 * @param string $part     'notes' or 'diagram'.
 	 * @param bool   $on       Show it.
+	 * @phpstan-param key-of<self::OFF> $part
 	 */
 	public static function show( int $guide_id, string $part, bool $on ): void {
-		$key = 'notes' === $part ? self::NOTES_OFF : self::DIAGRAM_OFF;
 		if ( $on ) {
-			delete_post_meta( $guide_id, $key );
+			delete_post_meta( $guide_id, self::OFF[ $part ] );
 		} else {
-			update_post_meta( $guide_id, $key, '1' );
+			update_post_meta( $guide_id, self::OFF[ $part ], '1' );
 		}
 	}
 

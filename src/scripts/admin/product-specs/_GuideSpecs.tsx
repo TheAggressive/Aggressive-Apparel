@@ -1,20 +1,11 @@
 /**
  * Product Specs settings — a size guide's specs.
  *
- * The Specs tab's list, as this guide sees it: every spec that's on, in the
- * same order, each with this guide's value and a switch for whether this
- * guide's products show it. Edit rewords a spec for just this guide (_wording)
- * or, chosen deliberately, opens the Specs tab's own spec card to change it for
- * every guide. The Specs tab's Add spec menu works here too, and a spec added
- * here joins the store's specs. All of it saves with the guide.
- *
- * Every spec is a WooCommerce attribute and every value one of its terms
- * (Product_Specs_Taxonomy). Products using the guide show these values
- * unless they have their own; an empty value falls back to the spec default
- * (Product_Specs::resolve_item). A guide without a chart still applies when
- * it sets specs (a specs-only guide: no Size Guide button); one with neither
- * is passed over, so its products keep their category or store guide
- * (Size_Guide::resolved). The notes below say which case this guide is.
+ * The Specs tab's list as this guide sees it: every spec that's on, in the
+ * same order, with this guide's value and a Shown/Hidden switch. Edit rewords
+ * a spec for this guide only (_wording); "Change for every guide" opens the
+ * spec's own card instead. Specs added here join the store's. It all saves
+ * with the guide. What each row shows comes from _guideSummary.
  *
  * @package Aggressive_Apparel
  */
@@ -25,13 +16,14 @@ import { Button, Notice, TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, SpecItem } from './_types';
-import { newItem, specKey, splitValues, toDraft } from './_utils';
+import { newItem, specKey, splitValues } from './_utils';
 import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
 import OnOff from './_OnOff';
 import ValuePicker from './_ValuePicker';
 import { setWording, worded, type Wording } from './_wording';
+import { SECTION, guideSpecs, hasSpecs, specValue } from './_guideSummary';
 
 type Props = {
   config: Config;
@@ -98,16 +90,10 @@ export default function GuideSpecs({
   // Edits are for this guide only unless every guide is chosen, per spec.
   const [everyGuide, setEveryGuide] = useState<string[]>([]);
 
-  const specs: DraftItem[] = items
-    .filter(item => item.enabled)
-    .map(item => edits[item.key] ?? toDraft(item));
-  const all = [...specs, ...added];
+  const all = guideSpecs(items, edits, added);
   const shown = all
     .filter(item => item.enabled && !hidden.includes(item.key))
     .map(item => worded(item, wording));
-  // Mirrors Product_Specs_Values::guide_has_specs: any value, or a hidden spec.
-  const hasSpecs =
-    Object.values(values).some(value => value !== '') || hidden.length > 0;
   const full = items.length + added.length >= config.limits.items;
   // Keys are unique across the whole store.
   const taken = (except = '') => [
@@ -150,16 +136,20 @@ export default function GuideSpecs({
     setOpen(item.uid);
   };
 
-  const row = (item: DraftItem, isNew: boolean) => {
+  const row = (item: DraftItem) => {
+    const isNew = item.isNew;
     const id = isNew ? item.uid : item.key;
     const isOpen = open === id;
     const on = !hidden.includes(item.key);
+    const empty = on && specValue(item, values).value === '';
     const here = worded(item, wording);
     const reworded = !isNew && Boolean(wording[item.key]);
     const forEvery = isNew || everyGuide.includes(item.key);
     return (
       <div key={id} className={cx(isOpen && 'is-editing')}>
-        <div className={cx('aa-ps-spec-row', 'has-switch', !on && 'is-off')}>
+        <div
+          className={cx('aa-ps-spec-row', !on && 'is-off', empty && 'is-empty')}
+        >
           <div className='aa-ps-spec-row__name'>
             <span className='aa-ps-spec-row__title'>
               {here.name || __('Untitled spec', 'aggressive-apparel')}
@@ -172,6 +162,11 @@ export default function GuideSpecs({
             {reworded && (
               <span className='aa-ps-spec-row__note'>
                 {__('Reworded for this guide', 'aggressive-apparel')}
+              </span>
+            )}
+            {empty && (
+              <span className='aa-ps-spec-row__note'>
+                {__('No value yet', 'aggressive-apparel')}
               </span>
             )}
           </div>
@@ -241,9 +236,7 @@ export default function GuideSpecs({
                 <OnOff
                   checked={forEvery}
                   label={__('Change it for every guide', 'aggressive-apparel')}
-                  // One fixed label: the help line below says which it is.
-                  onText={__('Change for every guide', 'aggressive-apparel')}
-                  offText={__('Change for every guide', 'aggressive-apparel')}
+                  text={__('Change for every guide', 'aggressive-apparel')}
                   onChange={every =>
                     setEveryGuide(
                       every
@@ -356,7 +349,7 @@ export default function GuideSpecs({
   };
 
   return (
-    <section className='aa-ps-guide__section'>
+    <section id={SECTION.specs} className='aa-ps-guide__section'>
       <div className='aa-ps-guide__section-head'>
         <div>
           <h2>{__('Specs', 'aggressive-apparel')}</h2>
@@ -373,7 +366,7 @@ export default function GuideSpecs({
       </div>
       {!hasChart && (
         <Notice status='info' isDismissible={false}>
-          {hasSpecs
+          {hasSpecs({ specs: values, hidden })
             ? __(
                 'Specs only: this guide has no size chart, so its products show these specs without a Size Guide button. Add sizes to the chart to show one.',
                 'aggressive-apparel'
@@ -387,8 +380,7 @@ export default function GuideSpecs({
 
       <div className='aa-ps-guide__chart'>
         <div className='aa-ps-spec-rows'>
-          {specs.map(item => row(item, false))}
-          {added.map(item => row(item, true))}
+          {all.map(row)}
           <div className='aa-ps-add'>
             <AddSpecButton
               existing={all}

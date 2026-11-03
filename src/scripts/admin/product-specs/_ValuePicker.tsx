@@ -211,7 +211,7 @@ function Chips({
   }
   return (
     <div
-      className='aa-ps-picker__chips'
+      className='aa-ps-chips'
       role='group'
       aria-label={__('Used values', 'aggressive-apparel')}
     >

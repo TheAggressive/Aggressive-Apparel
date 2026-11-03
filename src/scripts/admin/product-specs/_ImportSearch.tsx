@@ -12,6 +12,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { Button, Notice, SearchControl, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { errorText } from './_utils';
 import { cx } from '../../../utils/product-specs-data';
 import type { PrintfulProduct } from './_types';
 import ImportTag from './_ImportTag';
@@ -55,14 +56,16 @@ export default function ImportSearch({
     })
       .then(result => current && setResults(result as Results))
       .catch(
-        (failure: { message?: string }) =>
+        (failure: unknown) =>
           current &&
           setError(
-            failure.message ??
+            errorText(
+              failure,
               __(
                 'Printful’s catalog could not be loaded.',
                 'aggressive-apparel'
               )
+            )
           )
       )
       .finally(() => current && setLoading(false));

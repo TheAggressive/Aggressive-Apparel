@@ -595,21 +595,21 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$guide = ( new \Aggressive_Apparel\WooCommerce\Size_Guide_Rest() )->create(
 			$this->json(
 				array(
-					'title'          => 'Tee',
+					'title'        => 'Tee',
 					// "fabric" is already a store-wide spec, so this one is re-keyed.
-					'storeSpecItems' => array(
+					'specItems'    => array(
 						array(
 							'key'  => 'fabric',
 							'name' => 'Shell fabric',
 							'type' => 'text',
 						),
 					),
-					'specs'          => array( 'fabric' => 'Nylon' ),
-					'importSource'   => array(
+					'specs'        => array( 'fabric' => 'Nylon' ),
+					'importSource' => array(
 						'provider' => 'printful',
 						'id'       => 71,
 					),
-					'importRules'    => array(
+					'importRules'  => array(
 						array(
 							'key'    => 'shell: nylon',
 							'target' => 'fabric',

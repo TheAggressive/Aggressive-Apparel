@@ -28,6 +28,7 @@ import type {
 } from './_types';
 import ChartPreview from './_ChartPreview';
 import ImportFact from './_ImportFact';
+import WhereItApplies from './_WhereItApplies';
 
 type Props = {
   draft: ImportDraft;
@@ -102,13 +103,6 @@ export default function ImportBlank({
           )
       )
     );
-
-  const toggleCategory = (id: number) =>
-    onState({
-      categories: state.categories.includes(id)
-        ? state.categories.filter(other => other !== id)
-        : [...state.categories, id],
-    });
 
   if (draft.guide > 0 && !state.secondGuide) {
     return (
@@ -338,68 +332,40 @@ export default function ImportBlank({
         <h3 id='aa-ps-review-where'>
           {__('Where it applies', 'aggressive-apparel')}
         </h3>
-        <p className='aa-ps-help'>
-          {__(
-            'Products in these categories use this guide unless they pick another.',
-            'aggressive-apparel'
-          )}
-        </p>
-        <div
-          className='aa-ps-chips'
-          role='group'
-          aria-label={__('Categories', 'aggressive-apparel')}
+        <WhereItApplies
+          categories={categories}
+          selected={state.categories}
+          onCategories={selected => onState({ categories: selected })}
+          isDefault={state.isDefault}
+          onDefault={isDefault => onState({ isDefault })}
         >
-          {categories.map(category => (
-            <button
-              key={category.id}
-              type='button'
-              aria-pressed={state.categories.includes(category.id)}
-              className={cx(
-                'aa-ps-chip',
-                state.categories.includes(category.id) && 'is-on'
-              )}
-              onClick={() => toggleCategory(category.id)}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-        {draft.where.source !== '' && state.categories.length > 0 && (
-          <p className='aa-ps-help'>
-            {draft.where.source === 'remembered'
-              ? __(
-                  'Picked from where you put this kind of garment last time.',
-                  'aggressive-apparel'
-                )
-              : __(
-                  'Picked from the garment’s name. Change it if it’s wrong, and your choice is used next time.',
-                  'aggressive-apparel'
-                )}
-          </p>
-        )}
-        {taken.map(item => (
-          <p key={item.id} className='aa-ps-help'>
-            {sprintf(
-              /* translators: 1: category name, 2: size guide name. */
-              __(
-                '%1$s stays with %2$s, so only products that pick this guide use it. Choose %1$s above to move it here instead.',
-                'aggressive-apparel'
-              ),
-              item.name,
-              item.guide
-            )}
-          </p>
-        ))}
-        <ToggleControl
-          label={__('Store-wide default', 'aggressive-apparel')}
-          help={__(
-            'For products with no guide of their own or from a category.',
-            'aggressive-apparel'
+          {draft.where.source !== '' && state.categories.length > 0 && (
+            <p className='aa-ps-help'>
+              {draft.where.source === 'remembered'
+                ? __(
+                    'Picked from where you put this kind of garment last time.',
+                    'aggressive-apparel'
+                  )
+                : __(
+                    'Picked from the garment’s name. Change it if it’s wrong, and your choice is used next time.',
+                    'aggressive-apparel'
+                  )}
+            </p>
           )}
-          checked={state.isDefault}
-          onChange={isDefault => onState({ isDefault })}
-          __nextHasNoMarginBottom
-        />
+          {taken.map(item => (
+            <p key={item.id} className='aa-ps-help'>
+              {sprintf(
+                /* translators: 1: category name, 2: size guide name. */
+                __(
+                  '%1$s stays with %2$s, so only products that pick this guide use it. Choose %1$s above to move it here instead.',
+                  'aggressive-apparel'
+                ),
+                item.name,
+                item.guide
+              )}
+            </p>
+          ))}
+        </WhereItApplies>
       </section>
 
       <section

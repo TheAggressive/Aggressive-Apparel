@@ -12,7 +12,6 @@ import { useId, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import {
   Button,
-  CheckboxControl,
   SelectControl,
   TextControl,
   ToggleControl,
@@ -28,6 +27,7 @@ import CategorySteps from './_CategorySteps';
 import StepsEditor from './_StepsEditor';
 import OnOff from './_OnOff';
 import TypeChange from './_TypeChange';
+import CategoryPicker from './_CategoryPicker';
 import { retype } from './_retype';
 
 type Props = {
@@ -198,13 +198,6 @@ export default function ItemCard({
     advice[i] = value;
     onChange({ advice });
   };
-
-  const toggleCategory = (id: number, checked: boolean) =>
-    onChange({
-      categories: checked
-        ? [...item.categories, id]
-        : item.categories.filter(category => category !== id),
-    });
 
   const meta = [
     typeLabel(item.type),
@@ -615,21 +608,12 @@ export default function ItemCard({
               __next40pxDefaultSize
             />
             {item.scope !== 'all' && (
-              <div className='aa-ps-categories'>
-                {categories.length === 0 && (
-                  <p className='aa-ps-help'>
-                    {__('No product categories yet.', 'aggressive-apparel')}
-                  </p>
-                )}
-                {categories.map(category => (
-                  <CheckboxControl
-                    key={category.id}
-                    label={category.name}
-                    checked={item.categories.includes(category.id)}
-                    onChange={checked => toggleCategory(category.id, checked)}
-                  />
-                ))}
-              </div>
+              <CategoryPicker
+                categories={categories}
+                selected={item.categories}
+                onChange={selected => onChange({ categories: selected })}
+                label={__('Categories', 'aggressive-apparel')}
+              />
             )}
             <div className='aa-ps-toggles'>
               <ToggleControl

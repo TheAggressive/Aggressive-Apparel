@@ -10,6 +10,18 @@ import type { DraftItem, ItemType, SpecItem } from './_types';
 let counter = 0;
 
 /** Stable React key for an item that has no saved key yet. */
+/**
+ * A failed request's message, else the fallback, plus any per-item problems
+ * the server listed (data.errors).
+ */
+export function errorText(failure: unknown, fallback: string): string {
+  const { message, data } = (failure ?? {}) as {
+    message?: string;
+    data?: { errors?: string[] };
+  };
+  return [message || fallback, ...(data?.errors ?? [])].join(' ');
+}
+
 export function uid(): string {
   counter += 1;
   return `item-${Date.now()}-${counter}`;

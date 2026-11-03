@@ -14,6 +14,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { Button, Notice, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { errorText } from './_utils';
 
 /** `missing` is -1 when the guide has too many products to check one by one. */
 type Status = { products: number; missing: number };
@@ -41,11 +42,13 @@ export default function ApplyToProducts({ guidesPath, guideId, dirty }: Props) {
     setCheckError('');
     return apiFetch({ path })
       .then(result => setStatus(result as Status))
-      .catch((failure: { message?: string }) => {
+      .catch((failure: unknown) => {
         setStatus(null);
         setCheckError(
-          failure.message ??
+          errorText(
+            failure,
             __('Couldn’t check the products.', 'aggressive-apparel')
+          )
         );
       });
   };
@@ -80,8 +83,10 @@ export default function ApplyToProducts({ guidesPath, guideId, dirty }: Props) {
       void check();
     } catch (failure) {
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('Applying stopped. Try again.', 'aggressive-apparel')
+        )
       );
     } finally {
       setProgress(null);
@@ -148,7 +153,7 @@ export default function ApplyToProducts({ guidesPath, guideId, dirty }: Props) {
   return (
     <div className='aa-ps-apply'>
       <div className='aa-ps-apply__text'>
-        <h3 className='aa-ps-spec-group__title'>
+        <h3 className='aa-ps-eyebrow'>
           {__('Products using this guide', 'aggressive-apparel')}
         </h3>
         <p className='aa-ps-help'>

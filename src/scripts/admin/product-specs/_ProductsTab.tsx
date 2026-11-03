@@ -21,6 +21,7 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { errorText } from './_utils';
 import type { Config, GridRow, SpecItem } from './_types';
 import SpecInput from './_SpecInput';
 
@@ -93,11 +94,13 @@ export default function ProductsTab({
           setSelected([]);
         }
       })
-      .catch((error: { message?: string }) => {
+      .catch((error: unknown) => {
         if (current) {
           setLoadError(
-            error.message ??
+            errorText(
+              error,
               __('Products could not be loaded.', 'aggressive-apparel')
+            )
           );
         }
       })
@@ -196,9 +199,10 @@ export default function ProductsTab({
     } catch (error) {
       setNotice({
         status: 'error',
-        text:
-          (error as { message?: string }).message ??
-          __('Saving failed. Try again.', 'aggressive-apparel'),
+        text: errorText(
+          error,
+          __('Saving failed. Try again.', 'aggressive-apparel')
+        ),
       });
     } finally {
       setSaving(false);

@@ -305,7 +305,7 @@ export default function App({ config }: { config: Config }) {
           return (
             list.length > 0 && (
               <div key={group.title} className='aa-ps-list__group'>
-                <h3>{group.title}</h3>
+                <h3 className='aa-ps-eyebrow'>{group.title}</h3>
                 {group.help && <p className='aa-ps-help'>{group.help}</p>}
                 {list.map(({ item, index }, position) => (
                   <ItemCard

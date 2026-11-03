@@ -18,6 +18,8 @@ type Props = {
   /** Words for each state, where On and Off alone could mislead. */
   onText?: string;
   offText?: string;
+  /** Words that stay the same either way, when the state is said elsewhere. */
+  text?: string;
 };
 
 export default function OnOff({
@@ -26,6 +28,7 @@ export default function OnOff({
   onChange,
   onText = __('On', 'aggressive-apparel'),
   offText = __('Off', 'aggressive-apparel'),
+  text,
 }: Props) {
   return (
     <div className='aa-ps-card__switch'>
@@ -34,7 +37,7 @@ export default function OnOff({
         aria-label={label}
         onChange={() => onChange(!checked)}
       />
-      <span aria-hidden='true'>{checked ? onText : offText}</span>
+      <span aria-hidden='true'>{text ?? (checked ? onText : offText)}</span>
     </div>
   );
 }

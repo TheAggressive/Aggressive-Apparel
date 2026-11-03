@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-03T06:03:54+00:00\n"
+"POT-Creation-Date: 2026-11-03T06:27:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2543,7 +2543,7 @@ msgstr ""
 #: includes/WooCommerce/class-product-filter-renderer.php:59
 #: includes/WooCommerce/class-product-filter-renderer.php:187
 #: includes/WooCommerce/class-product-tabs-config.php:170
-#: includes/WooCommerce/class-size-chart.php:522
+#: includes/WooCommerce/class-size-chart.php:519
 msgid "Size"
 msgstr ""
 
@@ -2809,7 +2809,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-specs-grid.php:231
 #: includes/WooCommerce/class-size-guide-admin-fields.php:231
-#: includes/WooCommerce/class-size-guide-rest.php:600
+#: includes/WooCommerce/class-size-guide-rest.php:592
 msgid "(no title)"
 msgstr ""
 
@@ -3802,57 +3802,57 @@ msgstr ""
 msgid "Last state: %1$s. Checked: %2$d; changed: %3$d."
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:208
+#: includes/WooCommerce/class-size-chart.php:205
 msgid "Showing inches"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:209
+#: includes/WooCommerce/class-size-chart.php:206
 msgid "Showing centimetres"
 msgstr ""
 
 #. translators: %s: size (e.g. "M").
-#: includes/WooCommerce/class-size-chart.php:426
+#: includes/WooCommerce/class-size-chart.php:423
 #, php-format
 msgid "Size %s"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:487
+#: includes/WooCommerce/class-size-chart.php:484
 msgid "Inches"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:488
+#: includes/WooCommerce/class-size-chart.php:485
 msgid "Centimetres"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:499
+#: includes/WooCommerce/class-size-chart.php:496
 msgid "Measurement units"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:514
+#: includes/WooCommerce/class-size-chart.php:511
 msgid "Size chart"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:528
+#: includes/WooCommerce/class-size-chart.php:525
 msgid "(your selected size)"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:536
+#: includes/WooCommerce/class-size-chart.php:533
 msgid "Not available"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:548
+#: includes/WooCommerce/class-size-chart.php:545
 msgid "Size chart, scrolls sideways"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:575
+#: includes/WooCommerce/class-size-chart.php:572
 msgid "How to measure"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:643
+#: includes/WooCommerce/class-size-chart.php:640
 msgid "centimetres"
 msgstr ""
 
-#: includes/WooCommerce/class-size-chart.php:643
+#: includes/WooCommerce/class-size-chart.php:640
 msgid "inches"
 msgstr ""
 
@@ -3973,11 +3973,11 @@ msgstr ""
 msgid "%s (copy)"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:459
+#: includes/WooCommerce/class-size-guide-rest.php:451
 msgid "Some specs need fixing before the guide can be saved."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:591
+#: includes/WooCommerce/class-size-guide-rest.php:583
 msgid "Untitled size guide"
 msgstr ""
 

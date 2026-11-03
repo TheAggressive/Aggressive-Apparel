@@ -1,0 +1,196 @@
+/**
+ * Product Specs settings — a size guide's chart: the spreadsheet grid
+ * (_ChartEditor) and the shopper preview of it (_ChartPreview).
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Spreadsheet grid */
+.aa-ps-chart {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+}
+
+.aa-ps-chart__bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 20px;
+	align-items: flex-start;
+}
+
+.aa-ps-chart__bar .components-base-control {
+	flex: 0 0 220px;
+}
+
+.aa-ps-chart__tip {
+	flex: 1 1 240px;
+	padding-top: 24px;
+}
+
+.aa-ps-chart__scroll {
+	overflow-x: auto;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 4px;
+}
+
+.aa-ps-chart__grid {
+	border-collapse: collapse;
+}
+
+.aa-ps-chart__grid th,
+.aa-ps-chart__grid td {
+	padding: 0;
+	border-right: 1px solid var(--aa-ps-divider);
+	border-bottom: 1px solid var(--aa-ps-divider);
+	vertical-align: middle;
+}
+
+.aa-ps-chart__grid thead th {
+	padding: 6px 4px 4px;
+	background: #f6f7f7;
+	font-weight: 600;
+	text-align: left;
+}
+
+.aa-ps-chart__grid thead th.aa-ps-chart__corner {
+	padding-left: 10px;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-chart__grid tbody th {
+	background: #fbfbfc;
+}
+
+.aa-ps-chart__head {
+	display: flex;
+	gap: 2px;
+	align-items: center;
+}
+
+.aa-ps-chart__input {
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 88px;
+	height: 38px;
+	margin: 0;
+	padding: 0 10px;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	font-variant-numeric: tabular-nums;
+}
+
+.aa-ps-chart__input:focus {
+	position: relative;
+	z-index: 1;
+	border-radius: 2px;
+	background: #fff;
+	box-shadow: inset 0 0 0 2px var(--aa-ps-accent);
+	outline: none;
+}
+
+.aa-ps-chart__input--head {
+	min-width: 110px;
+	font-weight: 600;
+}
+
+.aa-ps-chart__input--size {
+	min-width: 64px;
+	font-weight: 600;
+}
+
+.aa-ps-chart__type {
+	display: block;
+	padding: 0 10px 2px;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	font-weight: 400;
+}
+
+.aa-ps-chart__grid thead th.aa-ps-chart__add-col {
+	width: 40px;
+	border-right: 0;
+	text-align: center;
+}
+
+.aa-ps-chart__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+}
+
+/* Preview (mirrors the product page table) */
+.aa-ps-chart-preview {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.aa-ps-chart-preview__unit {
+	font-size: 0.85em;
+}
+
+.aa-ps-chart-preview__units {
+	display: inline-flex;
+	align-self: flex-end;
+	padding: 2px;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 999px;
+	background: #fff;
+}
+
+.aa-ps-chart-preview__units button {
+	min-width: 40px;
+	padding: 4px 10px;
+	border: 0;
+	border-radius: 999px;
+	background: none;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+.aa-ps-chart-preview__units button[aria-pressed="true"] {
+	background: #1e1e1e;
+	color: #fff;
+}
+
+.aa-ps-chart-preview__scroll {
+	overflow-x: auto;
+}
+
+.aa-ps-chart-preview table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+}
+
+.aa-ps-chart-preview th,
+.aa-ps-chart-preview td {
+	padding: 7px 8px;
+	border-bottom: 1px solid var(--aa-ps-border);
+	white-space: nowrap;
+}
+
+.aa-ps-chart-preview thead th {
+	font-size: 12px;
+}
+
+.aa-ps-chart-preview thead th span {
+	color: var(--aa-ps-muted);
+	font-weight: 400;
+}
+
+.aa-ps-chart-preview thead th:first-child,
+.aa-ps-chart-preview tbody th {
+	text-align: left;
+}

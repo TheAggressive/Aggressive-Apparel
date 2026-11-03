@@ -1,10 +1,10 @@
 /**
  * Product Specs settings — a guide's notes and measuring diagram.
  *
- * Both show under the size chart on product pages. Each has the same On/Off
- * switch as a spec (_OnOff), and the import's "Use these notes" / "Use this
- * diagram" save to it: switching one off hides it on product pages but keeps
- * it here (Size_Chart::show), so switching it back on brings it back.
+ * Both show under the size chart on product pages. Each has the same switch
+ * as a spec (_OnOff), which the import's "Use these notes" / "Use this
+ * diagram" also set: off hides it on product pages but keeps it on the guide
+ * (Size_Chart::show).
  *
  * @package Aggressive_Apparel
  */
@@ -15,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { GuideDetail } from './_types';
 import OnOff from './_OnOff';
+import { SECTION } from './_guideSummary';
 
 type Attachment = {
   id: number;
@@ -36,6 +37,38 @@ type Fields = Pick<
 >;
 
 type Props = Fields & { onChange: (patch: Partial<Fields>) => void };
+
+/**
+ * The notes and diagram as the size guide shows them under its chart, unless
+ * switched off (Size_Chart::notes).
+ */
+export function NotesPreview({
+  notes,
+  diagram,
+  showNotes,
+  showDiagram,
+}: Fields) {
+  const paragraphs = showNotes
+    ? notes
+        .trim()
+        .split(/\n\s*\n/)
+        .filter(text => text !== '')
+    : [];
+  const image = showDiagram ? diagram : null;
+  if (paragraphs.length === 0 && !image) {
+    return null;
+  }
+  return (
+    <div className='aa-ps-notes-preview'>
+      {paragraphs.map((text, i) => (
+        <p key={i}>{text}</p>
+      ))}
+      {image && (
+        <img src={image.url} alt={__('How to measure', 'aggressive-apparel')} />
+      )}
+    </div>
+  );
+}
 
 /** One part (notes or diagram): a heading, its switch, and what it holds. */
 function Part({
@@ -116,7 +149,7 @@ export default function GuideNotes({
   };
 
   return (
-    <section className='aa-ps-guide__section aa-ps-guide__notes'>
+    <section id={SECTION.notes} className='aa-ps-guide__section'>
       <h2>{__('Notes and diagram', 'aggressive-apparel')}</h2>
       <p className='aa-ps-help'>
         {__(
@@ -153,19 +186,13 @@ export default function GuideNotes({
           label={__('Show the diagram on product pages', 'aggressive-apparel')}
           onSwitch={on => onChange({ showDiagram: on })}
         >
-          <div className='aa-ps-diagram'>
-            {diagram ? (
+          {diagram ? (
+            <div className='aa-ps-diagram'>
               <img src={diagram.url} alt='' />
-            ) : (
-              <span className='aa-ps-diagram__empty' aria-hidden='true' />
-            )}
-            <div className='aa-ps-diagram__actions'>
-              <Button variant='secondary' onClick={pickDiagram}>
-                {diagram
-                  ? __('Replace', 'aggressive-apparel')
-                  : __('Add a measuring diagram', 'aggressive-apparel')}
-              </Button>
-              {diagram && (
+              <div className='aa-ps-diagram__actions'>
+                <Button variant='secondary' onClick={pickDiagram}>
+                  {__('Replace', 'aggressive-apparel')}
+                </Button>
                 <Button
                   variant='tertiary'
                   isDestructive
@@ -173,9 +200,21 @@ export default function GuideNotes({
                 >
                   {__('Remove', 'aggressive-apparel')}
                 </Button>
-              )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <button
+              type='button'
+              className='aa-ps-diagram__add'
+              onClick={pickDiagram}
+            >
+              <span
+                className='dashicons dashicons-format-image'
+                aria-hidden='true'
+              />
+              {__('Add a measuring diagram', 'aggressive-apparel')}
+            </button>
+          )}
         </Part>
       </div>
     </section>

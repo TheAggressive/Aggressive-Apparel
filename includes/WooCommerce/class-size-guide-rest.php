@@ -199,7 +199,7 @@ final class Size_Guide_Rest {
 		}
 
 		// Specs need the new ID; an invalid one leaves no half-made guide.
-		$invalid = self::save_spec_items( $id, $body );
+		$invalid = self::save_spec_items( $body );
 		if ( null !== $invalid ) {
 			wp_delete_post( $id, true );
 			return $invalid;
@@ -229,7 +229,7 @@ final class Size_Guide_Rest {
 	public function update( \WP_REST_Request $request ) {
 		$id      = (int) $request['id'];
 		$body    = self::body( $request );
-		$invalid = self::save_spec_items( $id, $body );
+		$invalid = self::save_spec_items( $body );
 		if ( null !== $invalid ) {
 			return $invalid;
 		}
@@ -430,19 +430,11 @@ final class Size_Guide_Rest {
 	 * A spec whose key had to change (taken since the editor loaded) has
 	 * its value and import rules moved to the saved key, so neither is lost.
 	 *
-	 * @param int                  $id   Size guide post ID.
 	 * @param array<string, mixed> $data Submitted fields; spec keys are rewritten when renamed.
 	 * @return \WP_Error|null Null when saved or not submitted.
 	 */
-	private static function save_spec_items( int $id, array &$data ): ?\WP_Error {
-		unset( $id );
-		// storeSpecItems is what imports sent when specs could belong to a guide.
-		$added = array();
-		foreach ( array( 'specItems', 'storeSpecItems' ) as $field ) {
-			if ( isset( $data[ $field ] ) && is_array( $data[ $field ] ) ) {
-				$added = array_merge( $added, array_values( $data[ $field ] ) );
-			}
-		}
+	private static function save_spec_items( array &$data ): ?\WP_Error {
+		$added = isset( $data['specItems'] ) && is_array( $data['specItems'] ) ? array_values( $data['specItems'] ) : array();
 		if ( array() === $added ) {
 			return null;
 		}

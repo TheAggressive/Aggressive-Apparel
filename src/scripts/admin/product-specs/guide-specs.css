@@ -1,0 +1,146 @@
+/**
+ * Product Specs settings — a size guide's spec rows and their edit panel
+ * (_GuideSpecs, _TypeChange).
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* One spec: name, value, then edit and its Shown/Hidden switch. Every row
+   uses the same tracks, so names and fields line up down the list. */
+.aa-ps-spec-row {
+	display: grid;
+	grid-template-columns: 160px minmax(0, 1fr) auto;
+	gap: 12px;
+	align-items: center;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--aa-ps-divider);
+}
+
+.aa-ps-spec-row__name {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	justify-content: center;
+	min-height: var(--aa-ps-control-height);
+}
+
+.aa-ps-spec-row__title {
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 500;
+	overflow-wrap: anywhere;
+}
+
+.aa-ps-spec-row__note {
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+/* Hidden here, or nothing to show: the row steps back. */
+.aa-ps-spec-row.is-off .aa-ps-spec-row__title,
+.aa-ps-spec-row.is-off .aa-ps-spec-row__value,
+.aa-ps-spec-row.is-empty .aa-ps-spec-row__title {
+	opacity: 0.55;
+}
+
+.is-editing > .aa-ps-spec-row {
+	border-bottom-color: transparent;
+}
+
+.aa-ps-spec-row__actions {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+/* A spec's edit panel, under its row in a guide (_GuideSpecs). */
+.aa-ps-edit-panel {
+	margin: 0 0 12px;
+	padding: 12px 16px;
+	border: 1px solid var(--aa-ps-border);
+	border-left: 3px solid var(--aa-ps-accent);
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.aa-ps-edit-panel__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.aa-ps-edit-panel__title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.aa-ps-edit-panel__head + .aa-ps-help {
+	margin: 4px 0 12px;
+}
+
+.aa-ps-edit-panel__foot {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	margin-top: 12px;
+}
+
+/* The full spec, edited in place: the panel is its frame and heading. */
+.aa-ps-edit-panel .aa-ps-card {
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+}
+
+.aa-ps-edit-panel .aa-ps-card__header {
+	display: none;
+}
+
+.aa-ps-edit-panel .aa-ps-card__body {
+	padding: 0;
+}
+
+.aa-ps-guide-wording {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 8px 12px;
+}
+
+.aa-ps-guide-wording__name {
+	grid-column: 1 / -1;
+	max-width: 360px;
+}
+
+/* What a type change does to existing values (_TypeChange). */
+.aa-ps-type-change ul {
+	display: grid;
+	grid-template-columns: max-content auto 1fr;
+	gap: 2px 8px;
+	margin: 4px 0 8px;
+	font-size: 12px;
+}
+
+.aa-ps-type-change li {
+	display: contents;
+}
+
+.aa-ps-type-change .is-lost {
+	color: var(--aa-ps-muted);
+	font-style: italic;
+}
+
+@media (width <= 782px) {
+
+	/* The value takes its own line under the name and actions. */
+	.aa-ps-spec-row {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+
+	.aa-ps-spec-row__value {
+		grid-column: 1 / -1;
+		grid-row: 2;
+	}
+}

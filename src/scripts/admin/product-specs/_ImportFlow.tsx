@@ -34,7 +34,7 @@ import type {
   Registry,
   SpecItem,
 } from './_types';
-import { scrollBehavior, specKey } from './_utils';
+import { errorText, scrollBehavior, specKey } from './_utils';
 import { attributeItem, nameFrom, valueFor } from './_import';
 import {
   findSaved,
@@ -193,8 +193,10 @@ export default function ImportFlow({
             /* translators: 1: blank name, 2: error message. */
             __('%1$s: %2$s', 'aggressive-apparel'),
             product.model || product.title,
-            (outcome.reason as { message?: string })?.message ??
+            errorText(
+              outcome.reason,
               __('It could not be loaded from Printful.', 'aggressive-apparel')
+            )
           )
         );
         return;
@@ -370,18 +372,13 @@ export default function ImportFlow({
         } catch {
           // Nothing more to learn; the next blank sends the spec again.
         }
-        const { message, data } = failure as {
-          message?: string;
-          data?: { errors?: string[] };
-        };
         done.push({
           ...summary,
           guide: 0,
-          error: [
-            message ??
-              __('The guide could not be created.', 'aggressive-apparel'),
-            ...(data?.errors ?? []),
-          ].join(' '),
+          error: errorText(
+            failure,
+            __('The guide could not be created.', 'aggressive-apparel')
+          ),
         });
       }
     }

@@ -749,3 +749,20 @@
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
+
+/* Where a spec is used: changeable from the header without opening the card. */
+.aa-ps-card__used-on {
+	min-width: 9.5rem;
+}
+
+.aa-ps-used-on {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.aa-ps-used-on__choices {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}

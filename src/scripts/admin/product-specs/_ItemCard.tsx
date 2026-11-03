@@ -1,8 +1,9 @@
 /**
  * Product Specs settings — one spec item card.
  *
- * Collapsed, the card summarizes the spec; open, it edits it in sections
- * (basics, steps, labels, advice, source, visibility) above a live preview.
+ * Collapsed, the card summarizes the spec and says where it's used, which can
+ * be changed right there; open, it edits it in sections (basics, where it's
+ * used, steps, labels, advice, source, categories) above a live preview.
  *
  * @package Aggressive_Apparel
  */
@@ -25,7 +26,14 @@ import ValuePicker from './_ValuePicker';
 import AttributeSettings from './_AttributeSettings';
 import CategorySteps from './_CategorySteps';
 import StepsEditor from './_StepsEditor';
-import GuideScope, { guideSummary } from './_GuideScope';
+import UsedOnPicker from './_UsedOn';
+import {
+  guideSummary,
+  usedOn,
+  usedOnLabel,
+  usedOnPatch,
+  type UsedOn,
+} from './_placement';
 
 type Props = {
   item: DraftItem;
@@ -174,6 +182,19 @@ export default function ItemCard({
   taxonomies,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Some guides, picked before any guide is ticked: shown as chosen, though it
+  // would save as every guide until one is.
+  const [picking, setPicking] = useState(false);
+  const choice: UsedOn =
+    picking && item.enabled && item.guides.length === 0 ? 'some' : usedOn(item);
+  const choose = (value: UsedOn) => {
+    setPicking(value === 'some');
+    onChange(usedOnPatch(value));
+    // Picking guides happens inside the card.
+    if (value === 'some' && !open) {
+      onToggle();
+    }
+  };
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
@@ -248,6 +269,21 @@ export default function ItemCard({
           </span>
         </button>
         <div className='aa-ps-card__actions'>
+          {guides && (
+            <SelectControl
+              className='aa-ps-card__used-on'
+              label={__('Used on', 'aggressive-apparel')}
+              hideLabelFromVision
+              value={choice}
+              options={(['every', 'some', 'nowhere'] as const).map(value => ({
+                value,
+                label: usedOnLabel(value),
+              }))}
+              onChange={value => choose(value as UsedOn)}
+              size='compact'
+              __nextHasNoMarginBottom
+            />
+          )}
           <Button
             icon='arrow-up-alt'
             label={__('Move up', 'aggressive-apparel')}
@@ -333,6 +369,18 @@ export default function ItemCard({
               />
             )}
           </div>
+
+          {guides && (
+            <Section title={__('Used on', 'aggressive-apparel')}>
+              <UsedOnPicker
+                item={item}
+                guides={guides}
+                choice={choice}
+                onChoose={choose}
+                onGuides={value => onChange({ guides: value })}
+              />
+            </Section>
+          )}
 
           {isScale && (
             <Section
@@ -573,13 +621,11 @@ export default function ItemCard({
           </Section>
 
           <Section
-            title={__('Where it shows', 'aggressive-apparel')}
+            title={__('Categories and placement', 'aggressive-apparel')}
             summary={[
               scopeSummary(item, categories),
-              guides && guideSummary(item, guides),
               item.in_table &&
                 __('in Additional information', 'aggressive-apparel'),
-              !item.enabled && __('turned off', 'aggressive-apparel'),
             ]
               .filter(Boolean)
               .join(' · ')}
@@ -628,13 +674,6 @@ export default function ItemCard({
                 ))}
               </div>
             )}
-            {guides && (
-              <GuideScope
-                item={item}
-                guides={guides}
-                onChange={value => onChange({ guides: value })}
-              />
-            )}
             <div className='aa-ps-toggles'>
               <ToggleControl
                 label={__(
@@ -648,15 +687,17 @@ export default function ItemCard({
                 checked={item.in_table}
                 onChange={in_table => onChange({ in_table })}
               />
-              <ToggleControl
-                label={__('Show this spec', 'aggressive-apparel')}
-                help={__(
-                  'Turning a spec off hides it everywhere but keeps its saved values.',
-                  'aggressive-apparel'
-                )}
-                checked={item.enabled}
-                onChange={enabled => onChange({ enabled })}
-              />
+              {!guides && (
+                <ToggleControl
+                  label={__('Show this spec', 'aggressive-apparel')}
+                  help={__(
+                    'Turning a spec off hides it everywhere but keeps its saved values.',
+                    'aggressive-apparel'
+                  )}
+                  checked={item.enabled}
+                  onChange={enabled => onChange({ enabled })}
+                />
+              )}
             </div>
           </Section>
 

@@ -32,6 +32,7 @@ import ItemCard from './_ItemCard';
 import GuidesTab from './_GuidesTab';
 import ProductsTab, { type ProductEdits } from './_ProductsTab';
 import { AddSpecButton, Suggestions } from './_AddSpec';
+import { usedOn, type UsedOn } from './_placement';
 
 type SaveError = { message?: string; data?: { errors?: string[] } };
 
@@ -141,10 +142,11 @@ export default function App({ config }: { config: Config }) {
     touch(items.filter(other => other.uid !== item.uid));
   };
 
-  const move = (index: number, direction: -1 | 1) => {
+  // Groups interleave in the saved list, so a card trades places with its
+  // neighbour in its own group, not whatever happens to sit next to it there.
+  const swap = (from: number, to: number) => {
     const next = [...items];
-    const [item] = next.splice(index, 1);
-    next.splice(index + direction, 0, item);
+    [next[from], next[to]] = [next[to], next[from]];
     touch(next);
   };
 
@@ -239,6 +241,14 @@ export default function App({ config }: { config: Config }) {
     },
   ];
 
+  // A spec changes group once saved: a card being edited doesn't jump away.
+  const groupOf = (item: DraftItem): UsedOn =>
+    usedOn(
+      item.isNew
+        ? item
+        : (savedItems.find(saved => saved.key === item.key) ?? item)
+    );
+
   const specsTab = (
     <div className='aa-ps-tab'>
       <p className='aa-ps-intro'>
@@ -271,27 +281,38 @@ export default function App({ config }: { config: Config }) {
         )}
         {[
           {
-            title: __('Store-wide specs', 'aggressive-apparel'),
-            owned: false,
+            used: 'every' as const,
+            title: __('On every guide', 'aggressive-apparel'),
+            help: '',
           },
           {
-            title: __('Size guide specs', 'aggressive-apparel'),
-            owned: true,
+            used: 'some' as const,
+            title: __('On some guides', 'aggressive-apparel'),
+            help: '',
+          },
+          {
+            used: 'nowhere' as const,
+            title: __('Kept for later', 'aggressive-apparel'),
+            help: __(
+              'Shown nowhere, with their settings and values kept. Pick where to use one to bring it back.',
+              'aggressive-apparel'
+            ),
           },
         ].map(group => {
           const list = items
             .map((item, index) => ({ item, index }))
-            .filter(({ item }) => item.guides.length > 0 === group.owned);
+            .filter(({ item }) => groupOf(item) === group.used);
           return (
             list.length > 0 && (
               <div key={group.title} className='aa-ps-list__group'>
                 <h3>{group.title}</h3>
-                {list.map(({ item, index }) => (
+                {group.help && <p className='aa-ps-help'>{group.help}</p>}
+                {list.map(({ item, index }, position) => (
                   <ItemCard
                     key={item.uid}
                     item={item}
-                    index={index}
-                    total={items.length}
+                    index={position}
+                    total={list.length}
                     categories={config.categories}
                     attributeNames={config.attributes}
                     limits={config.limits}
@@ -302,7 +323,9 @@ export default function App({ config }: { config: Config }) {
                       setOpen(open === item.uid ? null : item.uid)
                     }
                     onChange={patch => update(item.uid, patch)}
-                    onMove={direction => move(index, direction)}
+                    onMove={direction =>
+                      swap(index, list[position + direction].index)
+                    }
                     onDelete={() => remove(item)}
                   />
                 ))}

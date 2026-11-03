@@ -239,7 +239,7 @@ export default function GuideSpecs({
           {storeWide.length > 0 && (
             <div className='aa-ps-spec-group'>
               <h3 className='aa-ps-spec-group__title'>
-                {__('Store-wide', 'aggressive-apparel')}
+                {__('On every guide', 'aggressive-apparel')}
               </h3>
               {used.map(item => (
                 <div key={item.key} data-spec={item.key}>

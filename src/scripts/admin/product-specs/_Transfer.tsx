@@ -1,11 +1,11 @@
 /**
  * Product Specs settings — moving the setup between sites.
  *
- * Export downloads every spec and size guide as one file; Import reads such
- * a file from another site (a local copy, say), shows what it will add and
- * change, and merges it in once confirmed (Product_Specs_Transfer). Nothing
- * only on this site is deleted. Importing reloads the page, so it waits
- * until unsaved changes are saved.
+ * Export downloads every spec and size guide as one file; Import uploads
+ * such a file from another site (a local copy, say) once, shows what it
+ * will add and change, and merges it in by a token once confirmed
+ * (Product_Specs_Transfer). Nothing only on this site is deleted. Importing
+ * reloads the page, so it waits until unsaved changes are saved.
  *
  * @package Aggressive_Apparel
  */
@@ -31,15 +31,26 @@ type Plan = {
   exported: string;
   specs: Changes;
   guides: Changes;
+  /** Store-wide settings the file changes, as sentences. */
+  settings: string[];
   missing: string[];
+  /** What an import couldn't do (only after importing). */
+  problems: string[];
 };
 
 type Props = {
   /** The settings REST path. */
   restPath: string;
+  /** The largest file this site accepts, in bytes. */
+  maxUpload: number;
   /** Whether anything on the page is unsaved. */
   dirty: boolean;
 };
+
+/** A byte count as megabytes ("4.2 MB"). */
+function megabytes(bytes: number): string {
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
 
 function Counts({
   title,
@@ -103,15 +114,16 @@ function Counts({
   );
 }
 
-export default function Transfer({ restPath, dirty }: Props) {
+export default function Transfer({ restPath, maxUpload, dirty }: Props) {
   const [exporting, setExporting] = useState(false);
   const [exportNote, setExportNote] = useState('');
   const [importing, setImporting] = useState(false);
-  const [file, setFile] = useState<unknown>(null);
+  // The checked file waits on the server under this token.
+  const [token, setToken] = useState('');
   const [plan, setPlan] = useState<Plan | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState<Plan | null>(null);
 
   // The export note says its piece, then gets out of the way.
   useEffect(() => {
@@ -156,10 +168,10 @@ export default function Transfer({ restPath, dirty }: Props) {
   };
 
   const reset = () => {
-    setFile(null);
+    setToken('');
     setPlan(null);
     setError('');
-    setDone(false);
+    setDone(null);
   };
 
   const close = () => {
@@ -172,27 +184,31 @@ export default function Transfer({ restPath, dirty }: Props) {
       return;
     }
     reset();
+    if (maxUpload > 0 && chosen.size > maxUpload) {
+      setError(
+        sprintf(
+          /* translators: 1: file size, 2: largest size this site accepts. */
+          __(
+            'That file is %1$s, more than this site accepts (%2$s). Ask your host to raise the upload limit, then try again.',
+            'aggressive-apparel'
+          ),
+          megabytes(chosen.size),
+          megabytes(maxUpload)
+        )
+      );
+      return;
+    }
     setBusy(true);
     try {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(await chosen.text());
-      } catch {
-        throw new Error(
-          __(
-            'That file couldn’t be read. Choose the .json file that Export made.',
-            'aggressive-apparel'
-          )
-        );
-      }
-      setPlan(
-        await apiFetch<Plan>({
-          path: `${restPath}/import`,
-          method: 'POST',
-          data: { file: parsed, apply: false },
-        })
-      );
-      setFile(parsed);
+      const body = new FormData();
+      body.append('file', chosen);
+      const checked = await apiFetch<{ token: string; plan: Plan }>({
+        path: `${restPath}/import`,
+        method: 'POST',
+        body,
+      });
+      setToken(checked.token);
+      setPlan(checked.plan);
     } catch (failure) {
       setError(
         errorText(
@@ -209,18 +225,25 @@ export default function Transfer({ restPath, dirty }: Props) {
     setBusy(true);
     setError('');
     try {
-      await apiFetch({
-        path: `${restPath}/import`,
-        method: 'POST',
-        data: { file, apply: true },
-      });
-      setDone(true);
+      setDone(
+        await apiFetch<Plan>({
+          path: `${restPath}/import/apply`,
+          method: 'POST',
+          data: { token },
+        })
+      );
     } catch (failure) {
+      const stopped = __(
+        'The import stopped before it finished, so part of it may already be saved. Check your size guides, then import the file again: anything already imported is matched, not added twice.',
+        'aggressive-apparel'
+      );
+      // A dropped connection or a server that gave up says nothing useful;
+      // a refusal from the import itself (nothing saved) explains itself.
+      const code = (failure as { code?: string } | null)?.code ?? '';
       setError(
-        errorText(
-          failure,
-          __('The import failed. Nothing was changed.', 'aggressive-apparel')
-        )
+        code === '' || code === 'fetch_error' || code === 'invalid_json'
+          ? stopped
+          : errorText(failure, stopped)
       );
     } finally {
       setBusy(false);
@@ -231,7 +254,8 @@ export default function Transfer({ restPath, dirty }: Props) {
     ? plan.specs.added.length +
       plan.specs.changed.length +
       plan.guides.added.length +
-      plan.guides.changed.length
+      plan.guides.changed.length +
+      plan.settings.length
     : 0;
 
   return (
@@ -268,9 +292,45 @@ export default function Transfer({ restPath, dirty }: Props) {
         >
           {done && (
             <>
-              <Notice status='success' isDismissible={false}>
-                {__('Imported.', 'aggressive-apparel')}
+              <Notice
+                status={done.problems.length > 0 ? 'warning' : 'success'}
+                isDismissible={false}
+              >
+                {sprintf(
+                  /* translators: 1: "3 specs", 2: "2 size guides". */
+                  __(
+                    'Imported: %1$s and %2$s added or updated.',
+                    'aggressive-apparel'
+                  ),
+                  sprintf(
+                    /* translators: %d: number of specs. */
+                    _n(
+                      '%d spec',
+                      '%d specs',
+                      done.specs.added.length + done.specs.changed.length,
+                      'aggressive-apparel'
+                    ),
+                    done.specs.added.length + done.specs.changed.length
+                  ),
+                  sprintf(
+                    /* translators: %d: number of size guides. */
+                    _n(
+                      '%d size guide',
+                      '%d size guides',
+                      done.guides.added.length + done.guides.changed.length,
+                      'aggressive-apparel'
+                    ),
+                    done.guides.added.length + done.guides.changed.length
+                  )
+                )}
               </Notice>
+              {done.problems.length > 0 && (
+                <ul className='aa-ps-transfer__list'>
+                  {done.problems.map(problem => (
+                    <li key={problem}>{problem}</li>
+                  ))}
+                </ul>
+              )}
               <div className='aa-ps-transfer__actions'>
                 <Button
                   variant='primary'
@@ -353,6 +413,16 @@ export default function Transfer({ restPath, dirty }: Props) {
                   )
                 }
               />
+              {plan.settings.length > 0 && (
+                <div className='aa-ps-transfer__part'>
+                  <h3 className='aa-ps-eyebrow'>
+                    {__('Settings', 'aggressive-apparel')}
+                  </h3>
+                  {plan.settings.map(setting => (
+                    <p key={setting}>{setting}</p>
+                  ))}
+                </div>
+              )}
               {plan.missing.length > 0 && (
                 <Notice status='warning' isDismissible={false}>
                   {sprintf(

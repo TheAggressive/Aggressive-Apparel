@@ -108,6 +108,10 @@ export default function GuidesGrid({
       (!gapsOnly || hasGap(row))
   );
 
+  const visibleSelected = selected.filter(id =>
+    shown.some(row => row.id === id)
+  );
+
   const open = (id: number) => {
     if (changes > 0) {
       setNotice({
@@ -241,10 +245,11 @@ export default function GuidesGrid({
 
       <BulkBar
         specs={specs}
-        count={selected.length}
+        count={visibleSelected.length}
+        // Only ticked guides in view: a filtered-out one is never changed.
         onApply={(key, value) =>
           onEdits(
-            selected.reduce(
+            visibleSelected.reduce(
               (next, id) => ({
                 ...next,
                 [id]: { ...(next[id] ?? {}), [key]: value },

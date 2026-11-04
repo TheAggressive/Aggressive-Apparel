@@ -36,10 +36,14 @@ final class Size_Guide_Grid {
 		$usage = Size_Guide_Assignments::usage_map( $ids );
 		$rows  = array();
 		foreach ( $ids as $id ) {
+			$post = get_post( $id );
+			if ( ! $post instanceof \WP_Post ) {
+				continue;
+			}
 			$specs  = Product_Specs_Values::guide( $id );
 			$rows[] = array(
 				'id'         => $id,
-				'title'      => get_the_title( $id ),
+				'title'      => Size_Guide_Rest::display_title( $post ),
 				'categories' => $usage[ $id ]['categories'],
 				'values'     => $specs['values'],
 				'hidden'     => $specs['hidden'],

@@ -161,6 +161,8 @@ final class Product_Specs_Settings {
 			'attributes'    => Product_Specs_Suggestions::names(),
 			// Typical fabric weights by garment, and each category's garment.
 			'weightPresets' => Fabric_Weight_Bands::presets(),
+			// The largest file an import can upload, in bytes.
+			'maxUpload'     => wp_max_upload_size(),
 			// Global attributes (taxonomy => label), for the attribute a spec uses.
 			'taxonomies'    => Product_Specs_Taxonomy::attributes(),
 			'tab'           => in_array( $tab, self::TABS, true ) ? $tab : self::TABS[0],
@@ -227,6 +229,22 @@ final class Product_Specs_Settings {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/import/apply',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'import_apply' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'token' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			self::REST_ROUTE,
 			array(
 				array(
@@ -270,23 +288,55 @@ final class Product_Specs_Settings {
 	}
 
 	/**
-	 * Import a Size & Specs file from another site: what it would change
-	 * ("apply": false), or the import itself.
+	 * Check an uploaded Size & Specs file from another site: what importing it
+	 * would change, and a token to import it with (it's sent once and kept
+	 * here, so confirming doesn't send it again).
 	 *
 	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
 	 * @param \WP_REST_Request $request Request.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function import( \WP_REST_Request $request ) {
-		$body = $request->get_json_params();
-		$file = Product_Specs_Transfer::read( is_array( $body ) ? ( $body['file'] ?? null ) : null );
+		// PHP's own upload (only it fills $_FILES), read as JSON, never kept.
+		$upload = $request->get_file_params()['file'] ?? null;
+		$path   = is_array( $upload ) && UPLOAD_ERR_OK === ( $upload['error'] ?? UPLOAD_ERR_NO_FILE ) && is_string( $upload['tmp_name'] ?? null ) ? $upload['tmp_name'] : '';
+		if ( '' === $path || ! is_readable( $path ) ) {
+			return new \WP_Error(
+				'aa_transfer_no_file',
+				sprintf(
+					/* translators: %s: largest upload size, like "64 MB". */
+					__( 'The file didn’t arrive. It may be bigger than this site accepts (%s).', 'aggressive-apparel' ),
+					size_format( wp_max_upload_size() )
+				),
+				array( 'status' => 400 )
+			);
+		}
+
+		$file = Product_Specs_Transfer::read( json_decode( (string) file_get_contents( $path ), true ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- The uploaded file's temporary path.
 		if ( is_wp_error( $file ) ) {
 			return $file;
 		}
-		if ( empty( $body['apply'] ) ) {
-			return rest_ensure_response( Product_Specs_Transfer::plan( $file ) );
-		}
 
+		return rest_ensure_response(
+			array(
+				'token' => Product_Specs_Transfer::stash( $file ),
+				'plan'  => Product_Specs_Transfer::plan( $file ),
+			)
+		);
+	}
+
+	/**
+	 * Import a file checked by import(), by its token.
+	 *
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function import_apply( \WP_REST_Request $request ) {
+		$file = Product_Specs_Transfer::unstash( $request->get_param( 'token' ) );
+		if ( null === $file ) {
+			return new \WP_Error( 'aa_transfer_expired', __( 'That file has expired. Choose it again.', 'aggressive-apparel' ), array( 'status' => 410 ) );
+		}
 		$done = Product_Specs_Transfer::apply( $file );
 
 		return is_wp_error( $done ) ? $done : rest_ensure_response( $done );

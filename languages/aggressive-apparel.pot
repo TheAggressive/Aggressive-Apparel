@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-04T03:12:20+00:00\n"
+"POT-Creation-Date: 2026-11-04T03:12:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2890,7 +2890,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-specs-grid.php:231
 #: includes/WooCommerce/class-size-guide-admin-fields.php:231
-#: includes/WooCommerce/class-size-guide-rest.php:614
+#: includes/WooCommerce/class-size-guide-rest.php:615
 msgid "(no title)"
 msgstr ""
 
@@ -3058,19 +3058,29 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-specs-settings.php:114
 #: includes/WooCommerce/class-product-specs-settings.php:115
-#: includes/WooCommerce/class-product-specs-settings.php:179
+#: includes/WooCommerce/class-product-specs-settings.php:181
 msgid "Size & Specs"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:183
+#: includes/WooCommerce/class-product-specs-settings.php:185
 msgid "Loading…"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:259
+#: includes/WooCommerce/class-product-specs-settings.php:277
 msgid "That attribute no longer exists."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:328
+#. translators: %s: largest upload size, like "64 MB".
+#: includes/WooCommerce/class-product-specs-settings.php:308
+#, php-format
+msgid "The file didn’t arrive. It may be bigger than this site accepts (%s)."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-settings.php:338
+msgid "That file has expired. Choose it again."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-settings.php:378
 msgid "Some specs need fixing before they can be saved."
 msgstr ""
 
@@ -3116,19 +3126,39 @@ msgstr ""
 msgid "WooCommerce is needed to save specs."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:120
+#: includes/WooCommerce/class-product-specs-transfer.php:151
 msgid "That isn’t a Size & Specs export file."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:123
+#: includes/WooCommerce/class-product-specs-transfer.php:154
 msgid "That file comes from a newer version of the theme. Update this site’s theme, then import it."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:217
+#: includes/WooCommerce/class-product-specs-transfer.php:261
+msgid "Shipping weight and dimensions will be hidden from Additional information."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:262
+msgid "Shipping weight and dimensions will show in Additional information again."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:270
 msgid "The file’s specs couldn’t be saved, so nothing was imported."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:623
+#. translators: 1: size guide name, 2: error message.
+#: includes/WooCommerce/class-product-specs-transfer.php:353
+#, php-format
+msgid "“%1$s” couldn’t be saved: %2$s"
+msgstr ""
+
+#. translators: %s: size guide name.
+#: includes/WooCommerce/class-product-specs-transfer.php:369
+#, php-format
+msgid "“%s”: its diagram couldn’t be added, so the guide keeps the one it had."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:859
 #: includes/WooCommerce/class-size-guide-rest.php:605
 msgid "Untitled size guide"
 msgstr ""

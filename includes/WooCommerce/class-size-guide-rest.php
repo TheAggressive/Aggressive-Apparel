@@ -606,11 +606,12 @@ final class Size_Guide_Rest {
 	}
 
 	/**
-	 * A guide's title for display.
+	 * A guide's name as stored (no texturizing or entities, since React prints
+	 * it as text), for the list, the grid and imports alike.
 	 *
 	 * @param \WP_Post $post Size guide.
 	 */
-	private static function display_title( \WP_Post $post ): string {
+	public static function display_title( \WP_Post $post ): string {
 		return '' !== $post->post_title ? $post->post_title : __( '(no title)', 'aggressive-apparel' );
 	}
 }

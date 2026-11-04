@@ -4,20 +4,28 @@
  *
  * Moves the whole Size & Specs setup between sites (say, from a local copy
  * to the live store) as one file: every spec, every size guide with its
- * chart, notes, diagram, values, wording and categories, and each spec's
- * per-category boundaries. Nothing is retyped by hand.
+ * chart, notes, diagram, values, wording and categories, each spec's
+ * per-category boundaries, and the store-wide dimensions setting.
  *
  * IDs differ between sites, so the file names things by what they are:
  * specs by key, categories by their slug path ("clothing/hoodies"), guides
- * by their Printful source, else their name, and attributes not at all (a
- * spec finds or makes its own here, as when it's created). Diagrams travel
- * inside the file, since one site often can't reach the other's media.
+ * by their Printful source, else by name, and attributes not at all (a spec
+ * finds or makes its own here, as when it's created). Diagrams travel inside
+ * the file at WordPress's "large" size, since one site often can't reach the
+ * other's media.
  *
- * Importing merges: specs and guides in the file are added or updated, and
- * nothing that's only on this site is touched or deleted. plan() says what
- * an import will do before apply() does it; both match things the same way.
- * Specs save through the Specs tab's own route (Product_Specs_Settings::
- * store) and guides through the editor's (Size_Guide_Rest::save).
+ * Importing merges: specs and guides in the file are added or updated, the
+ * file's settings apply, and nothing that's only on this site is deleted. A
+ * diagram the file couldn't carry, or that won't import, never removes the
+ * one a guide here has. plan() says what an import will do; apply() does it
+ * and reports what it did, including anything it couldn't. Specs save
+ * through the Specs tab's own route (Product_Specs_Settings::store) and
+ * guides through the editor's (Size_Guide_Rest::save).
+ *
+ * Built for large stores: categories are read in one query and resolved in
+ * memory, guides are compared from what's stored (no rendering), and a
+ * diagram is compared by a hash recorded when it was imported, else one
+ * streamed from its file, never by re-encoding it.
  *
  * @package Aggressive_Apparel
  */
@@ -35,7 +43,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Export and import of the Size & Specs setup.
  *
  * @phpstan-import-type Item from Product_Specs_Registry
- * @phpstan-type Plan array{site: string, exported: string, specs: array{added: list<string>, changed: list<string>, same: int}, guides: array{added: list<string>, changed: list<string>, same: int}, missing: list<string>}
+ * @phpstan-type Changes array{added: list<string>, changed: list<string>, same: int}
+ * @phpstan-type Plan array{site: string, exported: string, specs: Changes, guides: Changes, settings: list<string>, missing: list<string>, problems: list<string>}
+ * @phpstan-type Catalog array{paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>}
  */
 final class Product_Specs_Transfer {
 
@@ -58,11 +68,11 @@ final class Product_Specs_Transfer {
 	 *
 	 * @var int
 	 */
-	private const DIAGRAM_MAX = 5 * MB_IN_BYTES;
+	private const DIAGRAM_MAX = 3 * MB_IN_BYTES;
 
 	/**
-	 * Attachment meta: a hash of a diagram an import made, so importing the
-	 * same file again reuses it.
+	 * Attachment meta: the hash of the image a diagram was imported from, so
+	 * importing it again reuses it and compares as the same.
 	 *
 	 * @var string
 	 */
@@ -83,17 +93,38 @@ final class Product_Specs_Transfer {
 	private const LOCAL_FIELDS = array( 'taxonomy', 'step_terms', 'default_term', 'terms' );
 
 	/**
+	 * Transient prefix for a file waiting to be imported.
+	 *
+	 * @var string
+	 */
+	private const STASH = 'aa_specs_import_';
+
+	/**
+	 * Categories for this request (see catalog()).
+	 *
+	 * @var array{paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>}|null
+	 */
+	private static ?array $catalog = null;
+
+	/**
+	 * Diagram hashes worked out this request, by attachment ID.
+	 *
+	 * @var array<int, string>
+	 */
+	private static array $hashes = array();
+
+	/**
 	 * This site's setup, as a file.
 	 *
 	 * @return array<string, mixed>
 	 */
 	public static function export(): array {
 		$registry = Product_Specs_Registry::get();
-		$items    = array_map( array( self::class, 'export_item' ), $registry['items'] );
-
-		$guides = array();
+		$guides   = array();
 		foreach ( Size_Guide_Post_Type::ids() as $id ) {
-			$guides[] = self::export_guide( $id, true );
+			$guide            = self::snapshot( $id );
+			$guide['diagram'] = self::export_diagram( $id );
+			$guides[]         = $guide;
 		}
 
 		return array(
@@ -103,7 +134,7 @@ final class Product_Specs_Transfer {
 			'site'     => home_url(),
 			'specs'    => array(
 				'hide_dimensions' => $registry['hide_dimensions'],
-				'items'           => $items,
+				'items'           => array_map( array( self::class, 'export_item' ), $registry['items'] ),
 			),
 			'guides'   => $guides,
 		);
@@ -136,126 +167,230 @@ final class Product_Specs_Transfer {
 	}
 
 	/**
+	 * Keep a checked file for the user to confirm, so it's only sent once.
+	 *
+	 * @param array<string, mixed> $file A read() file.
+	 * @return string Token to import it with.
+	 */
+	public static function stash( array $file ): string {
+		$token = wp_generate_password( 32, false );
+		set_transient( self::stash_key( $token ), $file, HOUR_IN_SECONDS );
+
+		return $token;
+	}
+
+	/**
+	 * Take back a stashed file (once), or null when it's gone or not theirs.
+	 *
+	 * @param mixed $token Token from stash().
+	 * @return array<string, mixed>|null
+	 */
+	public static function unstash( $token ): ?array {
+		$token = is_string( $token ) ? (string) preg_replace( '/[^A-Za-z0-9]/', '', $token ) : '';
+		if ( '' === $token ) {
+			return null;
+		}
+		$file = get_transient( self::stash_key( $token ) );
+		delete_transient( self::stash_key( $token ) );
+
+		return is_array( $file ) ? $file : null;
+	}
+
+	/**
 	 * What importing a file would do, without doing it.
 	 *
 	 * @param array<string, mixed> $file A read() file.
 	 * @return Plan
 	 */
 	public static function plan( array $file ): array {
-		$missing = array();
-		$saved   = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
-		$specs   = array(
-			'added'   => array(),
-			'changed' => array(),
-			'same'    => 0,
-		);
-		foreach ( $file['specs']['items'] as $entry ) {
-			$key   = self::key( $entry );
-			$name  = is_scalar( $entry['name'] ?? null ) ? (string) $entry['name'] : $key;
-			$local = self::import_item( $entry, $missing );
-			if ( ! isset( $saved[ $key ] ) ) {
-				$specs['added'][] = $name;
-			} elseif ( self::same_item( array_merge( $saved[ $key ], $local ), $saved[ $key ] ) ) {
-				++$specs['same'];
-			} else {
-				$specs['changed'][] = $name;
-			}
-		}
+		$plan = self::run( $file, false );
 
-		$guides = array(
-			'added'   => array(),
-			'changed' => array(),
-			'same'    => 0,
-		);
-		$match  = self::guide_matcher();
-		foreach ( $file['guides'] as $entry ) {
-			$title = self::title( $entry );
-			$data  = self::import_guide( $entry, $missing );
-			$id    = $match( $entry );
-			if ( 0 === $id ) {
-				$guides['added'][] = $title;
-			} elseif ( self::differs( $id, $entry, $data ) ) {
-				$guides['changed'][] = $title;
-			} else {
-				++$guides['same'];
-			}
-		}
-
-		return array(
-			'site'     => $file['site'],
-			'exported' => $file['exported'],
-			'specs'    => $specs,
-			'guides'   => $guides,
-			'missing'  => array_values( array_unique( $missing ) ),
-		);
+		return is_wp_error( $plan ) ? self::empty_plan( $file ) : $plan;
 	}
 
 	/**
-	 * Import a file: specs first, then guides (whose values need the specs).
+	 * Import a file: the setting and specs first, together or not at all,
+	 * then each guide on its own, so one that fails is reported and the
+	 * rest still import.
 	 *
 	 * @param array<string, mixed> $file A read() file.
 	 * @return Plan|\WP_Error What it did, or why nothing was saved.
 	 */
 	public static function apply( array $file ) {
-		$plan    = self::plan( $file );
-		$missing = array();
+		return self::run( $file, true );
+	}
 
-		$saved = Product_Specs_Registry::get();
-		$items = array_column( $saved['items'], null, 'key' );
+	/**
+	 * Forget what this request read (after categories change, and in tests).
+	 */
+	public static function flush(): void {
+		self::$catalog = null;
+		self::$hashes  = array();
+	}
+
+	/**
+	 * Work out, and if asked do, an import, in one pass.
+	 *
+	 * @param array<string, mixed> $file  A read() file.
+	 * @param bool                 $write Import it, or only say what it would do.
+	 * @return Plan|\WP_Error
+	 */
+	private static function run( array $file, bool $write ) {
+		$plan   = self::empty_plan( $file );
+		$saved  = Product_Specs_Registry::get();
+		$by_key = array_column( $saved['items'], null, 'key' );
+		$items  = $by_key;
 		foreach ( $file['specs']['items'] as $entry ) {
-			$key           = self::key( $entry );
-			$local         = self::import_item( $entry, $missing );
-			$items[ $key ] = isset( $items[ $key ] )
+			$key   = self::key( $entry );
+			$local = self::import_item( $entry, $plan['missing'] );
+			$name  = is_scalar( $entry['name'] ?? null ) ? (string) $entry['name'] : $key;
+			if ( ! isset( $by_key[ $key ] ) ) {
+				$plan['specs']['added'][] = $name;
+				$items[ $key ]            = $local;
+			} elseif ( self::same_item( array_merge( $by_key[ $key ], $local ), $by_key[ $key ] ) ) {
+				++$plan['specs']['same'];
+			} else {
+				$plan['specs']['changed'][] = $name;
 				// The attribute and its terms stay this site's own.
-				? array_merge( $items[ $key ], $local )
-				: $local;
+				$items[ $key ] = array_merge( $by_key[ $key ], $local );
+			}
 		}
-		$errors = Product_Specs_Settings::store( array_values( $items ), $file['specs']['hide_dimensions'] );
-		if ( array() !== $errors ) {
-			return new \WP_Error(
-				'aa_transfer_specs_invalid',
-				__( 'The file’s specs couldn’t be saved, so nothing was imported.', 'aggressive-apparel' ),
-				array(
-					'status' => 400,
-					'errors' => $errors,
-				)
-			);
+
+		if ( $file['specs']['hide_dimensions'] !== $saved['hide_dimensions'] ) {
+			$plan['settings'][] = $file['specs']['hide_dimensions']
+				? __( 'Shipping weight and dimensions will be hidden from Additional information.', 'aggressive-apparel' )
+				: __( 'Shipping weight and dimensions will show in Additional information again.', 'aggressive-apparel' );
+		}
+
+		if ( $write && ( array() !== $plan['specs']['added'] || array() !== $plan['specs']['changed'] || array() !== $plan['settings'] ) ) {
+			$errors = Product_Specs_Settings::store( array_values( $items ), $file['specs']['hide_dimensions'] );
+			if ( array() !== $errors ) {
+				return new \WP_Error(
+					'aa_transfer_specs_invalid',
+					__( 'The file’s specs couldn’t be saved, so nothing was imported.', 'aggressive-apparel' ),
+					array(
+						'status' => 400,
+						'errors' => $errors,
+					)
+				);
+			}
 		}
 
 		$match = self::guide_matcher();
 		foreach ( $file['guides'] as $entry ) {
-			$data = self::import_guide( $entry, $missing );
+			$data = self::import_guide( $entry, $plan['missing'] );
 			$id   = $match( $entry );
 			if ( $id > 0 && ! self::differs( $id, $entry, $data ) ) {
+				++$plan['guides']['same'];
 				continue;
 			}
-			if ( 0 === $id ) {
-				$id = wp_insert_post(
-					array(
-						'post_type'   => Size_Guide_Post_Type::POST_TYPE,
-						'post_status' => 'publish',
-						'post_title'  => self::title( $entry ),
-					),
-					true
-				);
-				if ( is_wp_error( $id ) ) {
-					return $id;
+			$plan['guides'][ 0 === $id ? 'added' : 'changed' ][] = self::title( $entry );
+			if ( $write ) {
+				$problem = self::write_guide( $id, $entry, $data );
+				if ( null !== $problem ) {
+					$plan['problems'][] = $problem;
 				}
-				self::adopt_source( $id, $entry );
 			}
-			$post = array(
-				'ID'         => $id,
-				'post_title' => self::title( $entry ),
-			);
-			if ( is_string( $entry['content'] ?? null ) && '' !== $entry['content'] ) {
-				$post['post_content'] = wp_kses_post( $entry['content'] );
-			}
-			wp_update_post( $post );
-			$data['diagram'] = self::import_diagram( $entry['diagram'] ?? null, $id );
-			Size_Guide_Rest::save( $id, $data );
 		}
+		$plan['missing'] = array_values( array_unique( $plan['missing'] ) );
 
 		return $plan;
+	}
+
+	/**
+	 * A plan with nothing in it yet.
+	 *
+	 * @param array<string, mixed> $file A read() file.
+	 * @return Plan
+	 */
+	private static function empty_plan( array $file ): array {
+		$none = array(
+			'added'   => array(),
+			'changed' => array(),
+			'same'    => 0,
+		);
+
+		return array(
+			'site'     => (string) $file['site'],
+			'exported' => (string) $file['exported'],
+			'specs'    => $none,
+			'guides'   => $none,
+			'settings' => array(),
+			'missing'  => array(),
+			'problems' => array(),
+		);
+	}
+
+	/**
+	 * Write one guide from the file: create it if new, then its fields.
+	 *
+	 * @param int                  $id    Size guide ID here, or 0 for new.
+	 * @param array<mixed>         $entry Guide from the file.
+	 * @param array<string, mixed> $data  Its fields for this site.
+	 * @return string|null What went wrong, if anything.
+	 */
+	private static function write_guide( int $id, array $entry, array $data ): ?string {
+		$title = self::title( $entry );
+		$post  = array( 'post_title' => $title );
+		if ( is_string( $entry['content'] ?? null ) && '' !== $entry['content'] ) {
+			$post['post_content'] = wp_kses_post( $entry['content'] );
+		}
+
+		// Both unslash what they're given, so it goes in slashed.
+		$saved = 0 === $id
+			? wp_insert_post(
+				wp_slash(
+					$post + array(
+						'post_type'   => Size_Guide_Post_Type::POST_TYPE,
+						'post_status' => 'publish',
+					)
+				),
+				true
+			)
+			: wp_update_post( wp_slash( $post + array( 'ID' => $id ) ), true );
+		if ( is_wp_error( $saved ) ) {
+			/* translators: 1: size guide name, 2: error message. */
+			return sprintf( __( '“%1$s” couldn’t be saved: %2$s', 'aggressive-apparel' ), $title, $saved->get_error_message() );
+		}
+		$id = (int) $saved;
+		self::adopt_source( $id, $entry );
+
+		$problem = null;
+		$diagram = $entry['diagram'] ?? null;
+		if ( null === $diagram ) {
+			// None there, so none here.
+			$data['diagram'] = 0;
+		} elseif ( is_array( $diagram ) && is_string( $diagram['data'] ?? null ) ) {
+			$attachment = self::import_diagram( $diagram, $id );
+			if ( $attachment > 0 ) {
+				$data['diagram'] = $attachment;
+			} else {
+				/* translators: %s: size guide name. */
+				$problem = sprintf( __( '“%s”: its diagram couldn’t be added, so the guide keeps the one it had.', 'aggressive-apparel' ), $title );
+			}
+		}
+		// One the file couldn't carry leaves this guide's as it is.
+
+		Size_Guide_Rest::save( $id, $data );
+		self::reassign( $id, $data['categories'] );
+
+		return $problem;
+	}
+
+	/**
+	 * Keep this request's categories right after a guide takes some: a
+	 * category holds one guide, so it leaves whichever guide had it.
+	 *
+	 * @param int        $guide_id   Size guide ID.
+	 * @param array<int> $categories Its categories now.
+	 */
+	private static function reassign( int $guide_id, array $categories ): void {
+		$catalog = self::catalog();
+		foreach ( $catalog['guides'] as $guide => $ids ) {
+			$catalog['guides'][ $guide ] = array_values( array_diff( $ids, $categories ) );
+		}
+		$catalog['guides'][ $guide_id ] = array_values( array_map( 'intval', $categories ) );
+		self::$catalog                  = $catalog;
 	}
 
 	/**
@@ -266,12 +401,12 @@ final class Product_Specs_Transfer {
 	 * @return array<string, mixed>
 	 */
 	private static function export_item( array $item ): array {
+		$paths = self::catalog()['paths'];
 		$steps = array();
 		foreach ( $item['category_steps'] as $row ) {
-			$path = self::category_path( $row['category'] );
-			if ( '' !== $path ) {
+			if ( isset( $paths[ $row['category'] ] ) ) {
 				$steps[] = array(
-					'category'   => $path,
+					'category'   => $paths[ $row['category'] ],
 					'thresholds' => $row['thresholds'],
 				);
 			}
@@ -280,7 +415,7 @@ final class Product_Specs_Transfer {
 		return array_merge(
 			array_diff_key( $item, array_flip( self::LOCAL_FIELDS ) ),
 			array(
-				'categories'     => array_values( array_filter( array_map( array( self::class, 'category_path' ), $item['categories'] ) ) ),
+				'categories'     => self::paths( $item['categories'] ),
 				'category_steps' => $steps,
 			)
 		);
@@ -296,7 +431,7 @@ final class Product_Specs_Transfer {
 	private static function same_item( array $raw, array $saved ): bool {
 		$item = Product_Specs_Registry::validate( array( 'items' => array( $raw ) ) )['items'][0] ?? null;
 
-		return null !== $item && wp_json_encode( self::canonical( self::export_item( $item ) ) ) === wp_json_encode( self::canonical( self::export_item( $saved ) ) );
+		return null !== $item && self::same( self::export_item( $item ), self::export_item( $saved ) );
 	}
 
 	/**
@@ -328,31 +463,31 @@ final class Product_Specs_Transfer {
 	}
 
 	/**
-	 * A guide as the file carries it.
+	 * A guide's stored fields as the file carries them (diagram aside), read
+	 * straight from what's stored, with no rendering.
 	 *
-	 * @param int  $id       Size guide ID.
-	 * @param bool $with_art Include the diagram's image (else just its hash).
+	 * @param int $id Size guide ID.
 	 * @return array<string, mixed>
 	 */
-	private static function export_guide( int $id, bool $with_art ): array {
-		$guide = Size_Guide_Rest::guide( $id );
+	private static function snapshot( int $id ): array {
 		$post  = get_post( $id );
+		$chart = Size_Chart::get( $id );
+		$specs = Product_Specs_Values::guide( $id );
 
 		return array(
-			'title'       => $guide['title'],
-			'source'      => $guide['source'],
-			'chart'       => $guide['chart'],
-			'notes'       => $guide['notes'],
-			'showNotes'   => $guide['showNotes'],
-			'diagram'     => null !== $guide['diagram'] ? self::export_diagram( $guide['diagram']['id'], $with_art ) : null,
-			'showDiagram' => $guide['showDiagram'],
+			'title'       => $post instanceof \WP_Post ? Size_Guide_Rest::display_title( $post ) : '',
+			'source'      => Printful_Import::source( $id ),
+			'chart'       => $chart ?? Size_Chart::sanitize( array() ),
+			'notes'       => (string) get_post_meta( $id, Size_Chart::NOTES, true ),
+			'showNotes'   => Size_Chart::shows( $id, 'notes' ),
+			'showDiagram' => Size_Chart::shows( $id, 'diagram' ),
 			// Empty values too, so a value cleared there is cleared here.
-			'specs'       => $guide['specs'],
-			'hidden'      => $guide['hidden'],
-			'wording'     => $guide['wording'],
-			'categories'  => array_values( array_filter( array_map( array( self::class, 'category_path' ), $guide['categories'] ) ) ),
-			'isDefault'   => $guide['isDefault'],
-			'content'     => null === Size_Chart::get( $id ) && $post instanceof \WP_Post ? $post->post_content : '',
+			'specs'       => $specs['values'],
+			'hidden'      => $specs['hidden'],
+			'wording'     => $specs['wording'],
+			'categories'  => self::paths( self::catalog()['guides'][ $id ] ?? array() ),
+			'isDefault'   => Size_Guide_Assignments::is_default( $id ),
+			'content'     => null === $chart && $post instanceof \WP_Post ? $post->post_content : '',
 		);
 	}
 
@@ -373,76 +508,128 @@ final class Product_Specs_Transfer {
 	}
 
 	/**
-	 * Whether a file's guide differs from this site's.
+	 * Whether importing a file's guide would change this site's.
 	 *
 	 * @param int                  $id    Size guide ID.
 	 * @param array<mixed>         $entry Guide from the file.
 	 * @param array<string, mixed> $data  Its fields for this site.
 	 */
 	private static function differs( int $id, array $entry, array $data ): bool {
-		$here  = self::export_guide( $id, false );
+		$here  = self::snapshot( $id );
 		$there = array_merge(
 			$here,
 			array_intersect_key( $entry, $here ),
 			array(
+				'title'      => self::title( $entry ),
+				// A guide here keeps its own source; one without takes the file's.
+				'source'     => $here['source'] ?? ( is_array( $entry['source'] ?? null ) ? $entry['source'] : null ),
 				// Values only for specs the file has; this site's others stay.
 				'specs'      => array_merge( $here['specs'], is_array( $entry['specs'] ?? null ) ? $entry['specs'] : array() ),
-				'categories' => array_values( array_filter( array_map( array( self::class, 'category_path' ), $data['categories'] ) ) ),
-				'diagram'    => is_array( $entry['diagram'] ?? null ) ? array( 'hash' => sha1( (string) ( $entry['diagram']['data'] ?? '' ) ) ) : null,
+				'categories' => self::paths( $data['categories'] ),
 			)
 		);
+		if ( ! self::same( $here, $there ) ) {
+			return true;
+		}
 
-		return wp_json_encode( self::canonical( $here ) ) !== wp_json_encode( self::canonical( $there ) );
+		$diagram = $entry['diagram'] ?? null;
+		$current = (int) get_post_meta( $id, Size_Chart::DIAGRAM, true );
+		if ( null === $diagram ) {
+			return $current > 0;
+		}
+
+		// One the file couldn't carry is left as it is, so it's no change.
+		return is_array( $diagram ) && is_string( $diagram['hash'] ?? null ) && self::diagram_hash( $current ) !== $diagram['hash'];
 	}
 
 	/**
-	 * A guide's diagram for the file: its image, or (to compare) its hash.
-	 * An imported diagram compares by the hash of the image it came from,
-	 * since WordPress may store it converted (to WebP, say).
+	 * A guide's diagram for the file: the image (at "large" size when there
+	 * is one), or a note that it couldn't be carried; null when it has none.
 	 *
-	 * @param int  $attachment Attachment ID.
-	 * @param bool $with_art   Include the image.
-	 * @return array<string, string>|null
+	 * @param int $guide_id Size guide ID.
+	 * @return array<string, mixed>|null
 	 */
-	private static function export_diagram( int $attachment, bool $with_art ): ?array {
-		$imported = (string) get_post_meta( $attachment, self::DIAGRAM_HASH, true );
-		if ( ! $with_art && '' !== $imported ) {
-			return array( 'hash' => $imported );
-		}
-		$file = get_attached_file( $attachment );
-		$type = (string) get_post_mime_type( $attachment );
-		if ( ! is_string( $file ) || ! is_readable( $file ) || filesize( $file ) > self::DIAGRAM_MAX || ! in_array( $type, self::IMAGE_TYPES, true ) ) {
+	private static function export_diagram( int $guide_id ): ?array {
+		$attachment = (int) get_post_meta( $guide_id, Size_Chart::DIAGRAM, true );
+		if ( $attachment <= 0 || ! wp_attachment_is_image( $attachment ) ) {
 			return null;
 		}
-		$data = base64_encode( (string) file_get_contents( $file ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- An uploaded image (a local path) carried inside a JSON file.
+		$file = self::diagram_file( $attachment );
+		$type = null !== $file ? (string) wp_check_filetype( $file )['type'] : '';
+		if ( null === $file || filesize( $file ) > self::DIAGRAM_MAX || ! in_array( $type, self::IMAGE_TYPES, true ) ) {
+			return array( 'skipped' => true );
+		}
+		$bytes = (string) file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- An uploaded image (a local path) carried inside the file.
 
-		return $with_art
-			? array(
-				'name' => wp_basename( $file ),
-				'type' => $type,
-				'data' => $data,
-			)
-			: array( 'hash' => sha1( $data ) );
+		return array(
+			'name' => wp_basename( $file ),
+			'type' => $type,
+			'hash' => sha1( $bytes ),
+			'data' => base64_encode( $bytes ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- An image carried inside a JSON file.
+		);
+	}
+
+	/**
+	 * The file a diagram travels as: its "large" size, else the original.
+	 *
+	 * @param int $attachment Attachment ID.
+	 */
+	private static function diagram_file( int $attachment ): ?string {
+		$original = get_attached_file( $attachment );
+		if ( ! is_string( $original ) || '' === $original ) {
+			return null;
+		}
+		$large = image_get_intermediate_size( $attachment, 'large' );
+		$file  = is_array( $large ) && is_string( $large['path'] ?? null )
+			? trailingslashit( wp_get_upload_dir()['basedir'] ) . $large['path']
+			: $original;
+		if ( is_readable( $file ) ) {
+			return $file;
+		}
+
+		return is_readable( $original ) ? $original : null;
+	}
+
+	/**
+	 * The hash a diagram here compares by: the image it was imported from,
+	 * else the file it would travel as (streamed, once per request).
+	 *
+	 * @param int $attachment Attachment ID (0 for none).
+	 */
+	private static function diagram_hash( int $attachment ): string {
+		if ( $attachment <= 0 ) {
+			return '';
+		}
+		if ( ! isset( self::$hashes[ $attachment ] ) ) {
+			$hash = (string) get_post_meta( $attachment, self::DIAGRAM_HASH, true );
+			if ( '' === $hash ) {
+				$file = self::diagram_file( $attachment );
+				$hash = null !== $file ? (string) sha1_file( $file ) : '';
+			}
+			self::$hashes[ $attachment ] = $hash;
+		}
+
+		return self::$hashes[ $attachment ];
 	}
 
 	/**
 	 * A file's diagram as an attachment here: the one an earlier import of
-	 * the same image made, else a new one (0 when there's none or it isn't
-	 * an image).
+	 * the same image made, else a new one (0 when it isn't a usable image).
 	 *
-	 * @param mixed $diagram  Diagram from the file.
-	 * @param int   $guide_id Size guide the attachment belongs to.
+	 * @param array<mixed> $diagram  Diagram from the file.
+	 * @param int          $guide_id Size guide the attachment belongs to.
 	 */
-	private static function import_diagram( $diagram, int $guide_id ): int {
-		if ( ! is_array( $diagram ) || ! is_string( $diagram['data'] ?? null ) ) {
+	private static function import_diagram( array $diagram, int $guide_id ): int {
+		$bytes = base64_decode( (string) $diagram['data'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- The image carried inside the file.
+		if ( false === $bytes || strlen( $bytes ) > self::DIAGRAM_MAX ) {
 			return 0;
 		}
-		$hash  = sha1( $diagram['data'] );
+		$hash  = sha1( $bytes );
 		$found = get_posts(
 			array(
 				'post_type'      => 'attachment',
 				'post_status'    => 'inherit',
-				'meta_key'       => self::DIAGRAM_HASH, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Indexed meta lookup, once per imported diagram.
+				'meta_key'       => self::DIAGRAM_HASH, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- One lookup per imported diagram.
 				'meta_value'     => $hash, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- As above.
 				'fields'         => 'ids',
 				'posts_per_page' => 1,
@@ -452,15 +639,10 @@ final class Product_Specs_Transfer {
 			return (int) $found[0];
 		}
 
-		$bytes = base64_decode( $diagram['data'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- The image carried inside the file.
-		if ( false === $bytes || strlen( $bytes ) > self::DIAGRAM_MAX ) {
-			return 0;
-		}
 		$size = getimagesizefromstring( $bytes );
 		if ( false === $size || ! in_array( $size['mime'], self::IMAGE_TYPES, true ) ) {
 			return 0;
 		}
-
 		$name = sanitize_file_name( is_string( $diagram['name'] ?? null ) ? $diagram['name'] : '' );
 		if ( '' === pathinfo( $name, PATHINFO_FILENAME ) ) {
 			$name = 'size-guide-diagram.' . wp_get_default_extension_for_mime_type( $size['mime'] );
@@ -487,35 +669,49 @@ final class Product_Specs_Transfer {
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		wp_update_attachment_metadata( $attachment, wp_generate_attachment_metadata( $attachment, $upload['file'] ) );
 		update_post_meta( $attachment, self::DIAGRAM_HASH, $hash );
+		self::$hashes[ $attachment ] = $hash;
 
 		return $attachment;
 	}
 
 	/**
-	 * Finds this site's guide for a file's guide: by its Printful source,
-	 * else by its name (ignoring case); 0 when there's none.
+	 * Finds this site's guide for a file's guide (0 when there's none). A
+	 * guide with a Printful source is that product's: it matches the guide
+	 * here with the same source, else one with its name and no source of its
+	 * own, never another product's guide that shares the name. A guide
+	 * without a source matches by name.
 	 *
 	 * @return callable(array<mixed>): int
 	 */
 	private static function guide_matcher(): callable {
 		$by_source = Printful_Import::imported( 'printful' );
-		$by_title  = array();
+		$sourced   = array_flip( $by_source );
+		$by_name   = array();
 		foreach ( Size_Guide_Post_Type::ids() as $id ) {
-			$by_title[ mb_strtolower( trim( get_the_title( $id ) ) ) ] ??= $id;
+			$post = get_post( $id );
+			if ( $post instanceof \WP_Post ) {
+				$by_name[ self::name_key( Size_Guide_Rest::display_title( $post ) ) ][] = $id;
+			}
 		}
 
-		return static function ( array $entry ) use ( $by_source, $by_title ): int {
-			$source = is_array( $entry['source'] ?? null ) ? absint( $entry['source']['id'] ?? 0 ) : 0;
+		return static function ( array $entry ) use ( $by_source, $sourced, $by_name ): int {
+			$source = is_array( $entry['source'] ?? null ) && 'printful' === ( $entry['source']['provider'] ?? '' ) ? absint( $entry['source']['id'] ?? 0 ) : 0;
 			if ( $source > 0 && isset( $by_source[ $source ] ) ) {
 				return $by_source[ $source ];
 			}
+			foreach ( $by_name[ self::name_key( self::title( $entry ) ) ] ?? array() as $id ) {
+				if ( 0 === $source || ! isset( $sourced[ $id ] ) ) {
+					return $id;
+				}
+			}
 
-			return $by_title[ mb_strtolower( self::title( $entry ) ) ] ?? 0;
+			return 0;
 		};
 	}
 
 	/**
-	 * Note a new guide's Printful source, so later imports match it by that.
+	 * Note a guide's Printful source when it has none here, so later imports
+	 * match it by that.
 	 *
 	 * @param int          $id    Size guide ID.
 	 * @param array<mixed> $entry Guide from the file.
@@ -523,7 +719,7 @@ final class Product_Specs_Transfer {
 	private static function adopt_source( int $id, array $entry ): void {
 		$source = is_array( $entry['source'] ?? null ) ? $entry['source'] : array();
 		$pid    = absint( $source['id'] ?? 0 );
-		if ( 'printful' !== ( $source['provider'] ?? '' ) || 0 === $pid ) {
+		if ( 'printful' !== ( $source['provider'] ?? '' ) || 0 === $pid || null !== Printful_Import::source( $id ) ) {
 			return;
 		}
 		update_post_meta(
@@ -540,24 +736,72 @@ final class Product_Specs_Transfer {
 	}
 
 	/**
-	 * A category's slug path from the top ("clothing/hoodies"); '' if gone.
+	 * Every product category, read once per request: each one's slug path,
+	 * the other way round, and the categories each guide is the default for.
 	 *
-	 * @param int $id Category ID.
+	 * @return array{paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>}
 	 */
-	private static function category_path( int $id ): string {
-		$term = get_term( $id, 'product_cat' );
-		if ( ! $term instanceof \WP_Term ) {
-			return '';
+	private static function catalog(): array {
+		if ( null !== self::$catalog ) {
+			return self::$catalog;
 		}
-		$slugs = array( $term->slug );
-		foreach ( get_ancestors( $id, 'product_cat', 'taxonomy' ) as $parent ) {
-			$parent_term = get_term( (int) $parent, 'product_cat' );
-			if ( $parent_term instanceof \WP_Term ) {
-				array_unshift( $slugs, $parent_term->slug );
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => false,
+			)
+		);
+		$by_id = array();
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			if ( $term instanceof \WP_Term ) {
+				$by_id[ $term->term_id ] = $term;
 			}
 		}
 
-		return implode( '/', $slugs );
+		$paths  = array();
+		$guides = array();
+		foreach ( $by_id as $id => $term ) {
+			$slugs = array( $term->slug );
+			$seen  = array( $id => true );
+			for ( $up = $term->parent; 0 < $up && isset( $by_id[ $up ] ) && ! isset( $seen[ $up ] ); $up = $by_id[ $up ]->parent ) {
+				$seen[ $up ] = true;
+				array_unshift( $slugs, $by_id[ $up ]->slug );
+			}
+			$paths[ $id ] = implode( '/', $slugs );
+
+			// get_terms() primed term meta, so this reads no database.
+			$guide = (int) get_term_meta( $id, Size_Guide::CPT_META_KEY, true );
+			if ( $guide > 0 ) {
+				$guides[ $guide ][] = $id;
+			}
+		}
+
+		self::$catalog = array(
+			'paths'  => $paths,
+			'ids'    => array_flip( $paths ),
+			'guides' => $guides,
+		);
+
+		return self::$catalog;
+	}
+
+	/**
+	 * Category IDs as their slug paths, sorted (unknown ones dropped).
+	 *
+	 * @param array<int> $ids Category IDs.
+	 * @return list<string>
+	 */
+	private static function paths( array $ids ): array {
+		$paths = self::catalog()['paths'];
+		$list  = array();
+		foreach ( $ids as $id ) {
+			if ( isset( $paths[ (int) $id ] ) ) {
+				$list[] = $paths[ (int) $id ];
+			}
+		}
+		sort( $list );
+
+		return $list;
 	}
 
 	/**
@@ -569,38 +813,30 @@ final class Product_Specs_Transfer {
 	 * @return list<int>
 	 */
 	private static function category_ids( array $paths, array &$missing ): array {
-		$ids = array();
+		$known = self::catalog()['ids'];
+		$ids   = array();
 		foreach ( $paths as $path ) {
 			$path = is_string( $path ) ? trim( $path, '/' ) : '';
 			if ( '' === $path ) {
 				continue;
 			}
-			$parent = 0;
-			$term   = null;
-			foreach ( explode( '/', $path ) as $slug ) {
-				$found = get_terms(
-					array(
-						'taxonomy'   => 'product_cat',
-						'slug'       => sanitize_title( $slug ),
-						'parent'     => $parent,
-						'hide_empty' => false,
-						'number'     => 1,
-					)
-				);
-				$term  = is_array( $found ) && isset( $found[0] ) && $found[0] instanceof \WP_Term ? $found[0] : null;
-				if ( null === $term ) {
-					break;
-				}
-				$parent = $term->term_id;
-			}
-			if ( null === $term ) {
-				$missing[] = $path;
+			if ( isset( $known[ $path ] ) ) {
+				$ids[] = $known[ $path ];
 			} else {
-				$ids[] = $term->term_id;
+				$missing[] = $path;
 			}
 		}
 
 		return $ids;
+	}
+
+	/**
+	 * The transient a stashed file waits in, per user.
+	 *
+	 * @param string $token Token.
+	 */
+	private static function stash_key( string $token ): string {
+		return self::STASH . get_current_user_id() . '_' . $token;
 	}
 
 	/**
@@ -613,7 +849,7 @@ final class Product_Specs_Transfer {
 	}
 
 	/**
-	 * A guide entry's name.
+	 * A guide entry's name, as stored.
 	 *
 	 * @param array<mixed> $entry Guide.
 	 */
@@ -621,6 +857,28 @@ final class Product_Specs_Transfer {
 		$title = is_scalar( $entry['title'] ?? null ) ? trim( sanitize_text_field( (string) $entry['title'] ) ) : '';
 
 		return '' !== $title ? mb_substr( $title, 0, 120 ) : __( 'Untitled size guide', 'aggressive-apparel' );
+	}
+
+	/**
+	 * A name for matching: entities decoded, spaces collapsed, lowercase.
+	 *
+	 * @param string $name Name.
+	 */
+	private static function name_key( string $name ): string {
+		$name = html_entity_decode( $name, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
+		return mb_strtolower( trim( (string) preg_replace( '/\s+/u', ' ', $name ) ) );
+	}
+
+	/**
+	 * Whether two values are the same once maps are ordered and whole
+	 * numbers read alike.
+	 *
+	 * @param mixed $a One value.
+	 * @param mixed $b The other.
+	 */
+	private static function same( $a, $b ): bool {
+		return wp_json_encode( self::canonical( $a ) ) === wp_json_encode( self::canonical( $b ) );
 	}
 
 	/**

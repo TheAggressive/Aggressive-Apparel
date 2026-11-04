@@ -10,7 +10,9 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
+use Aggressive_Apparel\WooCommerce\Printful_Import;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
+use Aggressive_Apparel\WooCommerce\Product_Specs_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Taxonomy;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Transfer;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Values;
@@ -51,6 +53,7 @@ class TestProductSpecsTransfer extends WP_UnitTestCase {
 		delete_option( Product_Specs_Registry::OPTION_KEY );
 		Product_Specs_Registry::flush();
 		Product_Specs_Taxonomy::flush();
+		Product_Specs_Transfer::flush();
 		$this->snapshot_taxonomies();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 	}
@@ -201,6 +204,143 @@ class TestProductSpecsTransfer extends WP_UnitTestCase {
 		$rows = array_column( Size_Guide_Grid::rows(), 'values', 'id' );
 		$this->assertSame( 'Taped seams', $rows[ $hat ]['construction'] );
 		$this->assertSame( 'Cotton', $rows[ $tee ]['fabric'], 'Values not sent stay.' );
+	}
+
+	/** Names with apostrophes and ampersands match as stored, so nothing is duplicated. */
+	public function test_names_match_as_stored(): void {
+		$this->save_defaults( array() );
+		$guide = $this->guide( "Men's Tee & Hoodie" );
+		$file  = $this->file();
+
+		$this->assertSame( array(), Product_Specs_Transfer::plan( $file )['guides']['added'] );
+		Product_Specs_Transfer::apply( $file );
+		$this->assertSame( array( $guide ), Size_Guide_Post_Type::ids() );
+		$this->assertSame( "Men's Tee & Hoodie", Size_Guide_Grid::rows()[0]['title'], 'The grid shows the name as stored.' );
+	}
+
+	/** A diagram the file couldn't carry, or that won't import, never removes the guide's own. */
+	public function test_guides_keep_their_diagram(): void {
+		$this->save_defaults( array() );
+		$guide   = $this->setup_guide( 0 );
+		$diagram = (int) get_post_meta( $guide, Size_Chart::DIAGRAM, true );
+		$file    = $this->file();
+
+		$file['guides'][0]['diagram'] = array( 'skipped' => true );
+		$file['guides'][0]['notes']   = 'Changed.';
+		$this->assertIsArray( Product_Specs_Transfer::apply( $file ) );
+		$this->assertSame( $diagram, (int) get_post_meta( $guide, Size_Chart::DIAGRAM, true ) );
+
+		$file['guides'][0]['diagram'] = array(
+			'name' => 'x.png',
+			'hash' => 'different',
+			'data' => base64_encode( 'not an image' ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Test data.
+		);
+		$done = Product_Specs_Transfer::apply( $file );
+		$this->assertIsArray( $done );
+		$this->assertCount( 1, $done['problems'], 'It says so.' );
+		$this->assertSame( $diagram, (int) get_post_meta( $guide, Size_Chart::DIAGRAM, true ) );
+	}
+
+	/** Content and names keep their backslashes (block attributes are JSON). */
+	public function test_backslashes_survive(): void {
+		$this->save_defaults( array() );
+		$content = '<!-- wp:paragraph {"placeholder":"\u003cb\u003e"} --><p>Old</p><!-- /wp:paragraph -->';
+		$file    = Product_Specs_Transfer::read(
+			array(
+				'format' => Product_Specs_Transfer::FORMAT,
+				'guides' => array(
+					array(
+						'title'   => 'Back\slash Tee',
+						'content' => $content,
+					),
+				),
+			)
+		);
+		$this->assertIsArray( $file );
+
+		Product_Specs_Transfer::apply( $file );
+		$post = get_post( Size_Guide_Post_Type::ids()[0] );
+		$this->assertSame( 'Back\slash Tee', $post->post_title );
+		$this->assertSame( $content, $post->post_content );
+	}
+
+	/** A Printful guide never takes over another product's guide that shares its name. */
+	public function test_sourced_guides_match_their_own_product(): void {
+		$this->save_defaults( array() );
+		$other = $this->guide( 'Unisex Hoodie' );
+		update_post_meta( $other, Printful_Import::SOURCE, array( 'provider' => 'printful', 'id' => 456, 'title' => 'Other' ) );
+		update_post_meta( $other, Printful_Import::SOURCE_KEY, 'printful:456' );
+		$plain = $this->guide( 'Unisex Tee' );
+		$file  = $this->file();
+		foreach ( $file['guides'] as $i => $entry ) {
+			$file['guides'][ $i ]['source'] = array(
+				'provider' => 'printful',
+				'id'       => 'Unisex Hoodie' === $entry['title'] ? 123 : 789,
+				'title'    => '',
+			);
+		}
+
+		$plan = Product_Specs_Transfer::plan( $file );
+		$this->assertSame( array( 'Unisex Hoodie' ), $plan['guides']['added'], 'Product 123 is not product 456.' );
+
+		Product_Specs_Transfer::apply( $file );
+		$this->assertSame( 789, Printful_Import::source( $plain )['id'], 'A guide matched by name takes the file’s source.' );
+		$again = Product_Specs_Transfer::plan( $file );
+		$this->assertSame( array(), $again['guides']['added'] );
+		$this->assertSame( array(), $again['guides']['changed'], 'And then settles.' );
+	}
+
+	/** The dimensions setting is shown as a change, and applied. */
+	public function test_settings_are_shown_and_applied(): void {
+		$this->save_defaults( array() );
+		$file                              = $this->file();
+		$file['specs']['hide_dimensions'] = true;
+
+		$this->assertCount( 1, Product_Specs_Transfer::plan( $file )['settings'] );
+		Product_Specs_Transfer::apply( $file );
+		$this->assertTrue( Product_Specs_Registry::get()['hide_dimensions'] );
+	}
+
+	/** The file is uploaded once and imported by its token, once. */
+	public function test_routes_upload_once_then_import_by_token(): void {
+		$this->save_defaults( array() );
+		$this->guide( 'Heavy Tee' );
+		$path = wp_tempnam( 'specs.json' );
+		file_put_contents( $path, (string) wp_json_encode( Product_Specs_Transfer::export() ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Test upload.
+		wp_delete_post( Size_Guide_Post_Type::ids()[0], true );
+
+		$settings = new Product_Specs_Settings();
+		$request  = new \WP_REST_Request( 'POST' );
+		$request->set_file_params(
+			array(
+				'file' => array(
+					'tmp_name' => $path,
+					'error'    => UPLOAD_ERR_OK,
+				),
+			)
+		);
+		$checked = $settings->import( $request )->get_data();
+		$this->assertSame( array( 'Heavy Tee' ), $checked['plan']['guides']['added'] );
+
+		$apply = new \WP_REST_Request( 'POST' );
+		$apply->set_param( 'token', $checked['token'] );
+		$this->assertNotWPError( $settings->import_apply( $apply ) );
+		$this->assertCount( 1, Size_Guide_Post_Type::ids() );
+		$this->assertWPError( $settings->import_apply( $apply ), 'A token works once.' );
+		$this->assertWPError( $settings->import( new \WP_REST_Request( 'POST' ) ), 'No file, no import.' );
+	}
+
+	/**
+	 * This site's export, read back as an imported file.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function file(): array {
+		$file = Product_Specs_Transfer::read( json_decode( (string) wp_json_encode( Product_Specs_Transfer::export() ), true ) );
+		$this->assertIsArray( $file );
+		Product_Specs_Transfer::flush();
+
+		return $file;
 	}
 
 	/**

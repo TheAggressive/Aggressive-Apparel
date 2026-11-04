@@ -442,6 +442,7 @@ export default function App({ config }: { config: Config }) {
         </div>
         <Transfer
           restPath={config.restPath}
+          maxUpload={config.maxUpload}
           dirty={guideDirty || specsDirty || productsDirty}
         />
       </div>

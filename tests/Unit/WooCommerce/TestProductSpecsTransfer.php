@@ -1,6 +1,6 @@
 <?php
 /**
- * Moving the Size & Specs setup between sites, and the guides' value grid.
+ * Moving the Size & Specs setup between sites.
  *
  * @package Aggressive_Apparel\Tests\Unit\WooCommerce
  */
@@ -18,7 +18,6 @@ use Aggressive_Apparel\WooCommerce\Product_Specs_Transfer;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Values;
 use Aggressive_Apparel\WooCommerce\Size_Chart;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Assignments;
-use Aggressive_Apparel\WooCommerce\Size_Guide_Grid;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Post_Type;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Rest;
 use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
@@ -26,7 +25,7 @@ use Aggressive_Apparel\Tests\Support\Saves_Spec_Registry;
 use WP_UnitTestCase;
 
 /**
- * Covers export, import and the grid.
+ * Covers export and import.
  */
 class TestProductSpecsTransfer extends WP_UnitTestCase {
 
@@ -178,34 +177,6 @@ class TestProductSpecsTransfer extends WP_UnitTestCase {
 		);
 	}
 
-	/** The grid lists every guide's values and saves only what's sent. */
-	public function test_grid_sets_values_on_many_guides(): void {
-		$this->save_defaults( array() );
-		$tee  = $this->guide( 'Heavy Tee' );
-		$hat  = $this->guide( 'Bucket Hat' );
-		$post = self::factory()->post->create();
-		Product_Specs_Values::save_guide( $tee, array( 'fabric' => 'Cotton' ) );
-
-		$result = Size_Guide_Grid::save(
-			array(
-				$tee  => array( 'construction' => 'Taped seams' ),
-				$hat  => array( 'construction' => 'Taped seams' ),
-				$post => array( 'construction' => 'Taped seams' ),
-			)
-		);
-
-		$this->assertSame(
-			array(
-				'saved'   => 2,
-				'skipped' => 1,
-			),
-			$result
-		);
-		$rows = array_column( Size_Guide_Grid::rows(), 'values', 'id' );
-		$this->assertSame( 'Taped seams', $rows[ $hat ]['construction'] );
-		$this->assertSame( 'Cotton', $rows[ $tee ]['fabric'], 'Values not sent stay.' );
-	}
-
 	/** Names with apostrophes and ampersands match as stored, so nothing is duplicated. */
 	public function test_names_match_as_stored(): void {
 		$this->save_defaults( array() );
@@ -215,7 +186,6 @@ class TestProductSpecsTransfer extends WP_UnitTestCase {
 		$this->assertSame( array(), Product_Specs_Transfer::plan( $file )['guides']['added'] );
 		Product_Specs_Transfer::apply( $file );
 		$this->assertSame( array( $guide ), Size_Guide_Post_Type::ids() );
-		$this->assertSame( "Men's Tee & Hoodie", Size_Guide_Grid::rows()[0]['title'], 'The grid shows the name as stored.' );
 	}
 
 	/** A diagram the file couldn't carry, or that won't import, never removes the guide's own. */

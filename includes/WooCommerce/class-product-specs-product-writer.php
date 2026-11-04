@@ -41,7 +41,7 @@ final class Product_Specs_Product_Writer {
 	 *
 	 * @param \WC_Product          $product      Product.
 	 * @param array<string, mixed> $values       Item key => value (step index, number, or text); '' clears it.
-	 * @param bool                 $only_missing Only add values the product does not have yet (Apply, migration).
+	 * @param bool                 $only_missing Only add values the product does not have yet (a guide's Apply).
 	 * @param bool                 $create       May add new terms, and connect specs to (new) attributes.
 	 * @return WriteResult Values changed; values kept because the product had its own; keys skipped because they drive variations; keys that couldn't be stored; keys written or cleared.
 	 */

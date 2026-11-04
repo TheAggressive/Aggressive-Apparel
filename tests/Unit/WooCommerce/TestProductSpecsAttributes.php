@@ -1,7 +1,7 @@
 <?php
 /**
- * Specs on WooCommerce attributes: linking, resolution, writes, apply,
- * migration, and the merging registry save.
+ * Specs on WooCommerce attributes: linking, resolution, writes, apply, and
+ * the merging registry save.
  *
  * @package Aggressive_Apparel\Tests\Unit\WooCommerce
  */

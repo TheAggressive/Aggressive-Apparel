@@ -148,9 +148,9 @@ final class Product_Specs_Wording_Sync {
 			}
 		}
 
-		$name = self::normalize( $before['steps'][ $i ] );
+		$name = Match_Name::key( $before['steps'][ $i ] );
 		foreach ( $after['steps'] as $j => $step ) {
-			if ( self::normalize( $step ) === $name ) {
+			if ( Match_Name::key( $step ) === $name ) {
 				return (int) $j;
 			}
 		}
@@ -206,14 +206,5 @@ final class Product_Specs_Wording_Sync {
 		);
 
 		return array_values( array_map( 'intval', $ids ) );
-	}
-
-	/**
-	 * A step name for matching: trimmed, spaces collapsed, lowercase.
-	 *
-	 * @param string $name Step name.
-	 */
-	private static function normalize( string $name ): string {
-		return mb_strtolower( trim( (string) preg_replace( '/\s+/u', ' ', $name ) ) );
 	}
 }

@@ -162,6 +162,8 @@ export type Config = {
   taxonomies: Record<string, string>;
   /** Typical fabric weights by garment (Fabric_Weight_Bands::presets). */
   weightPresets: WeightPresets;
+  /** The largest file an import can upload, in bytes. */
+  maxUpload: number;
   tab: Tab;
   guide: number | 'new';
   limits: {

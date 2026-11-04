@@ -83,15 +83,8 @@ final class Fabric_Weight_Bands {
 		}
 
 		$categories = array();
-		$terms      = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-				'number'     => 500,
-			)
-		);
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			$key = $term instanceof \WP_Term ? Garment_Kinds::of( html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' ) ) : '';
+		foreach ( Product_Categories::all() as $term ) {
+			$key = Garment_Kinds::of( html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' ) );
 			if ( '' !== $key && isset( self::BANDS[ $key ] ) && ! in_array( $key, self::NAMED_LOOSELY, true ) ) {
 				$categories[] = array(
 					'category' => $term->term_id,

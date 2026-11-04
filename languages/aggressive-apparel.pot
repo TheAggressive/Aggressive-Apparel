@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-04T01:55:17+00:00\n"
+"POT-Creation-Date: 2026-11-04T03:19:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2890,7 +2890,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-specs-grid.php:231
 #: includes/WooCommerce/class-size-guide-admin-fields.php:231
-#: includes/WooCommerce/class-size-guide-rest.php:604
+#: includes/WooCommerce/class-size-guide-rest.php:615
 msgid "(no title)"
 msgstr ""
 
@@ -3058,19 +3058,29 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-specs-settings.php:114
 #: includes/WooCommerce/class-product-specs-settings.php:115
-#: includes/WooCommerce/class-product-specs-settings.php:179
+#: includes/WooCommerce/class-product-specs-settings.php:181
 msgid "Size & Specs"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:183
+#: includes/WooCommerce/class-product-specs-settings.php:185
 msgid "Loading…"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:239
+#: includes/WooCommerce/class-product-specs-settings.php:277
 msgid "That attribute no longer exists."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:300
+#. translators: %s: largest upload size, like "64 MB".
+#: includes/WooCommerce/class-product-specs-settings.php:308
+#, php-format
+msgid "The file didn’t arrive. It may be bigger than this site accepts (%s)."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-settings.php:338
+msgid "That file has expired. Choose it again."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-settings.php:378
 msgid "Some specs need fixing before they can be saved."
 msgstr ""
 
@@ -3114,6 +3124,43 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-specs-taxonomy.php:568
 msgid "WooCommerce is needed to save specs."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:144
+msgid "That isn’t a Size & Specs export file."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:147
+msgid "That file comes from a newer version of the theme. Update this site’s theme, then import it."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:253
+msgid "Shipping weight and dimensions will be hidden from Additional information."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:254
+msgid "Shipping weight and dimensions will show in Additional information again."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:262
+msgid "The file’s specs couldn’t be saved, so nothing was imported."
+msgstr ""
+
+#. translators: 1: size guide name, 2: error message.
+#: includes/WooCommerce/class-product-specs-transfer.php:345
+#, php-format
+msgid "“%1$s” couldn’t be saved: %2$s"
+msgstr ""
+
+#. translators: %s: size guide name.
+#: includes/WooCommerce/class-product-specs-transfer.php:361
+#, php-format
+msgid "“%s”: its diagram couldn’t be added, so the guide keeps the one it had."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-transfer.php:775
+#: includes/WooCommerce/class-size-guide-rest.php:605
+msgid "Untitled size guide"
 msgstr ""
 
 #: includes/WooCommerce/class-product-tabs-admin.php:85
@@ -3941,7 +3988,7 @@ msgstr ""
 #: includes/WooCommerce/class-size-guide-admin-fields.php:113
 #: includes/WooCommerce/class-size-guide-admin-fields.php:172
 #: includes/WooCommerce/class-size-guide-admin-fields.php:187
-#: includes/WooCommerce/class-size-guide-post-type.php:106
+#: includes/WooCommerce/class-size-guide-post-type.php:134
 #: includes/WooCommerce/class-size-guide.php:171
 #: includes/WooCommerce/class-size-guide.php:212
 #: patterns/footer-columns.php:83
@@ -3998,68 +4045,64 @@ msgstr ""
 msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:105
-#: includes/WooCommerce/class-size-guide-post-type.php:107
-#: includes/WooCommerce/class-size-guide-post-type.php:116
+#: includes/WooCommerce/class-size-guide-post-type.php:133
+#: includes/WooCommerce/class-size-guide-post-type.php:135
+#: includes/WooCommerce/class-size-guide-post-type.php:144
 msgid "Size Guides"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:108
+#: includes/WooCommerce/class-size-guide-post-type.php:136
 msgid "Add New"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:109
+#: includes/WooCommerce/class-size-guide-post-type.php:137
 msgid "Add New Size Guide"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:110
+#: includes/WooCommerce/class-size-guide-post-type.php:138
 msgid "Edit Size Guide"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:111
+#: includes/WooCommerce/class-size-guide-post-type.php:139
 msgid "New Size Guide"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:112
+#: includes/WooCommerce/class-size-guide-post-type.php:140
 msgid "View Size Guide"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:113
+#: includes/WooCommerce/class-size-guide-post-type.php:141
 msgid "Search Size Guides"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:114
+#: includes/WooCommerce/class-size-guide-post-type.php:142
 msgid "No size guides found."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-post-type.php:115
+#: includes/WooCommerce/class-size-guide-post-type.php:143
 msgid "No size guides found in Trash."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:166
+#: includes/WooCommerce/class-size-guide-rest.php:183
 msgid "You cannot edit this size guide."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:174
+#: includes/WooCommerce/class-size-guide-rest.php:191
 msgid "That size guide no longer exists."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:266
+#: includes/WooCommerce/class-size-guide-rest.php:283
 msgid "This guide has no table to convert. Start a chart from a template instead."
 msgstr ""
 
 #. translators: %s: size guide name.
-#: includes/WooCommerce/class-size-guide-rest.php:303
+#: includes/WooCommerce/class-size-guide-rest.php:320
 #, php-format
 msgid "%s (copy)"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:452
+#: includes/WooCommerce/class-size-guide-rest.php:460
 msgid "Some specs need fixing before the guide can be saved."
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide-rest.php:595
-msgid "Untitled size guide"
 msgstr ""
 
 #: includes/WooCommerce/class-size-guide.php:178

@@ -317,14 +317,14 @@ final class Product_Specs_Taxonomy {
 	 * @phpstan-param list<string> $taken
 	 */
 	public static function find( array $item, array $taken = array() ): ?string {
-		$wanted = array_map( array( self::class, 'normalize' ), array_merge( array( $item['name'], str_replace( '_', ' ', $item['key'] ) ), $item['attributes'] ) );
+		$wanted = array_map( array( Match_Name::class, 'key' ), array_merge( array( $item['name'], str_replace( '_', ' ', $item['key'] ) ), $item['attributes'] ) );
 
 		foreach ( self::attributes() as $taxonomy => $label ) {
 			$slug = str_replace( array( '-', '_' ), ' ', substr( $taxonomy, 3 ) );
 			if ( in_array( $taxonomy, $taken, true ) || ! taxonomy_exists( $taxonomy ) ) {
 				continue;
 			}
-			if ( ! in_array( self::normalize( $label ), $wanted, true ) && ! in_array( self::normalize( $slug ), $wanted, true ) ) {
+			if ( ! in_array( Match_Name::key( $label ), $wanted, true ) && ! in_array( Match_Name::key( $slug ), $wanted, true ) ) {
 				continue;
 			}
 			if ( self::fits( $item, $taxonomy ) ) {
@@ -670,14 +670,5 @@ final class Product_Specs_Taxonomy {
 		}
 
 		return (int) $created['term_id'];
-	}
-
-	/**
-	 * Case- and spacing-insensitive name.
-	 *
-	 * @param string $name Name.
-	 */
-	private static function normalize( string $name ): string {
-		return strtolower( trim( (string) preg_replace( '/\s+/', ' ', $name ) ) );
 	}
 }

@@ -39,7 +39,10 @@ class TestPerformance extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test JavaScript files are not too large
+	 * Test JavaScript files are not too large: 150KB for anything shoppers
+	 * load, 200KB for the admin screens under scripts/admin, which only store
+	 * managers load (the Size & Specs app is one whole React app, kept as one
+	 * file so its translations load with it).
 	 */
 	public function test_js_file_sizes_reasonable() {
 		$build_dir = get_template_directory() . '/build/scripts';
@@ -61,12 +64,12 @@ class TestPerformance extends WP_UnitTestCase {
 
 			++$files_checked;
 			$size_kb = $file->getSize() / 1024;
+			$budget  = str_contains( $file->getPathname(), '/scripts/admin/' ) ? 200 : 150;
 
-			// JS files should be under 150KB (reasonable for production).
 			$this->assertLessThan(
-				150,
+				$budget,
 				$size_kb,
-				$file->getFilename() . " is {$size_kb}KB, should be under 150KB"
+				$file->getFilename() . " is {$size_kb}KB, should be under {$budget}KB"
 			);
 		}
 

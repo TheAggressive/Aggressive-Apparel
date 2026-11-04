@@ -25,7 +25,7 @@ import type {
   SpecItem,
   WeightPresets,
 } from './_types';
-import { edgeLabels } from './_utils';
+import { edgeLabels, matchKey } from './_utils';
 import Preview from './_Preview';
 import ValuePicker from './_ValuePicker';
 import AttributeSettings from './_AttributeSettings';
@@ -86,11 +86,8 @@ function typeLabel(type: DraftItem['type']): string {
  * a renamed attribute, or a store that keeps this spec on products instead).
  */
 function noAttributeMatches(listed: string[], known: string[]): boolean {
-  const names = new Set(known.map(name => name.trim().toLowerCase()));
-  return (
-    listed.length > 0 &&
-    !listed.some(name => names.has(name.trim().toLowerCase()))
-  );
+  const names = new Set(known.map(matchKey));
+  return listed.length > 0 && !listed.some(name => names.has(matchKey(name)));
 }
 
 function scopeSummary(item: DraftItem, categories: Category[]): string {

@@ -28,6 +28,7 @@ import type {
 import { newItem, slugify, toDraft, toStored } from './_utils';
 import ItemCard from './_ItemCard';
 import GuidesTab from './_GuidesTab';
+import Transfer from './_Transfer';
 import ProductsTab, { type ProductEdits } from './_ProductsTab';
 import { AddSpecButton, Suggestions } from './_AddSpec';
 import saveRegistry from './_saveRegistry';
@@ -405,35 +406,45 @@ export default function App({ config }: { config: Config }) {
 
   return (
     <div className='aa-ps'>
-      <div
-        className='aa-ps-tabs'
-        role='tablist'
-        aria-label={__('Size guides and specs', 'aggressive-apparel')}
-        onKeyDown={onTabKey}
-      >
-        {tabs.map(item => (
-          <button
-            key={item.name}
-            type='button'
-            role='tab'
-            id={`aa-ps-tab-${item.name}`}
-            aria-selected={tab === item.name}
-            aria-controls={`aa-ps-panel-${item.name}`}
-            tabIndex={tab === item.name ? 0 : -1}
-            className={cx('aa-ps-tabs__tab', tab === item.name && 'is-active')}
-            onClick={() => selectTab(item.name)}
-          >
-            {item.title}
-            {item.dirty && (
-              <>
-                <span className='aa-ps-tabs__dot' aria-hidden='true' />
-                <span className='screen-reader-text'>
-                  {__('(unsaved changes)', 'aggressive-apparel')}
-                </span>
-              </>
-            )}
-          </button>
-        ))}
+      <div className='aa-ps-tabbar'>
+        <div
+          className='aa-ps-tabs'
+          role='tablist'
+          aria-label={__('Size guides and specs', 'aggressive-apparel')}
+          onKeyDown={onTabKey}
+        >
+          {tabs.map(item => (
+            <button
+              key={item.name}
+              type='button'
+              role='tab'
+              id={`aa-ps-tab-${item.name}`}
+              aria-selected={tab === item.name}
+              aria-controls={`aa-ps-panel-${item.name}`}
+              tabIndex={tab === item.name ? 0 : -1}
+              className={cx(
+                'aa-ps-tabs__tab',
+                tab === item.name && 'is-active'
+              )}
+              onClick={() => selectTab(item.name)}
+            >
+              {item.title}
+              {item.dirty && (
+                <>
+                  <span className='aa-ps-tabs__dot' aria-hidden='true' />
+                  <span className='screen-reader-text'>
+                    {__('(unsaved changes)', 'aggressive-apparel')}
+                  </span>
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+        <Transfer
+          restPath={config.restPath}
+          maxUpload={config.maxUpload}
+          dirty={guideDirty || specsDirty || productsDirty}
+        />
       </div>
 
       <div

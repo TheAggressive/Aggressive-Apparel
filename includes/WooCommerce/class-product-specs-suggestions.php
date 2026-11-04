@@ -63,19 +63,19 @@ final class Product_Specs_Suggestions {
 	public static function all(): array {
 		$known = array();
 		foreach ( Product_Specs_Registry::get()['items'] as $item ) {
-			$known[ self::normalize( $item['name'] ) ] = true;
+			$known[ Match_Name::key( $item['name'] ) ] = true;
 			foreach ( $item['attributes'] as $name ) {
-				$known[ self::normalize( $name ) ] = true;
+				$known[ Match_Name::key( $name ) ] = true;
 			}
 			// The attribute the spec is stored in.
 			if ( '' !== $item['taxonomy'] && function_exists( 'wc_attribute_label' ) ) {
-				$known[ self::normalize( wc_attribute_label( $item['taxonomy'] ) ) ] = true;
+				$known[ Match_Name::key( wc_attribute_label( $item['taxonomy'] ) ) ] = true;
 			}
 		}
 
 		$found = array();
 		foreach ( self::scan() as $name => $data ) {
-			$key = self::normalize( $name );
+			$key = Match_Name::key( $name );
 			if (
 				isset( $known[ $key ] )
 				|| in_array( (string) preg_replace( '/^pa_/', '', $key ), self::SKIP_ATTRIBUTES, true )
@@ -349,14 +349,5 @@ final class Product_Specs_Suggestions {
 		}
 
 		return $list;
-	}
-
-	/**
-	 * Case- and spacing-insensitive name.
-	 *
-	 * @param string $name Name.
-	 */
-	private static function normalize( string $name ): string {
-		return strtolower( trim( (string) preg_replace( '/\s+/', ' ', $name ) ) );
 	}
 }

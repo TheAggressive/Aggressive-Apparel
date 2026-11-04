@@ -161,6 +161,8 @@ final class Product_Specs_Settings {
 			'attributes'    => Product_Specs_Suggestions::names(),
 			// Typical fabric weights by garment, and each category's garment.
 			'weightPresets' => Fabric_Weight_Bands::presets(),
+			// The largest file an import can upload, in bytes.
+			'maxUpload'     => wp_max_upload_size(),
 			// Global attributes (taxonomy => label), for the attribute a spec uses.
 			'taxonomies'    => Product_Specs_Taxonomy::attributes(),
 			'tab'           => in_array( $tab, self::TABS, true ) ? $tab : self::TABS[0],
@@ -198,6 +200,42 @@ final class Product_Specs_Settings {
 				'permission_callback' => array( $this, 'can_manage' ),
 				'args'                => array(
 					'taxonomy' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/export',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => static fn(): \WP_REST_Response => rest_ensure_response( Product_Specs_Transfer::export() ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/import',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'import' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/import/apply',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'import_apply' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'token' => array(
 						'type'     => 'string',
 						'required' => true,
 					),
@@ -250,6 +288,61 @@ final class Product_Specs_Settings {
 	}
 
 	/**
+	 * Check an uploaded Size & Specs file from another site: what importing it
+	 * would change, and a token to import it with (it's sent once and kept
+	 * here, so confirming doesn't send it again).
+	 *
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function import( \WP_REST_Request $request ) {
+		// PHP's own upload (only it fills $_FILES), read as JSON, never kept.
+		$upload = $request->get_file_params()['file'] ?? null;
+		$path   = is_array( $upload ) && UPLOAD_ERR_OK === ( $upload['error'] ?? UPLOAD_ERR_NO_FILE ) && is_string( $upload['tmp_name'] ?? null ) ? $upload['tmp_name'] : '';
+		if ( '' === $path || ! is_readable( $path ) ) {
+			return new \WP_Error(
+				'aa_transfer_no_file',
+				sprintf(
+					/* translators: %s: largest upload size, like "64 MB". */
+					__( 'The file didn’t arrive. It may be bigger than this site accepts (%s).', 'aggressive-apparel' ),
+					size_format( wp_max_upload_size() )
+				),
+				array( 'status' => 400 )
+			);
+		}
+
+		$file = Product_Specs_Transfer::read( json_decode( (string) file_get_contents( $path ), true ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- The uploaded file's temporary path.
+		if ( is_wp_error( $file ) ) {
+			return $file;
+		}
+
+		return rest_ensure_response(
+			array(
+				'token' => Product_Specs_Transfer::stash( $file ),
+				'plan'  => Product_Specs_Transfer::plan( $file ),
+			)
+		);
+	}
+
+	/**
+	 * Import a file checked by import(), by its token.
+	 *
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function import_apply( \WP_REST_Request $request ) {
+		$file = Product_Specs_Transfer::unstash( $request->get_param( 'token' ) );
+		if ( null === $file ) {
+			return new \WP_Error( 'aa_transfer_expired', __( 'That file has expired. Choose it again.', 'aggressive-apparel' ), array( 'status' => 410 ) );
+		}
+		$done = Product_Specs_Transfer::apply( $file );
+
+		return is_wp_error( $done ) ? $done : rest_ensure_response( $done );
+	}
+
+	/**
 	 * Store managers only.
 	 */
 	public function can_manage(): bool {
@@ -278,22 +371,7 @@ final class Product_Specs_Settings {
 	public function save_registry( \WP_REST_Request $request ) {
 		$body   = $request->get_json_params();
 		$body   = is_array( $body ) ? $body : array();
-		$before = Product_Specs_Registry::get()['items'];
-		$result = Product_Specs_Registry::validate(
-			array(
-				'items'           => Product_Specs_Retype::apply( self::merged( $body ), $before ),
-				'hide_dimensions' => ! empty( $body['hide_dimensions'] ),
-			)
-		);
-
-		$errors = array() !== $result['errors']
-			? $result['errors']
-			: Product_Specs_Registry::save_connected(
-				array(
-					'items'           => $result['items'],
-					'hide_dimensions' => $result['hide_dimensions'],
-				)
-			);
+		$errors = self::store( self::merged( $body ), ! empty( $body['hide_dimensions'] ) );
 		if ( array() !== $errors ) {
 			return new \WP_Error(
 				'aa_product_specs_invalid',
@@ -305,9 +383,41 @@ final class Product_Specs_Settings {
 			);
 		}
 
-		Product_Specs_Wording_Sync::sync( $before, Product_Specs_Registry::get()['items'] );
-
 		return rest_ensure_response( self::registry() );
+	}
+
+	/**
+	 * Save a full list of specs: retyped where their type changed, checked,
+	 * connected to attributes, and with reworded steps kept on their steps.
+	 * The one way the list is saved: the Specs tab and imports from another
+	 * site (Product_Specs_Transfer).
+	 *
+	 * @param array $items           Raw items.
+	 * @param bool  $hide_dimensions The dimensions setting.
+	 * @phpstan-param list<mixed> $items
+	 * @return list<string> Errors; empty when saved.
+	 */
+	public static function store( array $items, bool $hide_dimensions ): array {
+		$before = Product_Specs_Registry::get()['items'];
+		$result = Product_Specs_Registry::validate(
+			array(
+				'items'           => Product_Specs_Retype::apply( $items, $before ),
+				'hide_dimensions' => $hide_dimensions,
+			)
+		);
+		$errors = array() !== $result['errors']
+			? $result['errors']
+			: Product_Specs_Registry::save_connected(
+				array(
+					'items'           => $result['items'],
+					'hide_dimensions' => $result['hide_dimensions'],
+				)
+			);
+		if ( array() === $errors ) {
+			Product_Specs_Wording_Sync::sync( $before, Product_Specs_Registry::get()['items'] );
+		}
+
+		return $errors;
 	}
 
 	/**
@@ -386,42 +496,13 @@ final class Product_Specs_Settings {
 	 * @return list<array{id: int, name: string}>
 	 */
 	private static function categories(): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-				'number'     => 500,
-				'orderby'    => 'name',
-			)
-		);
-		if ( ! is_array( $terms ) ) {
-			return array();
-		}
-
-		$by_id = array();
-		foreach ( $terms as $term ) {
-			if ( $term instanceof \WP_Term ) {
-				$by_id[ $term->term_id ] = $term;
-			}
-		}
-
 		$list = array();
-		foreach ( $by_id as $id => $term ) {
-			$path   = array( $term->name );
-			$parent = $term->parent;
-			$depth  = 0;
-			while ( $parent > 0 && isset( $by_id[ $parent ] ) && $depth < 5 ) {
-				array_unshift( $path, $by_id[ $parent ]->name );
-				$parent = $by_id[ $parent ]->parent;
-				++$depth;
-			}
+		foreach ( Product_Categories::labels() as $id => $name ) {
 			$list[] = array(
 				'id'   => $id,
-				'name' => implode( ' › ', $path ),
+				'name' => $name,
 			);
 		}
-
-		usort( $list, static fn( array $a, array $b ): int => strcasecmp( $a['name'], $b['name'] ) );
 
 		return $list;
 	}

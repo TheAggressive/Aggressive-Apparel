@@ -21,7 +21,7 @@ import { Button, ComboboxControl, FormTokenField } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { SpecItem } from './_types';
-import { joinValues, splitValues, stepFor } from './_utils';
+import { joinValues, matchKey, splitValues, stepFor } from './_utils';
 
 type Props = {
   item: SpecItem;
@@ -121,7 +121,7 @@ function TermPicker({ item, value, label, inherited, onChange }: Props) {
   const terms = item.terms ?? [];
   const query = typed.trim();
   const exists = (name: string) =>
-    terms.some(term => term.name.toLowerCase() === name.toLowerCase());
+    terms.some(term => matchKey(term.name) === matchKey(name));
 
   const options = [
     // A value added here but not saved yet is not a term yet.
@@ -239,8 +239,7 @@ function TokensPicker({ item, value, label, inherited, onChange }: Props) {
   const canonical = (token: string) => {
     const clean = token.replace(/\|/g, '').trim();
     return (
-      terms.find(term => term.name.toLowerCase() === clean.toLowerCase())
-        ?.name ?? clean
+      terms.find(term => matchKey(term.name) === matchKey(clean))?.name ?? clean
     );
   };
 

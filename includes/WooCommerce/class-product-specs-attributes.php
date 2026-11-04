@@ -63,7 +63,7 @@ final class Product_Specs_Attributes {
 			}
 			foreach ( $names as $name ) {
 				if ( is_scalar( $name ) ) {
-					$lookup[ self::normalize( (string) $name ) ] ??= $item['key'];
+					$lookup[ Match_Name::key( (string) $name ) ] ??= $item['key'];
 				}
 			}
 		}
@@ -89,7 +89,7 @@ final class Product_Specs_Attributes {
 				? wc_attribute_label( $attribute->get_name() )
 				: $attribute->get_name();
 			$own   = $attribute->is_taxonomy() && isset( $owned[ $attribute->get_name() ] );
-			$key   = $own ? $owned[ $attribute->get_name() ] : ( $lookup[ self::normalize( $label ) ] ?? null );
+			$key   = $own ? $owned[ $attribute->get_name() ] : ( $lookup[ Match_Name::key( $label ) ] ?? null );
 			if ( null === $key || isset( $found[ $key ] ) ) {
 				continue;
 			}
@@ -128,7 +128,7 @@ final class Product_Specs_Attributes {
 			/** This filter is documented in values(). */
 			$names = apply_filters( 'aggressive_apparel_product_specs_attribute_names', $item['attributes'], $item['key'] );
 			foreach ( is_array( $names ) ? $names : array() as $other ) {
-				if ( is_scalar( $other ) && self::normalize( (string) $other ) === self::normalize( $label ) ) {
+				if ( is_scalar( $other ) && Match_Name::key( (string) $other ) === Match_Name::key( $label ) ) {
 					return true;
 				}
 			}
@@ -174,9 +174,9 @@ final class Product_Specs_Attributes {
 	 * @phpstan-param list<string> $steps
 	 */
 	public static function match_step( string $text, array $steps ): int {
-		$needle = self::normalize( $text );
+		$needle = Match_Name::key( $text );
 		foreach ( $steps as $i => $name ) {
-			if ( self::normalize( $name ) === $needle ) {
+			if ( Match_Name::key( $name ) === $needle ) {
 				return $i;
 			}
 		}
@@ -217,14 +217,5 @@ final class Product_Specs_Attributes {
 		}
 
 		return array_values( array_filter( array_map( 'strval', $attribute->get_options() ) ) );
-	}
-
-	/**
-	 * Case- and spacing-insensitive name.
-	 *
-	 * @param string $name Name.
-	 */
-	private static function normalize( string $name ): string {
-		return strtolower( trim( (string) preg_replace( '/\s+/', ' ', $name ) ) );
 	}
 }

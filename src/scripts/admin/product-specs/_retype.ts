@@ -14,6 +14,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import type { ItemType, SpecItem } from './_types';
 import { valueFor } from './_import';
+import { describeValue, matchKey, splitValues } from './_utils';
 
 type Limits = { minSteps: number; maxSteps: number };
 
@@ -74,10 +75,8 @@ function valueFromText(item: SpecItem, text: string): string {
     return text;
   }
   if (item.type === 'pick') {
-    const normalize = (name: string) =>
-      name.trim().replace(/\s+/g, ' ').toLowerCase();
     const step = item.steps.findIndex(
-      name => normalize(name) === normalize(text)
+      name => matchKey(name) === matchKey(text)
     );
     return step >= 0 ? String(step) : '';
   }
@@ -93,14 +92,11 @@ export function convertValue(
   if (value === '' || before.type === after.type) {
     return value;
   }
+  // A scale or number holds one value: a list's first.
   const text =
-    before.type === 'pick'
-      ? (before.steps[Number(value)] ?? '')
-      : before.type === 'number'
-        ? `${value} ${before.unit}`.trim()
-        : before.multiple
-          ? value.split('|')[0].trim()
-          : value;
+    before.type === 'text' && before.multiple
+      ? (splitValues(value)[0] ?? '')
+      : describeValue(before, value);
   return text === '' ? '' : valueFromText(after, text);
 }
 

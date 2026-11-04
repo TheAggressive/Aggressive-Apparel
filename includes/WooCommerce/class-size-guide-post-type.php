@@ -96,6 +96,34 @@ class Size_Guide_Post_Type {
 	}
 
 	/**
+	 * Every published size guide's ID, by name, read in pages so no store
+	 * outgrows it. Posts come back cached, for callers that read them.
+	 *
+	 * @return list<int>
+	 */
+	public static function ids(): array {
+		$ids  = array();
+		$page = 1;
+		do {
+			$batch = get_posts(
+				array(
+					'post_type'      => self::POST_TYPE,
+					'post_status'    => 'publish',
+					'posts_per_page' => 100,
+					'paged'          => $page,
+					'orderby'        => 'title',
+					'order'          => 'ASC',
+				)
+			);
+			$ids   = array_merge( $ids, array_map( static fn( \WP_Post $post ): int => $post->ID, $batch ) );
+			$more  = 100 === count( $batch );
+			++$page;
+		} while ( $more );
+
+		return $ids;
+	}
+
+	/**
 	 * Get post type labels.
 	 *
 	 * @return array<string, string>

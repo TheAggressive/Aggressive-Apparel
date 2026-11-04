@@ -83,6 +83,23 @@ final class Size_Guide_Rest {
 
 		register_rest_route(
 			self::NAMESPACE,
+			self::ROUTE . '/specs',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => static fn(): \WP_REST_Response => rest_ensure_response( Size_Guide_Grid::rows() ),
+					'permission_callback' => $manage,
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => static fn( \WP_REST_Request $request ): \WP_REST_Response => rest_ensure_response( Size_Guide_Grid::save( $request->get_param( 'guides' ) ) ),
+					'permission_callback' => $manage,
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
 			self::ROUTE . '/(?P<id>\d+)',
 			array(
 				array(
@@ -347,19 +364,10 @@ final class Size_Guide_Rest {
 	 * @return list<Summary>
 	 */
 	public static function summaries(): array {
-		$posts = get_posts(
-			array(
-				'post_type'      => Size_Guide_Post_Type::POST_TYPE,
-				'post_status'    => 'publish',
-				'posts_per_page' => 100,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-			)
-		);
-
-		$usage = Size_Guide_Assignments::usage_map( array_values( array_map( static fn( \WP_Post $post ): int => $post->ID, $posts ) ) );
+		$ids   = Size_Guide_Post_Type::ids();
+		$usage = Size_Guide_Assignments::usage_map( $ids );
 		$list  = array();
-		foreach ( $posts as $post ) {
+		foreach ( array_filter( array_map( 'get_post', $ids ) ) as $post ) {
 			$chart  = Size_Chart::get( $post->ID );
 			$list[] = array(
 				'id'      => $post->ID,
@@ -496,12 +504,14 @@ final class Size_Guide_Rest {
 	}
 
 	/**
-	 * Write a guide's fields. Missing fields are left as they are.
+	 * Write a guide's fields. Missing fields are left as they are. The one
+	 * way a guide is written: the editor, duplicates, and imports from
+	 * another site (Product_Specs_Transfer).
 	 *
 	 * @param int                  $id   Size guide post ID.
 	 * @param array<string, mixed> $data Submitted fields.
 	 */
-	private static function save( int $id, array $data ): void {
+	public static function save( int $id, array $data ): void {
 		if ( array_key_exists( 'chart', $data ) ) {
 			$chart = Size_Chart::sanitize( $data['chart'] );
 			if ( array() === $chart['rows'] ) {
@@ -596,11 +606,12 @@ final class Size_Guide_Rest {
 	}
 
 	/**
-	 * A guide's title for display.
+	 * A guide's name as stored (no texturizing or entities, since React prints
+	 * it as text), for the list, the grid and imports alike.
 	 *
 	 * @param \WP_Post $post Size guide.
 	 */
-	private static function display_title( \WP_Post $post ): string {
+	public static function display_title( \WP_Post $post ): string {
 		return '' !== $post->post_title ? $post->post_title : __( '(no title)', 'aggressive-apparel' );
 	}
 }

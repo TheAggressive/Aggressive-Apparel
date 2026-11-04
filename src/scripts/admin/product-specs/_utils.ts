@@ -27,6 +27,14 @@ export function uid(): string {
   return `item-${Date.now()}-${counter}`;
 }
 
+/**
+ * A name as it compares (spaces collapsed, any case), as the server compares
+ * names (Match_Name::key): "Regular  fit" matches "regular fit".
+ */
+export function matchKey(name: string): string {
+  return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+}
+
 /** Meta-key-safe key from a name: "Fabric Weight" → "fabric_weight". */
 export function slugify(name: string): string {
   return name
@@ -184,4 +192,18 @@ export function scrollBehavior(): ScrollBehavior {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? 'auto'
     : 'smooth';
+}
+
+/** A stored value as people read it ('' for none). */
+export function describeValue(item: SpecItem, value: string): string {
+  if (value === '') {
+    return '';
+  }
+  if (item.type === 'pick') {
+    return item.steps[Number(value)] ?? '';
+  }
+  if (item.type === 'number') {
+    return `${value} ${item.unit}`.trim();
+  }
+  return item.multiple ? splitValues(value).join(', ') : value;
 }

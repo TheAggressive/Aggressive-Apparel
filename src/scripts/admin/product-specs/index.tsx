@@ -18,6 +18,7 @@ import './guide-specs.css';
 import './chart.css';
 import './import.css';
 import './import-review.css';
+import './transfer.css';
 
 domReady(() => {
   const root = document.getElementById('aa-product-specs-root');

@@ -364,6 +364,29 @@
 	box-shadow: 0 -4px 12px rgb(0 0 0 / 6%);
 }
 
+/* The guide list as a list or as its spec values (_GuidesGrid). */
+.aa-ps-guides__view {
+	margin: 0 0 16px;
+}
+
+.aa-ps-guides-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.aa-ps-guide-cell {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+}
+
+.aa-ps-guide-cell .components-button.is-link {
+	font-weight: 600;
+	text-align: left;
+}
+
 /* Where an imported guide came from. */
 .aa-ps-guide__source {
 	margin: -8px 0 0;

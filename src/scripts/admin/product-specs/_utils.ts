@@ -185,3 +185,17 @@ export function scrollBehavior(): ScrollBehavior {
     ? 'auto'
     : 'smooth';
 }
+
+/** A stored value as people read it ('' for none). */
+export function describeValue(item: SpecItem, value: string): string {
+  if (value === '') {
+    return '';
+  }
+  if (item.type === 'pick') {
+    return item.steps[Number(value)] ?? '';
+  }
+  if (item.type === 'number') {
+    return `${value} ${item.unit}`.trim();
+  }
+  return item.multiple ? splitValues(value).join(', ') : value;
+}

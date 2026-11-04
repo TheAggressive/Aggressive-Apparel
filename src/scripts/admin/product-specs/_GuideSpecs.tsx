@@ -16,7 +16,7 @@ import { Button, Notice, TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, GuideDetail, SpecItem } from './_types';
-import { newItem, specKey, splitValues } from './_utils';
+import { describeValue, newItem, specKey } from './_utils';
 import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
@@ -56,20 +56,6 @@ type Props = {
   /** Shown under the specs (Apply to products). */
   footer?: ReactNode;
 };
-
-/** A value as text ('' for none). */
-function describe(item: SpecItem, value: string): string {
-  if (value === '') {
-    return '';
-  }
-  if (item.type === 'pick') {
-    return item.steps[Number(value)] ?? '';
-  }
-  if (item.type === 'number') {
-    return `${value} ${item.unit}`.trim();
-  }
-  return item.multiple ? splitValues(value).join(', ') : value;
-}
 
 export default function GuideSpecs({
   config,
@@ -184,7 +170,7 @@ export default function GuideSpecs({
               item={here}
               value={values[item.key] ?? ''}
               label={here.name}
-              inherited={describe(here, here.default)}
+              inherited={describeValue(here, here.default)}
               onChange={value => onValues({ ...values, [item.key]: value })}
             />
           </div>

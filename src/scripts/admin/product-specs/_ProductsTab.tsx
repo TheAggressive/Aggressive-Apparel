@@ -15,7 +15,6 @@ import {
   Button,
   CheckboxControl,
   Notice,
-  SelectControl,
   Spinner,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
@@ -23,9 +22,10 @@ import { addQueryArgs } from '@wordpress/url';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { errorText } from './_utils';
 import type { Config, GridRow, SpecItem } from './_types';
-import SpecInput from './_SpecInput';
+import SpecGrid, { BulkBar, type SpecRow } from './_SpecGrid';
+import { countEdits, type GridEdits } from './_gridEdits';
 
-export type ProductEdits = Record<number, Record<string, string>>;
+export type ProductEdits = GridEdits;
 
 type Props = {
   config: Config;
@@ -57,8 +57,6 @@ export default function ProductsTab({
   const [loadError, setLoadError] = useState('');
   const [gapsOnly, setGapsOnly] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const [bulkKey, setBulkKey] = useState(specs[0]?.key ?? '');
-  const [bulkValue, setBulkValue] = useState('');
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{
     status: 'success' | 'warning' | 'error';
@@ -113,10 +111,7 @@ export default function ProductsTab({
     };
   }, [config.gridPath, page, query, category, reload]);
 
-  const changes = Object.values(edits).reduce(
-    (count, product) => count + Object.keys(product).length,
-    0
-  );
+  const changes = countEdits(edits);
 
   const hasGap = (row: GridRow) =>
     specs.some(item => {
@@ -128,20 +123,44 @@ export default function ProductsTab({
     });
 
   const rows = (data?.products ?? []).filter(row => !gapsOnly || hasGap(row));
-  const bulkItem = specs.find(item => item.key === bulkKey);
-  const allSelected =
-    rows.length > 0 && rows.every(row => selected.includes(row.id));
 
-  const applyBulk = () => {
-    if (!bulkItem) {
-      return;
-    }
+  const applyBulk = (key: string, value: string) =>
     rows
-      .filter(
-        row => selected.includes(row.id) && row.specs[bulkItem.key]?.applies
-      )
-      .forEach(row => onEdit(row.id, bulkItem.key, bulkValue));
-  };
+      .filter(row => selected.includes(row.id) && row.specs[key]?.applies)
+      .forEach(row => onEdit(row.id, key, value));
+
+  const gridRows: SpecRow[] = rows.map(row => ({
+    id: row.id,
+    title: row.title,
+    head: (
+      <span className='aa-ps-product'>
+        {row.thumb ? (
+          <img src={row.thumb} alt='' width={32} height={32} />
+        ) : (
+          <span className='aa-ps-product__noimg' aria-hidden='true' />
+        )}
+        <span>
+          <a href={row.editUrl}>{row.title}</a>
+          <span className='aa-ps-table__usage'>
+            {row.categories.join(', ')}
+          </span>
+        </span>
+      </span>
+    ),
+    cells: Object.fromEntries(
+      Object.entries(row.specs).map(([key, cell]) => [
+        key,
+        {
+          applies: cell.applies,
+          own: cell.own,
+          inherited: cell.inherited,
+          note: cell.hidden
+            ? __('Hidden on this product', 'aggressive-apparel')
+            : undefined,
+        },
+      ])
+    ),
+  }));
 
   const save = async () => {
     setSaving(true);
@@ -263,48 +282,12 @@ export default function ProductsTab({
         {loading && <Spinner />}
       </div>
 
-      {selected.length > 0 && bulkItem && (
-        <div className='aa-ps-bulk'>
-          <strong>
-            {sprintf(
-              /* translators: %d: number of selected products. */
-              _n(
-                '%d selected',
-                '%d selected',
-                selected.length,
-                'aggressive-apparel'
-              ),
-              selected.length
-            )}
-          </strong>
-          <span>{__('Set', 'aggressive-apparel')}</span>
-          <SelectControl
-            label={__('Spec', 'aggressive-apparel')}
-            hideLabelFromVision
-            value={bulkKey}
-            options={specs.map(item => ({ value: item.key, label: item.name }))}
-            onChange={value => {
-              setBulkKey(value);
-              setBulkValue('');
-            }}
-            __next40pxDefaultSize
-          />
-          <span>{__('to', 'aggressive-apparel')}</span>
-          <SpecInput
-            item={bulkItem}
-            value={bulkValue}
-            inherited={__('their inherited value', 'aggressive-apparel')}
-            label={__('Value', 'aggressive-apparel')}
-            onChange={setBulkValue}
-          />
-          <Button variant='secondary' onClick={applyBulk}>
-            {__('Apply', 'aggressive-apparel')}
-          </Button>
-          <Button variant='tertiary' onClick={() => setSelected([])}>
-            {__('Clear selection', 'aggressive-apparel')}
-          </Button>
-        </div>
-      )}
+      <BulkBar
+        specs={specs}
+        count={selected.length}
+        onApply={applyBulk}
+        onClear={() => setSelected([])}
+      />
 
       {loadError && (
         <Notice status='error' isDismissible={false}>
@@ -312,123 +295,21 @@ export default function ProductsTab({
         </Notice>
       )}
 
-      <div className='aa-ps-table__scroll'>
-        <table className='aa-ps-table__table aa-ps-grid-table'>
-          <thead>
-            <tr>
-              <th scope='col' className='aa-ps-grid-table__check'>
-                <input
-                  type='checkbox'
-                  aria-label={__(
-                    'Select all on this page',
-                    'aggressive-apparel'
-                  )}
-                  checked={allSelected}
-                  onChange={event =>
-                    setSelected(
-                      event.target.checked ? rows.map(row => row.id) : []
-                    )
-                  }
-                />
-              </th>
-              <th scope='col'>{__('Product', 'aggressive-apparel')}</th>
-              {specs.map(item => (
-                <th scope='col' key={item.key}>
-                  {item.name}
-                  {item.type === 'number' && item.unit && (
-                    <span className='aa-ps-table__unit'> ({item.unit})</span>
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {!loading && rows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={specs.length + 2}
-                  className='aa-ps-grid-table__empty'
-                >
-                  {gapsOnly
-                    ? __(
-                        'No products with gaps on this page.',
-                        'aggressive-apparel'
-                      )
-                    : __('No products found.', 'aggressive-apparel')}
-                </td>
-              </tr>
-            )}
-            {rows.map(row => (
-              <tr key={row.id}>
-                <td className='aa-ps-grid-table__check'>
-                  <input
-                    type='checkbox'
-                    aria-label={sprintf(
-                      /* translators: %s: product name. */
-                      __('Select %s', 'aggressive-apparel'),
-                      row.title
-                    )}
-                    checked={selected.includes(row.id)}
-                    onChange={event =>
-                      setSelected(
-                        event.target.checked
-                          ? [...selected, row.id]
-                          : selected.filter(id => id !== row.id)
-                      )
-                    }
-                  />
-                </td>
-                <th scope='row'>
-                  <span className='aa-ps-product'>
-                    {row.thumb ? (
-                      <img src={row.thumb} alt='' width={32} height={32} />
-                    ) : (
-                      <span
-                        className='aa-ps-product__noimg'
-                        aria-hidden='true'
-                      />
-                    )}
-                    <span>
-                      <a href={row.editUrl}>{row.title}</a>
-                      <span className='aa-ps-table__usage'>
-                        {row.categories.join(', ')}
-                      </span>
-                    </span>
-                  </span>
-                </th>
-                {specs.map(item => {
-                  const cell = row.specs[item.key];
-                  if (!cell?.applies) {
-                    return (
-                      <td key={item.key} className='aa-ps-grid-table__na'>
-                        {__('Not used', 'aggressive-apparel')}
-                      </td>
-                    );
-                  }
-                  const edited = edits[row.id]?.[item.key];
-                  return (
-                    <td key={item.key}>
-                      <SpecInput
-                        item={item}
-                        value={edited ?? cell.own}
-                        inherited={cell.inherited}
-                        changed={edited !== undefined}
-                        label={`${row.title}: ${item.name}`}
-                        onChange={value => onEdit(row.id, item.key, value)}
-                      />
-                      {cell.hidden && (
-                        <span className='aa-ps-input__hint'>
-                          {__('Hidden on this product', 'aggressive-apparel')}
-                        </span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <SpecGrid
+        specs={specs}
+        rows={gridRows}
+        edits={edits}
+        onEdit={onEdit}
+        selected={selected}
+        onSelect={setSelected}
+        heading={__('Product', 'aggressive-apparel')}
+        empty={
+          gapsOnly
+            ? __('No products with gaps on this page.', 'aggressive-apparel')
+            : __('No products found.', 'aggressive-apparel')
+        }
+        loading={loading}
+      />
 
       <div className='aa-ps-pager'>
         <span className='aa-ps-help'>

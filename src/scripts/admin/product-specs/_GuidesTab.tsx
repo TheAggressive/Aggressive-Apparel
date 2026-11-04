@@ -3,18 +3,22 @@
  *
  * The list of guides (one per garment blank) and, when one is open, its
  * editor. The open guide is kept in the URL (?guide=ID or ?guide=new) so a
- * link from a product lands straight on it.
+ * link from a product lands straight on it. The list can also show every
+ * guide's spec values as a grid (_GuidesGrid), to set one on many at once.
  *
  * @package Aggressive_Apparel
  */
 
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { Button, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { Config, GuideSummary, Registry, SpecItem, Usage } from './_types';
+import { cx } from '../../../utils/product-specs-data';
 import GuideEditor from './_GuideEditor';
+import GuidesGrid from './_GuidesGrid';
 import ImportFlow from './_ImportFlow';
+import { countEdits, type GridEdits } from './_gridEdits';
 
 type Props = {
   config: Config;
@@ -78,6 +82,18 @@ export default function GuidesTab({
   );
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
+  // The list as guides, or as their spec values side by side.
+  const [view, setView] = useState<'list' | 'grid'>('list');
+  const [gridEdits, setGridEdits] = useState<GridEdits>({});
+
+  // Unsaved grid values count as unsaved work while no guide is open (an
+  // open guide reports its own).
+  useEffect(() => {
+    if (open === null) {
+      onDirty(countEdits(gridEdits) > 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onDirty is stable in intent.
+  }, [gridEdits, open]);
 
   const show = (value: number | 'new' | null) => {
     setOpen(value);
@@ -163,9 +179,52 @@ export default function GuidesTab({
         </div>
       </div>
 
+      {guides.length > 0 && (
+        <div
+          className='aa-ps-pills aa-ps-guides__view'
+          role='radiogroup'
+          aria-label={__('Show', 'aggressive-apparel')}
+        >
+          {(
+            [
+              ['list', __('Guides', 'aggressive-apparel')],
+              ['grid', __('Spec values', 'aggressive-apparel')],
+            ] as const
+          ).map(([name, label]) => (
+            <button
+              key={name}
+              type='button'
+              role='radio'
+              aria-checked={view === name}
+              className={cx('aa-ps-pill', view === name && 'is-active')}
+              onClick={() => setView(name)}
+            >
+              {label}
+              {name === 'grid' && countEdits(gridEdits) > 0 && (
+                <>
+                  <span className='aa-ps-tabs__dot' aria-hidden='true' />
+                  <span className='screen-reader-text'>
+                    {__('(unsaved changes)', 'aggressive-apparel')}
+                  </span>
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading && <Spinner />}
 
-      {guides.length === 0 ? (
+      {view === 'grid' && guides.length > 0 ? (
+        <GuidesGrid
+          config={config}
+          items={items}
+          edits={gridEdits}
+          onEdits={setGridEdits}
+          onOpen={id => show(id)}
+          onSaved={() => void refresh()}
+        />
+      ) : guides.length === 0 ? (
         <div className='aa-ps-empty'>
           <p>
             {__(

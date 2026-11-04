@@ -1,0 +1,72 @@
+/**
+ * Product Specs settings — Export and Import (_Transfer).
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-ps-transfer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 8px;
+	align-items: center;
+	padding-bottom: 6px;
+}
+
+/* Choosing a file: the whole area takes a drop. */
+.aa-ps-transfer__drop {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	align-items: center;
+	padding: 32px 24px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	background: #f6f7f7;
+	text-align: center;
+}
+
+.aa-ps-transfer__drop p {
+	max-width: 46ch;
+	margin: 0;
+}
+
+/* What an import will do. */
+.aa-ps-transfer__part {
+	padding: 12px 0;
+	border-top: 1px solid var(--aa-ps-divider);
+}
+
+.aa-ps-transfer__part p {
+	margin: 0;
+}
+
+.aa-ps-transfer__list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	max-height: 160px;
+	margin: 8px 0 0;
+	padding: 0;
+	overflow-y: auto;
+	list-style: none;
+}
+
+.aa-ps-transfer__list li {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin: 0;
+}
+
+.aa-ps-transfer__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-top: 16px;
+}
+
+.aa-ps-transfer__modal .components-notice {
+	margin: 12px 0 0;
+}

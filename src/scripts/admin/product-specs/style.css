@@ -103,11 +103,22 @@
 }
 
 /* Tabs */
+
+/* The tabs, with Export and Import at the far end (_Transfer). */
+.aa-ps-tabbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 20px;
+	border-bottom: 1px solid var(--aa-ps-border);
+}
+
 .aa-ps-tabs {
 	display: flex;
 	gap: 4px;
-	margin: 0 0 20px;
-	border-bottom: 1px solid var(--aa-ps-border);
+	align-self: flex-end;
 }
 
 .aa-ps-tabs__tab {

@@ -79,6 +79,38 @@ class TestProductSpecsPanel extends WP_UnitTestCase {
 		$this->assertTrue( $data['canCreate'] );
 	}
 
+	/** Labels come worded as the guide words them, with end labels and advice, as the storefront words them. */
+	public function test_labels_match_the_storefront(): void {
+		$this->save_defaults( array( 'fit' => '1' ) );
+		$guide = $this->guide( 'Heavy Tee' );
+		Product_Specs_Values::save_wording(
+			$guide,
+			array(
+				'fit' => array(
+					'step0' => 'Close',
+					'end'   => 'Roomy',
+				),
+			)
+		);
+		$product = $this->product( $guide );
+
+		$fit      = array_column( $this->panel( $product )['items'], null, 'key' )['fit'];
+		$resolved = $this->resolved( $product )['fit'];
+
+		$this->assertSame( $resolved['steps'], $fit['steps'] );
+		$this->assertSame( 'Close', $fit['steps'][0] );
+		$this->assertSame( 'Roomy', $fit['end'] );
+		$this->assertSame( '', $fit['start'], 'Left for the panel to fill from the steps, as the storefront does.' );
+		$this->assertSame( $resolved['start'], $fit['steps'][0] );
+		$this->assertSame( $this->items()['fit']['advice'], $fit['advice'] );
+
+		// The product's own wording is laid over in the panel, not baked in here.
+		update_post_meta( $product, Product_Specs_Meta::WORDING, array( 'fit' => array( 'step0' => 'Snug' ) ) );
+		\Aggressive_Apparel\WooCommerce\Product_Specs::flush();
+		$this->assertSame( 'Close', array_column( $this->panel( $product )['items'], null, 'key' )['fit']['steps'][0] );
+		$this->assertSame( 'Snug', $this->resolved( $product )['fit']['steps'][0], 'The storefront has it.' );
+	}
+
 	/**
 	 * The data the panel is rendered with.
 	 *

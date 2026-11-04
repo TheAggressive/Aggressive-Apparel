@@ -51,6 +51,22 @@ export function settleTerm(
   );
 }
 
+/**
+ * Values that are neither among the terms listed nor ones the field already
+ * had. The list is the most used terms, not all of them, so these are only
+ * possibly new: the server, which has every term, decides.
+ */
+export function unlistedValues(
+  values: string[],
+  terms: { name: string }[] | undefined,
+  kept: string[]
+): string[] {
+  const known = new Set(
+    [...(terms ?? []).map(term => term.name), ...kept].map(matchKey)
+  );
+  return values.filter(value => value !== '' && !known.has(matchKey(value)));
+}
+
 /** Meta-key-safe key from a name: "Fabric Weight" → "fabric_weight". */
 export function slugify(name: string): string {
   return name

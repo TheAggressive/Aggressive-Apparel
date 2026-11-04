@@ -1,4 +1,4 @@
-import { matchKey, settleTerm } from '../_utils';
+import { matchKey, settleTerm, unlistedValues } from '../_utils';
 
 describe('matchKey', () => {
   it('ignores case and extra spaces, like the server', () => {
@@ -19,5 +19,19 @@ describe('settleTerm', () => {
     expect(settleTerm(terms, ' Brass ')).toBe('Brass');
     expect(settleTerm(terms, 'Bra|ss')).toBe('Brass');
     expect(settleTerm(undefined, 'Brass')).toBe('Brass');
+  });
+});
+
+describe('unlistedValues', () => {
+  const terms = [{ name: 'Mens' }, { name: 'Womens' }];
+
+  it('finds only values that are neither listed nor already had', () => {
+    expect(
+      unlistedValues(['Mens', 'legacy drop', 'Kids'], terms, ['Legacy Drop'])
+    ).toEqual(['Kids']);
+  });
+
+  it('never counts an empty value', () => {
+    expect(unlistedValues([''], terms, [])).toEqual([]);
   });
 });

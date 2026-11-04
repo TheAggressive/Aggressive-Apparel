@@ -107,33 +107,30 @@ final class Product_Specs_Admin {
 		$wording = Product_Specs::sanitize_wording( get_post_meta( $product_id, Product_Specs_Meta::WORDING, true ) );
 		$items   = array();
 		foreach ( Product_Specs::for_product( $product_id )['items'] as $item ) {
-			$key       = $item['key'];
-			$base      = $view['base'][ $key ] ?? array(
-				'title' => $item['title'],
-				'steps' => $item['steps'],
-			);
-			$inherited = $item['inherited'];
-			$items[]   = array(
-				'key'           => $key,
-				'type'          => $item['type'],
-				'multiple'      => $item['multiple'],
-				'unit'          => $item['unit'],
-				'centered'      => $item['centered'],
-				'thresholds'    => $item['thresholds'],
-				'name'          => $base['title'],
-				'steps'         => $base['steps'],
-				'start'         => $item['start'],
-				'mid'           => $item['mid'],
-				'end'           => $item['end'],
-				'own'           => $item['own'],
-				'default'       => self::raw( $item['type'], $inherited ),
-				'inheritedText' => Product_Specs_Admin_Fields::describe( $item, $inherited ),
-				'source'        => $inherited['source'],
-				'sourceLabel'   => $inherited['label'],
-				'hidden'        => $item['hidden'],
-				'locked'        => $product instanceof \WC_Product && Product_Specs_Product_Writer::drives_variations( $product, $item['taxonomy'] ),
-				'terms'         => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::usage( $item['taxonomy'] ) : array(),
-				'wording'       => (object) ( $wording[ $key ] ?? array() ),
+			$key = $item['key'];
+			// As the guide words it; the panel lays the product's wording over.
+			$base    = $view['base'][ $key ];
+			$items[] = array(
+				'key'         => $key,
+				'type'        => $item['type'],
+				'multiple'    => $item['multiple'],
+				'unit'        => $item['unit'],
+				'centered'    => $item['centered'],
+				'thresholds'  => $item['thresholds'],
+				'name'        => $base['title'],
+				'steps'       => $base['steps'],
+				'start'       => $base['start'],
+				'mid'         => $base['mid'],
+				'end'         => $base['end'],
+				'advice'      => $base['advice'],
+				'own'         => $item['own'],
+				'default'     => self::raw( $item['type'], $item['inherited'] ),
+				'source'      => $item['inherited']['source'],
+				'sourceLabel' => $item['inherited']['label'],
+				'hidden'      => $item['hidden'],
+				'locked'      => $product instanceof \WC_Product && Product_Specs_Product_Writer::drives_variations( $product, $item['taxonomy'] ),
+				'terms'       => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::usage( $item['taxonomy'] ) : array(),
+				'wording'     => (object) ( $wording[ $key ] ?? array() ),
 			);
 		}
 

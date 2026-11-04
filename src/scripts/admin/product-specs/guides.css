@@ -115,13 +115,6 @@
 	scroll-margin-top: 48px;
 }
 
-.aa-ps-spec-rows {
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
-	min-width: 0;
-}
-
 .aa-ps-apply {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;

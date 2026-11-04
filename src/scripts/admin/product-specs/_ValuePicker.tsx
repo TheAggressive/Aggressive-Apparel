@@ -21,7 +21,13 @@ import { Button, FormTokenField } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { SpecItem } from './_types';
-import { joinValues, settleTerm, splitValues, stepFor } from './_utils';
+import {
+  joinValues,
+  settleTerm,
+  splitValues,
+  stepFor,
+  unlistedValues,
+} from './_utils';
 import SpecInput from './_SpecInput';
 
 type Props = {
@@ -31,7 +37,10 @@ type Props = {
   label: string;
   /** What shows when the value is empty, if anything. */
   inherited?: string;
-  /** Only existing values, for people who can't add catalog values. */
+  /**
+   * The user can't add catalog values: say so when a value may be new. The
+   * server keeps the product's own value if it is (never cleared here).
+   */
   existingOnly?: boolean;
   onChange: (value: string) => void;
 };
@@ -133,7 +142,11 @@ function TermPicker({
   onChange,
 }: Props) {
   const terms = item.terms ?? [];
-  const [refused, setRefused] = useState(false);
+  // What the field had: never treated as new.
+  const [kept] = useState(() => splitValues(value));
+  const unlisted = existingOnly
+    ? unlistedValues(splitValues(value), terms, kept)
+    : [];
   return (
     <div className='aa-ps-picker'>
       <SpecInput
@@ -150,31 +163,39 @@ function TermPicker({
               )
             : __('Type or pick a value', 'aggressive-apparel')
         }
-        onChange={next => {
-          setRefused(false);
-          onChange(next);
-        }}
+        onChange={onChange}
         onBlur={() => {
           const settled = settleTerm(terms, value);
-          const known = terms.some(term => term.name === settled);
-          if (existingOnly && settled !== '' && !known) {
-            setRefused(true);
-            onChange('');
-          } else if (settled !== value) {
+          if (settled !== value) {
             onChange(settled);
           }
         }}
       />
-      {refused && (
-        <span className='aa-ps-picker__hint'>
-          {__(
-            'Pick one of the values there are. Ask a store manager to add a new one.',
-            'aggressive-apparel'
-          )}
-        </span>
-      )}
+      <NewValueNote names={unlisted} />
       {value === '' && <Chips terms={terms} chosen={[]} onPick={onChange} />}
     </div>
+  );
+}
+
+/**
+ * For someone who can't add catalog values: these may be new, and a new
+ * value won't save (the product keeps the value it had).
+ */
+function NewValueNote({ names }: { names: string[] }) {
+  if (names.length === 0) {
+    return null;
+  }
+  return (
+    <span className='aa-ps-picker__hint'>
+      {sprintf(
+        /* translators: %s: values typed, comma-separated. */
+        __(
+          'Only values the store has save for you. If “%s” is new, the product keeps the value it had: ask a store manager to add it.',
+          'aggressive-apparel'
+        ),
+        names.join('”, “')
+      )}
+    </span>
   );
 }
 
@@ -224,6 +245,10 @@ function TokensPicker({
   onChange,
 }: Props) {
   const terms = item.terms ?? [];
+  const [kept] = useState(() => splitValues(value));
+  const unlisted = existingOnly
+    ? unlistedValues(splitValues(value), terms, kept)
+    : [];
   const counts = new Map(terms.map(term => [term.name, term.count]));
 
   return (
@@ -242,10 +267,6 @@ function TokensPicker({
                       terms,
                       typeof token === 'string' ? token : token.value
                     )
-                  )
-                  .filter(
-                    name =>
-                      !existingOnly || terms.some(term => term.name === name)
                   )
                   .join('|')
               )
@@ -287,6 +308,7 @@ function TokensPicker({
         __next40pxDefaultSize
         __nextHasNoMarginBottom
       />
+      <NewValueNote names={unlisted} />
       <Chips
         terms={terms}
         chosen={splitValues(value)}

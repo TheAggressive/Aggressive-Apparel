@@ -16,7 +16,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { SpecItem } from './_types';
 import OnOff from './_OnOff';
-import { setWording, type Wording } from './_wording';
+import { edgeLabels } from './_utils';
+import { setWording, worded, type Wording } from './_wording';
 
 type RowProps = {
   /** The spec's name as shown here. */
@@ -143,11 +144,21 @@ type WordingProps = {
   onChange: (wording: Wording) => void;
 };
 
-/** Reword a spec's name and steps; blank fields keep the wording shown greyed. */
+/**
+ * Reword a spec's name, steps and (on a scale) the labels under its ends;
+ * blank fields keep the wording shown greyed.
+ */
 export function WordingFields({ item, wording, onChange }: WordingProps) {
   const own = wording[item.key] ?? {};
   const set = (field: string, text: string) =>
     onChange(setWording(wording, item.key, field, text));
+  // What each end shows unless reworded, steps included as reworded here.
+  const edges = edgeLabels(worded(item, wording));
+  const ends: [string, string, string][] = [
+    ['start', __('Start label', 'aggressive-apparel'), edges.start],
+    ['mid', __('Middle label', 'aggressive-apparel'), edges.mid],
+    ['end', __('End label', 'aggressive-apparel'), edges.end],
+  ];
 
   return (
     <div className='aa-ps-guide-wording'>
@@ -172,6 +183,18 @@ export function WordingFields({ item, wording, onChange }: WordingProps) {
             value={own[`step${i}`] ?? ''}
             placeholder={step}
             onChange={text => set(`step${i}`, text)}
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+          />
+        ))}
+      {item.type !== 'text' &&
+        ends.map(([field, label, shown]) => (
+          <TextControl
+            key={field}
+            label={label}
+            value={own[field] ?? ''}
+            placeholder={shown}
+            onChange={text => set(field, text)}
             __next40pxDefaultSize
             __nextHasNoMarginBottom
           />

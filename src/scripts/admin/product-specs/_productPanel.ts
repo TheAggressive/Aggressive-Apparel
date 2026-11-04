@@ -23,17 +23,18 @@ export type PanelItem = {
   centered: boolean;
   /** The boundaries that apply to this product's categories. */
   thresholds: number[];
-  /** Name and steps as its size guide words them (before this product's). */
+  /** Its labels as its size guide words them (before this product's own). */
   name: string;
   steps: string[];
   start: string;
   mid: string;
   end: string;
+  /** Advice per step. */
+  advice: string[];
   /** The product's own value ('' for none). */
   own: string;
-  /** What an empty value falls back to, as stored, and as people read it. */
+  /** What an empty value falls back to, as stored. */
   default: string;
-  inheritedText: string;
   /** Where that comes from: 'attribute', 'guide', 'default' or ''. */
   source: string;
   /** The attribute's or size guide's name. */
@@ -72,13 +73,17 @@ export function panelSpec(item: PanelItem): SpecItem {
     centered: item.centered,
     unit: item.unit,
     thresholds: item.thresholds,
+    advice: item.advice,
     multiple: item.multiple,
     default: item.default,
     terms: item.terms,
   };
 }
 
-/** Where the value a spec shows comes from, as one line. */
+/**
+ * Where the value a spec shows comes from, as one line. `spec` is the spec
+ * as worded now, so a step reworded here reads reworded at once.
+ */
 export function sourceText(
   item: PanelItem,
   spec: SpecItem,
@@ -95,14 +100,15 @@ export function sourceText(
       describeValue(spec, value)
     );
   }
-  if (item.inheritedText === '') {
+  const inherited = describeValue(spec, item.default);
+  if (inherited === '') {
     return __('Not set anywhere, so it’s left out.', 'aggressive-apparel');
   }
   if (item.source === 'attribute') {
     return sprintf(
       /* translators: 1: value shown on the product page, 2: product attribute name. */
       __('Showing “%1$s” from the “%2$s” attribute.', 'aggressive-apparel'),
-      item.inheritedText,
+      inherited,
       item.sourceLabel
     );
   }
@@ -110,7 +116,7 @@ export function sourceText(
     return sprintf(
       /* translators: 1: value shown on the product page, 2: size guide name. */
       __('Showing “%1$s” from the “%2$s” size guide.', 'aggressive-apparel'),
-      item.inheritedText,
+      inherited,
       item.sourceLabel
     );
   }
@@ -120,7 +126,7 @@ export function sourceText(
       'Showing “%s”, the store-wide default for this spec.',
       'aggressive-apparel'
     ),
-    item.inheritedText
+    inherited
   );
 }
 

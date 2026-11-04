@@ -1,10 +1,10 @@
 /**
  * Product Specs settings — wording for one guide's products.
  *
- * A guide can reword a spec for its own products without changing it for
- * anyone else: its name ("title") and its step labels ("step0"…), the same
- * fields a product's own wording uses (Product_Specs::sanitize_wording).
- * Blank fields keep the spec's own wording. Pure, so it's tested on its own.
+ * A guide or a product can reword a spec without changing it for anyone
+ * else: its name ("title"), step labels ("step0"…) and end labels ("start",
+ * "mid", "end"), as Product_Specs::labels() applies them on the server.
+ * Blank fields keep the wording underneath. Pure, so it's tested on its own.
  *
  * @package Aggressive_Apparel
  */
@@ -21,7 +21,7 @@ export function readWording(raw: unknown): Wording {
     : {};
 }
 
-/** A spec as this guide's products show it: its name and steps reworded. */
+/** A spec with this wording laid over it (Product_Specs::labels). */
 export function worded(item: SpecItem, wording: Wording): SpecItem {
   const own = wording[item.key];
   if (!own) {
@@ -31,6 +31,9 @@ export function worded(item: SpecItem, wording: Wording): SpecItem {
     ...item,
     name: own.title || item.name,
     steps: item.steps.map((step, i) => own[`step${i}`] || step),
+    start: own.start || item.start,
+    mid: own.mid || item.mid,
+    end: own.end || item.end,
   };
 }
 

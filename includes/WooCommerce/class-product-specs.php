@@ -102,6 +102,14 @@ final class Product_Specs {
 	private static array $memo = array();
 
 	/**
+	 * Where each product stands (context()), for this request; cleared with
+	 * $memo.
+	 *
+	 * @var array<int, array{scope: list<int>, guide: GuideValues, items: list<Item>}>
+	 */
+	private static array $contexts = array();
+
+	/**
 	 * Resolve every applicable spec item for a product.
 	 *
 	 * Resolved once per request (the block, the Additional information rows,
@@ -125,7 +133,8 @@ final class Product_Specs {
 	 * Forget every resolved product.
 	 */
 	public static function flush(): void {
-		self::$memo = array();
+		self::$memo     = array();
+		self::$contexts = array();
 	}
 
 	/**
@@ -189,39 +198,33 @@ final class Product_Specs {
 	/**
 	 * What the product page's Size & specs tab needs beyond the resolved
 	 * specs: the guide's name, the specs that guide hides (they apply here,
-	 * but the guide leaves them out), and each spec's name and steps as the
-	 * guide words them, before this product's own wording.
+	 * but the guide leaves them out), and each spec's labels as the guide
+	 * words them, before this product's own wording (which the tab lays over
+	 * as it's edited), with its advice per step.
 	 *
 	 * @param int $product_id Product ID.
-	 * @return array{guide: string, hidden_by_guide: list<array{key: string, title: string}>, base: array<string, array{title: string, steps: list<string>}>}
+	 * @return array{guide: string, hidden_by_guide: list<array{key: string, title: string}>, base: array<string, array{title: string, steps: list<string>, start: string, mid: string, end: string, advice: list<string>}>}
 	 */
 	public static function admin_view( int $product_id ): array {
 		$context = self::context( $product_id );
-		$wording = $context['guide']['wording'];
+		$guide   = $context['guide'];
 		$hidden  = array();
 		$base    = array();
 		foreach ( $context['items'] as $item ) {
-			$key   = $item['key'];
-			$title = self::override( $wording, $key, 'title' ) ?? $item['name'];
-			if ( in_array( $key, $context['guide']['hidden'], true ) ) {
+			$item['steps'] = Product_Specs_Taxonomy::step_names( $item );
+			$labels        = self::labels( $item, $guide['wording'] );
+			if ( in_array( $item['key'], $guide['hidden'], true ) ) {
 				$hidden[] = array(
-					'key'   => $key,
-					'title' => $title,
+					'key'   => $item['key'],
+					'title' => $labels['title'],
 				);
-				continue;
+			} else {
+				$base[ $item['key'] ] = $labels + array( 'advice' => $item['advice'] );
 			}
-			$steps = array();
-			foreach ( Product_Specs_Taxonomy::step_names( $item ) as $i => $name ) {
-				$steps[] = self::override( $wording, $key, 'step' . $i ) ?? $name;
-			}
-			$base[ $key ] = array(
-				'title' => $title,
-				'steps' => $steps,
-			);
 		}
 
 		return array(
-			'guide'           => $context['guide']['label'],
+			'guide'           => $guide['label'],
 			'hidden_by_guide' => $hidden,
 			'base'            => $base,
 		);
@@ -235,13 +238,18 @@ final class Product_Specs {
 	 * @return array{scope: list<int>, guide: GuideValues, items: list<Item>}
 	 */
 	private static function context( int $product_id ): array {
+		self::watch();
+		if ( isset( self::$contexts[ $product_id ] ) ) {
+			return self::$contexts[ $product_id ];
+		}
+
 		$categories = self::category_ids( $product_id );
 		$scope      = $categories;
 		foreach ( $categories as $term_id ) {
 			$scope = array_merge( $scope, array_map( 'intval', get_ancestors( $term_id, 'product_cat', 'taxonomy' ) ) );
 		}
 
-		return array(
+		self::$contexts[ $product_id ] = array(
 			'scope' => array_values( $scope ),
 			'guide' => self::guide_values( Size_Guide::resolved( $product_id )['id'] ),
 			'items' => array_values(
@@ -251,6 +259,8 @@ final class Product_Specs {
 				)
 			),
 		);
+
+		return self::$contexts[ $product_id ];
 	}
 
 	/**
@@ -369,18 +379,9 @@ final class Product_Specs {
 	private static function resolve_item( array $item, int $product_id, array $attrs, array $guide, array $hidden, array $wording, array $categories ): array {
 		$key           = $item['key'];
 		$item['steps'] = Product_Specs_Taxonomy::step_names( $item );
-		$steps         = array();
-		foreach ( $item['steps'] as $i => $name ) {
-			$steps[] = self::override( $wording, $key, 'step' . $i ) ?? $name;
-		}
-
-		$edges = Product_Specs_Registry::edge_labels( $steps, $item['start'], $item['mid'], $item['end'] );
-		$scale = array(
-			'title' => self::override( $wording, $key, 'title' ) ?? $item['name'],
-			'start' => self::override( $wording, $key, 'start' ) ?? $edges['start'],
-			'mid'   => self::override( $wording, $key, 'mid' ) ?? $edges['mid'],
-			'end'   => self::override( $wording, $key, 'end' ) ?? $edges['end'],
-		);
+		$labels        = self::labels( $item, $wording );
+		$steps         = $labels['steps'];
+		$scale         = array( 'title' => $labels['title'] ) + Product_Specs_Registry::edge_labels( $steps, $labels['start'], $labels['mid'], $labels['end'] );
 
 		$boundaries = self::boundaries( $item, $categories );
 
@@ -519,6 +520,34 @@ final class Product_Specs {
 			'text'   => '',
 			'source' => '',
 			'label'  => '',
+		);
+	}
+
+	/**
+	 * A spec's name, step names and end labels as some wording words them:
+	 * the wording's own, else the spec's. End labels left empty are filled
+	 * from the steps by Product_Specs_Registry::edge_labels(). The one place
+	 * wording applies, for the storefront and the admin alike.
+	 *
+	 * @param array $item    Item, with its steps named as their terms are now.
+	 * @param array $wording Item key => field => text.
+	 * @phpstan-param Item $item
+	 * @phpstan-param Wording $wording
+	 * @return array{title: string, steps: list<string>, start: string, mid: string, end: string}
+	 */
+	private static function labels( array $item, array $wording ): array {
+		$key   = $item['key'];
+		$steps = array();
+		foreach ( $item['steps'] as $i => $name ) {
+			$steps[] = self::override( $wording, $key, 'step' . $i ) ?? $name;
+		}
+
+		return array(
+			'title' => self::override( $wording, $key, 'title' ) ?? $item['name'],
+			'steps' => $steps,
+			'start' => self::override( $wording, $key, 'start' ) ?? $item['start'],
+			'mid'   => self::override( $wording, $key, 'mid' ) ?? $item['mid'],
+			'end'   => self::override( $wording, $key, 'end' ) ?? $item['end'],
 		);
 	}
 

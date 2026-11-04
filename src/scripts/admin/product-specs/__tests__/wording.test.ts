@@ -35,6 +35,12 @@ describe('worded', () => {
     expect(shown.steps).toEqual(['Snug', 'True to size', 'Relaxed']);
     expect(shown.key).toBe('fit');
   });
+
+  it('rewords the end labels, as the server does', () => {
+    expect(
+      worded(fit, { fit: { start: 'Close', end: 'Roomy' } })
+    ).toMatchObject({ start: 'Close', mid: '', end: 'Roomy' });
+  });
 });
 
 describe('setWording', () => {

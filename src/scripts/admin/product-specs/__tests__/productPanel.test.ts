@@ -17,9 +17,9 @@ const item = (fields: Partial<PanelItem> = {}): PanelItem => ({
   start: '',
   mid: '',
   end: '',
+  advice: [],
   own: '',
   default: 'Nylon',
-  inheritedText: 'Nylon',
   source: 'guide',
   sourceLabel: 'Heavy Tee',
   hidden: false,
@@ -43,8 +43,35 @@ describe('sourceText', () => {
     expect(sourceText(fabric, spec, 'Cotton', true)).toBe(
       'Hidden on this product.'
     );
-    expect(sourceText(item({ inheritedText: '' }), spec, '', false)).toBe(
+    expect(sourceText(item({ default: '' }), spec, '', false)).toBe(
       'Not set anywhere, so it’s left out.'
+    );
+  });
+});
+
+describe('panelSpec', () => {
+  it('carries the advice per step into the preview', () => {
+    expect(
+      panelSpec(
+        item({
+          type: 'pick',
+          steps: ['Slim', 'Regular'],
+          advice: ['Size up', ''],
+        })
+      ).advice
+    ).toEqual(['Size up', '']);
+  });
+
+  it('reads an inherited step as the step is worded now', () => {
+    const fit = item({
+      type: 'pick',
+      steps: ['Slim', 'Regular'],
+      default: '0',
+    });
+    const reworded = { ...panelSpec(fit), steps: ['Close', 'Regular'] };
+
+    expect(sourceText(fit, reworded, '', false)).toBe(
+      'Showing “Close” from the “Heavy Tee” size guide.'
     );
   });
 });

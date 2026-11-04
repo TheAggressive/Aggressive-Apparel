@@ -106,7 +106,7 @@ export default function ProductPanel({ data }: { data: PanelData }) {
               title={here.name}
               notes={notes}
               shown={!isHidden}
-              empty={value === '' && item.inheritedText === ''}
+              empty={value === '' && item.default === ''}
               switchLabel={sprintf(
                 /* translators: %s: spec name. */
                 __('Show %s on this product', 'aggressive-apparel'),
@@ -144,14 +144,14 @@ export default function ProductPanel({ data }: { data: PanelData }) {
             >
               {item.locked ? (
                 <span className='aa-ps-product__locked'>
-                  {describeValue(here, item.own) || item.inheritedText}
+                  {describeValue(here, item.own || item.default)}
                 </span>
               ) : (
                 <ValuePicker
                   item={here}
                   value={value}
                   label={here.name}
-                  inherited={item.inheritedText}
+                  inherited={describeValue(here, item.default)}
                   existingOnly={!data.canCreate}
                   onChange={next => setValues({ ...values, [item.key]: next })}
                 />

@@ -58,29 +58,6 @@
 }
 
 /* Shared value input (Values and Products grids) */
-.aa-ps-input-wrap {
-	display: block;
-}
-
-.aa-ps-input {
-	width: 100%;
-	min-width: 150px;
-	min-height: var(--aa-ps-control-height);
-	margin: 0;
-}
-
-.aa-ps-input.is-changed {
-	border-color: var(--aa-ps-accent);
-	box-shadow: 0 0 0 1px var(--aa-ps-accent);
-}
-
-.aa-ps-input__hint {
-	display: block;
-	margin-top: 4px;
-	color: var(--aa-ps-muted);
-	font-size: 12px;
-}
-
 .aa-ps-products .aa-ps-save {
 	margin-top: var(--aa-ps-gap);
 }

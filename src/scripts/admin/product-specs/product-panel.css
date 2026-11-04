@@ -1,0 +1,63 @@
+/**
+ * Product Specs admin — the Size & specs tab inside WooCommerce's product
+ * data panel (_ProductPanel).
+ *
+ * WooCommerce's panel floats labels into a left column, halves inputs and
+ * indents every paragraph. The tab lays itself out, so those rules are
+ * undone here, under the panel's own class: unlayered, because the rules
+ * they undo are.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-ps-product__body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 4px 12px 16px;
+}
+
+.aa-ps-product__title {
+	margin: 12px 0 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.woocommerce_options_panel .aa-ps-product p,
+.woocommerce_options_panel .aa-ps-product label,
+.woocommerce_options_panel .aa-ps-product legend {
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	line-height: 1.5;
+}
+
+.woocommerce_options_panel .aa-ps-product input[type="text"],
+.woocommerce_options_panel .aa-ps-product input[type="number"],
+.woocommerce_options_panel .aa-ps-product select {
+	float: none;
+	width: 100%;
+	margin: 0;
+}
+
+.woocommerce_options_panel .aa-ps-product .aa-ps-number__input {
+	width: 100%;
+}
+
+/* Spacing the resets above take back, as the settings screen has it. */
+.woocommerce_options_panel .aa-ps-product .aa-ps-edit-panel__head + .aa-ps-help {
+	margin: 4px 0 12px;
+}
+
+.woocommerce_options_panel .aa-ps-product .components-base-control__label {
+	margin-bottom: 8px;
+}
+
+/* A value its variations set: shown, not edited here. */
+.aa-ps-product__locked {
+	display: flex;
+	align-items: center;
+	min-height: var(--aa-ps-control-height);
+	color: var(--aa-ps-muted);
+}

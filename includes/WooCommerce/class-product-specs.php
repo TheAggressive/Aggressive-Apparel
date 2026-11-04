@@ -164,21 +164,10 @@ final class Product_Specs {
 	 * @return Resolved
 	 */
 	private static function resolve( int $product_id ): array {
-		$categories = self::category_ids( $product_id );
-		$scope_ids  = $categories;
-		foreach ( $categories as $term_id ) {
-			$scope_ids = array_merge( $scope_ids, array_map( 'intval', get_ancestors( $term_id, 'product_cat', 'taxonomy' ) ) );
-		}
-
-		$guide_id = Size_Guide::resolved( $product_id )['id'];
-		$guide    = self::guide_values( $guide_id );
-		$items    = array_values(
-			array_filter(
-				Product_Specs_Registry::items(),
-				static fn( array $item ): bool => Product_Specs_Registry::applies( $item, $scope_ids )
-					&& ! in_array( $item['key'], $guide['hidden'], true )
-			)
-		);
+		$context   = self::context( $product_id );
+		$guide     = $context['guide'];
+		$items     = array_values( array_filter( $context['items'], static fn( array $item ): bool => ! in_array( $item['key'], $guide['hidden'], true ) ) );
+		$scope_ids = $context['scope'];
 
 		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
 		$attrs   = $product instanceof \WC_Product ? Product_Specs_Attributes::values( $product, $items ) : array();
@@ -195,6 +184,73 @@ final class Product_Specs {
 		}
 
 		return array( 'items' => $resolved );
+	}
+
+	/**
+	 * What the product page's Size & specs tab needs beyond the resolved
+	 * specs: the guide's name, the specs that guide hides (they apply here,
+	 * but the guide leaves them out), and each spec's name and steps as the
+	 * guide words them, before this product's own wording.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return array{guide: string, hidden_by_guide: list<array{key: string, title: string}>, base: array<string, array{title: string, steps: list<string>}>}
+	 */
+	public static function admin_view( int $product_id ): array {
+		$context = self::context( $product_id );
+		$wording = $context['guide']['wording'];
+		$hidden  = array();
+		$base    = array();
+		foreach ( $context['items'] as $item ) {
+			$key   = $item['key'];
+			$title = self::override( $wording, $key, 'title' ) ?? $item['name'];
+			if ( in_array( $key, $context['guide']['hidden'], true ) ) {
+				$hidden[] = array(
+					'key'   => $key,
+					'title' => $title,
+				);
+				continue;
+			}
+			$steps = array();
+			foreach ( Product_Specs_Taxonomy::step_names( $item ) as $i => $name ) {
+				$steps[] = self::override( $wording, $key, 'step' . $i ) ?? $name;
+			}
+			$base[ $key ] = array(
+				'title' => $title,
+				'steps' => $steps,
+			);
+		}
+
+		return array(
+			'guide'           => $context['guide']['label'],
+			'hidden_by_guide' => $hidden,
+			'base'            => $base,
+		);
+	}
+
+	/**
+	 * Where a product stands: its categories and their ancestors (nearest
+	 * first), its size guide's values, and the specs that apply to it.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return array{scope: list<int>, guide: GuideValues, items: list<Item>}
+	 */
+	private static function context( int $product_id ): array {
+		$categories = self::category_ids( $product_id );
+		$scope      = $categories;
+		foreach ( $categories as $term_id ) {
+			$scope = array_merge( $scope, array_map( 'intval', get_ancestors( $term_id, 'product_cat', 'taxonomy' ) ) );
+		}
+
+		return array(
+			'scope' => array_values( $scope ),
+			'guide' => self::guide_values( Size_Guide::resolved( $product_id )['id'] ),
+			'items' => array_values(
+				array_filter(
+					Product_Specs_Registry::items(),
+					static fn( array $item ): bool => Product_Specs_Registry::applies( $item, $scope )
+				)
+			),
+		);
 	}
 
 	/**

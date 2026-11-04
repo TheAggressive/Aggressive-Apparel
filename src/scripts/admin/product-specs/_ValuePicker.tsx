@@ -15,7 +15,7 @@
  * @package Aggressive_Apparel
  */
 
-import { useRef } from '@wordpress/element';
+import { useRef, useState } from '@wordpress/element';
 import type { KeyboardEvent } from 'react';
 import { Button, FormTokenField } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -31,6 +31,8 @@ type Props = {
   label: string;
   /** What shows when the value is empty, if anything. */
   inherited?: string;
+  /** Only existing values, for people who can't add catalog values. */
+  existingOnly?: boolean;
   onChange: (value: string) => void;
 };
 
@@ -122,8 +124,16 @@ function ScalePicker({ item, value, label, inherited, onChange }: Props) {
  * attribute's values suggested as you type. Leaving it settles the case on
  * an existing value ("mens" saves as "Mens").
  */
-function TermPicker({ item, value, label, inherited, onChange }: Props) {
+function TermPicker({
+  item,
+  value,
+  label,
+  inherited,
+  existingOnly = false,
+  onChange,
+}: Props) {
   const terms = item.terms ?? [];
+  const [refused, setRefused] = useState(false);
   return (
     <div className='aa-ps-picker'>
       <SpecInput
@@ -140,14 +150,29 @@ function TermPicker({ item, value, label, inherited, onChange }: Props) {
               )
             : __('Type or pick a value', 'aggressive-apparel')
         }
-        onChange={onChange}
+        onChange={next => {
+          setRefused(false);
+          onChange(next);
+        }}
         onBlur={() => {
           const settled = settleTerm(terms, value);
-          if (settled !== value) {
+          const known = terms.some(term => term.name === settled);
+          if (existingOnly && settled !== '' && !known) {
+            setRefused(true);
+            onChange('');
+          } else if (settled !== value) {
             onChange(settled);
           }
         }}
       />
+      {refused && (
+        <span className='aa-ps-picker__hint'>
+          {__(
+            'Pick one of the values there are. Ask a store manager to add a new one.',
+            'aggressive-apparel'
+          )}
+        </span>
+      )}
       {value === '' && <Chips terms={terms} chosen={[]} onPick={onChange} />}
     </div>
   );
@@ -190,7 +215,14 @@ function Chips({
   );
 }
 
-function TokensPicker({ item, value, label, inherited, onChange }: Props) {
+function TokensPicker({
+  item,
+  value,
+  label,
+  inherited,
+  existingOnly = false,
+  onChange,
+}: Props) {
   const terms = item.terms ?? [];
   const counts = new Map(terms.map(term => [term.name, term.count]));
 
@@ -210,6 +242,10 @@ function TokensPicker({ item, value, label, inherited, onChange }: Props) {
                       terms,
                       typeof token === 'string' ? token : token.value
                     )
+                  )
+                  .filter(
+                    name =>
+                      !existingOnly || terms.some(term => term.name === name)
                   )
                   .join('|')
               )

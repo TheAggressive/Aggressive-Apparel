@@ -12,17 +12,17 @@
 
 import { useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
-import { Button, Notice, TextControl } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, GuideDetail, SpecItem } from './_types';
 import { describeValue, newItem, specKey } from './_utils';
 import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
 import OnOff from './_OnOff';
+import { EditPanel, SpecRow, WordingFields } from './_SpecRow';
 import ValuePicker from './_ValuePicker';
-import { setWording, worded, type Wording } from './_wording';
+import { worded, type Wording } from './_wording';
 import { SECTION, hasSpecs, moveSpecKey, specValue } from './_guideSummary';
 import { edited, type SpecEdits } from './_specEdits';
 
@@ -135,99 +135,70 @@ export default function GuideSpecs({
     const id = isNew ? item.uid : item.key;
     const isOpen = open === id;
     const on = !hidden.includes(item.key);
-    const empty = on && specValue(item, values).value === '';
     const here = worded(item, wording);
-    const reworded = !isNew && Boolean(wording[item.key]);
     const pending = Boolean(edits[item.key]);
     const forEvery = isNew || pending || everyGuide.includes(item.key);
+    const empty = specValue(item, values).value === '';
+    const notes: string[] = [];
+    if (isNew) {
+      notes.push(__('New: saved with the guide', 'aggressive-apparel'));
+    } else if (wording[item.key]) {
+      notes.push(__('Reworded for this guide', 'aggressive-apparel'));
+    }
+    if (on && empty) {
+      notes.push(__('No value yet', 'aggressive-apparel'));
+    }
+
+    let help: string = __(
+      'Reword it for this guide’s products only. Blank fields keep the spec’s own wording, shown greyed out.',
+      'aggressive-apparel'
+    );
+    if (isNew) {
+      help = __(
+        'A new spec is added for every guide, switched on here. It saves with this guide.',
+        'aggressive-apparel'
+      );
+    } else if (forEvery) {
+      help = __(
+        'Changes here apply to every guide and the Specs tab, and save with this guide.',
+        'aggressive-apparel'
+      );
+    }
+
     return (
-      <div key={id} className={cx(isOpen && 'is-editing')}>
-        <div
-          className={cx('aa-ps-spec-row', !on && 'is-off', empty && 'is-empty')}
-        >
-          <div className='aa-ps-spec-row__name'>
-            <span className='aa-ps-spec-row__title'>
-              {here.name || __('Untitled spec', 'aggressive-apparel')}
-            </span>
-            {isNew && (
-              <span className='aa-ps-spec-row__note'>
-                {__('New: saved with the guide', 'aggressive-apparel')}
-              </span>
-            )}
-            {reworded && (
-              <span className='aa-ps-spec-row__note'>
-                {__('Reworded for this guide', 'aggressive-apparel')}
-              </span>
-            )}
-            {empty && (
-              <span className='aa-ps-spec-row__note'>
-                {__('No value yet', 'aggressive-apparel')}
-              </span>
-            )}
-          </div>
-          <div className='aa-ps-spec-row__value'>
-            <ValuePicker
-              item={here}
-              value={values[item.key] ?? ''}
-              label={here.name}
-              inherited={describeValue(here, here.default)}
-              onChange={value => onValues({ ...values, [item.key]: value })}
-            />
-          </div>
-          <div className='aa-ps-spec-row__actions'>
-            <Button
-              icon='edit'
-              size='compact'
-              label={sprintf(
-                /* translators: %s: spec name. */
-                __('Edit %s', 'aggressive-apparel'),
-                item.name || __('spec', 'aggressive-apparel')
-              )}
-              showTooltip
-              isPressed={isOpen}
-              aria-expanded={isOpen}
-              onClick={() => setOpen(isOpen ? null : id)}
-            />
-            <OnOff
-              checked={on}
-              label={sprintf(
-                /* translators: %s: spec name. */
-                __('Show %s on this guide’s products', 'aggressive-apparel'),
-                item.name
-              )}
-              onText={__('Shown here', 'aggressive-apparel')}
-              offText={__('Hidden here', 'aggressive-apparel')}
-              onChange={show =>
-                onGuide({
-                  hidden: show
-                    ? hidden.filter(other => other !== item.key)
-                    : [...hidden, item.key],
-                })
-              }
-            />
-          </div>
-        </div>
-        {isOpen && (
-          <div
-            className='aa-ps-edit-panel'
-            role='region'
-            aria-label={sprintf(
-              /* translators: %s: spec name. */
-              __('Edit %s', 'aggressive-apparel'),
-              here.name || __('spec', 'aggressive-apparel')
-            )}
-          >
-            <div className='aa-ps-edit-panel__head'>
-              <h3 className='aa-ps-edit-panel__title'>
-                {isNew
-                  ? __('New spec', 'aggressive-apparel')
-                  : sprintf(
-                      /* translators: %s: spec name. */
-                      __('Edit %s', 'aggressive-apparel'),
-                      item.name
-                    )}
-              </h3>
-              {!isNew && (
+      <SpecRow
+        key={id}
+        title={here.name}
+        notes={notes}
+        shown={on}
+        empty={empty}
+        switchLabel={sprintf(
+          /* translators: %s: spec name. */
+          __('Show %s on this guide’s products', 'aggressive-apparel'),
+          here.name
+        )}
+        onShow={show =>
+          onGuide({
+            hidden: show
+              ? hidden.filter(other => other !== item.key)
+              : [...hidden, item.key],
+          })
+        }
+        editing={isOpen}
+        onEdit={() => setOpen(isOpen ? null : id)}
+        panel={
+          <EditPanel
+            title={
+              isNew
+                ? __('New spec', 'aggressive-apparel')
+                : sprintf(
+                    /* translators: %s: spec name. */
+                    __('Edit %s', 'aggressive-apparel'),
+                    item.name
+                  )
+            }
+            aside={
+              !isNew && (
                 <OnOff
                   checked={forEvery}
                   label={__('Change it for every guide', 'aggressive-apparel')}
@@ -242,27 +213,28 @@ export default function GuideSpecs({
                     }
                   }}
                 />
-              )}
-            </div>
-            <p className='aa-ps-help'>
-              {isNew &&
-                __(
-                  'A new spec is added for every guide, switched on here. It saves with this guide.',
-                  'aggressive-apparel'
-                )}
-              {!isNew &&
-                !forEvery &&
-                __(
-                  'Reword it for this guide’s products only. Blank fields keep the spec’s own wording, shown greyed out.',
-                  'aggressive-apparel'
-                )}
-              {!isNew &&
-                forEvery &&
-                __(
-                  'Changes here apply to every guide and the Specs tab, and save with this guide.',
-                  'aggressive-apparel'
-                )}
-            </p>
+              )
+            }
+            help={help}
+            onDone={() => setOpen(null)}
+            actions={
+              isNew && (
+                <Button
+                  variant='tertiary'
+                  isDestructive
+                  onClick={() => {
+                    const { [item.key]: _value, ...rest } = values;
+                    onAdded(added.filter(other => other.uid !== item.uid));
+                    onValues(rest);
+                    onGuide(moveSpecKey({ hidden, wording }, item.key, ''));
+                    setOpen(null);
+                  }}
+                >
+                  {__('Remove new spec', 'aggressive-apparel')}
+                </Button>
+              )
+            }
+          >
             {dropping === item.key && (
               <Notice
                 status='warning'
@@ -290,46 +262,11 @@ export default function GuideSpecs({
               </Notice>
             )}
             {!forEvery && (
-              <div className='aa-ps-guide-wording'>
-                <TextControl
-                  className='aa-ps-guide-wording__name'
-                  label={__('Name', 'aggressive-apparel')}
-                  value={wording[item.key]?.title ?? ''}
-                  placeholder={item.name}
-                  onChange={text =>
-                    onGuide({
-                      wording: setWording(wording, item.key, 'title', text),
-                    })
-                  }
-                  __next40pxDefaultSize
-                  __nextHasNoMarginBottom
-                />
-                {item.type !== 'text' &&
-                  item.steps.map((step, i) => (
-                    <TextControl
-                      key={i}
-                      label={sprintf(
-                        /* translators: %d: step number. */
-                        __('Step %d', 'aggressive-apparel'),
-                        i + 1
-                      )}
-                      value={wording[item.key]?.[`step${i}`] ?? ''}
-                      placeholder={step}
-                      onChange={text =>
-                        onGuide({
-                          wording: setWording(
-                            wording,
-                            item.key,
-                            `step${i}`,
-                            text
-                          ),
-                        })
-                      }
-                      __next40pxDefaultSize
-                      __nextHasNoMarginBottom
-                    />
-                  ))}
-              </div>
+              <WordingFields
+                item={item}
+                wording={wording}
+                onChange={next => onGuide({ wording: next })}
+              />
             )}
             {forEvery && (
               <ItemCard
@@ -356,29 +293,17 @@ export default function GuideSpecs({
                 valueField={<></>}
               />
             )}
-            <div className='aa-ps-edit-panel__foot'>
-              {isNew && (
-                <Button
-                  variant='tertiary'
-                  isDestructive
-                  onClick={() => {
-                    const { [item.key]: _value, ...rest } = values;
-                    onAdded(added.filter(other => other.uid !== item.uid));
-                    onValues(rest);
-                    onGuide(moveSpecKey({ hidden, wording }, item.key, ''));
-                    setOpen(null);
-                  }}
-                >
-                  {__('Remove new spec', 'aggressive-apparel')}
-                </Button>
-              )}
-              <Button variant='secondary' onClick={() => setOpen(null)}>
-                {__('Done', 'aggressive-apparel')}
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+          </EditPanel>
+        }
+      >
+        <ValuePicker
+          item={here}
+          value={values[item.key] ?? ''}
+          label={here.name}
+          inherited={describeValue(here, here.default)}
+          onChange={value => onValues({ ...values, [item.key]: value })}
+        />
+      </SpecRow>
     );
   };
 

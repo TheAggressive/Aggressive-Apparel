@@ -1,0 +1,278 @@
+/**
+ * Product Specs admin — picking a spec's value and seeing what shoppers get:
+ * the value pickers (_ValuePicker, _SpecInput), the scale preview (_Preview)
+ * and the shopper preview frame. Shared by the settings screen and the
+ * product page's Size & specs tab.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Value pickers: every control is the same height as a text field. */
+.aa-ps-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.aa-ps-picker__meta,
+.aa-ps-picker__hint {
+	min-height: 18px;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-picker__clear.components-button.is-link {
+	font-size: 12px;
+	text-decoration: none;
+}
+
+.aa-ps-segments {
+	display: grid;
+	overflow: hidden;
+	border: 1px solid #949494;
+	border-radius: 2px;
+}
+
+.aa-ps-segments__step {
+	min-width: 0;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+	padding: 4px 6px;
+	border: 0;
+	border-left: 1px solid var(--aa-ps-border);
+	background: #fff;
+	color: #1e1e1e;
+	font: inherit;
+	font-size: 12px;
+	line-height: 1.2;
+	cursor: pointer;
+	overflow-wrap: anywhere;
+}
+
+.aa-ps-segments__step:first-child {
+	border-left: 0;
+}
+
+.aa-ps-segments__step:hover {
+	background: #f0f6fc;
+}
+
+.aa-ps-segments__step.is-active {
+	background: var(--aa-ps-accent);
+	color: #fff;
+	font-weight: 600;
+}
+
+.aa-ps-segments__step:focus-visible {
+	position: relative;
+	z-index: 1;
+	outline: 2px solid var(--aa-ps-accent);
+	outline-offset: -2px;
+	box-shadow: inset 0 0 0 4px #fff;
+}
+
+.aa-ps-number {
+	position: relative;
+	display: block;
+	max-width: 220px;
+}
+
+.aa-ps-number__input {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+	padding-right: 56px;
+}
+
+.aa-ps-number__unit {
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	color: var(--aa-ps-muted);
+	font-size: 13px;
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.aa-ps-term-option {
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.aa-ps-term-option__count {
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+/* The spec's name sits beside the field, so its own label is for screen
+   readers only. */
+.aa-ps-picker--tokens .components-form-token-field__label {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.aa-ps-guide-preview {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.aa-ps-guide-preview__row {
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+	margin: 0;
+	font-size: 13px;
+}
+
+/* A plain value field (_SpecInput). */
+.aa-ps-input-wrap {
+	display: block;
+}
+
+.aa-ps-input {
+	width: 100%;
+	min-width: 150px;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+}
+
+.aa-ps-input.is-changed {
+	border-color: var(--aa-ps-accent);
+	box-shadow: 0 0 0 1px var(--aa-ps-accent);
+}
+
+.aa-ps-input__hint {
+	display: block;
+	margin-top: 4px;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+/* The frame every shopper preview sits in (ShopperPreview). */
+.aa-ps-guide__preview {
+	position: sticky;
+	top: 48px;
+	padding: 16px;
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+/* Preview */
+.aa-ps-preview {
+	margin: 20px 0;
+	padding: 16px;
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.aa-ps-preview__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.aa-ps-preview__try {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-preview__try input {
+	width: 96px;
+	min-height: 32px;
+	margin: 0;
+}
+
+.aa-ps-scale {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.aa-ps-scale__head {
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+}
+
+.aa-ps-scale__head span {
+	color: var(--aa-ps-accent);
+	font-weight: 600;
+}
+
+.aa-ps-scale__track {
+	position: relative;
+	display: grid;
+	gap: 3px;
+}
+
+.aa-ps-scale__track span {
+	height: 8px;
+	background: var(--aa-ps-border);
+}
+
+.aa-ps-scale__track span:first-child {
+	border-radius: 999px 0 0 999px;
+}
+
+.aa-ps-scale__track span:last-child {
+	border-radius: 0 999px 999px 0;
+}
+
+.aa-ps-scale__track span.is-active {
+	background: var(--aa-ps-accent);
+}
+
+.aa-ps-scale.is-centered .aa-ps-scale__track::after {
+	content: "";
+	position: absolute;
+	inset-block: -4px;
+	left: 50%;
+	width: 2px;
+	margin-left: -1px;
+	background: #8c8f94;
+}
+
+.aa-ps-scale__ends {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-scale__ends span:nth-child(2) {
+	text-align: center;
+}
+
+.aa-ps-scale__ends span:last-child {
+	text-align: right;
+}
+
+.aa-ps-scale__advice {
+	margin: 6px 0 0;
+	font-size: 13px;
+}
+
+.aa-ps-card__footer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	padding: 12px 0 16px;
+	border-top: 1px solid var(--aa-ps-divider);
+}

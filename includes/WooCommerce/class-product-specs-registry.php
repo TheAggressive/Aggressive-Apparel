@@ -20,7 +20,7 @@
  * itself, its size guide or the spec's default, so a guide uses a spec just by
  * giving it a value. A spec turned off (`enabled`) shows nowhere and keeps its
  * settings for later. Specs that once belonged to particular guides (a stored
- * `guides` list) are read as site-wide.
+ * `guides` list) are upgraded once, on first read (Product_Specs_Guide_Upgrade).
  *
  * Until the store saves its own list, the defaults below apply: Fit and Fabric
  * weight scales plus Fabric and Construction details.
@@ -146,6 +146,9 @@ final class Product_Specs_Registry {
 	public static function get(): array {
 		if ( null === self::$cache ) {
 			$stored = get_option( self::OPTION_KEY, null );
+			if ( is_array( $stored ) && Product_Specs_Guide_Upgrade::needed( $stored ) ) {
+				$stored = Product_Specs_Guide_Upgrade::run( $stored );
+			}
 			if ( is_array( $stored ) && isset( $stored['items'] ) ) {
 				$result      = self::validate( $stored );
 				self::$cache = array(
@@ -465,6 +468,10 @@ final class Product_Specs_Registry {
 			// Several values only make sense for text: a scale has one step.
 			if ( self::TYPE_TEXT !== $item['type'] ) {
 				$item['multiple'] = false;
+			}
+			// Step terms are a scale's steps in order; nothing else has them.
+			if ( self::TYPE_PICK !== $item['type'] ) {
+				$item['step_terms'] = array();
 			}
 
 			$problem = self::problem( $item );

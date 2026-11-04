@@ -185,8 +185,15 @@ final class Size_Guide_Rest {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create( \WP_REST_Request $request ) {
-		$body = self::body( $request );
-		$id   = wp_insert_post(
+		// New specs first: an invalid one stops the save before any guide is
+		// made, and a retry after a later failure reuses what was saved.
+		$body    = self::body( $request );
+		$invalid = self::save_spec_items( $body );
+		if ( null !== $invalid ) {
+			return $invalid;
+		}
+
+		$id = wp_insert_post(
 			array(
 				'post_type'   => Size_Guide_Post_Type::POST_TYPE,
 				'post_status' => 'publish',
@@ -196,13 +203,6 @@ final class Size_Guide_Rest {
 		);
 		if ( is_wp_error( $id ) ) {
 			return $id;
-		}
-
-		// Specs need the new ID; an invalid one leaves no half-made guide.
-		$invalid = self::save_spec_items( $body );
-		if ( null !== $invalid ) {
-			wp_delete_post( $id, true );
-			return $invalid;
 		}
 
 		self::save( $id, $body );
@@ -427,8 +427,9 @@ final class Size_Guide_Rest {
 	/**
 	 * Add the specs made while editing or importing the guide, when submitted.
 	 *
-	 * A spec whose key had to change (taken since the editor loaded) has
-	 * its value and import rules moved to the saved key, so neither is lost.
+	 * A spec saved under another key (taken since the editor loaded, or the
+	 * same spec saved by an earlier try) has everything submitted for it
+	 * moved to that key, so nothing is lost.
 	 *
 	 * @param array<string, mixed> $data Submitted fields; spec keys are rewritten when renamed.
 	 * @return \WP_Error|null Null when saved or not submitted.
@@ -457,7 +458,8 @@ final class Size_Guide_Rest {
 	}
 
 	/**
-	 * Point submitted values and import rules at renamed spec keys.
+	 * Point everything submitted by spec key (values, hidden specs, wording,
+	 * import rules) at the keys the specs were saved under.
 	 *
 	 * @param array<string, mixed>  $data    Submitted fields.
 	 * @param array<string, string> $renamed Submitted key => saved key.
@@ -466,12 +468,22 @@ final class Size_Guide_Rest {
 		if ( array() === $renamed ) {
 			return;
 		}
-		if ( isset( $data['specs'] ) && is_array( $data['specs'] ) ) {
-			$specs = array();
-			foreach ( $data['specs'] as $key => $value ) {
-				$specs[ $renamed[ (string) $key ] ?? $key ] = $value;
+		// Keyed by spec: its value, and this guide's wording for it.
+		foreach ( array( 'specs', 'wording' ) as $field ) {
+			if ( isset( $data[ $field ] ) && is_array( $data[ $field ] ) ) {
+				$keyed = array();
+				foreach ( $data[ $field ] as $key => $value ) {
+					$keyed[ $renamed[ (string) $key ] ?? $key ] = $value;
+				}
+				$data[ $field ] = $keyed;
 			}
-			$data['specs'] = $specs;
+		}
+		// A list of spec keys: the ones this guide hides.
+		if ( isset( $data['hidden'] ) && is_array( $data['hidden'] ) ) {
+			$data['hidden'] = array_map(
+				static fn( $key ) => is_scalar( $key ) ? ( $renamed[ (string) $key ] ?? $key ) : $key,
+				$data['hidden']
+			);
 		}
 		if ( isset( $data['importRules'] ) && is_array( $data['importRules'] ) ) {
 			foreach ( $data['importRules'] as $n => $rule ) {

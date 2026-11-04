@@ -93,7 +93,7 @@ final class Product_Specs_Values {
 	 * @param mixed $keys     Item keys.
 	 */
 	public static function save_hidden( int $guide_id, $keys ): void {
-		$keys = Product_Specs_Meta::sanitize_keys( $keys );
+		$keys = self::known_keys( Product_Specs_Meta::sanitize_keys( $keys ) );
 		if ( array() === $keys ) {
 			delete_post_meta( $guide_id, self::GUIDE_HIDDEN );
 		} else {
@@ -108,7 +108,7 @@ final class Product_Specs_Values {
 	 * @param mixed $raw      Item key => field => text.
 	 */
 	public static function save_wording( int $guide_id, $raw ): void {
-		$wording = Product_Specs::sanitize_wording( $raw );
+		$wording = self::known( Product_Specs::sanitize_wording( $raw ) );
 		if ( array() === $wording ) {
 			delete_post_meta( $guide_id, self::GUIDE_WORDING );
 		} else {
@@ -117,8 +117,8 @@ final class Product_Specs_Values {
 	}
 
 	/**
-	 * Whether a guide sets anything for its products' specs: a value, or a
-	 * store-wide spec hidden. A guide with neither and no chart is empty
+	 * Whether a guide sets anything for its products' specs: a value, a spec
+	 * hidden, or wording. A guide with none of them and no chart is empty
 	 * (still being built), so products keep their category or store guide.
 	 *
 	 * @param int $guide_id Size guide post ID.
@@ -126,7 +126,33 @@ final class Product_Specs_Values {
 	public static function guide_has_specs( int $guide_id ): bool {
 		$guide = self::guide( $guide_id );
 
-		return array() !== $guide['hidden'] || array() !== array_filter( $guide['values'], static fn( string $value ): bool => '' !== $value );
+		return array() !== $guide['hidden']
+			|| array() !== $guide['wording']
+			|| array() !== array_filter( $guide['values'], static fn( string $value ): bool => '' !== $value );
+	}
+
+	/**
+	 * Give a guide a value for a spec it has none for, as the value's terms.
+	 * Writes the meta directly, so it is safe while the registry is loading
+	 * (Product_Specs_Guide_Upgrade).
+	 *
+	 * @param int    $guide_id Size guide ID.
+	 * @param string $key      Item key.
+	 * @param array  $term_ids The value's terms.
+	 * @phpstan-param list<int> $term_ids
+	 * @return bool Whether the guide took the value.
+	 */
+	public static function fill_guide_value( int $guide_id, string $key, array $term_ids ): bool {
+		$terms    = self::guide_terms( $guide_id );
+		$term_ids = array_values( array_filter( array_map( 'absint', $term_ids ) ) );
+		if ( isset( $terms[ $key ] ) || array() === $term_ids ) {
+			return false;
+		}
+
+		$terms[ $key ] = $term_ids;
+		update_post_meta( $guide_id, self::GUIDE_TERMS, $terms );
+
+		return true;
 	}
 
 	/**
@@ -146,9 +172,32 @@ final class Product_Specs_Values {
 
 		return array(
 			'values'  => $values,
-			'hidden'  => Product_Specs_Meta::sanitize_keys( get_post_meta( $guide_id, self::GUIDE_HIDDEN, true ) ),
-			'wording' => Product_Specs::sanitize_wording( get_post_meta( $guide_id, self::GUIDE_WORDING, true ) ),
+			'hidden'  => self::known_keys( Product_Specs_Meta::sanitize_keys( get_post_meta( $guide_id, self::GUIDE_HIDDEN, true ) ) ),
+			'wording' => self::known( Product_Specs::sanitize_wording( get_post_meta( $guide_id, self::GUIDE_WORDING, true ) ) ),
 		);
+	}
+
+	/**
+	 * Only the entries for specs that exist, so one left behind by a deleted
+	 * or never-saved spec neither counts nor comes back with a later spec.
+	 *
+	 * @template T
+	 * @param array<string, T> $by_key Item key => entry.
+	 * @return array<string, T>
+	 */
+	private static function known( array $by_key ): array {
+		return array_intersect_key( $by_key, array_column( Product_Specs_Registry::get()['items'], null, 'key' ) );
+	}
+
+	/**
+	 * Only the keys of specs that exist (see known()).
+	 *
+	 * @param array $keys Item keys.
+	 * @phpstan-param list<string> $keys
+	 * @return list<string>
+	 */
+	private static function known_keys( array $keys ): array {
+		return array_values( array_intersect( $keys, array_column( Product_Specs_Registry::get()['items'], 'key' ) ) );
 	}
 
 	/**

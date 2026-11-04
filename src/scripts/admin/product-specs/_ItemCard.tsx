@@ -18,7 +18,7 @@ import {
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { Category, DraftItem, Scope } from './_types';
+import type { Category, DraftItem, Scope, SpecItem } from './_types';
 import { edgeLabels } from './_utils';
 import Preview from './_Preview';
 import ValuePicker from './_ValuePicker';
@@ -57,6 +57,10 @@ type Props = {
   deleteText?: { button: string; confirm: string };
   /** Attributes the spec can use (taxonomy => label), to pick or switch. */
   taxonomies?: Record<string, string>;
+  /** The spec as saved, to say what a type change does to its values. */
+  saved?: SpecItem;
+  /** The settings REST path, to load those values. */
+  restPath: string;
 };
 
 function typeLabel(type: DraftItem['type']): string {
@@ -181,10 +185,10 @@ export default function ItemCard({
   extraMeta,
   deleteText,
   taxonomies,
+  saved,
+  restPath,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  // The type it was saved as, to say what a change does to its values.
-  const [savedType] = useState(item.type);
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
@@ -330,7 +334,9 @@ export default function ItemCard({
             )}
           </div>
 
-          {!item.isNew && item.type !== savedType && <TypeChange item={item} />}
+          {saved && item.type !== saved.type && (
+            <TypeChange item={item} saved={saved} restPath={restPath} />
+          )}
 
           {isScale && (
             <Section

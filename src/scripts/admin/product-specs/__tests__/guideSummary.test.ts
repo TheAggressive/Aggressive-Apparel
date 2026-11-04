@@ -5,8 +5,10 @@ import {
   guideStatus,
   hasChart,
   hasSpecs,
+  moveSpecKey,
   specValue,
 } from '../_guideSummary';
+import { recordEdit } from '../_specEdits';
 
 const spec = (key: string, fields: Partial<DraftItem> = {}): DraftItem => ({
   ...blankItem('text', []),
@@ -47,14 +49,41 @@ describe('guideSpecs', () => {
   it('lists the specs that are on, as edited here, then the ones added', () => {
     const fabric = spec('fabric');
     const off = spec('fit', { enabled: false });
-    const edited = { ...fabric, name: 'Shell' };
+    const edits = recordEdit({}, fabric, { name: 'Shell' });
     const added = spec('lining', { isNew: true });
 
     expect(
-      guideSpecs([fabric, off], { fabric: edited }, [added]).map(
-        item => item.name
-      )
+      guideSpecs([fabric, off], edits, [added]).map(item => item.name)
     ).toEqual(['Shell', 'lining']);
+  });
+
+  it('keeps a saved spec’s identity from one render to the next', () => {
+    const fabric = spec('fabric');
+
+    expect(guideSpecs([fabric], {}, [])[0].uid).toBe(
+      guideSpecs([fabric], {}, [])[0].uid
+    );
+  });
+});
+
+describe('moveSpecKey', () => {
+  const kept = {
+    hidden: ['closer', 'fit'],
+    wording: { closer: { title: 'Fastener' }, fit: { title: 'Tee fit' } },
+  };
+
+  it('moves a spec’s switch and wording to its new key', () => {
+    expect(moveSpecKey(kept, 'closer', 'closure')).toEqual({
+      hidden: ['fit', 'closure'],
+      wording: { fit: { title: 'Tee fit' }, closure: { title: 'Fastener' } },
+    });
+  });
+
+  it('drops them for a spec that’s removed', () => {
+    expect(moveSpecKey(kept, 'closer', '')).toEqual({
+      hidden: ['fit'],
+      wording: { fit: { title: 'Tee fit' } },
+    });
   });
 });
 
@@ -90,11 +119,14 @@ describe('hasChart and hasSpecs', () => {
     ).toBe(true);
   });
 
-  it('counts a value or a hidden spec as specs', () => {
+  it('counts a value, a hidden spec, or wording as specs', () => {
     expect(hasSpecs(guide())).toBe(false);
     expect(hasSpecs(guide({ specs: { fabric: '' } }))).toBe(false);
     expect(hasSpecs(guide({ specs: { fabric: 'Nylon' } }))).toBe(true);
     expect(hasSpecs(guide({ hidden: ['fabric'] }))).toBe(true);
+    expect(hasSpecs(guide({ wording: { fit: { title: 'Tee fit' } } }))).toBe(
+      true
+    );
   });
 });
 

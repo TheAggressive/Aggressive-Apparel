@@ -46,7 +46,8 @@ export default function ProductsTab({
   onEdit,
   onSaved,
 }: Props) {
-  const enabled = items.filter(item => item.enabled);
+  // Specs that are on: the grid's columns.
+  const specs = items.filter(item => item.enabled);
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState(0);
@@ -56,7 +57,7 @@ export default function ProductsTab({
   const [loadError, setLoadError] = useState('');
   const [gapsOnly, setGapsOnly] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const [bulkKey, setBulkKey] = useState(enabled[0]?.key ?? '');
+  const [bulkKey, setBulkKey] = useState(specs[0]?.key ?? '');
   const [bulkValue, setBulkValue] = useState('');
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{
@@ -64,8 +65,6 @@ export default function ProductsTab({
     text: string;
   } | null>(null);
   const [reload, setReload] = useState(0);
-
-  const specs = enabled;
 
   // Debounce typing into the search box.
   useEffect(() => {
@@ -209,7 +208,7 @@ export default function ProductsTab({
     }
   };
 
-  if (enabled.length === 0) {
+  if (specs.length === 0) {
     return (
       <p className='aa-ps-empty'>
         {__(

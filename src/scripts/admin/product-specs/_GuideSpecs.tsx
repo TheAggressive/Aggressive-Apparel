@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
 import { Button, Notice, TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { Config, DraftItem, SpecItem } from './_types';
+import type { Config, DraftItem, GuideDetail, SpecItem } from './_types';
 import { newItem, specKey, splitValues } from './_utils';
 import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
@@ -23,7 +23,8 @@ import ItemCard from './_ItemCard';
 import OnOff from './_OnOff';
 import ValuePicker from './_ValuePicker';
 import { setWording, worded, type Wording } from './_wording';
-import { SECTION, guideSpecs, hasSpecs, specValue } from './_guideSummary';
+import { SECTION, hasSpecs, moveSpecKey, specValue } from './_guideSummary';
+import { edited, type SpecEdits } from './_specEdits';
 
 type Props = {
   config: Config;
@@ -31,8 +32,10 @@ type Props = {
   taxonomies: Record<string, string>;
   /** Saved registry items: the store's specs. */
   items: SpecItem[];
-  /** Specs edited here, by key; they save with the guide. */
-  edits: Record<string, DraftItem>;
+  /** The specs this guide lists, as edited here (guideSpecs). */
+  specs: DraftItem[];
+  /** Changes to saved specs for every guide; they save with the guide. */
+  edits: SpecEdits;
   /** Specs added here; they save with the guide. */
   added: DraftItem[];
   values: Record<string, string>;
@@ -40,12 +43,12 @@ type Props = {
   hidden: string[];
   /** Wording for this guide's products only. */
   wording: Wording;
-  onWording: (wording: Wording) => void;
+  /** Change the guide's Shown/Hidden switches or wording. */
+  onGuide: (patch: Partial<Pick<GuideDetail, 'hidden' | 'wording'>>) => void;
   /** Whether the guide shows a Size Guide button (a chart or old content). */
   hasChart: boolean;
   onValues: (values: Record<string, string>) => void;
-  onHidden: (hidden: string[]) => void;
-  onEdit: (item: DraftItem) => void;
+  onEdit: (key: string, patch: Partial<SpecItem>) => void;
   onDiscardEdit: (key: string) => void;
   onAdded: (added: DraftItem[]) => void;
   /** Open the Specs tab. */
@@ -72,15 +75,15 @@ export default function GuideSpecs({
   config,
   taxonomies,
   items,
+  specs,
   edits,
   added,
   values,
   hidden,
   wording,
-  onWording,
+  onGuide,
   hasChart,
   onValues,
-  onHidden,
   onEdit,
   onDiscardEdit,
   onAdded,
@@ -91,15 +94,17 @@ export default function GuideSpecs({
   const [open, setOpen] = useState<string | null>(null);
   // Edits are for this guide only unless every guide is chosen, per spec.
   const [everyGuide, setEveryGuide] = useState<string[]>([]);
+  // A spec whose changes for every guide are about to be dropped.
+  const [dropping, setDropping] = useState<string | null>(null);
 
-  const all = guideSpecs(items, edits, added);
-  const shown = all
+  const shown = specs
     .filter(item => item.enabled && !hidden.includes(item.key))
     .map(item => worded(item, wording));
   const full = items.length + added.length >= config.limits.items;
-  // Keys are unique across the whole store.
+  // Keys and attributes are unique across the whole store, as edited here.
+  const store = items.map(item => edited(item, edits));
   const taken = (except = '') => [
-    ...items,
+    ...store,
     ...added.filter(other => other.uid !== except),
   ];
 
@@ -123,6 +128,7 @@ export default function GuideSpecs({
     if (next.key !== undefined && next.key !== item.key) {
       const { [item.key]: moved = '', ...rest } = values;
       onValues(moved ? { ...rest, [next.key]: moved } : rest);
+      onGuide(moveSpecKey({ hidden, wording }, item.key, next.key));
     }
     onAdded(
       added.map(other =>
@@ -146,7 +152,8 @@ export default function GuideSpecs({
     const empty = on && specValue(item, values).value === '';
     const here = worded(item, wording);
     const reworded = !isNew && Boolean(wording[item.key]);
-    const forEvery = isNew || everyGuide.includes(item.key);
+    const pending = Boolean(edits[item.key]);
+    const forEvery = isNew || pending || everyGuide.includes(item.key);
     return (
       <div key={id} className={cx(isOpen && 'is-editing')}>
         <div
@@ -177,7 +184,7 @@ export default function GuideSpecs({
               item={here}
               value={values[item.key] ?? ''}
               label={here.name}
-              inherited={describe(item, item.default)}
+              inherited={describe(here, here.default)}
               onChange={value => onValues({ ...values, [item.key]: value })}
             />
           </div>
@@ -205,11 +212,11 @@ export default function GuideSpecs({
               onText={__('Shown here', 'aggressive-apparel')}
               offText={__('Hidden here', 'aggressive-apparel')}
               onChange={show =>
-                onHidden(
-                  show
+                onGuide({
+                  hidden: show
                     ? hidden.filter(other => other !== item.key)
-                    : [...hidden, item.key]
-                )
+                    : [...hidden, item.key],
+                })
               }
             />
           </div>
@@ -240,14 +247,13 @@ export default function GuideSpecs({
                   label={__('Change it for every guide', 'aggressive-apparel')}
                   text={__('Change for every guide', 'aggressive-apparel')}
                   onChange={every => {
-                    if (!every) {
-                      onDiscardEdit(item.key);
+                    if (every) {
+                      setEveryGuide([...everyGuide, item.key]);
+                    } else if (pending) {
+                      setDropping(item.key);
+                    } else {
+                      setEveryGuide(everyGuide.filter(key => key !== item.key));
                     }
-                    setEveryGuide(
-                      every
-                        ? [...everyGuide, item.key]
-                        : everyGuide.filter(key => key !== item.key)
-                    );
                   }}
                 />
               )}
@@ -271,6 +277,32 @@ export default function GuideSpecs({
                   'aggressive-apparel'
                 )}
             </p>
+            {dropping === item.key && (
+              <Notice
+                status='warning'
+                isDismissible={false}
+                actions={[
+                  {
+                    label: __('Drop the changes', 'aggressive-apparel'),
+                    onClick: () => {
+                      onDiscardEdit(item.key);
+                      setEveryGuide(everyGuide.filter(key => key !== item.key));
+                      setDropping(null);
+                    },
+                  },
+                  {
+                    label: __('Keep them', 'aggressive-apparel'),
+                    onClick: () => setDropping(null),
+                    variant: 'link',
+                  },
+                ]}
+              >
+                {__(
+                  'Your changes to this spec for every guide haven’t been saved. Drop them?',
+                  'aggressive-apparel'
+                )}
+              </Notice>
+            )}
             {!forEvery && (
               <div className='aa-ps-guide-wording'>
                 <TextControl
@@ -279,7 +311,9 @@ export default function GuideSpecs({
                   value={wording[item.key]?.title ?? ''}
                   placeholder={item.name}
                   onChange={text =>
-                    onWording(setWording(wording, item.key, 'title', text))
+                    onGuide({
+                      wording: setWording(wording, item.key, 'title', text),
+                    })
                   }
                   __next40pxDefaultSize
                   __nextHasNoMarginBottom
@@ -296,9 +330,14 @@ export default function GuideSpecs({
                       value={wording[item.key]?.[`step${i}`] ?? ''}
                       placeholder={step}
                       onChange={text =>
-                        onWording(
-                          setWording(wording, item.key, `step${i}`, text)
-                        )
+                        onGuide({
+                          wording: setWording(
+                            wording,
+                            item.key,
+                            `step${i}`,
+                            text
+                          ),
+                        })
                       }
                       __next40pxDefaultSize
                       __nextHasNoMarginBottom
@@ -319,10 +358,10 @@ export default function GuideSpecs({
                 movable={false}
                 deletable={false}
                 onToggle={() => setOpen(null)}
+                saved={items.find(other => other.key === item.key)}
+                restPath={config.restPath}
                 onChange={patch =>
-                  isNew
-                    ? updateAdded(item, patch)
-                    : onEdit({ ...item, ...patch })
+                  isNew ? updateAdded(item, patch) : onEdit(item.key, patch)
                 }
                 onMove={() => undefined}
                 onDelete={() => undefined}
@@ -336,7 +375,10 @@ export default function GuideSpecs({
                   variant='tertiary'
                   isDestructive
                   onClick={() => {
+                    const { [item.key]: _value, ...rest } = values;
                     onAdded(added.filter(other => other.uid !== item.uid));
+                    onValues(rest);
+                    onGuide(moveSpecKey({ hidden, wording }, item.key, ''));
                     setOpen(null);
                   }}
                 >
@@ -371,7 +413,7 @@ export default function GuideSpecs({
       </div>
       {!hasChart && (
         <Notice status='info' isDismissible={false}>
-          {hasSpecs({ specs: values, hidden })
+          {hasSpecs({ specs: values, hidden, wording })
             ? __(
                 'Specs only: this guide has no size chart, so its products show these specs without a Size Guide button. Add sizes to the chart to show one.',
                 'aggressive-apparel'
@@ -385,10 +427,10 @@ export default function GuideSpecs({
 
       <div className='aa-ps-guide__chart'>
         <div className='aa-ps-spec-rows'>
-          {all.map(row)}
+          {specs.map(row)}
           <div className='aa-ps-add'>
             <AddSpecButton
-              existing={all}
+              existing={specs}
               disabled={full}
               onAdd={add}
               variant='secondary'

@@ -9,6 +9,7 @@
 
 import type { Category, DraftItem, GuideDetail, SpecItem } from './_types';
 import { toDraft } from './_utils';
+import { edited, type SpecEdits } from './_specEdits';
 
 /** Section anchors, for the status strip's links. */
 export const SECTION = {
@@ -24,15 +25,34 @@ export const SECTION = {
  */
 export function guideSpecs(
   items: SpecItem[],
-  edits: Record<string, DraftItem>,
+  edits: SpecEdits,
   added: DraftItem[]
 ): DraftItem[] {
   return [
     ...items
       .filter(item => item.enabled)
-      .map(item => edits[item.key] ?? toDraft(item)),
+      .map(item => toDraft(edited(item, edits))),
     ...added,
   ];
+}
+
+/**
+ * What a guide keeps per spec besides its value (its Shown/Hidden switch and
+ * its wording), moved to another key, or dropped when `to` is empty: for a
+ * new spec whose key follows its name, or that's removed. The server does
+ * the same when a key is taken on save (Size_Guide_Rest::rekey).
+ */
+export function moveSpecKey(
+  guide: Pick<GuideDetail, 'hidden' | 'wording'>,
+  from: string,
+  to: string
+): Pick<GuideDetail, 'hidden' | 'wording'> {
+  const { [from]: moved, ...wording } = guide.wording;
+  const hidden = guide.hidden.filter(key => key !== from);
+  return {
+    hidden: guide.hidden.includes(from) && to !== '' ? [...hidden, to] : hidden,
+    wording: moved && to !== '' ? { ...wording, [to]: moved } : wording,
+  };
 }
 
 /**
@@ -67,13 +87,16 @@ export function hasChart(
   return guide.legacyHtml !== '' || chartSizes(guide) > 0;
 }
 
-/** Any value, or a hidden spec (Product_Specs_Values::guide_has_specs). */
+/**
+ * A value, a hidden spec, or wording (Product_Specs_Values::guide_has_specs).
+ */
 export function hasSpecs(
-  guide: Pick<GuideDetail, 'specs' | 'hidden'>
+  guide: Pick<GuideDetail, 'specs' | 'hidden' | 'wording'>
 ): boolean {
   return (
     Object.values(guide.specs).some(value => value !== '') ||
-    guide.hidden.length > 0
+    guide.hidden.length > 0 ||
+    Object.keys(guide.wording).length > 0
   );
 }
 

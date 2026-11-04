@@ -2,9 +2,8 @@
  * Product Specs settings — typical fabric weights by garment.
  *
  * The presets come from the server (Fabric_Weight_Bands); this fits them to
- * a spec and works out what to suggest. fitBands mirrors
- * Fabric_Weight_Bands::fit, which fills an imported guide's categories.
- * Pure, so it's tested on its own.
+ * a spec and works out what to suggest. Nothing applies until the store
+ * picks it. Pure, so it's tested on its own.
  *
  * @package Aggressive_Apparel
  */

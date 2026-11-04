@@ -6,13 +6,12 @@
  * but a midweight hoodie. These are typical boundaries for each garment
  * kind, so a store can give a category the right scale without looking the
  * numbers up: the settings screen suggests them for categories named like a
- * garment and offers each as a preset (_weightBands.ts), and an imported
- * guide's categories get theirs (fill()). They're starting points; every
- * row stays editable.
+ * garment and offers each as a preset (_weightBands.ts). Nothing is applied
+ * without the store choosing it, and every row stays editable.
  *
  * Bands are where the 2nd…5th steps of a five-step scale start, in g/m². A
  * spec in oz/yd², or with another number of steps, gets them converted and
- * spread to fit (fit(), mirrored by fitBands in _weightBands.ts).
+ * spread to fit on the settings screen (fitBands in _weightBands.ts).
  *
  * @package Aggressive_Apparel
  */
@@ -28,17 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Typical fabric weights by garment.
- *
- * @phpstan-import-type Item from Product_Specs_Registry
  */
 final class Fabric_Weight_Bands {
-
-	/**
-	 * Grams per square metre in an ounce per square yard.
-	 *
-	 * @var float
-	 */
-	public const GSM_PER_OZ = 33.906;
 
 	/**
 	 * Boundaries by garment kind (Garment_Kinds), g/m². Tees and light tops
@@ -70,26 +60,11 @@ final class Fabric_Weight_Bands {
 	/**
 	 * Garments a category name can't settle: a store's "Shirts" often holds
 	 * tees, and its "Sweater" sweatshirts. They're offered as presets but
-	 * never suggested from a name; an import knows the garment, so it fills
-	 * them.
+	 * never suggested from a name.
 	 *
 	 * @var list<string>
 	 */
 	private const NAMED_LOOSELY = array( 'shirt', 'sweater' );
-
-	/**
-	 * Units that mean grams per square metre, spaces and "²" aside.
-	 *
-	 * @var list<string>
-	 */
-	private const GSM_UNITS = array( 'g/m2', 'gsm', 'gm2', 'g/sqm' );
-
-	/**
-	 * Units that mean ounces per square yard.
-	 *
-	 * @var list<string>
-	 */
-	private const OZ_UNITS = array( 'oz/yd2', 'ozyd2', 'oz/sqyd', 'oz' );
 
 	/**
 	 * The presets for the settings screen: every garment with bands, and the
@@ -129,122 +104,5 @@ final class Fabric_Weight_Bands {
 			'garments'   => $garments,
 			'categories' => $categories,
 		);
-	}
-
-	/**
-	 * Whether a spec measures fabric weight: a number in g/m², or in oz/yd²
-	 * (bare "oz" only when the spec is named for weight).
-	 *
-	 * @param array $item Item.
-	 * @phpstan-param Item $item
-	 */
-	public static function is_weight( array $item ): bool {
-		if ( Product_Specs_Registry::TYPE_NUMBER !== $item['type'] ) {
-			return false;
-		}
-		$unit = self::unit( $item['unit'] );
-		if ( in_array( $unit, self::GSM_UNITS, true ) ) {
-			return true;
-		}
-
-		return in_array( $unit, self::OZ_UNITS, true ) && ( 'oz' !== $unit || 1 === preg_match( '/weight/i', $item['name'] ) );
-	}
-
-	/**
-	 * Bands fitted to a spec: in its unit, one boundary per step after the
-	 * first, spread evenly between the bands' ends when the count differs.
-	 *
-	 * @param list<int|float> $bands Boundaries in g/m².
-	 * @param array           $item  Item.
-	 * @phpstan-param Item $item
-	 * @return list<float>
-	 */
-	public static function fit( array $bands, array $item ): array {
-		$count = count( $item['steps'] ) - 1;
-		if ( $count < 1 || array() === $bands ) {
-			return array();
-		}
-
-		$first  = (float) $bands[0];
-		$last   = (float) $bands[ count( $bands ) - 1 ];
-		$spread = array();
-		for ( $i = 0; $i < $count; $i++ ) {
-			$spread[] = count( $bands ) === $count
-				? (float) $bands[ $i ]
-				: ( 1 === $count ? ( $first + $last ) / 2 : $first + ( $last - $first ) * $i / ( $count - 1 ) );
-		}
-
-		$oz = in_array( self::unit( $item['unit'] ), self::OZ_UNITS, true );
-
-		return array_map(
-			static fn( float $gsm ): float => $oz ? round( $gsm / self::GSM_PER_OZ, 1 ) : round( $gsm ),
-			$spread
-		);
-	}
-
-	/**
-	 * Give an imported guide's categories the bands for its garment, on every
-	 * fabric weight spec where they differ from the spec's own scale. A
-	 * category that has boundaries, or whose parent has, is left alone.
-	 *
-	 * @param mixed $garment    Garment key (Garment_Kinds).
-	 * @param mixed $categories Category IDs.
-	 */
-	public static function fill( $garment, $categories ): void {
-		$garment    = is_string( $garment ) ? sanitize_title( $garment ) : '';
-		$categories = is_array( $categories ) ? array_values( array_filter( array_map( 'absint', $categories ) ) ) : array();
-		if ( ! isset( self::BANDS[ $garment ] ) || array() === $categories ) {
-			return;
-		}
-
-		$registry = Product_Specs_Registry::get();
-		$items    = $registry['items'];
-		$changed  = false;
-		foreach ( $items as $i => $item ) {
-			$bands = self::is_weight( $item ) ? self::fit( self::BANDS[ $garment ], $item ) : array();
-			if ( array() === $bands || $bands === $item['thresholds'] ) {
-				continue;
-			}
-			$set = array_column( $item['category_steps'], 'category' );
-			foreach ( $categories as $category ) {
-				$lineage = array_merge( array( $category ), array_map( 'intval', get_ancestors( $category, 'product_cat', 'taxonomy' ) ) );
-				if ( array() === array_intersect( $lineage, $set ) ) {
-					$items[ $i ]['category_steps'][] = array(
-						'category'   => $category,
-						'thresholds' => $bands,
-					);
-
-					$set[]   = $category;
-					$changed = true;
-				}
-			}
-		}
-		if ( ! $changed ) {
-			return;
-		}
-
-		$result = Product_Specs_Registry::validate(
-			array(
-				'items'           => $items,
-				'hide_dimensions' => $registry['hide_dimensions'],
-			)
-		);
-		if ( array() === $result['errors'] ) {
-			Product_Specs_Registry::save(
-				array(
-					'items'           => $result['items'],
-					'hide_dimensions' => $result['hide_dimensions'],
-				)
-			);
-		}
-	}
-
-	/**
-	 * A unit for comparing: lowercase, no spaces, "²" as "2".
-	 *
-	 * @param string $unit Unit.
-	 */
-	private static function unit( string $unit ): string {
-		return str_replace( array( ' ', '²' ), array( '', '2' ), mb_strtolower( trim( $unit ) ) );
 	}
 }

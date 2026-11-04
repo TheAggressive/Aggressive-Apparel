@@ -9,7 +9,6 @@ import type { DraftItem, ItemType, SpecItem } from './_types';
 
 let counter = 0;
 
-/** Stable React key for an item that has no saved key yet. */
 /**
  * A failed request's message, else the fallback, plus any per-item problems
  * the server listed (data.errors).
@@ -22,6 +21,7 @@ export function errorText(failure: unknown, fallback: string): string {
   return [message || fallback, ...(data?.errors ?? [])].join(' ');
 }
 
+/** Stable React key for an item that has no saved key yet. */
 export function uid(): string {
   counter += 1;
   return `item-${Date.now()}-${counter}`;
@@ -37,13 +37,19 @@ export function slugify(name: string): string {
     .slice(0, 32);
 }
 
+/** A saved spec for editing. Its key is unique and fixed, so it's the uid. */
 export function toDraft(item: SpecItem): DraftItem {
-  return { ...item, uid: uid(), isNew: false };
+  return { ...item, uid: `spec:${item.key}`, isNew: false };
 }
 
-/** Strip editor-only fields before saving. */
-export function toStored(item: DraftItem): SpecItem {
-  const { uid: _uid, isNew: _isNew, ...stored } = item;
+/** Strip editor-only fields (and the values sent to pick from) before saving. */
+export function toStored(item: DraftItem | SpecItem): SpecItem {
+  const {
+    uid: _uid,
+    isNew: _isNew,
+    terms: _terms,
+    ...stored
+  } = item as DraftItem;
   return { ...stored, key: stored.key || slugify(stored.name) };
 }
 

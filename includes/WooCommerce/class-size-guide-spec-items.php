@@ -5,7 +5,12 @@
  * Specs made while editing a size guide or importing one. Every spec is
  * site-wide (a guide uses one by giving it a value), so these are simply new
  * specs added to the registry. Adding never changes or removes a spec already
- * there, whatever the request sends: a key that's taken gets a fresh one.
+ * there, whatever the request sends.
+ *
+ * A spec with the same name and type as one already there is that spec, so
+ * a save retried after a failure (the spec saved, the guide didn't) reuses
+ * it rather than adding a duplicate. Any other spec whose key is taken gets
+ * a fresh one. Either way the caller learns the key it was saved under.
  *
  * @package Aggressive_Apparel
  */
@@ -41,12 +46,23 @@ final class Size_Guide_Spec_Items {
 		}
 
 		$taken = array_fill_keys( array_column( $items, 'key' ), true );
+		$new   = 0;
 		foreach ( $submitted as $entry ) {
+			$existing = self::existing( $items, $entry );
+			if ( null !== $existing ) {
+				self::renamed( $renamed, $entry, $existing );
+				continue;
+			}
+
 			$key = self::free_key( self::key( $entry ), $taken );
 			self::renamed( $renamed, $entry, $key );
 			$entry['key']  = $key;
 			$taken[ $key ] = true;
 			$items[]       = $entry;
+			++$new;
+		}
+		if ( 0 === $new ) {
+			return array();
 		}
 
 		$result = Product_Specs_Registry::validate(
@@ -65,6 +81,39 @@ final class Size_Guide_Spec_Items {
 				'hide_dimensions' => $result['hide_dimensions'],
 			)
 		);
+	}
+
+	/**
+	 * The key of a spec that's on with the entry's name and type, if any.
+	 *
+	 * @param array        $items Items, saved ones first.
+	 * @param array<mixed> $entry Submitted item.
+	 * @phpstan-param list<mixed> $items
+	 */
+	private static function existing( array $items, array $entry ): ?string {
+		$name = self::normalize( is_scalar( $entry['name'] ?? null ) ? (string) $entry['name'] : '' );
+		$type = is_scalar( $entry['type'] ?? null ) ? (string) $entry['type'] : '';
+		if ( '' === $name ) {
+			return null;
+		}
+		foreach ( $items as $item ) {
+			// A spec that's off is set aside, not the one being added.
+			$on = is_array( $item ) && ( ! isset( $item['enabled'] ) || (bool) $item['enabled'] );
+			if ( $on && ( $item['type'] ?? '' ) === $type && self::normalize( (string) ( $item['name'] ?? '' ) ) === $name ) {
+				return (string) $item['key'];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * A name for matching: trimmed, spaces collapsed, lowercase.
+	 *
+	 * @param string $name Name.
+	 */
+	private static function normalize( string $name ): string {
+		return mb_strtolower( trim( (string) preg_replace( '/\s+/u', ' ', $name ) ) );
 	}
 
 	/**

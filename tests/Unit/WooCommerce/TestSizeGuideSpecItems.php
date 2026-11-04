@@ -12,9 +12,11 @@ namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Specs;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
+use Aggressive_Apparel\WooCommerce\Product_Specs_Values;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Rest;
 use Aggressive_Apparel\WooCommerce\Size_Guide_Spec_Items;
 use Aggressive_Apparel\Tests\Support\Restores_Taxonomies;
+use Aggressive_Apparel\Tests\Support\Saves_Spec_Registry;
 use WP_UnitTestCase;
 
 /**
@@ -23,6 +25,7 @@ use WP_UnitTestCase;
 class TestSizeGuideSpecItems extends WP_UnitTestCase {
 
 	use Restores_Taxonomies;
+	use Saves_Spec_Registry;
 
 	/**
 	 * Enable the feature and start from the default registry.
@@ -54,7 +57,7 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		$hat_guide = $this->guide( 'Dad Hat' );
 		$tee_guide = $this->guide( 'Jersey Tee' );
 		$this->assertSame( array(), Size_Guide_Spec_Items::add( array( $this->text_item( 'Closure' ) ) ) );
-		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $hat_guide, array( 'closure' => 'Brass buckle' ) );
+		Product_Specs_Values::save_guide( $hat_guide, array( 'closure' => 'Brass buckle' ) );
 
 		$hat = $this->product( $hat_guide );
 		$tee = $this->product( $tee_guide );
@@ -64,44 +67,98 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'fit', $items, 'The store’s other specs still apply.' );
 		$tee_items = array_column( Product_Specs::for_product( $tee )['items'], 'display', 'key' );
 		$this->assertSame( '', $tee_items['closure'], 'Another guide uses it only by giving it a value.' );
-		$this->assertArrayNotHasKey( 'guides', Product_Specs_Registry::get()['items'][0] );
 	}
 
-	/** Adding never changes a spec already there: a taken key gets a fresh one. */
+	/** Adding never changes a spec already there: a different spec on a taken key gets a fresh one. */
 	public function test_add_never_touches_existing_specs(): void {
-		Size_Guide_Spec_Items::add( array( $this->text_item( 'Neck tape' ) ) );
-
 		$fit        = $this->text_item( 'Fit' );
 		$fit['key'] = 'fit';
 		$renamed    = array();
-		$errors     = Size_Guide_Spec_Items::add( array( $fit, $this->text_item( 'Neck tape' ) ), $renamed );
+		$errors     = Size_Guide_Spec_Items::add( array( $fit ), $renamed );
 		$items      = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
 
 		$this->assertSame( array(), $errors );
-		$this->assertSame( 'pick', $items['fit']['type'], 'The store’s Fit is untouched.' );
+		$this->assertSame( 'pick', $items['fit']['type'], 'The store’s Fit scale is untouched.' );
 		$this->assertSame( 'text', $items['fit_2']['type'] );
-		$this->assertArrayHasKey( 'neck_tape_2', $items );
 		$this->assertSame( array( 'fit' => 'fit_2' ), $renamed );
 	}
 
-	/** Specs that once belonged to particular guides read as site-wide. */
-	public function test_guide_only_specs_from_before_are_site_wide(): void {
+	/** The same spec sent again (a save retried after a failure) is reused, never duplicated. */
+	public function test_retried_save_reuses_the_spec(): void {
+		$guide = $this->guide( 'Jersey Tee' );
+		$body  = array(
+			'title'     => 'Jersey Tee',
+			'specItems' => array( array( 'key' => 'neck_tape' ) + $this->text_item( 'Neck tape' ) ),
+			'specs'     => array( 'neck_tape' => 'Twill' ),
+		);
+		$rest  = new Size_Guide_Rest();
+		$rest->update( $this->request( $guide, $body ) );
+		$saved = $rest->update( $this->request( $guide, $body ) )->get_data();
+
+		$keys = array_column( Product_Specs_Registry::get()['items'], 'key' );
+		$this->assertContains( 'neck_tape', $keys );
+		$this->assertNotContains( 'neck_tape_2', $keys );
+		$this->assertSame( 'Twill', $saved['specs']['neck_tape'] );
+	}
+
+	/** A spec saved under another key keeps this guide's switch and wording for it. */
+	public function test_renamed_key_keeps_hidden_and_wording(): void {
+		$created = ( new Size_Guide_Rest() )->create(
+			$this->request(
+				0,
+				array(
+					'title'     => 'Bucket Hat',
+					'specItems' => array(
+						array(
+							'key'  => 'fabric',
+							'name' => 'Shell fabric',
+							'type' => 'text',
+						),
+					),
+					'hidden'    => array( 'fabric' ),
+					'wording'   => array( 'fabric' => array( 'title' => 'Shell' ) ),
+				)
+			)
+		)->get_data();
+
+		$this->assertSame( array( 'fabric_2' ), $created['hidden'] );
+		$this->assertSame( array( 'fabric_2' => array( 'title' => 'Shell' ) ), $created['wording'] );
+	}
+
+	/** A guide-only spec's default moves to its guides, once, so other products never show it. */
+	public function test_guide_only_specs_upgrade_once(): void {
 		$hat_guide = $this->guide( 'Dad Hat' );
 		$tee_guide = $this->guide( 'Jersey Tee' );
-		Size_Guide_Spec_Items::add( array( $this->text_item( 'Closure' ) ) );
+		Size_Guide_Spec_Items::add( array( array( 'default' => 'Snapback' ) + $this->text_item( 'Closure' ) ) );
 		$stored = get_option( Product_Specs_Registry::OPTION_KEY );
-		foreach ( $stored['items'] as &$item ) {
-			if ( 'closure' === $item['key'] ) {
-				$item['guides'] = array( $hat_guide );
-			}
+		foreach ( $stored['items'] as $i => $item ) {
+			$stored['items'][ $i ]['guides'] = 'closure' === $item['key'] ? array( $hat_guide ) : array();
 		}
-		unset( $item );
 		update_option( Product_Specs_Registry::OPTION_KEY, $stored );
 		Product_Specs_Registry::flush();
-		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $tee_guide, array( 'closure' => 'Snap' ) );
 
-		$items = array_column( Product_Specs::for_product( $this->product( $tee_guide ) )['items'], 'display', 'key' );
-		$this->assertSame( 'Snap', $items['closure'] );
+		$items = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
+		$this->assertSame( '', $items['closure']['default'], 'The spec keeps no default of its own.' );
+		$this->assertSame( 'Snapback', Product_Specs_Values::guide( $hat_guide )['values']['closure'] );
+		$this->assertSame( 'Snapback', $this->resolved( $this->product( $hat_guide ) )['closure']['display'] );
+		$this->assertSame( '', $this->resolved( $this->product( $tee_guide ) )['closure']['display'] );
+
+		$upgraded = get_option( Product_Specs_Registry::OPTION_KEY );
+		$this->assertArrayNotHasKey( 'guides', $upgraded['items'][0], 'Done once: the lists are gone.' );
+		$this->assertSame( $stored['revision'] + 1, $upgraded['revision'], 'Open editors see a newer list.' );
+	}
+
+	/** Wording alone makes a guide count; entries for specs that don't exist never do. */
+	public function test_what_makes_a_guide_count(): void {
+		$guide = $this->guide( 'Dad Hat' );
+		$this->assertFalse( Product_Specs_Values::guide_has_specs( $guide ) );
+
+		update_post_meta( $guide, Product_Specs_Values::GUIDE_HIDDEN, array( 'gone' ) );
+		update_post_meta( $guide, Product_Specs_Values::GUIDE_WORDING, array( 'gone' => array( 'title' => 'Old' ) ) );
+		$this->assertFalse( Product_Specs_Values::guide_has_specs( $guide ), 'Left behind by a spec that no longer exists.' );
+
+		Product_Specs_Values::save_wording( $guide, array( 'fit' => array( 'title' => 'Tee fit' ) ) );
+		$this->assertTrue( Product_Specs_Values::guide_has_specs( $guide ) );
 	}
 
 	/** An invalid spec saves nothing, and the REST update reports why. */
@@ -163,7 +220,7 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 	public function test_duplicate_copies_values(): void {
 		$guide = $this->guide( 'Dad Hat' );
 		Size_Guide_Spec_Items::add( array( $this->text_item( 'Closure' ) ) );
-		\Aggressive_Apparel\WooCommerce\Product_Specs_Values::save_guide( $guide, array( 'closure' => 'Brass buckle' ) );
+		Product_Specs_Values::save_guide( $guide, array( 'closure' => 'Brass buckle' ) );
 		$before = Product_Specs_Registry::get()['items'];
 
 		$copy = ( new Size_Guide_Rest() )->duplicate( $this->request( $guide ) )->get_data();
@@ -217,7 +274,7 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 		$this->assertSame( array( 'fit' => array( 'title' => 'Tee fit' ) ), $copy['wording'] );
 
 		$rest->update( $this->request( $guide, array( 'wording' => array( 'fit' => array( 'title' => '' ) ) ) ) );
-		$this->assertSame( '', get_post_meta( $guide, \Aggressive_Apparel\WooCommerce\Product_Specs_Values::GUIDE_WORDING, true ) );
+		$this->assertSame( '', get_post_meta( $guide, Product_Specs_Values::GUIDE_WORDING, true ) );
 	}
 
 	/**
@@ -232,37 +289,6 @@ class TestSizeGuideSpecItems extends WP_UnitTestCase {
 			'type'     => 'text',
 			'in_table' => true,
 		);
-	}
-
-	/**
-	 * A published size guide with content, so products resolve to it.
-	 *
-	 * @param string $title Title.
-	 */
-	private function guide( string $title ): int {
-		return self::factory()->post->create(
-			array(
-				'post_type'    => 'aa_size_guide',
-				'post_status'  => 'publish',
-				'post_title'   => $title,
-				'post_content' => '<p>Guide</p>',
-			)
-		);
-	}
-
-	/**
-	 * A product assigned to a guide.
-	 *
-	 * @param int $guide Size guide ID.
-	 */
-	private function product( int $guide ): int {
-		$product = new \WC_Product_Simple();
-		$product->set_name( 'Spec item product' );
-		$product->set_status( 'publish' );
-		$id = $product->save();
-		update_post_meta( $id, '_aggressive_apparel_size_guide_id', $guide );
-
-		return $id;
 	}
 
 	/**

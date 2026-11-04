@@ -64,6 +64,24 @@ describe('retype', () => {
     });
   });
 
+  it('forgets the old steps’ terms on any change of type', () => {
+    const scale = spec({
+      type: 'pick',
+      steps: ['A', 'B', 'C'],
+      step_terms: [4, 5, 6],
+      default_term: 5,
+    });
+
+    expect(retype(scale, 'text', limits)).toMatchObject({
+      step_terms: [],
+      default_term: 0,
+    });
+    expect(retype(scale, 'number', limits)).toMatchObject({
+      step_terms: [],
+      default_term: 0,
+    });
+  });
+
   it('drops scale settings when becoming text', () => {
     expect(
       retype(spec({ type: 'pick', steps: ['A', 'B'] }), 'text', limits)

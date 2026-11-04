@@ -276,9 +276,10 @@ final class Product_Specs_Settings {
 	public function save_registry( \WP_REST_Request $request ) {
 		$body   = $request->get_json_params();
 		$body   = is_array( $body ) ? $body : array();
+		$before = Product_Specs_Registry::get()['items'];
 		$result = Product_Specs_Registry::validate(
 			array(
-				'items'           => self::merged( $body ),
+				'items'           => Product_Specs_Retype::apply( self::merged( $body ), $before ),
 				'hide_dimensions' => ! empty( $body['hide_dimensions'] ),
 			)
 		);
@@ -302,14 +303,16 @@ final class Product_Specs_Settings {
 			);
 		}
 
+		Product_Specs_Wording_Sync::sync( $before, Product_Specs_Registry::get()['items'] );
+
 		return rest_ensure_response( self::registry() );
 	}
 
 	/**
 	 * The registry for the editor: pick steps named as their terms are now,
-	 * each spec's existing values (its terms), to pick from and to show what a
-	 * type change does to them, and the global attributes as they are after
-	 * this save (a save can create one).
+	 * a text spec's existing values (its terms) to pick from, and the global
+	 * attributes as they are after this save (a save can create one). Other
+	 * specs' values load only when a type change needs them (get_attribute).
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -322,9 +325,10 @@ final class Product_Specs_Settings {
 			if ( '' !== $item['taxonomy'] ) {
 				$item['archives'] = Product_Specs_Taxonomy::has_archives( $item['taxonomy'] );
 			}
-			$items[] = $item + array(
-				'terms' => Product_Specs_Taxonomy::usage( $item['taxonomy'] ),
-			);
+			if ( Product_Specs_Registry::TYPE_TEXT === $item['type'] ) {
+				$item['terms'] = Product_Specs_Taxonomy::usage( $item['taxonomy'] );
+			}
+			$items[] = $item;
 		}
 
 		return array(

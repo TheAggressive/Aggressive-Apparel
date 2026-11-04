@@ -1,13 +1,18 @@
 /**
  * Product Specs settings — what a type change does to a spec's values.
  *
- * Shown once a saved spec's type changes: each value already on products and
- * guides, and how the new type reads it (_retype). Nothing is rewritten, so a
- * value the new type can't read reads again if the type changes back.
+ * Shown while a saved spec's type differs from the type it was saved as:
+ * each value already on products and guides, and how the new type reads it
+ * (_retype). Nothing is rewritten, so a value the new type can't read reads
+ * again if the type changes back. A text spec's values come with the
+ * registry; any other spec's load here, from its attribute, when needed.
  *
  * @package Aggressive_Apparel
  */
 
+import { useEffect, useState } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { Spinner } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { SpecItem } from './_types';
 import { readings } from './_retype';
@@ -15,8 +20,62 @@ import { readings } from './_retype';
 /** Values listed before the rest are summed up. */
 const SHOWN = 8;
 
-export default function TypeChange({ item }: { item: SpecItem }) {
-  const names = (item.terms ?? []).map(term => term.name);
+type Props = {
+  /** The spec as edited, with its new type. */
+  item: SpecItem;
+  /** The spec as saved. */
+  saved: SpecItem;
+  /** The settings REST path (Product_Specs_Settings::get_attribute). */
+  restPath: string;
+};
+
+type Terms = { name: string; count: number }[];
+
+/** The saved spec's existing values: sent with it, else read from its attribute. */
+function useValues(saved: SpecItem, restPath: string): Terms | null | Error {
+  const [values, setValues] = useState<Terms | null | Error>(
+    saved.terms ?? (saved.taxonomy === '' ? [] : null)
+  );
+  useEffect(() => {
+    if (values !== null) {
+      return;
+    }
+    let current = true;
+    apiFetch<{ terms: Terms }>({
+      path: `${restPath}/attribute?taxonomy=${encodeURIComponent(saved.taxonomy)}`,
+    })
+      .then(result => current && setValues(result.terms))
+      .catch(() => current && setValues(new Error()));
+    return () => {
+      current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per spec.
+  }, [saved.taxonomy]);
+  return values;
+}
+
+export default function TypeChange({ item, saved, restPath }: Props) {
+  const values = useValues(saved, restPath);
+  if (values === null) {
+    return (
+      <p className='aa-ps-help'>
+        <Spinner />
+        {__('Checking the values already in use…', 'aggressive-apparel')}
+      </p>
+    );
+  }
+  if (values instanceof Error) {
+    return (
+      <p className='aa-ps-help aa-ps-help--notice'>
+        {__(
+          'The values already in use couldn’t be checked. They stay as they are; any the new type can’t read won’t show until it changes back.',
+          'aggressive-apparel'
+        )}
+      </p>
+    );
+  }
+
+  const names = values.map(term => term.name);
   if (names.length === 0) {
     return (
       <p className='aa-ps-help'>

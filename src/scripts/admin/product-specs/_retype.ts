@@ -31,20 +31,12 @@ export function retype(
   if (type === item.type) {
     return {};
   }
-  if (type === 'text') {
-    const next = { ...item, type, steps: [], thresholds: [] };
-    return {
-      type,
-      steps: [],
-      thresholds: [],
-      advice: [],
-      category_steps: [],
-      default: convertValue(item, next, item.default),
-    };
-  }
 
-  let steps = item.steps;
-  if (item.type === 'text') {
+  let steps: string[] = [];
+  if (type !== 'text') {
+    steps = item.steps;
+  }
+  if (type !== 'text' && item.type === 'text') {
     // Its values become the steps, topped up to the fewest a scale has.
     steps = (item.terms ?? []).map(term => term.name).slice(0, limits.maxSteps);
     for (let n = steps.length + 1; steps.length < limits.minSteps; n++) {
@@ -55,13 +47,21 @@ export function retype(
     }
   }
 
-  const patch = {
+  const patch: Partial<SpecItem> = {
     type,
     steps,
     thresholds: type === 'number' ? bands(steps) : [],
     multiple: false,
     category_steps: [],
+    // The old steps' terms say nothing about the new ones; the server resets
+    // them too (Product_Specs_Retype).
+    step_terms: [],
+    default_term: 0,
   };
+  if (type === 'text') {
+    patch.advice = [];
+    delete patch.multiple;
+  }
   return {
     ...patch,
     default: convertValue(item, { ...item, ...patch }, item.default),

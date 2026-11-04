@@ -10,7 +10,7 @@
  * @package Aggressive_Apparel
  */
 
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { Button, Notice, Spinner, TextControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -31,6 +31,15 @@ import WhereItApplies from './_WhereItApplies';
 import { ShopperPreview } from './_Preview';
 import { SECTION, guideSpecs, guideStatus, hasChart } from './_guideSummary';
 import saveRegistry from './_saveRegistry';
+import {
+  conflicts,
+  discardEdit,
+  edited,
+  rebase,
+  recordEdit,
+  type Conflict,
+  type SpecEdits,
+} from './_specEdits';
 import { errorText, toStored } from './_utils';
 import { readWording } from './_wording';
 import ApplyToProducts from './_ApplyToProducts';
@@ -54,6 +63,31 @@ type Props = {
   registry: { revision: number; hideDimensions: boolean };
   onDirty: (dirty: boolean) => void;
 };
+
+/** Why a save stopped: specs changed on the Specs tab since they were changed here. */
+function conflictText(clashes: Conflict[]): string {
+  return clashes
+    .map(clash =>
+      clash.removed
+        ? sprintf(
+            /* translators: %s: spec name. */
+            __(
+              '“%s” was deleted on the Specs tab, so your changes to it here were dropped.',
+              'aggressive-apparel'
+            ),
+            clash.name
+          )
+        : sprintf(
+            /* translators: %s: spec name. */
+            __(
+              '“%s” was changed on the Specs tab while you edited it here. Its latest version is shown, with your other changes kept. Check it, then save again.',
+              'aggressive-apparel'
+            ),
+            clash.name
+          )
+    )
+    .join(' ');
+}
 
 function blank(): GuideDetail {
   return {
@@ -103,9 +137,14 @@ export default function GuideEditor({
   // untouched discards nothing worth asking about.
   const [touched, setTouched] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-  // Specs edited or added here, saved with the guide.
-  const [edits, setEdits] = useState<Record<string, DraftItem>>({});
+  // Specs changed (for every guide) or added here, saved with the guide.
+  const [edits, setEdits] = useState<SpecEdits>({});
   const [added, setAdded] = useState<DraftItem[]>([]);
+  // The guide's specs as listed, worked out once per change.
+  const specs = useMemo(
+    () => guideSpecs(items, edits, added),
+    [items, edits, added]
+  );
   const [valueItems, setValueItems] = useState(items);
   const [valueEdits, setValueEdits] = useState<ValueEdits>({});
 
@@ -162,19 +201,16 @@ export default function GuideEditor({
     markDirty();
   };
 
-  const editSpec = (item: DraftItem) => {
-    setEdits(current => ({ ...current, [item.key]: item }));
-    markDirty();
+  const editSpec = (key: string, patch: Partial<SpecItem>) => {
+    const saved = items.find(item => item.key === key);
+    if (saved) {
+      setEdits(current => recordEdit(current, saved, patch));
+      markDirty();
+    }
   };
 
   const discardSpecEdit = (key: string) => {
-    if (!edits[key]) {
-      return;
-    }
-    setEdits(current => {
-      const { [key]: _discarded, ...rest } = current;
-      return rest;
-    });
+    setEdits(current => discardEdit(current, key));
     markDirty();
   };
 
@@ -183,10 +219,7 @@ export default function GuideEditor({
     markDirty();
   };
 
-  const currentItems = [
-    ...items.map(item => edits[item.key] ?? item),
-    ...added,
-  ];
+  const currentItems = [...items.map(item => edited(item, edits)), ...added];
   const values = guideValues(guide.specs, valueItems, currentItems, valueEdits);
 
   /** Save the guide; true when it saved. */
@@ -195,17 +228,23 @@ export default function GuideEditor({
     setError('');
     try {
       let savedItems = items;
+      // A spec changed here and on the Specs tab since: stop, and show the
+      // latest with the rest of this guide's changes on it.
+      const clashes = conflicts(edits, items);
+      if (clashes.length > 0) {
+        setEdits(rebase(edits, items));
+        setError(conflictText(clashes));
+        return false;
+      }
       // Spec edits first, through the Specs tab's save, so the guide's
       // values below are saved against the specs as edited.
-      const edited = Object.keys(edits);
-      if (edited.length > 0) {
+      const changed = Object.keys(edits);
+      if (changed.length > 0) {
         const savedRegistry = await saveRegistry(config.restPath, {
-          items: items.map(item =>
-            edits[item.key] ? toStored(edits[item.key]) : item
-          ),
+          items: items.map(item => toStored(edited(item, edits))),
           hideDimensions: registry.hideDimensions,
           revision: registry.revision,
-          changed: edited,
+          changed,
         });
         savedItems = savedRegistry.items;
         onRegistry(savedRegistry);
@@ -422,7 +461,7 @@ export default function GuideEditor({
       <GuideStatusStrip
         status={guideStatus(
           { ...guide, specs: values },
-          guideSpecs(items, edits, added),
+          specs,
           config.categories
         )}
       />
@@ -530,20 +569,20 @@ export default function GuideEditor({
         config={config}
         taxonomies={taxonomies}
         items={items}
+        specs={specs}
         edits={edits}
         added={added}
         values={values}
         hasChart={hasChart(guide)}
         hidden={guide.hidden}
         wording={guide.wording}
-        onWording={wording => update({ wording })}
+        onGuide={update}
         onValues={next => {
           setValueEdits(
             editGuideValues(values, next, currentItems, valueEdits)
           );
           markDirty();
         }}
-        onHidden={hidden => update({ hidden })}
         onEdit={editSpec}
         onDiscardEdit={discardSpecEdit}
         onAdded={updateAdded}

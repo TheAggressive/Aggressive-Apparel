@@ -35,6 +35,22 @@ export function matchKey(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 }
 
+/**
+ * Typed text as a value: an existing one if it matches whatever the case and
+ * spacing ("mens" is "Mens"), else the text, trimmed. No "|", which divides
+ * a list of values.
+ */
+export function settleTerm(
+  terms: { name: string }[] | undefined,
+  text: string
+): string {
+  const clean = text.replace(/\|/g, '').trim();
+  return (
+    (terms ?? []).find(term => matchKey(term.name) === matchKey(clean))?.name ??
+    clean
+  );
+}
+
 /** Meta-key-safe key from a name: "Fabric Weight" → "fabric_weight". */
 export function slugify(name: string): string {
   return name

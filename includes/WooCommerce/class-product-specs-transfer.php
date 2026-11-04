@@ -22,8 +22,9 @@
  * through the Specs tab's own route (Product_Specs_Settings::store) and
  * guides through the editor's (Size_Guide_Rest::save).
  *
- * Built for large stores: categories are read in one query and resolved in
- * memory, guides are compared from what's stored (no rendering), and a
+ * Built for large stores: categories come from one shared read
+ * (Product_Categories), guides are compared from what's stored (no
+ * rendering), and a
  * diagram is compared by a hash recorded when it was imported, else one
  * streamed from its file, never by re-encoding it.
  *
@@ -45,7 +46,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Item from Product_Specs_Registry
  * @phpstan-type Changes array{added: list<string>, changed: list<string>, same: int}
  * @phpstan-type Plan array{site: string, exported: string, specs: Changes, guides: Changes, settings: list<string>, missing: list<string>, problems: list<string>}
- * @phpstan-type Catalog array{paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>}
  */
 final class Product_Specs_Transfer {
 
@@ -98,13 +98,6 @@ final class Product_Specs_Transfer {
 	 * @var string
 	 */
 	private const STASH = 'aa_specs_import_';
-
-	/**
-	 * Categories for this request (see catalog()).
-	 *
-	 * @var array{paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>}|null
-	 */
-	private static ?array $catalog = null;
 
 	/**
 	 * Diagram hashes worked out this request, by attachment ID.
@@ -221,11 +214,10 @@ final class Product_Specs_Transfer {
 	}
 
 	/**
-	 * Forget what this request read (after categories change, and in tests).
+	 * Forget the diagram hashes this request worked out (in tests).
 	 */
 	public static function flush(): void {
-		self::$catalog = null;
-		self::$hashes  = array();
+		self::$hashes = array();
 	}
 
 	/**
@@ -372,25 +364,8 @@ final class Product_Specs_Transfer {
 		// One the file couldn't carry leaves this guide's as it is.
 
 		Size_Guide_Rest::save( $id, $data );
-		self::reassign( $id, $data['categories'] );
 
 		return $problem;
-	}
-
-	/**
-	 * Keep this request's categories right after a guide takes some: a
-	 * category holds one guide, so it leaves whichever guide had it.
-	 *
-	 * @param int        $guide_id   Size guide ID.
-	 * @param array<int> $categories Its categories now.
-	 */
-	private static function reassign( int $guide_id, array $categories ): void {
-		$catalog = self::catalog();
-		foreach ( $catalog['guides'] as $guide => $ids ) {
-			$catalog['guides'][ $guide ] = array_values( array_diff( $ids, $categories ) );
-		}
-		$catalog['guides'][ $guide_id ] = array_values( array_map( 'intval', $categories ) );
-		self::$catalog                  = $catalog;
 	}
 
 	/**
@@ -401,12 +376,12 @@ final class Product_Specs_Transfer {
 	 * @return array<string, mixed>
 	 */
 	private static function export_item( array $item ): array {
-		$paths = self::catalog()['paths'];
 		$steps = array();
 		foreach ( $item['category_steps'] as $row ) {
-			if ( isset( $paths[ $row['category'] ] ) ) {
+			$path = Product_Categories::path( $row['category'] );
+			if ( '' !== $path ) {
 				$steps[] = array(
-					'category'   => $paths[ $row['category'] ],
+					'category'   => $path,
 					'thresholds' => $row['thresholds'],
 				);
 			}
@@ -485,7 +460,7 @@ final class Product_Specs_Transfer {
 			'specs'       => $specs['values'],
 			'hidden'      => $specs['hidden'],
 			'wording'     => $specs['wording'],
-			'categories'  => self::paths( self::catalog()['guides'][ $id ] ?? array() ),
+			'categories'  => self::paths( Product_Categories::by_guide()[ $id ] ?? array() ),
 			'isDefault'   => Size_Guide_Assignments::is_default( $id ),
 			'content'     => null === $chart && $post instanceof \WP_Post ? $post->post_content : '',
 		);
@@ -690,7 +665,7 @@ final class Product_Specs_Transfer {
 		foreach ( Size_Guide_Post_Type::ids() as $id ) {
 			$post = get_post( $id );
 			if ( $post instanceof \WP_Post ) {
-				$by_name[ self::name_key( Size_Guide_Rest::display_title( $post ) ) ][] = $id;
+				$by_name[ Match_Name::key( Size_Guide_Rest::display_title( $post ) ) ][] = $id;
 			}
 		}
 
@@ -699,7 +674,7 @@ final class Product_Specs_Transfer {
 			if ( $source > 0 && isset( $by_source[ $source ] ) ) {
 				return $by_source[ $source ];
 			}
-			foreach ( $by_name[ self::name_key( self::title( $entry ) ) ] ?? array() as $id ) {
+			foreach ( $by_name[ Match_Name::key( self::title( $entry ) ) ] ?? array() as $id ) {
 				if ( 0 === $source || ! isset( $sourced[ $id ] ) ) {
 					return $id;
 				}
@@ -736,69 +711,13 @@ final class Product_Specs_Transfer {
 	}
 
 	/**
-	 * Every product category, read once per request: each one's slug path,
-	 * the other way round, and the categories each guide is the default for.
-	 *
-	 * @return array{paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>}
-	 */
-	private static function catalog(): array {
-		if ( null !== self::$catalog ) {
-			return self::$catalog;
-		}
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-			)
-		);
-		$by_id = array();
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			if ( $term instanceof \WP_Term ) {
-				$by_id[ $term->term_id ] = $term;
-			}
-		}
-
-		$paths  = array();
-		$guides = array();
-		foreach ( $by_id as $id => $term ) {
-			$slugs = array( $term->slug );
-			$seen  = array( $id => true );
-			for ( $up = $term->parent; 0 < $up && isset( $by_id[ $up ] ) && ! isset( $seen[ $up ] ); $up = $by_id[ $up ]->parent ) {
-				$seen[ $up ] = true;
-				array_unshift( $slugs, $by_id[ $up ]->slug );
-			}
-			$paths[ $id ] = implode( '/', $slugs );
-
-			// get_terms() primed term meta, so this reads no database.
-			$guide = (int) get_term_meta( $id, Size_Guide::CPT_META_KEY, true );
-			if ( $guide > 0 ) {
-				$guides[ $guide ][] = $id;
-			}
-		}
-
-		self::$catalog = array(
-			'paths'  => $paths,
-			'ids'    => array_flip( $paths ),
-			'guides' => $guides,
-		);
-
-		return self::$catalog;
-	}
-
-	/**
 	 * Category IDs as their slug paths, sorted (unknown ones dropped).
 	 *
 	 * @param array<int> $ids Category IDs.
 	 * @return list<string>
 	 */
 	private static function paths( array $ids ): array {
-		$paths = self::catalog()['paths'];
-		$list  = array();
-		foreach ( $ids as $id ) {
-			if ( isset( $paths[ (int) $id ] ) ) {
-				$list[] = $paths[ (int) $id ];
-			}
-		}
+		$list = array_values( array_filter( array_map( static fn( $id ): string => Product_Categories::path( (int) $id ), $ids ) ) );
 		sort( $list );
 
 		return $list;
@@ -813,16 +732,13 @@ final class Product_Specs_Transfer {
 	 * @return list<int>
 	 */
 	private static function category_ids( array $paths, array &$missing ): array {
-		$known = self::catalog()['ids'];
-		$ids   = array();
+		$ids = array();
 		foreach ( $paths as $path ) {
 			$path = is_string( $path ) ? trim( $path, '/' ) : '';
-			if ( '' === $path ) {
-				continue;
-			}
-			if ( isset( $known[ $path ] ) ) {
-				$ids[] = $known[ $path ];
-			} else {
+			$id   = '' !== $path ? Product_Categories::at_path( $path ) : 0;
+			if ( 0 < $id ) {
+				$ids[] = $id;
+			} elseif ( '' !== $path ) {
 				$missing[] = $path;
 			}
 		}
@@ -857,17 +773,6 @@ final class Product_Specs_Transfer {
 		$title = is_scalar( $entry['title'] ?? null ) ? trim( sanitize_text_field( (string) $entry['title'] ) ) : '';
 
 		return '' !== $title ? mb_substr( $title, 0, 120 ) : __( 'Untitled size guide', 'aggressive-apparel' );
-	}
-
-	/**
-	 * A name for matching: entities decoded, spaces collapsed, lowercase.
-	 *
-	 * @param string $name Name.
-	 */
-	private static function name_key( string $name ): string {
-		$name = html_entity_decode( $name, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-
-		return mb_strtolower( trim( (string) preg_replace( '/\s+/u', ' ', $name ) ) );
 	}
 
 	/**

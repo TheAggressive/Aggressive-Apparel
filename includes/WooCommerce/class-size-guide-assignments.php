@@ -37,7 +37,8 @@ final class Size_Guide_Assignments {
 
 	/**
 	 * Where each of several guides is assigned, in a fixed number of queries
-	 * (one for categories, one for product counts) however many guides.
+	 * (the shared category read, and one for product counts) however many
+	 * guides.
 	 *
 	 * @param array $guide_ids Size guide post IDs.
 	 * @phpstan-param list<int> $guide_ids
@@ -56,28 +57,12 @@ final class Size_Guide_Assignments {
 			return $map;
 		}
 
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-				'number'     => 500,
-				'orderby'    => 'name',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin-only, bounded.
-				'meta_query' => array(
-					array(
-						'key'     => Size_Guide::CPT_META_KEY,
-						'compare' => 'EXISTS',
-					),
-				),
-			)
-		);
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			if ( ! $term instanceof \WP_Term ) {
-				continue;
-			}
-			$guide_id = (int) get_term_meta( $term->term_id, Size_Guide::CPT_META_KEY, true );
+		$terms = Product_Categories::all();
+		foreach ( Product_Categories::by_guide() as $guide_id => $ids ) {
 			if ( isset( $map[ $guide_id ] ) ) {
-				$map[ $guide_id ]['categories'][] = $term->name;
+				foreach ( $ids as $id ) {
+					$map[ $guide_id ]['categories'][] = html_entity_decode( $terms[ $id ]->name, ENT_QUOTES, 'UTF-8' );
+				}
 			}
 		}
 
@@ -107,33 +92,13 @@ final class Size_Guide_Assignments {
 	}
 
 	/**
-	 * Category IDs that use a size guide as their default.
-	 *
-	 * Uses meta_query, not meta_key: WooCommerce rewrites product_cat
-	 * queries' meta_key for its menu-order sort, which would drop the filter.
+	 * Category IDs that use a size guide as their default, by name.
 	 *
 	 * @param int $guide_id Size guide post ID.
 	 * @return list<int>
 	 */
 	public static function categories( int $guide_id ): array {
-		$ids = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-				'fields'     => 'ids',
-				'number'     => 500,
-				'orderby'    => 'name',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin-only, bounded.
-				'meta_query' => array(
-					array(
-						'key'   => Size_Guide::CPT_META_KEY,
-						'value' => (string) $guide_id,
-					),
-				),
-			)
-		);
-
-		return is_array( $ids ) ? array_values( array_map( 'intval', $ids ) ) : array();
+		return Product_Categories::by_guide()[ $guide_id ] ?? array();
 	}
 
 	/**

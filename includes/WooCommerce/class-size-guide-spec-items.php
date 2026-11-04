@@ -91,7 +91,7 @@ final class Size_Guide_Spec_Items {
 	 * @phpstan-param list<mixed> $items
 	 */
 	private static function existing( array $items, array $entry ): ?string {
-		$name = self::normalize( is_scalar( $entry['name'] ?? null ) ? (string) $entry['name'] : '' );
+		$name = Match_Name::key( is_scalar( $entry['name'] ?? null ) ? (string) $entry['name'] : '' );
 		$type = is_scalar( $entry['type'] ?? null ) ? (string) $entry['type'] : '';
 		if ( '' === $name ) {
 			return null;
@@ -99,21 +99,12 @@ final class Size_Guide_Spec_Items {
 		foreach ( $items as $item ) {
 			// A spec that's off is set aside, not the one being added.
 			$on = is_array( $item ) && ( ! isset( $item['enabled'] ) || (bool) $item['enabled'] );
-			if ( $on && ( $item['type'] ?? '' ) === $type && self::normalize( (string) ( $item['name'] ?? '' ) ) === $name ) {
+			if ( $on && ( $item['type'] ?? '' ) === $type && Match_Name::key( (string) ( $item['name'] ?? '' ) ) === $name ) {
 				return (string) $item['key'];
 			}
 		}
 
 		return null;
-	}
-
-	/**
-	 * A name for matching: trimmed, spaces collapsed, lowercase.
-	 *
-	 * @param string $name Name.
-	 */
-	private static function normalize( string $name ): string {
-		return mb_strtolower( trim( (string) preg_replace( '/\s+/u', ' ', $name ) ) );
 	}
 
 	/**

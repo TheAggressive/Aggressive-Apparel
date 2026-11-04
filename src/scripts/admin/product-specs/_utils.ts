@@ -27,6 +27,14 @@ export function uid(): string {
   return `item-${Date.now()}-${counter}`;
 }
 
+/**
+ * A name as it compares (spaces collapsed, any case), as the server compares
+ * names (Match_Name::key): "Regular  fit" matches "regular fit".
+ */
+export function matchKey(name: string): string {
+  return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+}
+
 /** Meta-key-safe key from a name: "Fabric Weight" → "fabric_weight". */
 export function slugify(name: string): string {
   return name

@@ -496,42 +496,13 @@ final class Product_Specs_Settings {
 	 * @return list<array{id: int, name: string}>
 	 */
 	private static function categories(): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-				'number'     => 500,
-				'orderby'    => 'name',
-			)
-		);
-		if ( ! is_array( $terms ) ) {
-			return array();
-		}
-
-		$by_id = array();
-		foreach ( $terms as $term ) {
-			if ( $term instanceof \WP_Term ) {
-				$by_id[ $term->term_id ] = $term;
-			}
-		}
-
 		$list = array();
-		foreach ( $by_id as $id => $term ) {
-			$path   = array( $term->name );
-			$parent = $term->parent;
-			$depth  = 0;
-			while ( $parent > 0 && isset( $by_id[ $parent ] ) && $depth < 5 ) {
-				array_unshift( $path, $by_id[ $parent ]->name );
-				$parent = $by_id[ $parent ]->parent;
-				++$depth;
-			}
+		foreach ( Product_Categories::labels() as $id => $name ) {
 			$list[] = array(
 				'id'   => $id,
-				'name' => implode( ' › ', $path ),
+				'name' => $name,
 			);
 		}
-
-		usort( $list, static fn( array $a, array $b ): int => strcasecmp( $a['name'], $b['name'] ) );
 
 		return $list;
 	}

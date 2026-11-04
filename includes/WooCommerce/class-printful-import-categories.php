@@ -203,22 +203,10 @@ final class Printful_Import_Categories {
 	 * @return array<int, string> ID => name.
 	 */
 	private static function terms(): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-				'number'     => 500,
-			)
+		return array_map(
+			static fn( \WP_Term $term ): string => html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' ),
+			Product_Categories::all()
 		);
-
-		$names = array();
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			if ( $term instanceof \WP_Term ) {
-				$names[ $term->term_id ] = html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' );
-			}
-		}
-
-		return $names;
 	}
 
 	/**

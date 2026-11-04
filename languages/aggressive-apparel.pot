@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-04T03:12:49+00:00\n"
+"POT-Creation-Date: 2026-11-04T03:19:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -3126,39 +3126,39 @@ msgstr ""
 msgid "WooCommerce is needed to save specs."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:151
+#: includes/WooCommerce/class-product-specs-transfer.php:144
 msgid "That isn’t a Size & Specs export file."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:154
+#: includes/WooCommerce/class-product-specs-transfer.php:147
 msgid "That file comes from a newer version of the theme. Update this site’s theme, then import it."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:261
+#: includes/WooCommerce/class-product-specs-transfer.php:253
 msgid "Shipping weight and dimensions will be hidden from Additional information."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:262
+#: includes/WooCommerce/class-product-specs-transfer.php:254
 msgid "Shipping weight and dimensions will show in Additional information again."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:270
+#: includes/WooCommerce/class-product-specs-transfer.php:262
 msgid "The file’s specs couldn’t be saved, so nothing was imported."
 msgstr ""
 
 #. translators: 1: size guide name, 2: error message.
-#: includes/WooCommerce/class-product-specs-transfer.php:353
+#: includes/WooCommerce/class-product-specs-transfer.php:345
 #, php-format
 msgid "“%1$s” couldn’t be saved: %2$s"
 msgstr ""
 
 #. translators: %s: size guide name.
-#: includes/WooCommerce/class-product-specs-transfer.php:369
+#: includes/WooCommerce/class-product-specs-transfer.php:361
 #, php-format
 msgid "“%s”: its diagram couldn’t be added, so the guide keeps the one it had."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:859
+#: includes/WooCommerce/class-product-specs-transfer.php:775
 #: includes/WooCommerce/class-size-guide-rest.php:605
 msgid "Untitled size guide"
 msgstr ""

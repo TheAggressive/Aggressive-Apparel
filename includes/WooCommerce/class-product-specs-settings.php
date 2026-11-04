@@ -207,6 +207,26 @@ final class Product_Specs_Settings {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/export',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => static fn(): \WP_REST_Response => rest_ensure_response( Product_Specs_Transfer::export() ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/import',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'import' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			self::REST_ROUTE,
 			array(
 				array(
@@ -250,6 +270,29 @@ final class Product_Specs_Settings {
 	}
 
 	/**
+	 * Import a Size & Specs file from another site: what it would change
+	 * ("apply": false), or the import itself.
+	 *
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function import( \WP_REST_Request $request ) {
+		$body = $request->get_json_params();
+		$file = Product_Specs_Transfer::read( is_array( $body ) ? ( $body['file'] ?? null ) : null );
+		if ( is_wp_error( $file ) ) {
+			return $file;
+		}
+		if ( empty( $body['apply'] ) ) {
+			return rest_ensure_response( Product_Specs_Transfer::plan( $file ) );
+		}
+
+		$done = Product_Specs_Transfer::apply( $file );
+
+		return is_wp_error( $done ) ? $done : rest_ensure_response( $done );
+	}
+
+	/**
 	 * Store managers only.
 	 */
 	public function can_manage(): bool {
@@ -278,22 +321,7 @@ final class Product_Specs_Settings {
 	public function save_registry( \WP_REST_Request $request ) {
 		$body   = $request->get_json_params();
 		$body   = is_array( $body ) ? $body : array();
-		$before = Product_Specs_Registry::get()['items'];
-		$result = Product_Specs_Registry::validate(
-			array(
-				'items'           => Product_Specs_Retype::apply( self::merged( $body ), $before ),
-				'hide_dimensions' => ! empty( $body['hide_dimensions'] ),
-			)
-		);
-
-		$errors = array() !== $result['errors']
-			? $result['errors']
-			: Product_Specs_Registry::save_connected(
-				array(
-					'items'           => $result['items'],
-					'hide_dimensions' => $result['hide_dimensions'],
-				)
-			);
+		$errors = self::store( self::merged( $body ), ! empty( $body['hide_dimensions'] ) );
 		if ( array() !== $errors ) {
 			return new \WP_Error(
 				'aa_product_specs_invalid',
@@ -305,9 +333,41 @@ final class Product_Specs_Settings {
 			);
 		}
 
-		Product_Specs_Wording_Sync::sync( $before, Product_Specs_Registry::get()['items'] );
-
 		return rest_ensure_response( self::registry() );
+	}
+
+	/**
+	 * Save a full list of specs: retyped where their type changed, checked,
+	 * connected to attributes, and with reworded steps kept on their steps.
+	 * The one way the list is saved: the Specs tab and imports from another
+	 * site (Product_Specs_Transfer).
+	 *
+	 * @param array $items           Raw items.
+	 * @param bool  $hide_dimensions The dimensions setting.
+	 * @phpstan-param list<mixed> $items
+	 * @return list<string> Errors; empty when saved.
+	 */
+	public static function store( array $items, bool $hide_dimensions ): array {
+		$before = Product_Specs_Registry::get()['items'];
+		$result = Product_Specs_Registry::validate(
+			array(
+				'items'           => Product_Specs_Retype::apply( $items, $before ),
+				'hide_dimensions' => $hide_dimensions,
+			)
+		);
+		$errors = array() !== $result['errors']
+			? $result['errors']
+			: Product_Specs_Registry::save_connected(
+				array(
+					'items'           => $result['items'],
+					'hide_dimensions' => $result['hide_dimensions'],
+				)
+			);
+		if ( array() === $errors ) {
+			Product_Specs_Wording_Sync::sync( $before, Product_Specs_Registry::get()['items'] );
+		}
+
+		return $errors;
 	}
 
 	/**

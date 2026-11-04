@@ -150,21 +150,23 @@ final class Product_Specs_Settings {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$config = array(
-			'registry'   => self::registry(),
-			'defaults'   => Product_Specs_Registry::defaults(),
-			'categories' => self::categories(),
-			'restPath'   => '/' . self::REST_NAMESPACE . self::REST_ROUTE,
-			'gridPath'   => '/' . self::REST_NAMESPACE . self::REST_ROUTE . '/products',
-			'guidesPath' => '/' . Size_Guide_Rest::NAMESPACE . Size_Guide_Rest::ROUTE,
-			'guides'     => Size_Guide_Rest::summaries(),
-			'suggest'    => Product_Specs_Suggestions::all(),
-			'attributes' => Product_Specs_Suggestions::names(),
+			'registry'      => self::registry(),
+			'defaults'      => Product_Specs_Registry::defaults(),
+			'categories'    => self::categories(),
+			'restPath'      => '/' . self::REST_NAMESPACE . self::REST_ROUTE,
+			'gridPath'      => '/' . self::REST_NAMESPACE . self::REST_ROUTE . '/products',
+			'guidesPath'    => '/' . Size_Guide_Rest::NAMESPACE . Size_Guide_Rest::ROUTE,
+			'guides'        => Size_Guide_Rest::summaries(),
+			'suggest'       => Product_Specs_Suggestions::all(),
+			'attributes'    => Product_Specs_Suggestions::names(),
+			// Typical fabric weights by garment, and each category's garment.
+			'weightPresets' => Fabric_Weight_Bands::presets(),
 			// Global attributes (taxonomy => label), for the attribute a spec uses.
-			'taxonomies' => Product_Specs_Taxonomy::attributes(),
-			'tab'        => in_array( $tab, self::TABS, true ) ? $tab : self::TABS[0],
+			'taxonomies'    => Product_Specs_Taxonomy::attributes(),
+			'tab'           => in_array( $tab, self::TABS, true ) ? $tab : self::TABS[0],
 			// "new" opens a blank guide; a number opens that guide.
-			'guide'      => 'new' === $guide ? 'new' : absint( $guide ),
-			'limits'     => array(
+			'guide'         => 'new' === $guide ? 'new' : absint( $guide ),
+			'limits'        => array(
 				'items'    => Product_Specs_Registry::MAX_ITEMS,
 				'minSteps' => Product_Specs_Registry::MIN_STEPS,
 				'maxSteps' => Product_Specs_Registry::MAX_STEPS,

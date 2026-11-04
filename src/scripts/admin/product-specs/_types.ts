@@ -138,6 +138,15 @@ export type GridRow = {
   specs: Record<string, GridCell>;
 };
 
+/** One garment's typical fabric weight boundaries, in g/m². */
+export type WeightGarment = { key: string; label: string; bands: number[] };
+
+/** Every garment's boundaries, and the garment each category is named like. */
+export type WeightPresets = {
+  garments: WeightGarment[];
+  categories: { category: number; garment: string }[];
+};
+
 export type Config = {
   registry: Registry;
   defaults: SpecItem[];
@@ -151,6 +160,8 @@ export type Config = {
   attributes: string[];
   /** Global attributes, taxonomy => label. */
   taxonomies: Record<string, string>;
+  /** Typical fabric weights by garment (Fabric_Weight_Bands::presets). */
+  weightPresets: WeightPresets;
   tab: Tab;
   guide: number | 'new';
   limits: {

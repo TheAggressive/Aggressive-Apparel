@@ -18,7 +18,13 @@ import {
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { Category, DraftItem, Scope, SpecItem } from './_types';
+import type {
+  Category,
+  DraftItem,
+  Scope,
+  SpecItem,
+  WeightPresets,
+} from './_types';
 import { edgeLabels } from './_utils';
 import Preview from './_Preview';
 import ValuePicker from './_ValuePicker';
@@ -61,6 +67,8 @@ type Props = {
   saved?: SpecItem;
   /** The settings REST path, to load those values. */
   restPath: string;
+  /** Typical fabric weights by garment, for per-category boundaries. */
+  weightPresets: WeightPresets;
 };
 
 function typeLabel(type: DraftItem['type']): string {
@@ -187,6 +195,7 @@ export default function ItemCard({
   taxonomies,
   saved,
   restPath,
+  weightPresets,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isScale = item.type !== 'text';
@@ -358,6 +367,7 @@ export default function ItemCard({
                 <CategorySteps
                   item={item}
                   categories={categories}
+                  presets={weightPresets}
                   onChange={category_steps => onChange({ category_steps })}
                 />
               )}

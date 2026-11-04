@@ -220,6 +220,7 @@ final class Printful_Import {
 
 		self::remember( 'printful', is_array( $body['importRules'] ?? null ) ? $body['importRules'] : array() );
 		Printful_Import_Categories::remember( 'printful', $body['importWhere'] ?? '', $body['categories'] ?? array() );
+		Fabric_Weight_Bands::fill( $body['importWhere'] ?? '', $body['categories'] ?? array() );
 		( new Size_Guide() )->flush_all_caches();
 	}
 

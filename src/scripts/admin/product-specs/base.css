@@ -1,0 +1,103 @@
+/**
+ * Product Specs admin — what every Size & Specs screen shares: the design
+ * tokens, labels and help text, WordPress component spacing, and the On/Off
+ * switch. Loaded by the settings screen and the product page's Size & specs
+ * tab alike.
+ *
+ * One spacing scale (4 / 8 / 12 / 16 / 24 px), one label style, and every
+ * control at the 40px WordPress component height so rows line up.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-ps {
+	--aa-ps-gap: 16px;
+	--aa-ps-border: #dcdcde;
+	--aa-ps-divider: #f0f0f1;
+	--aa-ps-muted: #646970;
+	--aa-ps-accent: var(--wp-admin-theme-color, #2271b1);
+	--aa-ps-control-height: 40px;
+}
+
+
+/* Normalize WordPress component labels and spacing inside the app. */
+.aa-ps .components-base-control {
+	margin-bottom: 0;
+}
+
+.aa-ps .components-base-control__field {
+	margin-bottom: 0;
+}
+
+/*
+ * Control labels in sentence case. InputControl labels are uppercase 11px
+ * under a triple-class selector (`&&&`, gutenberg#18483); matching any label
+ * with a `for` inside a control (0,3,1) outranks it without naming the
+ * components' internal classes. Toggle and checkbox labels keep their style.
+ */
+.aa-ps .components-base-control label[for]:not(.components-toggle-control__label, .components-checkbox-control__label) {
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.4;
+	text-transform: none;
+}
+
+.aa-ps .components-base-control__help {
+	margin-top: 6px;
+	margin-bottom: 0;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps .components-toggle-control .components-base-control__help {
+	margin-top: 4px;
+}
+
+
+.aa-ps-help {
+	margin: 0;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+
+.aa-ps-help--notice {
+	margin-top: 8px;
+	padding-left: 8px;
+	border-left: 3px solid var(--aa-ps-border);
+}
+
+
+/* Shared native control (used where a component would add layout chrome). */
+.aa-ps-control {
+	width: 100%;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+}
+
+
+.aa-ps-eyebrow {
+	margin: 0 0 4px;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+
+.aa-ps .components-notice {
+	margin: 0 0 var(--aa-ps-gap);
+}
+
+/* On or off from the header, without opening the card. */
+.aa-ps-card__switch {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+	min-width: 4.5rem;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}

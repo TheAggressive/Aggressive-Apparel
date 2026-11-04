@@ -2,13 +2,13 @@
  * Product Specs settings — one spec's value, picked the way it shows.
  *
  * Scales are their steps as a segmented bar (a radio group, arrow keys move).
- * Text details search the attribute's existing values, most used first, and
- * offer "Add “…”" for a new one, so near-duplicates like "Cotton" and
- * "cotton" don't pile up as separate terms. A text spec that holds several
- * values (like Collection: Mens, Womens) is a token field instead. Lists open
- * only while typing, so nothing below jumps when one closes; the most used
- * values sit under the field as one-click chips instead. Numbers show their unit in the
- * field and the step the number lands on beside it.
+ * A text detail is a plain field (SpecInput) that suggests the attribute's
+ * existing values as you type and settles the case on one when you leave it,
+ * so near-duplicates like "Cotton" and "cotton" don't pile up as separate
+ * terms. A text spec that holds several values (like Collection: Mens,
+ * Womens) is a token field instead. The most used values sit under the field
+ * as one-click chips. Numbers show their unit in the field and the step the
+ * number lands on beside it.
  *
  * Values are what the REST API takes: a step index, a number, or text.
  *
@@ -17,11 +17,18 @@
 
 import { useRef, useState } from '@wordpress/element';
 import type { KeyboardEvent } from 'react';
-import { Button, ComboboxControl, FormTokenField } from '@wordpress/components';
+import { Button, FormTokenField } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { SpecItem } from './_types';
-import { joinValues, matchKey, splitValues, stepFor } from './_utils';
+import {
+  joinValues,
+  settleTerm,
+  splitValues,
+  stepFor,
+  unlistedValues,
+} from './_utils';
+import SpecInput from './_SpecInput';
 
 type Props = {
   item: SpecItem;
@@ -30,6 +37,11 @@ type Props = {
   label: string;
   /** What shows when the value is empty, if anything. */
   inherited?: string;
+  /**
+   * The user can't add catalog values: say so when a value may be new. The
+   * server keeps the product's own value if it is (never cleared here).
+   */
+  existingOnly?: boolean;
   onChange: (value: string) => void;
 };
 
@@ -116,48 +128,33 @@ function ScalePicker({ item, value, label, inherited, onChange }: Props) {
   );
 }
 
-function TermPicker({ item, value, label, inherited, onChange }: Props) {
-  const [typed, setTyped] = useState('');
+/**
+ * One text value: the field holds exactly what's typed, with the
+ * attribute's values suggested as you type. Leaving it settles the case on
+ * an existing value ("mens" saves as "Mens").
+ */
+function TermPicker({
+  item,
+  value,
+  label,
+  inherited,
+  existingOnly = false,
+  onChange,
+}: Props) {
   const terms = item.terms ?? [];
-  const query = typed.trim();
-  const exists = (name: string) =>
-    terms.some(term => matchKey(term.name) === matchKey(name));
-
-  const options = [
-    // A value added here but not saved yet is not a term yet.
-    ...(value !== '' && !exists(value)
-      ? [{ value, label: value, count: 0 }]
-      : []),
-    ...terms.map(term => ({
-      value: term.name,
-      label: term.name,
-      count: term.count,
-    })),
-    ...(query !== '' && !exists(query) && query !== value
-      ? [
-          {
-            value: query,
-            label: sprintf(
-              /* translators: %s: a new value typed by the user. */
-              __('Add “%s”', 'aggressive-apparel'),
-              query
-            ),
-            count: 0,
-          },
-        ]
-      : []),
-  ];
-
+  // What the field had: never treated as new.
+  const [kept] = useState(() => splitValues(value));
+  const unlisted = existingOnly
+    ? unlistedValues(splitValues(value), terms, kept)
+    : [];
   return (
     <div className='aa-ps-picker'>
-      <ComboboxControl
+      <SpecInput
+        item={item}
+        value={value}
         label={label}
-        hideLabelFromVision
-        value={value === '' ? null : value}
-        options={options}
-        onChange={next => onChange(next ?? '')}
-        onFilterValueChange={setTyped}
-        placeholder={
+        // What shows while it's empty.
+        inherited={
           inherited
             ? sprintf(
                 /* translators: %s: the store-wide default value. */
@@ -166,32 +163,39 @@ function TermPicker({ item, value, label, inherited, onChange }: Props) {
               )
             : __('Type or pick a value', 'aggressive-apparel')
         }
-        allowReset
-        expandOnFocus={false}
-        __next40pxDefaultSize
-        __nextHasNoMarginBottom
-        __experimentalRenderItem={({ item: option }) => (
-          <span className='aa-ps-term-option'>
-            <span>{option.label}</span>
-            {option.count > 0 && (
-              <span className='aa-ps-term-option__count'>
-                {sprintf(
-                  /* translators: %d: number of products with this value. */
-                  _n(
-                    '%d product',
-                    '%d products',
-                    option.count,
-                    'aggressive-apparel'
-                  ),
-                  option.count
-                )}
-              </span>
-            )}
-          </span>
-        )}
+        onChange={onChange}
+        onBlur={() => {
+          const settled = settleTerm(terms, value);
+          if (settled !== value) {
+            onChange(settled);
+          }
+        }}
       />
+      <NewValueNote names={unlisted} />
       {value === '' && <Chips terms={terms} chosen={[]} onPick={onChange} />}
     </div>
+  );
+}
+
+/**
+ * For someone who can't add catalog values: these may be new, and a new
+ * value won't save (the product keeps the value it had).
+ */
+function NewValueNote({ names }: { names: string[] }) {
+  if (names.length === 0) {
+    return null;
+  }
+  return (
+    <span className='aa-ps-picker__hint'>
+      {sprintf(
+        /* translators: %s: values typed, comma-separated. */
+        __(
+          'Only values the store has save for you. If “%s” is new, the product keeps the value it had: ask a store manager to add it.',
+          'aggressive-apparel'
+        ),
+        names.join('”, “')
+      )}
+    </span>
   );
 }
 
@@ -232,16 +236,20 @@ function Chips({
   );
 }
 
-function TokensPicker({ item, value, label, inherited, onChange }: Props) {
+function TokensPicker({
+  item,
+  value,
+  label,
+  inherited,
+  existingOnly = false,
+  onChange,
+}: Props) {
   const terms = item.terms ?? [];
+  const [kept] = useState(() => splitValues(value));
+  const unlisted = existingOnly
+    ? unlistedValues(splitValues(value), terms, kept)
+    : [];
   const counts = new Map(terms.map(term => [term.name, term.count]));
-  // Match an existing value whatever its case, so "mens" picks "Mens".
-  const canonical = (token: string) => {
-    const clean = token.replace(/\|/g, '').trim();
-    return (
-      terms.find(term => matchKey(term.name) === matchKey(clean))?.name ?? clean
-    );
-  };
 
   return (
     <div className='aa-ps-picker aa-ps-picker--tokens'>
@@ -255,7 +263,10 @@ function TokensPicker({ item, value, label, inherited, onChange }: Props) {
               splitValues(
                 tokens
                   .map(token =>
-                    canonical(typeof token === 'string' ? token : token.value)
+                    settleTerm(
+                      terms,
+                      typeof token === 'string' ? token : token.value
+                    )
                   )
                   .join('|')
               )
@@ -297,6 +308,7 @@ function TokensPicker({ item, value, label, inherited, onChange }: Props) {
         __next40pxDefaultSize
         __nextHasNoMarginBottom
       />
+      <NewValueNote names={unlisted} />
       <Chips
         terms={terms}
         chosen={splitValues(value)}

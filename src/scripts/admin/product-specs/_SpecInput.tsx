@@ -24,6 +24,8 @@ type Props = {
   changed?: boolean;
   showStep?: boolean;
   onChange: (value: string) => void;
+  /** Leaving the field (to tidy what was typed). */
+  onBlur?: () => void;
 };
 
 export default function SpecInput({
@@ -34,6 +36,7 @@ export default function SpecInput({
   changed = false,
   showStep = false,
   onChange,
+  onBlur,
 }: Props) {
   const className = cx('aa-ps-input', changed && 'is-changed');
   const id = useId();
@@ -101,6 +104,7 @@ export default function SpecInput({
         }
         value={value}
         onChange={event => onChange(event.target.value)}
+        onBlur={onBlur}
       />
       {step && (
         <span className='aa-ps-input__hint'>

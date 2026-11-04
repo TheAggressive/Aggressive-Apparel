@@ -9,6 +9,8 @@ import { createRoot } from '@wordpress/element';
 import App from './_App';
 import type { Config } from './_types';
 
+import './base.css';
+import './pickers.css';
 import './style.css';
 import './chips.css';
 import './grids.css';

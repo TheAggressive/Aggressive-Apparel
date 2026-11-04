@@ -5,6 +5,14 @@
  * @package Aggressive_Apparel
  */
 
+/* The rows, one under another. */
+.aa-ps-spec-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	min-width: 0;
+}
+
 /* One spec: name, value, then edit and its Shown/Hidden switch. Every row
    uses the same tracks, so names and fields line up down the list. */
 .aa-ps-spec-row {

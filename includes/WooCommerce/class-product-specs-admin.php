@@ -3,8 +3,9 @@
  * Product Specs Admin
  *
  * The per-product editing surface: a Specs section inside the product's Size
- * Guide tab (or its own tab when Size Guide is off). Each field shows where
- * its value comes from, and a product can override, hide, or reword any spec.
+ * Guide tab (or its own tab when Size Guide is off), built from the same
+ * pieces as a size guide's specs. Each row says where its value comes from,
+ * and a product can set its own value, hide a spec, or reword it.
  *
  * Everything shared lives on Products → Size & Specs (Product_Specs_Settings):
  * size guides, spec definitions with their defaults, and per-category
@@ -17,6 +18,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,6 +29,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product Specs per-product admin.
  */
 final class Product_Specs_Admin {
+
+	/**
+	 * Script and style handle of the Size & specs panel.
+	 *
+	 * @var string
+	 */
+	private const PANEL_HANDLE = 'aggressive-apparel-product-specs-panel';
 
 	/**
 	 * Nonce action.
@@ -68,73 +78,105 @@ final class Product_Specs_Admin {
 	}
 
 	/**
-	 * Product Specs fields: one row per applicable item, a preview, wording.
+	 * The Specs section: the same rows, switch, wording panel and live
+	 * preview as a size guide's specs, drawn by the Size & specs panel
+	 * script (src/scripts/admin/product-specs-panel.tsx). It writes this
+	 * form's own fields, so saving the product saves it (save_product).
 	 *
 	 * @param \WP_Post $post Product.
 	 */
 	public function render_product_fields( \WP_Post $post ): void {
-		$data   = Product_Specs::for_product( $post->ID );
-		$manage = Product_Specs_Settings::url( 'specs' );
-		$links  = array( 'a' => array( 'href' => array() ) );
+		$data = self::panel_data( $post->ID );
 
 		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false );
-		echo Product_Specs_Admin_Fields::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static CSS.
-		echo '<input type="hidden" name="' . esc_attr( Product_Specs_Admin_Fields::FIELD ) . '[form]" value="1">';
-
-		echo '<div class="options_group aa-specs">';
-		echo '<h3 class="aa-specs__title">' . esc_html__( 'Product specs', 'aggressive-apparel' ) . '</h3>';
-
-		if ( array() === $data['items'] ) {
-			echo '<p class="aa-specs-help">' . wp_kses(
-				sprintf(
-					/* translators: %s: link to the Specs tab of Products → Size & Specs. */
-					__( 'No specs apply to this product’s categories. Choose where each spec shows on %s.', 'aggressive-apparel' ),
-					'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size & Specs → Specs', 'aggressive-apparel' ) . '</a>'
-				),
-				$links
-			) . '</p></div>';
-
-			return;
-		}
-
-		echo '<p class="aa-specs-help">' . wp_kses(
-			sprintf(
-				/* translators: %s: link to the Specs tab of Products → Size & Specs. */
-				__( 'Values save as this product’s WooCommerce attributes. Empty fields use the product’s size guide, then each spec’s default from %s.', 'aggressive-apparel' ),
-				'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size & Specs → Specs', 'aggressive-apparel' ) . '</a>'
+		echo '<div class="aa-ps aa-ps-product">';
+		echo '<h3 class="aa-ps-product__title">' . esc_html__( 'Product specs', 'aggressive-apparel' ) . '</h3>';
+		printf(
+			'<p class="aa-ps-help">%1$s <a href="%2$s">%3$s</a></p>',
+			esc_html(
+				'' !== $data['guide']
+					/* translators: %s: size guide name. */
+					? sprintf( __( 'Values save as this product’s WooCommerce attributes. An empty value uses the “%s” size guide’s, then the spec’s default.', 'aggressive-apparel' ), $data['guide'] )
+					: __( 'Values save as this product’s WooCommerce attributes. An empty value uses the spec’s default.', 'aggressive-apparel' )
 			),
-			$links
-		) . '</p>';
-		$product = wc_get_product( $post->ID );
-		foreach ( $data['items'] as $item ) {
-			$locked = $product instanceof \WC_Product && Product_Specs_Product_Writer::drives_variations( $product, $item['taxonomy'] );
-			echo Product_Specs_Admin_Fields::product_row( $item, $locked ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
-			// Saving only rewrites the hidden flag and wording of items shown here.
-			echo '<input type="hidden" name="' . esc_attr( Product_Specs_Admin_Fields::FIELD ) . '[shown][]" value="' . esc_attr( $item['key'] ) . '">';
+			esc_url( Product_Specs_Settings::url( 'specs' ) ),
+			esc_html__( 'Manage specs', 'aggressive-apparel' )
+		);
+		// The rows, drawn by the panel script from this data (text only).
+		printf(
+			'<div id="aa-product-specs-panel" class="aa-ps-product__specs" data-aa-product-specs-panel="%s"></div>',
+			esc_attr( (string) wp_json_encode( $data ) )
+		);
+		echo '</div>';
+	}
+
+	/**
+	 * What the panel shows: each spec that applies, with the product's own
+	 * value, what it falls back to and from where, its switch and wording;
+	 * and the specs the product's size guide hides.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return array<string, mixed>
+	 */
+	private static function panel_data( int $product_id ): array {
+		$view    = Product_Specs::admin_view( $product_id );
+		$product = wc_get_product( $product_id );
+		$wording = Product_Specs::sanitize_wording( get_post_meta( $product_id, Product_Specs_Meta::WORDING, true ) );
+		$items   = array();
+		foreach ( Product_Specs::for_product( $product_id )['items'] as $item ) {
+			$key = $item['key'];
+			// As the guide words it; the panel lays the product's wording over.
+			$base    = $view['base'][ $key ];
+			$items[] = array(
+				'key'         => $key,
+				'type'        => $item['type'],
+				'multiple'    => $item['multiple'],
+				'unit'        => $item['unit'],
+				'centered'    => $item['centered'],
+				'thresholds'  => $item['thresholds'],
+				'name'        => $base['title'],
+				'steps'       => $base['steps'],
+				'start'       => $base['start'],
+				'mid'         => $base['mid'],
+				'end'         => $base['end'],
+				'advice'      => $base['advice'],
+				'own'         => $item['own'],
+				'default'     => self::raw( $item['type'], $item['inherited'] ),
+				'source'      => $item['inherited']['source'],
+				'sourceLabel' => $item['inherited']['label'],
+				'hidden'      => $item['hidden'],
+				'locked'      => $product instanceof \WC_Product && Product_Specs_Product_Writer::drives_variations( $product, $item['taxonomy'] ),
+				'terms'       => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::usage( $item['taxonomy'] ) : array(),
+				'wording'     => (object) ( $wording[ $key ] ?? array() ),
+			);
 		}
 
-		$preview = Product_Specs_Renderer::render(
-			$post->ID,
-			array(
-				'showNudge'   => true,
-				'showDetails' => true,
-			)
+		return array(
+			'field'         => Product_Specs_Admin_Fields::FIELD,
+			'items'         => $items,
+			'guide'         => $view['guide'],
+			'hiddenByGuide' => $view['hidden_by_guide'],
+			'canCreate'     => current_user_can( 'manage_product_terms' ),
 		);
-		echo '<div class="aa-specs-preview"><p class="aa-specs-preview__label">' . esc_html__( 'Product Specs block preview (updates when you save)', 'aggressive-apparel' ) . '</p>';
-		if ( '' !== $preview ) {
-			echo '<div class="aa-product-specs is-layout-full">' . aggressive_apparel_trusted_html( $preview ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by Product_Specs_Renderer.
-		} else {
-			echo '<p>' . esc_html__( 'Nothing to show yet. Set a value here, as a product attribute, or as the spec’s default.', 'aggressive-apparel' ) . '</p>';
-		}
-		echo '</div>';
+	}
 
-		$wording = Product_Specs_Admin_Fields::wording(
-			array_map( array( Product_Specs_Admin_Fields::class, 'set_from_resolved' ), $data['items'] ),
-			Product_Specs::sanitize_wording( get_post_meta( $post->ID, Product_Specs_Meta::WORDING, true ) ),
-			__( 'Wording for this product only. Empty fields use the wording from Products → Size & Specs → Specs, shown in grey.', 'aggressive-apparel' )
-		);
-		echo $wording; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
-		echo '</div>';
+	/**
+	 * A resolved value as the editor stores it: a step index, a number, or
+	 * text ('' when unset).
+	 *
+	 * @param string $type  Item type.
+	 * @param array  $value Resolved value.
+	 * @phpstan-param array{step: int, number: float, text: string} $value
+	 */
+	private static function raw( string $type, array $value ): string {
+		if ( Product_Specs_Registry::TYPE_TEXT === $type ) {
+			return $value['text'];
+		}
+		if ( Product_Specs_Registry::TYPE_NUMBER === $type ) {
+			return 0 < $value['number'] ? (string) $value['number'] : '';
+		}
+
+		return 0 <= $value['step'] ? (string) $value['step'] : '';
 	}
 
 	/**
@@ -225,7 +267,7 @@ final class Product_Specs_Admin {
 	}
 
 	/**
-	 * Load the block stylesheet on the product editor for the preview.
+	 * Load the Size & specs panel on the product editor.
 	 *
 	 * @param string $hook_suffix Admin page hook.
 	 */
@@ -234,57 +276,12 @@ final class Product_Specs_Admin {
 			return;
 		}
 
-		wp_enqueue_style( generate_block_asset_handle( 'aggressive-apparel/product-specs', 'style' ) );
-
-		// Text spec fields use WooCommerce's selectWoo, like its Attributes tab.
-		wp_register_script( 'aa-product-specs-fields', false, array( 'jquery', 'selectWoo' ), AGGRESSIVE_APPAREL_VERSION, true );
-		wp_enqueue_script( 'aa-product-specs-fields' );
-		wp_add_inline_script(
-			'aa-product-specs-fields',
-			<<<'JS'
-			jQuery( function ( $ ) {
-				$( '.aa-specs-terms' ).each( function () {
-					var field = $( this );
-					field.selectWoo( {
-						width: '260px',
-						// New values only for users who may add terms.
-						tags: String( field.data( 'tags' ) ) === '1',
-						allowClear: ! this.multiple,
-						placeholder: String( field.data( 'placeholder' ) || '' ),
-						createTag: function ( params ) {
-							// "|" separates values, so it can't be part of one.
-							var term = $.trim( params.term ).replace( /\|/g, '' );
-							var lower = term.toLowerCase();
-							// Typing an existing value's name picks it, never a copy.
-							var exists = field.find( 'option' ).filter( function () {
-								return this.value.toLowerCase() === lower;
-							} ).length;
-							return term && ! exists ? { id: term, text: term } : null;
-						},
-						// Existing matches first, so Enter picks one; a new value last.
-						insertTag: function ( data, tag ) {
-							data.push( tag );
-						},
-					} );
-					// selectWoo's multi-select search stops Enter before its own
-					// document handler can pick the highlighted result, so pick
-					// it here, ahead of that (capture phase).
-					var select2 = field.data( 'select2' );
-					if ( this.multiple && select2 ) {
-						select2.$container[ 0 ].addEventListener(
-							'keydown',
-							function ( event ) {
-								if ( 'Enter' === event.key && select2.isOpen() ) {
-									select2.trigger( 'results:select', {} );
-								}
-							},
-							true
-						);
-					}
-				} );
-			} );
-			JS
+		Asset_Loader::enqueue_script(
+			self::PANEL_HANDLE,
+			'build/scripts/admin/product-specs-panel',
+			array( 'wp-element', 'wp-components', 'wp-i18n', 'wp-dom-ready' )
 		);
+		Asset_Loader::enqueue_style( self::PANEL_HANDLE, 'build/scripts/admin/product-specs-panel', array( 'wp-components' ) );
 	}
 
 	/**

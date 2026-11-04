@@ -57,7 +57,6 @@ export type PanelData = {
   hiddenByGuide: { key: string; title: string }[];
   /** Whether the user may add new catalog values. */
   canCreate: boolean;
-  manageUrl: string;
 };
 
 /** A panel spec as the shared pickers and preview take it. */

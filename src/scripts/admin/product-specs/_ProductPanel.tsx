@@ -8,7 +8,9 @@
  * or the spec's default). Specs the size guide hides are listed with why.
  *
  * Everything is part of the product form (formFields), so saving the
- * product saves it, the way the rest of the product data tabs work.
+ * product saves it, the way the rest of the product data tabs work. The
+ * tab's heading and intro, with its link, are the server's
+ * (Product_Specs_Admin::render_product_fields); this draws only text.
  *
  * @package Aggressive_Apparel
  */
@@ -52,27 +54,7 @@ export default function ProductPanel({ data }: { data: PanelData }) {
     .map(spec => worded(spec, wording));
 
   return (
-    <div className='aa-ps-product__body'>
-      <h3 className='aa-ps-product__title'>
-        {__('Product specs', 'aggressive-apparel')}
-      </h3>
-      <p className='aa-ps-help'>
-        {data.guide
-          ? sprintf(
-              /* translators: %s: size guide name. */
-              __(
-                'Values save as this product’s WooCommerce attributes. An empty value uses the “%s” size guide’s, then the spec’s default.',
-                'aggressive-apparel'
-              ),
-              data.guide
-            )
-          : __(
-              'Values save as this product’s WooCommerce attributes. An empty value uses the spec’s default.',
-              'aggressive-apparel'
-            )}{' '}
-        <a href={data.manageUrl}>{__('Manage specs', 'aggressive-apparel')}</a>
-      </p>
-
+    <>
       {items.length === 0 && data.hiddenByGuide.length === 0 && (
         <p className='aa-ps-help aa-ps-help--notice'>
           {__(
@@ -182,6 +164,6 @@ export default function ProductPanel({ data }: { data: PanelData }) {
           <input key={i} type='hidden' name={name} value={value} />
         )
       )}
-    </div>
+    </>
   );
 }

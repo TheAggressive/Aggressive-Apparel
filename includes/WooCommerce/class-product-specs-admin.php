@@ -86,11 +86,28 @@ final class Product_Specs_Admin {
 	 * @param \WP_Post $post Product.
 	 */
 	public function render_product_fields( \WP_Post $post ): void {
+		$data = self::panel_data( $post->ID );
+
 		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false );
+		echo '<div class="aa-ps aa-ps-product">';
+		echo '<h3 class="aa-ps-product__title">' . esc_html__( 'Product specs', 'aggressive-apparel' ) . '</h3>';
 		printf(
-			'<div id="aa-product-specs-panel" class="aa-ps aa-ps-product" data-aa-product-specs-panel="%s"></div>',
-			esc_attr( (string) wp_json_encode( self::panel_data( $post->ID ) ) )
+			'<p class="aa-ps-help">%1$s <a href="%2$s">%3$s</a></p>',
+			esc_html(
+				'' !== $data['guide']
+					/* translators: %s: size guide name. */
+					? sprintf( __( 'Values save as this product’s WooCommerce attributes. An empty value uses the “%s” size guide’s, then the spec’s default.', 'aggressive-apparel' ), $data['guide'] )
+					: __( 'Values save as this product’s WooCommerce attributes. An empty value uses the spec’s default.', 'aggressive-apparel' )
+			),
+			esc_url( Product_Specs_Settings::url( 'specs' ) ),
+			esc_html__( 'Manage specs', 'aggressive-apparel' )
 		);
+		// The rows, drawn by the panel script from this data (text only).
+		printf(
+			'<div id="aa-product-specs-panel" class="aa-ps-product__specs" data-aa-product-specs-panel="%s"></div>',
+			esc_attr( (string) wp_json_encode( $data ) )
+		);
+		echo '</div>';
 	}
 
 	/**
@@ -140,7 +157,6 @@ final class Product_Specs_Admin {
 			'guide'         => $view['guide'],
 			'hiddenByGuide' => $view['hidden_by_guide'],
 			'canCreate'     => current_user_can( 'manage_product_terms' ),
-			'manageUrl'     => Product_Specs_Settings::url( 'specs' ),
 		);
 	}
 

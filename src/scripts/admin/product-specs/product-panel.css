@@ -10,11 +10,17 @@
  * @package Aggressive_Apparel
  */
 
-.aa-ps-product__body {
+.aa-ps-product {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 	padding: 4px 12px 16px;
+}
+
+.aa-ps-product__specs {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .aa-ps-product__title {

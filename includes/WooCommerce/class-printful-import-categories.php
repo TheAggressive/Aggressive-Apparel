@@ -10,7 +10,8 @@
  * A category holds one guide and saving takes it over, so a category another
  * guide already uses is never suggested, only reported: the store takes it
  * deliberately or not at all. Printful's product `type` is the print method,
- * not the garment, so the garment is read from its title and catalog category.
+ * not the garment, so the garment is read from its title and catalog category
+ * (Garment_Kinds).
  *
  * @package Aggressive_Apparel
  */
@@ -69,83 +70,6 @@ final class Printful_Import_Categories {
 	private const LOOSE_WORDS = array( 'top', 'short', 'cap', 'bottom', 'crop' );
 
 	/**
-	 * Garments, most specific first (a "T-Shirt Dress" is a dress, a "Crew Neck
-	 * T-Shirt" a tee), and the category words each fits, best first.
-	 *
-	 * @var array<string, array{match: string, stems: list<string>}>
-	 */
-	private const GARMENTS = array(
-		'dress'      => array(
-			'match' => '/\bdress(es)?\b/i',
-			'stems' => array( 'dress' ),
-		),
-		'hat'        => array(
-			'match' => '/\b(hats?|caps?|beanies?|visors?|snapbacks?)\b/i',
-			'stems' => array( 'hat', 'cap', 'beanie', 'headwear' ),
-		),
-		'jacket'     => array(
-			'match' => '/\b(jackets?|vests?|windbreakers?|bombers?|coats?)\b/i',
-			'stems' => array( 'jacket', 'outerwear', 'coat' ),
-		),
-		'hoodie'     => array(
-			'match' => '/\b(hoodies?|hooded)\b/i',
-			'stems' => array( 'hoodie', 'sweatshirt', 'sweater' ),
-		),
-		'polo'       => array(
-			'match' => '/\bpolos?\b/i',
-			'stems' => array( 'polo', 'shirt' ),
-		),
-		'tank'       => array(
-			'match' => '/\btanks?\b/i',
-			'stems' => array( 'tank', 'top' ),
-		),
-		'crop-top'   => array(
-			'match' => '/\bcrop\b/i',
-			'stems' => array( 'crop', 'top' ),
-		),
-		'longsleeve' => array(
-			'match' => '/\blong[\s-]?sleeves?\b/i',
-			'stems' => array( 'longsleeve', 'tshirt', 'tee', 'shirt' ),
-		),
-		'tshirt'     => array(
-			'match' => '/\b(t-?shirts?|tees?)\b/i',
-			'stems' => array( 'tshirt', 'tee', 'shirt', 'top' ),
-		),
-		'sweater'    => array(
-			'match' => '/\b(sweaters?|knit(ted|wear)?|cardigans?)\b/i',
-			'stems' => array( 'sweater', 'knitwear' ),
-		),
-		'sweatshirt' => array(
-			'match' => '/\b(sweatshirts?|crew\s?necks?|pullovers?)\b/i',
-			'stems' => array( 'sweatshirt', 'sweater', 'hoodie' ),
-		),
-		'shirt'      => array(
-			'match' => '/\b(shirts?|jerseys?)\b/i',
-			'stems' => array( 'shirt', 'top' ),
-		),
-		'leggings'   => array(
-			'match' => '/\bleggings?\b/i',
-			'stems' => array( 'legging', 'bottom' ),
-		),
-		'joggers'    => array(
-			'match' => '/\b(joggers?|sweatpants?|pants?)\b/i',
-			'stems' => array( 'jogger', 'sweatpant', 'pant', 'bottom' ),
-		),
-		'shorts'     => array(
-			'match' => '/\bshorts\b/i',
-			'stems' => array( 'short', 'bottom' ),
-		),
-		'skirt'      => array(
-			'match' => '/\bskirts?\b/i',
-			'stems' => array( 'skirt', 'bottom' ),
-		),
-		'swimwear'   => array(
-			'match' => '/\b(swim\w*|bikinis?)\b/i',
-			'stems' => array( 'swimwear', 'swim' ),
-		),
-	);
-
-	/**
 	 * Where a blank's guide should apply.
 	 *
 	 * @param string $provider Provider.
@@ -155,9 +79,9 @@ final class Printful_Import_Categories {
 	 */
 	public static function suggest( string $provider, string $title, string $category ): array {
 		$title = trim( explode( '|', $title )[0] );
-		$key   = self::garment( $title );
+		$key   = Garment_Kinds::of( $title );
 		if ( '' === $key ) {
-			$key = self::garment( $category );
+			$key = Garment_Kinds::of( $category );
 		}
 		if ( '' === $key ) {
 			$key = sanitize_title( $category );
@@ -223,23 +147,6 @@ final class Printful_Import_Categories {
 	}
 
 	/**
-	 * The garment a text names ('' when it names none).
-	 *
-	 * @param string $text Title or category.
-	 */
-	private static function garment( string $text ): string {
-		// A sleeve's length isn't a garment: "Cap Sleeve T-Shirt" is no hat.
-		$text = (string) preg_replace( '/\b(short|cap)[\s-]?sleeves?\b/i', '', $text );
-		foreach ( self::GARMENTS as $key => $garment ) {
-			if ( 1 === preg_match( $garment['match'], $text ) ) {
-				return $key;
-			}
-		}
-
-		return '';
-	}
-
-	/**
 	 * The categories named like a garment: those matching its best-fitting word
 	 * that any category uses, minus the other gender's when the title says one.
 	 *
@@ -256,7 +163,7 @@ final class Printful_Import_Categories {
 			$not = array( 'women', 'womens', 'ladies' );
 		}
 
-		foreach ( self::GARMENTS[ $key ]['stems'] ?? array() as $stem ) {
+		foreach ( Garment_Kinds::stems( $key ) as $stem ) {
 			$found = array();
 			foreach ( $terms as $id => $name ) {
 				$words = self::words( $name );

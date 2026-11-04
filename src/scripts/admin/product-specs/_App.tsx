@@ -320,6 +320,7 @@ export default function App({ config }: { config: Config }) {
                     taxonomies={freeTaxonomies(item)}
                     saved={savedItems.find(other => other.key === item.key)}
                     restPath={config.restPath}
+                    weightPresets={config.weightPresets}
                     open={open === item.uid}
                     onToggle={() =>
                       setOpen(open === item.uid ? null : item.uid)

@@ -556,6 +556,41 @@
 	font-weight: 500;
 }
 
+/* Built-in boundaries for categories named like a garment (_weightBands). */
+.aa-ps-catsteps__suggest {
+	align-self: stretch;
+	padding: 10px 12px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.aa-ps-catsteps__suggest-head {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.aa-ps-catsteps__suggest ul {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 6px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.aa-ps-catsteps__suggest li {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	align-items: baseline;
+	justify-content: space-between;
+	margin: 0;
+	font-size: 12px;
+}
+
 /* Advice rows */
 .aa-ps-advice {
 	display: flex;

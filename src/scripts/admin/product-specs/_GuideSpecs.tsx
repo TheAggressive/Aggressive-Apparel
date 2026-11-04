@@ -360,6 +360,7 @@ export default function GuideSpecs({
                 onToggle={() => setOpen(null)}
                 saved={items.find(other => other.key === item.key)}
                 restPath={config.restPath}
+                weightPresets={config.weightPresets}
                 onChange={patch =>
                   isNew ? updateAdded(item, patch) : onEdit(item.key, patch)
                 }

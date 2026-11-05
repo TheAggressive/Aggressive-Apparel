@@ -283,10 +283,15 @@
 		border: 0;
 	}
 
-	/* Each row: 3-column grid — thumbnail | details | line total */
-	.wc-block-cart-items__row {
+	/* Each row: 3-column grid — thumbnail | details | line total.
+	   The table selector must outrank WC's `.is-mobile table.wc-block-cart-items
+	   .wc-block-cart-items__row` (0,3,1): it forces `80px 132px` columns and spans
+	   the product cell to line 4, which shoves the total into an implicit 4th
+	   column past the drawer edge — horizontal scroll on mobile. Cells are placed
+	   explicitly for the same reason (WC's placement rules are (0,4,1)). */
+	table.wc-block-cart-items.wc-block-mini-cart-items .wc-block-cart-items__row {
 		display: grid;
-		grid-template-columns: 5rem 1fr auto;
+		grid-template-columns: 5rem minmax(0, 1fr) auto;
 		column-gap: var(--wp--preset--spacing--2);
 		align-items: start;
 		padding-block: var(--wp--preset--spacing--5);
@@ -307,6 +312,19 @@
 
 		&:hover {
 			background-color: var(--aa-color-hover-subtle);
+		}
+
+		.wc-block-cart-item__image {
+			grid-column: 1;
+		}
+
+		.wc-block-cart-item__product {
+			grid-column: 2;
+			min-width: 0;
+		}
+
+		.wc-block-cart-item__total {
+			grid-column: 3;
 		}
 	}
 

@@ -9,7 +9,7 @@
  * so the bars never have to be interpreted visually.
  *
  * The footer is product data only (every size's line, both units); the
- * script picks the line for the shopper's size and unit in the browser, so
+ * script copies the line for the shopper's size and unit in the browser, so
  * the markup stays full-page-cache safe.
  *
  * @package Aggressive_Apparel
@@ -162,41 +162,80 @@ final class Product_Specs_Renderer {
 	/**
 	 * The picked size's measurements and a link that opens the size guide.
 	 *
-	 * Starts hidden; the size guide script reveals each part once it has
-	 * something to show (a picked size in the chart, a size guide on the page).
-	 * The block can sit inside kses-filtered content (product tabs), which
-	 * strips `hidden` and `data-wp-on--*`, so pending parts are hidden by a
-	 * class and the link's click is wired from the init callback.
+	 * Only on the product's own page: the size guide script loads there, and
+	 * the page's size options are this product's (not, say, a related one's).
+	 *
+	 * Every size's line, in both units, is printed as a hidden "ghost" in the
+	 * same grid cell as the live line, so the footer is always as tall as its
+	 * longest line; the script copies the picked ghost into the live line.
+	 * The link's click is wired by the script, as kses strips `data-wp-on--*`
+	 * in product tab content.
 	 *
 	 * @param int                  $product_id Product ID.
 	 * @param array<string, mixed> $attributes Block attributes.
 	 */
 	private static function footer( int $product_id, array $attributes ): string {
+		if ( ! function_exists( 'is_product' ) || ! is_product() || (int) get_queried_object_id() !== $product_id ) {
+			return '';
+		}
+
 		$measurements = ! isset( $attributes['showMeasurements'] ) || (bool) $attributes['showMeasurements'];
-		$link         = ! isset( $attributes['showGuideLink'] ) || (bool) $attributes['showGuideLink'];
+		$link         = ( ! isset( $attributes['showGuideLink'] ) || (bool) $attributes['showGuideLink'] )
+			&& Size_Guide::resolved( $product_id )['dialog'];
 
 		$chart = $measurements ? Size_Chart::for_product( $product_id ) : null;
 		$sizes = null !== $chart ? Size_Chart::size_lines( $chart ) : array();
 
 		$inner = '';
 		if ( array() !== $sizes ) {
-			// Starts as a prompt (server text, so it isn't announced on load);
-			// the script swaps in the picked size's line.
-			$prompt = __( 'Pick a size to see its measurements.', 'aggressive-apparel' );
-			$inner .= '<p class="aa-product-specs__fit" aria-live="polite" data-prompt="' . esc_attr( $prompt ) . '">' . esc_html( $prompt ) . '</p>';
+			// Server text, so it isn't announced on load. The script restores
+			// it from its ghost (the one without a size).
+			$prompt = esc_html__( 'Pick a size to see its measurements.', 'aggressive-apparel' );
+			$ghosts = '<span class="aa-product-specs__fit-ghost" aria-hidden="true">' . $prompt . '</span>';
+			foreach ( $sizes as $line ) {
+				foreach ( array( 'in', 'cm' ) as $unit ) {
+					$ghosts .= sprintf(
+						'<span class="aa-product-specs__fit-ghost" aria-hidden="true" data-size="%1$s" data-unit="%2$s">%3$s</span>',
+						esc_attr( $line['size'] ),
+						$unit,
+						self::size_line( $line['title'], $line[ $unit ] )
+					);
+				}
+			}
+			$inner .= '<div class="aa-product-specs__measure"><p class="aa-product-specs__fit" aria-live="polite">' . $prompt . '</p>' . $ghosts . '</div>';
 		}
 		if ( $link ) {
-			$inner .= '<button type="button" class="aa-product-specs__guide-link is-pending">' . esc_html__( 'Size guide', 'aggressive-apparel' ) . '</button>';
+			$inner .= '<button type="button" class="aa-product-specs__guide-link">' . esc_html__( 'Size guide', 'aggressive-apparel' ) . '</button>';
 		}
 		if ( '' === $inner ) {
 			return '';
 		}
 
 		return sprintf(
-			'<div class="aa-product-specs__footer is-pending" data-wp-interactive="aggressive-apparel/product-specs" data-wp-init="callbacks.initFooter" data-sizes="%1$s">%2$s</div>',
-			esc_attr( (string) wp_json_encode( $sizes ) ),
+			'<div class="aa-product-specs__footer" data-wp-interactive="aggressive-apparel/product-specs" data-wp-init="callbacks.initFooter">%s</div>',
 			$inner
 		);
+	}
+
+	/**
+	 * One size's line: "Size M · Chest 42 in · Length 29 in". The dots are
+	 * hidden from screen readers, which hear "Size M: Chest 42 in, Length
+	 * 29 in" instead.
+	 *
+	 * @param string                                    $title Line title ("Size M").
+	 * @param list<array{label: string, value: string}> $parts Measurements in one unit.
+	 */
+	private static function size_line( string $title, array $parts ): string {
+		$html = '<span class="aa-product-specs__fit-size">' . esc_html( $title ) . '</span><span class="screen-reader-text">: </span>';
+		foreach ( $parts as $index => $part ) {
+			if ( $index > 0 ) {
+				$html .= '<span class="screen-reader-text">, </span>';
+			}
+			$html .= '<span class="aa-product-specs__fit-dot" aria-hidden="true">·</span>'
+				. '<span class="aa-product-specs__fit-item">' . esc_html( $part['label'] ) . ' <span class="aa-product-specs__fit-value">' . esc_html( $part['value'] ) . '</span></span>';
+		}
+
+		return $html;
 	}
 
 	/**

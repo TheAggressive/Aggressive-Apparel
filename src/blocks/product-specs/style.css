@@ -176,24 +176,33 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem 1rem;
-	align-items: baseline;
+
+	/* Not baseline: an empty line (a size missing from the chart) has none,
+	   and the link would jump. Line and link share one font size anyway. */
+	align-items: start;
 	font-size: 0.875em;
 }
 
-/* Revealed by the size guide script once there is something to show. */
-.aa-product-specs__footer.is-pending,
-.aa-product-specs__guide-link.is-pending {
-	display: none;
+/* The live line and every size's hidden ghost share one grid cell, so it is
+   always as big as the longest line and a pick never moves the layout. */
+.aa-product-specs__measure {
+	display: grid;
+	color: var(--aa-product-specs-muted);
+	text-transform: capitalize;
 }
 
-.aa-product-specs__fit {
+.aa-product-specs__fit,
+.aa-product-specs__fit-ghost {
 	display: flex;
 	flex-wrap: wrap;
+	grid-area: 1 / 1;
 	row-gap: 0.25rem;
 	align-items: baseline;
 	margin: 0;
-	color: var(--aa-product-specs-muted);
-	text-transform: capitalize;
+}
+
+.aa-product-specs__fit-ghost {
+	visibility: hidden;
 }
 
 /* "Size M · Chest 42 in · Length 29 in": size and values at full strength,

@@ -276,9 +276,14 @@ export default function Edit({
         {shown.length > 0 && (showMeasurements || showGuideLink) && (
           <div className='aa-product-specs__footer'>
             {showMeasurements && (
-              <p className='aa-product-specs__fit'>
-                {__('Size M: Chest 42 in, Length 29 in', 'aggressive-apparel')}
-              </p>
+              <div className='aa-product-specs__measure'>
+                <p className='aa-product-specs__fit'>
+                  {__(
+                    'Size M: Chest 42 in, Length 29 in',
+                    'aggressive-apparel'
+                  )}
+                </p>
+              </div>
             )}
             {showGuideLink && (
               <span className='aa-product-specs__guide-link'>

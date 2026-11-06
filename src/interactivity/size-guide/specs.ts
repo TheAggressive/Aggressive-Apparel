@@ -3,75 +3,40 @@
  *
  * The footer under the specs shows the picked size's measurements ("Size M ·
  * Chest 42 in · Length 29 in") and a link that opens the size guide. The
- * server prints every size's line in both units (product data, so page-cache
- * safe); this picks the one for the shopper's size and unit, and follows
- * both as they change. Ships in the size guide bundle, which every product
- * page loads, and talks to the size guide through the DOM: the link clicks
- * the guide's own trigger, so focus returns to the link when it closes.
+ * server prints every size's line in both units as hidden ghosts (product
+ * data, so page-cache safe); this copies the one for the shopper's size and
+ * unit into the live line, and follows both as they change. The footer only
+ * renders on the product's own page, so reading the pick page-wide is safe.
+ * The link clicks the guide's own trigger, so focus returns to it on close.
  *
  * @package Aggressive_Apparel
  */
 
 import { store, getElement } from '@wordpress/interactivity';
 import { selectedSizes, sizeKey } from './sizes';
-import { openSizeGuide, TRIGGER } from './open';
+import { openSizeGuide } from './open';
 import { preferredUnit, UNIT_EVENT, type Unit } from './units';
 
-type Part = { label: string; value: string };
-type SizeLine = { size: string; title: string; in: Part[]; cm: Part[] };
-
-const PENDING = 'is-pending';
-
-function readSizes(footer: HTMLElement): SizeLine[] {
-  try {
-    const parsed: unknown = JSON.parse(footer.dataset.sizes ?? '[]');
-    return Array.isArray(parsed) ? (parsed as SizeLine[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function span(className: string, text: string, hidden = false): HTMLElement {
-  const el = document.createElement('span');
-  el.className = className;
-  el.textContent = text;
-  if (hidden) {
-    el.setAttribute('aria-hidden', 'true');
-  }
-  return el;
-}
-
-/**
- * "Size M · Chest 42 in · Length 29 in": the dots are hidden from screen
- * readers, which hear "Size M: Chest 42 in, Length 29 in" instead.
- */
-function renderLine(line: SizeLine, unit: Unit): DocumentFragment {
-  const fragment = document.createDocumentFragment();
-  fragment.append(
-    span('aa-product-specs__fit-size', line.title),
-    span('screen-reader-text', ': ')
-  );
-  line[unit].forEach((part, index) => {
-    if (index > 0) {
-      fragment.append(span('screen-reader-text', ', '));
-    }
-    const item = span('aa-product-specs__fit-item', `${part.label} `);
-    item.append(span('aa-product-specs__fit-value', part.value));
-    fragment.append(span('aa-product-specs__fit-dot', '·', true), item);
-  });
-  return fragment;
-}
+const GHOST = '.aa-product-specs__fit-ghost';
 
 /**
  * What the line shows: the prompt until a size is picked, then that size's
- * measurements, or nothing when the chart has no row for it.
+ * line in the unit, or nothing when the chart has no row for it.
  */
-function lineFor(sizes: SizeLine[]): SizeLine | 'prompt' | null {
+type Shown = HTMLElement | 'prompt' | null;
+
+function ghostFor(ghosts: HTMLElement[], unit: Unit): Shown {
   const picked = selectedSizes();
   if (picked.length === 0) {
     return 'prompt';
   }
-  return sizes.find(row => picked.includes(sizeKey(row.size))) ?? null;
+  return (
+    ghosts.find(
+      ghost =>
+        ghost.dataset.unit === unit &&
+        picked.includes(sizeKey(ghost.dataset.size ?? ''))
+    ) ?? null
+  );
 }
 
 store('aggressive-apparel/product-specs', {
@@ -82,49 +47,39 @@ store('aggressive-apparel/product-specs', {
         return;
       }
 
+      // Wired here, not with data-wp-on: kses strips that in tab content.
       const link = ref.querySelector<HTMLElement>(
         '.aa-product-specs__guide-link'
       );
-      const hasLink = Boolean(link && document.querySelector(TRIGGER));
-      if (link && hasLink) {
-        // Wired here, not with data-wp-on: kses strips that in tab content.
-        link.addEventListener('click', () => openSizeGuide(link));
-        link.classList.remove(PENDING);
-      }
+      link?.addEventListener('click', () => openSizeGuide(link));
 
       const fit = ref.querySelector<HTMLElement>('.aa-product-specs__fit');
-      const sizes = readSizes(ref);
-      if ((!fit || sizes.length === 0) && !hasLink) {
-        return;
-      }
-      ref.classList.remove(PENDING);
-      if (!fit || sizes.length === 0) {
+      const ghosts = [...ref.querySelectorAll<HTMLElement>(GHOST)];
+      const lines = ghosts.filter(ghost => ghost.dataset.size);
+      if (!fit || lines.length === 0) {
         return;
       }
 
-      // The server-rendered prompt stays until something else is due, so
-      // nothing is announced on load; the line is rebuilt only on change.
-      const prompt = fit.dataset.prompt ?? '';
+      // The server's prompt stays until a pick changes it, so nothing is
+      // announced on load.
+      const prompt =
+        ghosts.find(ghost => !ghost.dataset.size)?.textContent ?? '';
       let unit = preferredUnit();
       let frame = 0;
-      let shown = 'prompt';
+      let shown: Shown = 'prompt';
 
       const update = () => {
-        const line = lineFor(sizes);
-        const key =
-          line === 'prompt' || line === null
-            ? String(line)
-            : `${line.size}|${unit}`;
-        if (key === shown) {
+        const line = ghostFor(lines, unit);
+        if (line === shown) {
           return;
         }
-        shown = key;
+        shown = line;
         if (line === 'prompt') {
           fit.textContent = prompt;
         } else if (line === null) {
           fit.textContent = '';
         } else {
-          fit.replaceChildren(renderLine(line, unit));
+          fit.replaceChildren(...line.cloneNode(true).childNodes);
         }
       };
       // Variation pickers update their own markup after the event, so read

@@ -470,7 +470,7 @@
 }
 
 /* WooCommerce prints each product's short description under the line item on
- * the cart and checkout. Hide it there; the mini-cart clamps it in mini-cart.css. */
+ * the cart and checkout. Hide it there (the mini-cart hides it in mini-cart.css). */
 :is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout) .wc-block-components-product-metadata__description {
 	display: none;
 }

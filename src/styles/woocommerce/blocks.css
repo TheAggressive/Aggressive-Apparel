@@ -165,6 +165,15 @@
 	letter-spacing: inherit;
 }
 
+/* WooPayments multi-currency prints each price as a screen-reader placeholder
+   and fills in the visible amount from script, so until then (on load, and on
+   every variation change) the price line collapses and the page below jumps.
+   An empty inline-block keeps a line box, so the line holds its height. */
+:where(.wcpay-async-price:not(.wcpay-price-converted))::before {
+	content: "";
+	display: inline-block;
+}
+
 .wp-block-woocommerce-product-price.is-style-commerce-price,
 .is-style-commerce-price .wc-block-components-product-price {
 	font-size: var(--wp--preset--font-size--small);

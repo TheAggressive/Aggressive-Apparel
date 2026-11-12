@@ -19,8 +19,8 @@ namespace Aggressive_Apparel\WooCommerce;
  * This copies the estimate from Printful's Standard rate, else its cheapest,
  * so the shopper still sees "Free shipping (Estimated delivery: Oct 12–13)".
  *
- * Runs just before Free_Shipping_Rate_Hiding (PHP_INT_MAX), and core 11.3.0+
- * hides after the whole filter, so the Printful rates are still present.
+ * Runs just before Free_Shipping_Rate_Hiding (PHP_INT_MAX), and a fixed core
+ * would hide after the whole filter, so the Printful rates are still present.
  */
 class Free_Shipping_Delivery_Estimate {
 

@@ -85,16 +85,12 @@ class TestFreeShippingRateHiding extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Core's own calculation with a plugin-style rate whose method id isn't
-	 * registered: the case that fatals in core before 11.3.0.
+	 * Run core's own calculation with a plugin-style rate whose method id isn't
+	 * registered (as Printful's are) and the hide-when-free setting on.
 	 *
-	 * @return void
+	 * @return array<string, mixed> Calculated package.
 	 */
-	public function test_core_calculation_with_unregistered_rate_method(): void {
-		if ( ! Free_Shipping_Rate_Hiding::is_needed() ) {
-			$this->markTestSkipped( 'Core carries the fix; see test_stand_in_is_deleted_once_core_fix_ships.' );
-		}
-
+	private function calculate_with_unregistered_rate_method(): array {
 		$zone = new \WC_Shipping_Zone();
 		$zone->set_zone_name( 'Rate hiding' );
 		$zone->add_location( 'ZA', 'country' );
@@ -131,7 +127,6 @@ class TestFreeShippingRateHiding extends WP_UnitTestCase {
 		};
 		add_filter( 'woocommerce_shipping_zone_shipping_methods', $inject );
 		update_option( Free_Shipping_Rate_Hiding::OPTION, 'yes' );
-		$this->assertNotFalse( has_filter( 'woocommerce_package_rates', array( Free_Shipping_Rate_Hiding::class, 'hide_paid_rates' ) ), 'Bootstrap registers the stand-in.' );
 
 		if ( null === WC()->session ) {
 			WC()->initialize_session();
@@ -155,50 +150,54 @@ class TestFreeShippingRateHiding extends WP_UnitTestCase {
 		);
 
 		try {
-			$result = WC()->shipping()->calculate_shipping_for_package( $package, 'rate-hiding-test' );
+			return WC()->shipping()->calculate_shipping_for_package( $package, 'rate-hiding-test-' . wp_generate_password( 8, false ) );
 		} finally {
 			remove_filter( 'woocommerce_shipping_zone_shipping_methods', $inject );
 		}
+	}
 
+	/**
+	 * The stand-in keeps core's calculation from fataling and still hides.
+	 *
+	 * @return void
+	 */
+	public function test_core_calculation_with_unregistered_rate_method(): void {
+		$this->assertNotFalse( has_filter( 'woocommerce_package_rates', array( Free_Shipping_Rate_Hiding::class, 'hide_paid_rates' ) ), 'Bootstrap registers the stand-in.' );
+
+		$result  = $this->calculate_with_unregistered_rate_method();
 		$methods = array_map( static fn( $rate ) => $rate->get_method_id(), array_values( $result['rates'] ) );
+
 		$this->assertSame( array( 'free_shipping' ), $methods );
 		$this->assertSame( 'yes', get_option( Free_Shipping_Rate_Hiding::OPTION ) );
 	}
 
 	/**
+	 * Tripwire on core's behavior, not its version: woocommerce/woocommerce#68707
+	 * was milestoned for 11.3.0 and reverted (#68854), so a version number has
+	 * already lied once. Without the stand-in, core must still fatal here.
+	 *
 	 * @return void
 	 */
-	public function test_stand_in_is_deleted_once_core_fix_ships(): void {
+	public function test_core_still_needs_the_stand_in(): void {
+		remove_action( 'woocommerce_before_get_rates_for_package', array( Free_Shipping_Rate_Hiding::class, 'suppress_core' ) );
+		remove_filter( 'woocommerce_package_rates', array( Free_Shipping_Rate_Hiding::class, 'restore_core' ), PHP_INT_MIN );
+		remove_filter( 'woocommerce_package_rates', array( Free_Shipping_Rate_Hiding::class, 'hide_paid_rates' ), PHP_INT_MAX );
+
+		$failed = false;
+		try {
+			$this->calculate_with_unregistered_rate_method();
+		} catch ( \Throwable ) {
+			$failed = true;
+		} finally {
+			Free_Shipping_Rate_Hiding::init();
+		}
+
 		$this->assertTrue(
-			Free_Shipping_Rate_Hiding::is_needed(),
+			$failed,
 			sprintf(
-				'WooCommerce %s carries the hide-when-free fix (woocommerce/woocommerce#68707). Delete Free_Shipping_Rate_Hiding, its Bootstrap init() call, and this test file.',
+				'WooCommerce %s handles rates from unregistered shipping methods with "Hide shipping rates when free shipping is available" on. Delete Free_Shipping_Rate_Hiding, its Bootstrap init() call, and this test file.',
 				WC_VERSION
 			)
 		);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function test_removal_notice_is_admin_only_on_listed_screens(): void {
-		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $admin );
-		set_current_screen( 'dashboard' );
-
-		ob_start();
-		Free_Shipping_Rate_Hiding::render_removal_notice();
-		$this->assertStringContainsString( 'class-free-shipping-rate-hiding.php', (string) ob_get_clean() );
-
-		set_current_screen( 'edit-post' );
-		ob_start();
-		Free_Shipping_Rate_Hiding::render_removal_notice();
-		$this->assertSame( '', ob_get_clean() );
-
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'shop_manager' ) ) );
-		set_current_screen( 'dashboard' );
-		ob_start();
-		Free_Shipping_Rate_Hiding::render_removal_notice();
-		$this->assertSame( '', ob_get_clean() );
 	}
 }

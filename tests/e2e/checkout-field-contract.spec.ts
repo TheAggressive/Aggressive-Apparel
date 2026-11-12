@@ -172,6 +172,11 @@ test.describe('checkout field contract', () => {
           getComputedStyle(document.querySelector('#email') as Element)
             .borderLeftColor
       );
+    // WooCommerce focuses the first role="alert" notice 500ms after
+    // DOMContentLoaded (woocommerce.js focus_populate_live_region), and this
+    // checkout has one (no payment methods). Typing before then loses focus
+    // mid-word, so let that timer pass.
+    await page.waitForTimeout(600);
     // Clear first: a logged-in shopper's address is prefilled, and typing
     // after it would make the email invalid (error bar, not focus).
     await page.fill('#email', '');

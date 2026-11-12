@@ -1,7 +1,7 @@
 <?php
 /**
  * Stand-in for WooCommerce's "Hide shipping rates when free shipping is
- * available" setting until the core fix ships.
+ * available" setting until a core fix ships.
  *
  * @package Aggressive_Apparel
  * @since 1.186.0
@@ -12,21 +12,27 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\WooCommerce;
 
 /**
- * Applies the core hide-when-free setting safely on WooCommerce < 11.3.0.
+ * Applies the core hide-when-free setting safely.
  *
- * Before 11.3.0, core's hiding loop looks up each rate's method by
- * `$rate->method_id` with no null guard, so a rate whose method isn't
- * registered under that id (e.g. one produced by a shipping plugin) fatals
- * with `supports() on null`. It also runs before `woocommerce_package_rates`,
- * so a plugin that later removes free shipping leaves no rates at all
- * (woocommerce/woocommerce#63300). Both are fixed by woocommerce/woocommerce#68707.
+ * Core's hiding loop looks up each rate's method by `$rate->method_id` with
+ * no null guard, so a rate whose method isn't registered under that id (e.g.
+ * Printful's `printful_shipping_*` rates) fatals with `supports() on null`,
+ * which 500s every Store API cart request with shippable items. It also runs
+ * before `woocommerce_package_rates`, so a plugin that later removes free
+ * shipping leaves no rates at all (woocommerce/woocommerce#63300).
+ *
+ * The fix (woocommerce/woocommerce#68707) was milestoned for 11.3.0 but
+ * reverted before release (#68854); 11.3.0 still ships the unguarded loop.
+ * So this is not version-gated: it runs on every WooCommerce, and
+ * TestFreeShippingRateHiding checks core's actual behavior to say when it
+ * can go. On a core that is fixed, it is harmless: core then hides after the
+ * rates filter with the setting already restored, which is a no-op on rates
+ * this has already reduced.
  *
  * While the merchant's checkbox is on, this keeps core's loop from running
  * (the option reads 'no' only between rate collection and the rates filter)
  * and applies the same rule after every other `woocommerce_package_rates`
- * callback, which is the 11.3.0 ordering. On 11.3.0+ it registers nothing,
- * so core takes over with the same setting. Delete once the theme requires
- * WooCommerce 11.3.0.
+ * callback.
  */
 class Free_Shipping_Rate_Hiding {
 
@@ -38,59 +44,14 @@ class Free_Shipping_Rate_Hiding {
 	public const OPTION = 'woocommerce_shipping_hide_rates_when_free';
 
 	/**
-	 * First WooCommerce release carrying the core fix.
-	 *
-	 * @var string
-	 */
-	public const FIXED_IN = '11.3.0';
-
-	/**
-	 * Register hooks when the running WooCommerce still has the bug.
+	 * Register hooks.
 	 *
 	 * @return void
 	 */
 	public static function init(): void {
-		if ( ! self::is_needed() ) {
-			add_action( 'admin_notices', array( self::class, 'render_removal_notice' ) );
-			return;
-		}
-
 		add_action( 'woocommerce_before_get_rates_for_package', array( self::class, 'suppress_core' ) );
 		add_filter( 'woocommerce_package_rates', array( self::class, 'restore_core' ), PHP_INT_MIN );
 		add_filter( 'woocommerce_package_rates', array( self::class, 'hide_paid_rates' ), PHP_INT_MAX );
-	}
-
-	/**
-	 * Whether the running WooCommerce predates the core fix.
-	 *
-	 * @return bool
-	 */
-	public static function is_needed(): bool {
-		return defined( 'WC_VERSION' ) && version_compare( (string) WC_VERSION, self::FIXED_IN, '<' );
-	}
-
-	/**
-	 * Remind admins to delete this class once core carries the fix.
-	 *
-	 * Developer-facing, so deliberately untranslated. Limited to the
-	 * dashboard, Plugins and WooCommerce settings screens.
-	 *
-	 * @return void
-	 */
-	public static function render_removal_notice(): void {
-		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-
-		if ( ! current_user_can( 'manage_options' ) || null === $screen || ! in_array( $screen->id, array( 'dashboard', 'plugins', 'woocommerce_page_wc-settings' ), true ) ) {
-			return;
-		}
-
-		printf(
-			'<div class="notice notice-warning"><p><strong>Aggressive Apparel:</strong> WooCommerce %1$s fixes "Hide shipping rates when free shipping is available", so the theme\'s stand-in is now inactive. Delete <code>%2$s</code>, its <code>Free_Shipping_Rate_Hiding::init()</code> call in <code>%3$s</code>, and <code>%4$s</code>.</p></div>',
-			esc_html( (string) WC_VERSION ),
-			'includes/WooCommerce/class-free-shipping-rate-hiding.php',
-			'includes/class-bootstrap.php',
-			'tests/Unit/WooCommerce/TestFreeShippingRateHiding.php'
-		);
 	}
 
 	/**

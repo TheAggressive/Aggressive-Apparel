@@ -172,6 +172,9 @@ test.describe('checkout field contract', () => {
           getComputedStyle(document.querySelector('#email') as Element)
             .borderLeftColor
       );
+    // Clear first: a logged-in shopper's address is prefilled, and typing
+    // after it would make the email invalid (error bar, not focus).
+    await page.fill('#email', '');
     await page.focus('#email');
     await page.keyboard.type('shopper@example.com');
     await expect.poll(barColor).toBe(barFocus);

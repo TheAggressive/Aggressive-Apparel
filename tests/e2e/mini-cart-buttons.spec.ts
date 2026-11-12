@@ -70,8 +70,10 @@ test('mobile mini-cart actions use one adaptive button paint layer', async ({
   ]);
   expect(cartBox?.height).toBeGreaterThanOrEqual(44);
   expect(checkoutBox?.height).toBeGreaterThanOrEqual(44);
+  // WooCommerce owns the row's widths (11.3.0 made them equal, flex: 1 1 0);
+  // the theme only holds the touch size and the cart-then-checkout order.
   expect(cartBox?.width).toBeGreaterThanOrEqual(180);
-  expect(checkoutBox?.width).toBeGreaterThan(cartBox?.width ?? 0);
+  expect(checkoutBox?.width).toBeGreaterThanOrEqual(180);
   expect((cartBox?.x ?? 0) + (cartBox?.width ?? 0)).toBeLessThanOrEqual(
     checkoutBox?.x ?? 0
   );
@@ -110,6 +112,8 @@ test('mobile mini-cart actions use one adaptive button paint layer', async ({
     .poll(async () => (await buttonPaint(cart)).boxShadow)
     .not.toBe('none');
 
+  // Narrow screens stack the buttons full width. The theme owns this since
+  // WooCommerce 11.3.0 dropped its column breakpoint (mini-cart.css).
   await page.setViewportSize({ width: 320, height: 720 });
   await expect(actions).toHaveCSS('flex-direction', 'column');
 

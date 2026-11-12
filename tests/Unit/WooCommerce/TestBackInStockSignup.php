@@ -134,7 +134,14 @@ class TestBackInStockSignup extends BackInStockTestCase {
 		$email   = $this->new_email();
 
 		$first = $this->subscribe( $product, $email );
-		// WooCommerce's per-email delay doesn't apply to an existing entry.
+		// Since WooCommerce 11.3.0 the per-email delay is checked before the
+		// existing-entry lookup, so an immediate repeat is throttled like any
+		// rapid signup from that address. Once the delay has passed (skipped
+		// here), "already joined" must answer exactly like a new signup.
+		add_filter(
+			'woocommerce_customer_stock_notifications_signup_rate_limit_options',
+			static fn( $options ) => array_merge( (array) $options, array( 'email_delay' => 0 ) )
+		);
 		$second = $this->subscribe( $product, $email );
 
 		$this->assertSame( $first, $second );

@@ -146,6 +146,9 @@ class TestBackInStockLinks extends BackInStockTestCase {
 		$notification = $this->notification( NotificationStatus::ACTIVE );
 
 		wc_get_container()->get( EmailManager::class )->send_stock_notification_email( $notification );
+		// Since WooCommerce 11.3.0 the email leaves the key's hash for its
+		// caller to persist; NotificationsProcessor saves right after sending.
+		$notification->save();
 
 		$sent = tests_retrieve_phpmailer_instance()->get_sent();
 		$this->assertNotFalse( $sent, 'The restock email should be sent.' );

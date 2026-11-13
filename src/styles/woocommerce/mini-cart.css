@@ -194,6 +194,13 @@
 	.wc-block-mini-cart__footer
 	.wc-block-mini-cart__footer-actions {
 
+	/* Stack full width on narrow screens. WooCommerce 11.3.0 dropped its own
+	 * column breakpoint for flex-wrap, but its min-width: min-content lets the
+	 * labels break onto three lines before the row ever wraps. */
+	@media (width <= 480px) {
+		flex-direction: column;
+	}
+
 	.wc-block-components-button {
 		box-sizing: border-box;
 		min-height: var(--aa-button-height-md);

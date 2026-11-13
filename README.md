@@ -192,7 +192,7 @@ aggressive-apparel/
 │   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores, etc.)
 │   ├── icons/                # Brand SVG sources (built to build/icons/)
 │   ├── scripts/              # Admin, editor, and theme JS/TS
-│   └── styles/               # Theme CSS (Tailwind v4 + PostCSS)
+│   └── styles/               # Theme CSS (native CSS, PostCSS + Lightning CSS)
 ├── templates/                # FSE templates (13 HTML + emails/)
 └── tests/                    # PHPUnit test suites
 ```

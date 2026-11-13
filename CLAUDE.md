@@ -70,7 +70,14 @@ suppressed findings). PSR-4 under `Aggressive_Apparel\`, directory-matched;
 ### JavaScript / TypeScript / CSS
 
 TypeScript for all new code; React/JSX for editor components; ESLint (WordPress
-plugin) + Prettier. Tailwind 4.x with PostCSS, Stylelint, BEM-like custom classes.
+plugin) + Prettier. Native CSS (no framework) built by PostCSS (`postcss-import`)
++ Lightning CSS, Stylelint, BEM-like custom classes.
+
+- **Native CSS nesting only.** Lightning CSS flattens it at build time. No
+  Sass-style concatenation (`&__el`, `&--mod`) — native nesting can't express
+  it; write the full BEM selector. Nesting under a selector *list* compiles to
+  `:is()`, which takes the list's highest specificity — spell such rules out
+  when the members' specificities differ.
 
 - **Never use body-level `:has()`** (`body:has(...)`, `body.x:has(...)`) — it
   forces a document-wide style re-scan on EVERY childList mutation anywhere in
@@ -80,10 +87,11 @@ plugin) + Prettier. Tailwind 4.x with PostCSS, Stylelint, BEM-like custom classe
   Component-scoped `:has()` subjects are fine.
 - **Per-frame text updates must mutate a `Text` node's `.data`**, never assign
   `textContent` (which replaces the node — a childList mutation).
-- **Every `aa-*` cascade layer sits below Tailwind Preflight** (`base`), which
-  zeroes padding/border/radius on form controls. The form baseline lives in
-  `aa-forms`, pinned after `base` in `main.css`; don't move form rules into
-  other `aa-*` layers. Field values come from `--aa-field-*` tokens
+- **Layer order is `aa-reset` first, `aa-forms` last** (declared in
+  `main.css`). `aa-reset` (`base/reset.css`) zeroes padding/border/radius on
+  form controls; the form baseline lives in `aa-forms` so it beats the reset
+  and every other `aa-*` layer — don't move form rules into other `aa-*`
+  layers. Field values come from `--aa-field-*` tokens
   ([`docs/design-tokens.md`](docs/design-tokens.md#forms)).
 
 ### Design system override principle
@@ -94,7 +102,9 @@ only what the editor can't reach (raw inputs, WC-encapsulated fields, select2,
 autofill); keep it low priority (`@layer` + `:where()`); never use `!important`
 or unlayered/high-specificity to beat editor/theme.json output. WC overrides may
 be unlayered only to beat WooCommerce's own unlayered CSS, and set only
-structural props (use `color: inherit` so editor colors win).
+structural props (use `color: inherit` so editor colors win). The one
+deliberate `!important` is the reset's `[hidden]` rule — state, not styling:
+`data-wp-bind--hidden` must hide flex/grid components.
 
 theme.json `settings` is the single source of truth; `src/styles/base/tokens.css`
 (`--aa-*`) is a consumer/alias layer, not the source.

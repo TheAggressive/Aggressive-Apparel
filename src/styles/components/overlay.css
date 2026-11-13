@@ -19,22 +19,22 @@
 	&[hidden] {
 		display: none;
 	}
+}
 
-	&--drawer-left {
-		align-items: stretch;
-		justify-content: flex-start;
-	}
+.aggressive-apparel-overlay--drawer-left {
+	align-items: stretch;
+	justify-content: flex-start;
+}
 
-	&--drawer-bottom {
-		align-items: flex-end;
-		justify-content: center;
-	}
+.aggressive-apparel-overlay--drawer-bottom {
+	align-items: flex-end;
+	justify-content: center;
+}
 
-	&--top-panel {
-		align-items: stretch;
-		justify-content: flex-start;
-		flex-direction: column;
-	}
+.aggressive-apparel-overlay--top-panel {
+	align-items: stretch;
+	justify-content: flex-start;
+	flex-direction: column;
 }
 
 .aggressive-apparel-overlay__backdrop {

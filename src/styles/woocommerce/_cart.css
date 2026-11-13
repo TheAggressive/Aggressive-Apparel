@@ -15,11 +15,14 @@
 	color: inherit;
 	text-decoration: none;
 	text-underline-offset: 0.2em;
+}
 
-	&:hover,
-	&:focus-visible {
-		text-decoration: underline;
-	}
+/* Spelled out rather than nested: nesting under a selector list compiles to
+ * :is(), which would lift the lighter selector to the heavier one's
+ * specificity. */
+.wp-block-woocommerce-cart .wc-block-components-product-name:is(:hover, :focus-visible),
+.wc-block-saved-for-later .wc-block-shopper-list-item .wp-block-post-title a:is(:hover, :focus-visible) {
+	text-decoration: underline;
 }
 
 /* Row dividers are each cell's top border. Collapsed, Chrome snaps the

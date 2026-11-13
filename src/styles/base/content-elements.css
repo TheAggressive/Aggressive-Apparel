@@ -185,7 +185,7 @@
 	border-radius: var(--aa-radius-control);
 	background-color: var(--aa-color-surface-elevated);
 	color: var(--aa-color-foreground);
-	font-family: var(--font-mono);
+	font-family: var(--aa-font-mono);
 	font-size: var(--wp--preset--font-size--small);
 	line-height: 1.6;
 	tab-size: 4;
@@ -196,7 +196,7 @@
 	border: 1px solid var(--aa-color-border-default);
 	border-radius: var(--aa-radius-sm);
 	background-color: var(--aa-color-hover-default);
-	font-family: var(--font-mono);
+	font-family: var(--aa-font-mono);
 	font-size: 0.875em;
 }
 
@@ -262,7 +262,7 @@
 }
 
 :is(.wp-block-post-content, .aa-product-info__content) :where(var) {
-	font-family: var(--font-mono);
+	font-family: var(--aa-font-mono);
 	font-style: italic;
 }
 

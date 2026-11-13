@@ -60,7 +60,7 @@ class Styles {
 		// editor canvas, so the form styles live in their own file enqueued here
 		// (wp_enqueue_scripts) to keep them off the editor. It depends on main
 		// because main.css declares the cascade-layer order that places its
-		// aa-forms layer above Tailwind Preflight.
+		// aa-forms layer above the aa-reset layer.
 		Asset_Loader::enqueue_style(
 			'aggressive-apparel-forms',
 			'build/styles/components/forms',

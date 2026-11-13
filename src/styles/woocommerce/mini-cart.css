@@ -47,8 +47,12 @@
 	z-index: var(--aa-z-commerce-drawer);
 }
 
+/* The drawer is a DOM child of the header's Mini-Cart block, whose theme.json
+ * typography (bold, uppercase, tracked) is meant for the button; reading the
+ * global-styles body font (Body_Font_Token) keeps the drawer in body type and
+ * following Site Editor → Typography. */
 .wc-block-mini-cart__drawer {
-	font-family: var(--font-sans, inherit);
+	font-family: var(--aa-font-body, sans-serif);
 
 	/* WooCommerce pulls the title up (-2px) and relies on the empty notices
 	   container above it for top spacing; we hide that container, so the
@@ -299,7 +303,7 @@
 	table.wc-block-cart-items.wc-block-mini-cart-items .wc-block-cart-items__row {
 		display: grid;
 		grid-template-columns: 5rem minmax(0, 1fr) auto;
-		column-gap: var(--wp--preset--spacing--2);
+		column-gap: 0;
 		align-items: start;
 		padding-block: var(--wp--preset--spacing--5);
 		padding-left: 1rem !important;
@@ -307,11 +311,6 @@
 		border: 0;
 		border-bottom: 1px solid var(--aa-color-border-subtle);
 		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
-
-		:not(.is-mobile) & {
-			padding: var(--wp--preset--spacing--5);
-			column-gap: 0;
-		}
 
 		&:last-child {
 			border-bottom: 0;

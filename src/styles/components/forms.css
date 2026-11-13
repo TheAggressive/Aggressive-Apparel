@@ -11,9 +11,9 @@
  * Layering matters:
  *
  * - The NATIVE baseline lives in @layer aa-forms with :where() (0 specificity).
- *   main.css orders that layer just above Tailwind's `base` (Preflight would
- *   otherwise reset input padding/border/radius/background) and below
- *   everything else, so any component, plugin or theme.json rule overrides it.
+ *   main.css orders it as the top aa-* layer — above aa-reset, which zeroes
+ *   input padding/border/radius/background — and below everything unlayered,
+ *   so any component, plugin or theme.json rule overrides it.
  * - <select>'s paint comes from theme.json styles.elements.select (unlayered),
  *   so its interaction states are unlayered here too.
  * - WooCommerce / select2 bridges are UNLAYERED: those plugins ship unlayered
@@ -177,15 +177,9 @@
 
       /* Browser autofill — repaint with the (opaque) field fill so the UA's
        * yellow/white background doesn't break dark mode. The inset box-shadow
-       * is the only reliable override. Kept as two rules: Safari < 15 knows
-       * only the prefixed pseudo-class. */
-      &:-webkit-autofill {
-        -webkit-text-fill-color: var(--aa-field-text);
-        box-shadow: 0 0 0 1000px var(--aa-field-bg-solid) inset;
-        caret-color: var(--aa-field-text);
-        transition: background-color 9999s ease-in-out 0s;
-      }
-
+       * is the only reliable override. Unprefixed :autofill covers every
+       * browser the theme targets (postcss.config.cjs); Lightning would emit
+       * :-webkit-autofill itself if a target still needed it. */
       &:autofill {
         -webkit-text-fill-color: var(--aa-field-text);
         box-shadow: 0 0 0 1000px var(--aa-field-bg-solid) inset;

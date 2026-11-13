@@ -8,12 +8,12 @@
 
 .aggressive-apparel-marquee {
 	overflow: hidden;
+}
 
-	&__track {
-		display: inline-block;
-		white-space: nowrap;
-		animation: aggressive-apparel-marquee 25s linear infinite;
-	}
+.aggressive-apparel-marquee__track {
+	display: inline-block;
+	white-space: nowrap;
+	animation: aggressive-apparel-marquee 25s linear infinite;
 }
 
 @keyframes aggressive-apparel-marquee {

@@ -321,6 +321,14 @@ class Asset_Loader {
 			$asset_data['dependencies'],
 			$asset_data['version']
 		);
+
+		// enqueue_tokens() runs more than once per request (hooked, and again
+		// from each style entry point); add the inline token only once.
+		$inline = Body_Font_Token::css();
+		$after  = wp_styles()->get_data( self::TOKENS_HANDLE, 'after' );
+		if ( '' !== $inline && ! ( is_array( $after ) && in_array( $inline, $after, true ) ) ) {
+			wp_add_inline_style( self::TOKENS_HANDLE, $inline );
+		}
 	}
 
 	/**

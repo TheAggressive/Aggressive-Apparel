@@ -32,210 +32,210 @@
 .wp-block-aggressive-apparel-nav-submenu-drilldown {
   display: block;
   width: 100%;
+}
 
-  &__trigger {
-    width: 100%;
+.wp-block-aggressive-apparel-nav-submenu-drilldown__trigger {
+  width: 100%;
+}
+
+/* Trigger link or button */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wp--preset--spacing--2, 0.5rem);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
+  color: inherit;
+  font: inherit;
+  font-weight: 400;
+  text-decoration: none;
+  background: none;
+  border: none;
+  border-radius: var(--aa-radius-md);
+  cursor: pointer;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--aa-nav-transition-fast, 150ms ease),
+    background-color var(--aa-nav-transition-fast, 150ms ease);
+
+  &:hover,
+  &:focus {
+    color: var(--panel-link-hover-color, var(--_text-strong, inherit));
+    background: var(--panel-link-hover-bg, var(--_item-hover, transparent));
   }
 
-  /* Trigger link or button */
-  &__link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--wp--preset--spacing--2, 0.5rem);
-    width: 100%;
-    min-height: 56px;
-    padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
-    color: inherit;
-    font: inherit;
-    font-weight: 400;
-    text-decoration: none;
-    background: none;
-    border: none;
-    border-radius: var(--aa-radius-md);
-    cursor: pointer;
-    text-align: left;
-    text-transform: none;
-    letter-spacing: normal;
-    -webkit-tap-highlight-color: transparent;
-    transition:
-      color var(--aa-nav-transition-fast, 150ms ease),
-      background-color var(--aa-nav-transition-fast, 150ms ease);
+  &:focus-visible {
+    outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+    outline-offset: 2px;
+  }
+}
 
-    &:hover,
-    &:focus {
-      color: var(--panel-link-hover-color, var(--_text-strong, inherit));
-      background: var(--panel-link-hover-bg, var(--_item-hover, transparent));
-    }
+/* Chevron-right arrow on trigger */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__arrow {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--aa-color-muted-50, currentcolor);
 
-    &:focus-visible {
-      outline: 2px solid var(--aa-nav-focus-color, currentcolor);
-      outline-offset: 2px;
-    }
+  & svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* Slide-over panel.
+   position: absolute; inset: 0 fills the nearest positioned ancestor — the
+   panel body at the top level, or the parent drilldown panel when nested.
+   That ancestor's overflow clips the off-screen panel.
+   Scrollbar hidden so translateX(100%) parks it exactly one full width away
+   regardless of the platform's scrollbar style. */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex !important;
+  flex-direction: column;
+  overflow: clip auto;
+  background: var(--panel-bg, var(--wp--preset--color--surface-elevated));
+  color: var(--panel-color, inherit);
+  transform: translateX(100%);
+  transition: transform var(--aa-nav-transition, 350ms cubic-bezier(0.22, 1, 0.36, 1));
+  pointer-events: none;
+  will-change: transform;
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none; /* WebKit/Blink */
   }
 
-  /* Chevron-right arrow on trigger */
-  &__arrow {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    color: var(--aa-color-muted-50, currentcolor);
-
-    & svg {
-      width: 1.25rem;
-      height: 1.25rem;
-    }
-  }
-
-  /* Slide-over panel.
-     position: absolute; inset: 0 fills the nearest positioned ancestor — the
-     panel body at the top level, or the parent drilldown panel when nested.
-     That ancestor's overflow clips the off-screen panel.
-     Scrollbar hidden so translateX(100%) parks it exactly one full width away
-     regardless of the platform's scrollbar style. */
-  &__panel {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
+  /* Keep display: flex when PHP outputs [hidden] as a no-JS fallback */
+  &[hidden] {
     display: flex !important;
-    flex-direction: column;
-    overflow: clip auto;
-    background: var(--panel-bg, var(--wp--preset--color--surface-elevated));
-    color: var(--panel-color, inherit);
     transform: translateX(100%);
-    transition: transform var(--aa-nav-transition, 350ms cubic-bezier(0.22, 1, 0.36, 1));
-    pointer-events: none;
-    will-change: transform;
-    scrollbar-width: none; /* Firefox */
-    -webkit-overflow-scrolling: touch;
+  }
+}
 
-    &::-webkit-scrollbar {
-      display: none; /* WebKit/Blink */
-    }
+/* Child combinator: each level opens only its own panel, never a nested
+   descendant's panel. */
+.wp-block-aggressive-apparel-nav-submenu-drilldown.is-open > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel {
+  transform: translateX(0);
+  pointer-events: auto;
+}
 
-    /* Keep display: flex when PHP outputs [hidden] as a no-JS fallback */
-    &[hidden] {
-      display: flex !important;
-      transform: translateX(100%);
-    }
+/* Back button — full-width tap target, sticky so it stays visible while
+   the sub-list scrolls. position: sticky is safe here because the panel
+   is its own scroll container (overflow-y: auto above). */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  min-height: 56px;
+  padding: 0.75rem 1.25rem;
+  background: var(--panel-bg, var(--wp--preset--color--surface-elevated));
+  border: none;
+  border-bottom: 1px solid var(--aa-color-border-subtle, rgb(0 0 0 / 8%));
+  color: var(--aa-color-accent);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--aa-nav-transition-fast, 150ms ease),
+    margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
+
+  &:hover {
+    background: var(--panel-link-hover-bg, var(--aa-color-hover-subtle));
   }
 
-  /* Child combinator: each level opens only its own panel, never a nested
-     descendant's panel. */
-  &.is-open > &__panel {
-    transform: translateX(0);
-    pointer-events: auto;
+  &:focus-visible {
+    outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+    outline-offset: -2px;
   }
+}
 
-  /* Back button — full-width tap target, sticky so it stays visible while
-     the sub-list scrolls. position: sticky is safe here because the panel
-     is its own scroll container (overflow-y: auto above). */
-  &__back-button {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    width: 100%;
-    min-height: 56px;
-    padding: 0.75rem 1.25rem;
-    background: var(--panel-bg, var(--wp--preset--color--surface-elevated));
-    border: none;
-    border-bottom: 1px solid var(--aa-color-border-subtle, rgb(0 0 0 / 8%));
-    color: var(--aa-color-accent);
-    font: inherit;
-    cursor: pointer;
-    text-align: left;
-    -webkit-tap-highlight-color: transparent;
-    transition:
-      background-color var(--aa-nav-transition-fast, 150ms ease),
-      margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
+.wp-block-aggressive-apparel-nav-submenu-drilldown__back-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 
-    &:hover {
-      background: var(--panel-link-hover-bg, var(--aa-color-hover-subtle));
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--aa-nav-focus-color, currentcolor);
-      outline-offset: -2px;
-    }
+  & svg {
+    width: 20px;
+    height: 20px;
   }
+}
 
-  &__back-icon {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
+.wp-block-aggressive-apparel-nav-submenu-drilldown__back-label {
+  font-size: inherit;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-    & svg {
-      width: 20px;
-      height: 20px;
-    }
+/* "View all in {label}" link to the parent's own URL — surfaces the
+   otherwise-unreachable trigger destination at the top of the panel. */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__view-all {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  color: var(--panel-link-hover-color, inherit);
+  font: inherit;
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+    outline-offset: -2px;
   }
+}
 
-  &__back-label {
-    font-size: inherit;
-    font-weight: 400;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+/* Rows are spaced by the drilldown's Block spacing (none by default). */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner {
+  display: grid;
+  align-content: start;
+  gap: var(--aa-nav-submenu-gap, 0);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
+}
 
-  /* "View all in {label}" link to the parent's own URL — surfaces the
-     otherwise-unreachable trigger destination at the top of the panel. */
-  &__view-all {
-    display: flex;
-    align-items: center;
-    min-height: 48px;
-    padding: 0.75rem 1.25rem;
-    color: var(--panel-link-hover-color, inherit);
-    font: inherit;
-    font-weight: 400;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    -webkit-tap-highlight-color: transparent;
+/* Content section, aligned with the sub-item text (see navigation-panel). */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section {
+  padding: var(--aa-nav-submenu-item-pad) var(--aa-nav-panel-inset) var(--aa-nav-submenu-item-pad) var(--aa-nav-submenu-inset);
+  transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
+}
 
-    &:focus-visible {
-      outline: 2px solid var(--aa-nav-focus-color, currentcolor);
-      outline-offset: -2px;
-    }
-  }
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) + :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) {
+  margin-block-start: var(--aa-nav-submenu-gap, 0);
+}
 
-  /* Rows are spaced by the drilldown's Block spacing (none by default). */
-  &__panel-inner {
-    display: grid;
-    align-content: start;
-    gap: var(--aa-nav-submenu-gap, 0);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
-  }
+/* The last list or section fills the remaining panel height. */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner:last-child,
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section:last-child {
+  flex: 1;
+}
 
-  /* Content section, aligned with the sub-item text (see navigation-panel). */
-  &__panel-section {
-    padding: var(--aa-nav-submenu-item-pad) var(--aa-nav-panel-inset) var(--aa-nav-submenu-item-pad) var(--aa-nav-submenu-inset);
-    transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
-  }
-
-  &__panel > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) + :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) {
-    margin-block-start: var(--aa-nav-submenu-gap, 0);
-  }
-
-  /* The last list or section fills the remaining panel height. */
-  &__panel > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner:last-child,
-  &__panel > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section:last-child {
-    flex: 1;
-  }
-
-  /* Sub-items */
-  & .wp-block-aggressive-apparel-nav-link__link {
-    font-size: inherit;
-    font-weight: 400;
-    min-height: 48px;
-    padding: var(--aa-nav-submenu-item-pad) var(--aa-nav-panel-inset) var(--aa-nav-submenu-item-pad) var(--aa-nav-submenu-inset);
-  }
+/* Sub-items */
+.wp-block-aggressive-apparel-nav-submenu-drilldown .wp-block-aggressive-apparel-nav-link__link {
+  font-size: inherit;
+  font-weight: 400;
+  min-height: 48px;
+  padding: var(--aa-nav-submenu-item-pad) var(--aa-nav-panel-inset) var(--aa-nav-submenu-item-pad) var(--aa-nav-submenu-inset);
 }
 
 /* ── Push variant (iOS-style parallax) ─────────────────────────────────────

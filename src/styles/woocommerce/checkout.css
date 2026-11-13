@@ -89,11 +89,16 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--wp--preset--color--foreground);
+}
 
-  /* Order-summary step title */
-  &::before {
-    color: var(--aa-color-accent);
-  }
+/* Order-summary step title. Spelled out rather than nested: nesting under a
+ * selector list compiles to :is(), which would lift the lighter selector to
+ * the heavier one's specificity. */
+:is(.wc-block-checkout, .wc-block-cart)
+  .wc-block-components-checkout-step:not(.wp-block-woocommerce-checkout-payment-block)
+  .wc-block-components-checkout-step__title::before,
+.wc-block-components-title::before {
+  color: var(--aa-color-accent);
 }
 
 /* Order-summary step */

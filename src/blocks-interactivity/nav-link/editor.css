@@ -6,38 +6,38 @@
 
 .wp-block-aggressive-apparel-nav-link {
   display: flex;
+}
 
-  &__link {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    padding: 0.5rem 0;
-    color: inherit;
-    text-decoration: none;
-    cursor: text;
+.wp-block-aggressive-apparel-nav-link__link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.5rem 0;
+  color: inherit;
+  text-decoration: none;
+  cursor: text;
 
-    &:hover {
-      text-decoration: underline;
-    }
+  &:hover {
+    text-decoration: underline;
   }
+}
 
-  &__label {
-    min-width: 2rem;
+.wp-block-aggressive-apparel-nav-link__label {
+  min-width: 2rem;
 
-    &[data-rich-text-placeholder]::after {
-      opacity: 0.5;
-    }
+  &[data-rich-text-placeholder]::after {
+    opacity: 0.5;
   }
+}
 
-  &__description {
-    font-size: 0.875em;
-    opacity: 0.7;
-  }
+.wp-block-aggressive-apparel-nav-link__description {
+  font-size: 0.875em;
+  opacity: 0.7;
+}
 
-  /* Selected state. */
-  &.is-selected {
-    outline: 2px solid var(--wp-admin-theme-color, var(--aa-color-info));
-    outline-offset: 2px;
-    border-radius: var(--aa-radius-sm);
-  }
+/* Selected state. */
+.wp-block-aggressive-apparel-nav-link.is-selected {
+  outline: 2px solid var(--wp-admin-theme-color, var(--aa-color-info));
+  outline-offset: 2px;
+  border-radius: var(--aa-radius-sm);
 }

@@ -13,14 +13,14 @@
  */
 
 export interface PresetColor {
-  color: string;
-  slug: string;
-  name?: string;
+	color: string;
+	slug: string;
+	name?: string;
 }
 
 export interface PresetColorOrigin {
-  colors?: PresetColor[];
-  name?: string;
+	colors?: PresetColor[];
+	name?: string;
 }
 
 const PRESET_COLOR_REF = /^var:preset\|color\|([a-z0-9_-]+)$/i;
@@ -30,9 +30,9 @@ const PRESET_COLOR_REF = /^var:preset\|color\|([a-z0-9_-]+)$/i;
  * useMultipleOriginColorsAndGradients() into a single palette list.
  */
 export function flattenPresetColors(
-  origins: readonly PresetColorOrigin[] | undefined
+	origins: readonly PresetColorOrigin[] | undefined
 ): PresetColor[] {
-  return (origins ?? []).flatMap(origin => origin.colors ?? []);
+	return ( origins ?? [] ).flatMap( ( origin ) => origin.colors ?? [] );
 }
 
 /**
@@ -40,19 +40,19 @@ export function flattenPresetColors(
  * value matches a palette entry, otherwise the raw value (custom color).
  */
 export function toPresetColorRef(
-  value: string | undefined,
-  presetColors: readonly PresetColor[]
+	value: string | undefined,
+	presetColors: readonly PresetColor[]
 ): string {
-  if (!value) {
-    return '';
-  }
+	if ( ! value ) {
+		return '';
+	}
 
-  const normalized = value.toLowerCase();
-  const preset = presetColors.find(
-    entry => entry.slug && entry.color?.toLowerCase() === normalized
-  );
+	const normalized = value.toLowerCase();
+	const preset = presetColors.find(
+		( entry ) => entry.slug && entry.color?.toLowerCase() === normalized
+	);
 
-  return preset ? `var:preset|color|${preset.slug}` : value;
+	return preset ? `var:preset|color|${ preset.slug }` : value;
 }
 
 /**
@@ -62,21 +62,21 @@ export function toPresetColorRef(
  * variable so the stored intent is at least preserved.
  */
 export function fromPresetColorRef(
-  stored: string | undefined,
-  presetColors: readonly PresetColor[]
+	stored: string | undefined,
+	presetColors: readonly PresetColor[]
 ): string | undefined {
-  if (!stored) {
-    return undefined;
-  }
+	if ( ! stored ) {
+		return undefined;
+	}
 
-  const match = stored.match(PRESET_COLOR_REF);
-  if (!match) {
-    return stored;
-  }
+	const match = stored.match( PRESET_COLOR_REF );
+	if ( ! match ) {
+		return stored;
+	}
 
-  const slug = match[1].toLowerCase();
-  return (
-    presetColors.find(entry => entry.slug?.toLowerCase() === slug)?.color ??
-    `var(--wp--preset--color--${slug})`
-  );
+	const slug = match[ 1 ].toLowerCase();
+	return (
+		presetColors.find( ( entry ) => entry.slug?.toLowerCase() === slug )
+			?.color ?? `var(--wp--preset--color--${ slug })`
+	);
 }

@@ -144,7 +144,10 @@
 
 .aa-ps-line__main {
 	display: grid;
-	grid-template-columns: minmax(0, 1.3fr) minmax(170px, 0.9fr) minmax(0, 1.2fr);
+	grid-template-columns: minmax(0, 1.3fr) minmax(170px, 0.9fr) minmax(
+			0,
+			1.2fr
+		);
 	gap: 8px 16px;
 	align-items: start;
 }
@@ -158,7 +161,6 @@
 .aa-ps-line__value .aa-ps-number {
 	max-width: none;
 }
-
 
 .aa-ps-line__source {
 	display: flex;
@@ -346,7 +348,6 @@
 }
 
 @media (width <= 782px) {
-
 	.aa-ps-review {
 		grid-template-columns: minmax(0, 1fr);
 	}

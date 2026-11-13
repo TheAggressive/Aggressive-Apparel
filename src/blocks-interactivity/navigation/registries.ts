@@ -18,13 +18,13 @@ export const hoverIntent: HoverIntentState = createHoverIntent();
  * so listeners can be cleaned up on unmount.
  */
 export interface MediaQueryRegistryEntry {
-  mql: MediaQueryList;
-  handler: (event: MediaQueryListEvent | MediaQueryList) => void;
+	mql: MediaQueryList;
+	handler: ( event: MediaQueryListEvent | MediaQueryList ) => void;
 }
 
 export const mediaQueryRegistry = new WeakMap<
-  Element,
-  MediaQueryRegistryEntry
+	Element,
+	MediaQueryRegistryEntry
 >();
 
 /**
@@ -32,14 +32,14 @@ export const mediaQueryRegistry = new WeakMap<
  * Stored so actions (openSubmenu, closeSubmenu, hover) can update the indicator.
  */
 export interface IndicatorInstance {
-  menubar: HTMLElement;
-  indicator: HTMLElement;
-  /** Move indicator underline to match an item's bounds. */
-  updateToItem: (item: HTMLElement) => void;
-  /** Widen indicator to match a submenu panel's width. */
-  widenToPanel: (panel: HTMLElement) => void;
-  /** Reset indicator to .is-current item or hide. */
-  reset: () => void;
+	menubar: HTMLElement;
+	indicator: HTMLElement;
+	/** Move indicator underline to match an item's bounds. */
+	updateToItem: ( item: HTMLElement ) => void;
+	/** Widen indicator to match a submenu panel's width. */
+	widenToPanel: ( panel: HTMLElement ) => void;
+	/** Reset indicator to .is-current item or hide. */
+	reset: () => void;
 }
 
-export const indicatorRegistry = new Map<string, IndicatorInstance>();
+export const indicatorRegistry = new Map< string, IndicatorInstance >();

@@ -7,122 +7,129 @@
  */
 
 declare module '@aggressive-apparel/helpers' {
-  export interface DynamicStyleAsset {
-    id: string;
-    css: string;
-    nonce?: string;
-  }
-  export interface StoreApiPrices {
-    price: string;
-    regular_price?: string;
-    sale_price?: string;
-    currency_minor_unit?: number;
-    currency_prefix?: string;
-    currency_suffix?: string;
-    price_range?: { min_amount?: string; max_amount?: string } | null;
-  }
+	export interface DynamicStyleAsset {
+		id: string;
+		css: string;
+		nonce?: string;
+	}
+	export interface StoreApiPrices {
+		price: string;
+		regular_price?: string;
+		sale_price?: string;
+		currency_minor_unit?: number;
+		currency_prefix?: string;
+		currency_suffix?: string;
+		price_range?: { min_amount?: string; max_amount?: string } | null;
+	}
 
-  export interface PriceResult {
-    current: string;
-    regular: string;
-    onSale: boolean;
-  }
+	export interface PriceResult {
+		current: string;
+		regular: string;
+		onSale: boolean;
+	}
 
-  export interface VariablePriceRangeOptions {
-    collapse: boolean;
-    prefix: string;
-  }
+	export interface VariablePriceRangeOptions {
+		collapse: boolean;
+		prefix: string;
+	}
 
-  export function formatVariablePriceRange(
-    prices: StoreApiPrices | null | undefined,
-    options: VariablePriceRangeOptions
-  ): string | null;
+	export function formatVariablePriceRange(
+		prices: StoreApiPrices | null | undefined,
+		options: VariablePriceRangeOptions
+	): string | null;
 
-  export interface Variation {
-    id: number;
-    attributes:
-      | Array<{
-          attribute?: string;
-          name?: string;
-          taxonomy?: string;
-          value?: string;
-        }>
-      | Record<string, string>;
-    [key: string]: unknown;
-  }
+	export interface Variation {
+		id: number;
+		attributes:
+			| Array< {
+					attribute?: string;
+					name?: string;
+					taxonomy?: string;
+					value?: string;
+			  } >
+			| Record< string, string >;
+		[ key: string ]: unknown;
+	}
 
-  export function parsePrice(
-    prices: StoreApiPrices | null | undefined
-  ): PriceResult;
-  export function decodeEntities(str: string | null | undefined): string;
-  export function stripTags(html: string | null | undefined): string;
-  export function storeApiPost(
-    url: string,
-    body: unknown,
-    nonce: { get: () => string; set: (value: string) => void }
-  ): Promise<Response>;
-  export function matchVariation(
-    variations: Variation[],
-    selected: Record<string, string>
-  ): Variation | null;
-  export function isOptionAvailable(
-    variations: Variation[],
-    attrKey: string,
-    optionValue: string,
-    selected: Record<string, string>,
-    requireStock?: boolean
-  ): boolean;
-  export function describeUnavailableOption(
-    baseName: string,
-    label: string
-  ): string;
-  export function setupFocusTrap(container: HTMLElement): () => void;
-  export function getFocusableElements(container: HTMLElement): HTMLElement[];
-  export function prefersReducedMotion(): boolean;
+	export function parsePrice(
+		prices: StoreApiPrices | null | undefined
+	): PriceResult;
+	export function decodeEntities( str: string | null | undefined ): string;
+	export function stripTags( html: string | null | undefined ): string;
+	export function storeApiPost(
+		url: string,
+		body: unknown,
+		nonce: { get: () => string; set: ( value: string ) => void }
+	): Promise< Response >;
+	export function matchVariation(
+		variations: Variation[],
+		selected: Record< string, string >
+	): Variation | null;
+	export function isOptionAvailable(
+		variations: Variation[],
+		attrKey: string,
+		optionValue: string,
+		selected: Record< string, string >,
+		requireStock?: boolean
+	): boolean;
+	export function describeUnavailableOption(
+		baseName: string,
+		label: string
+	): string;
+	export function setupFocusTrap( container: HTMLElement ): () => void;
+	export function getFocusableElements(
+		container: HTMLElement
+	): HTMLElement[];
+	export function prefersReducedMotion(): boolean;
 
-  export function escapeHtml(str: string | null | undefined): string;
-  export function notifyCardsRendered(container: HTMLElement | null): void;
-  export function installBlockSupportStyles(
-    assets?: readonly DynamicStyleAsset[]
-  ): void;
-  export function pruneProductGrid(grid: HTMLElement, perPage: number): void;
-  export function clearProductGridSpacer(grid: HTMLElement | null): void;
-  export const PRODUCT_GRID_MAX_PAGES: number;
+	export function escapeHtml( str: string | null | undefined ): string;
+	export function notifyCardsRendered( container: HTMLElement | null ): void;
+	export function installBlockSupportStyles(
+		assets?: readonly DynamicStyleAsset[]
+	): void;
+	export function pruneProductGrid(
+		grid: HTMLElement,
+		perPage: number
+	): void;
+	export function clearProductGridSpacer( grid: HTMLElement | null ): void;
+	export const PRODUCT_GRID_MAX_PAGES: number;
 }
 
 declare module '@aggressive-apparel/scroll-lock' {
-  export function lockScroll(): void;
-  export function unlockScroll(): void;
+	export function lockScroll(): void;
+	export function unlockScroll(): void;
 }
 
 declare module '@aggressive-apparel/use-overlay' {
-  export interface PrepareOverlayOpenOptions {
-    manageOpenClass?: boolean;
-    lockScroll?: boolean;
-  }
+	export interface PrepareOverlayOpenOptions {
+		manageOpenClass?: boolean;
+		lockScroll?: boolean;
+	}
 
-  export interface OpenOverlayOptions {
-    shell: HTMLElement;
-    panel: HTMLElement;
-    triggerElement?: HTMLElement | null;
-    focusSelector?: string;
-  }
+	export interface OpenOverlayOptions {
+		shell: HTMLElement;
+		panel: HTMLElement;
+		triggerElement?: HTMLElement | null;
+		focusSelector?: string;
+	}
 
-  export interface CloseOverlayOptions {
-    shell: HTMLElement;
-    panel: HTMLElement;
-    focusTrapCleanup?: (() => void) | null;
-    triggerElement?: HTMLElement | null;
-    isStillOpen?: () => boolean;
-    onFinish?: () => void;
-    manageOpenClass?: boolean;
-    transitionProperty?: 'opacity' | 'transform';
-  }
+	export interface CloseOverlayOptions {
+		shell: HTMLElement;
+		panel: HTMLElement;
+		focusTrapCleanup?: ( () => void ) | null;
+		triggerElement?: HTMLElement | null;
+		isStillOpen?: () => boolean;
+		onFinish?: () => void;
+		manageOpenClass?: boolean;
+		transitionProperty?: 'opacity' | 'transform';
+	}
 
-  export function prepareOverlayOpen(
-    shell: HTMLElement,
-    options?: PrepareOverlayOpenOptions
-  ): void;
-  export function activateOverlayFocus(options: OpenOverlayOptions): () => void;
-  export function closeOverlay(options: CloseOverlayOptions): void;
+	export function prepareOverlayOpen(
+		shell: HTMLElement,
+		options?: PrepareOverlayOpenOptions
+	): void;
+	export function activateOverlayFocus(
+		options: OpenOverlayOptions
+	): () => void;
+	export function closeOverlay( options: CloseOverlayOptions ): void;
 }

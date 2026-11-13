@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -44,20 +46,6 @@ final class Product_Specs_Taxonomy {
 	 * @var string
 	 */
 	public const DELIMITER = '|';
-
-	/**
-	 * Whether each attribute taxonomy has archives, for this request.
-	 *
-	 * @var array<string, bool>
-	 */
-	private static array $archives = array();
-
-	/**
-	 * Term names per taxonomy, for this request.
-	 *
-	 * @var array<string, list<string>>
-	 */
-	private static array $names = array();
 
 	/**
 	 * Global attributes as taxonomy => label.
@@ -185,14 +173,31 @@ final class Product_Specs_Taxonomy {
 	 * @param string $taxonomy Attribute taxonomy.
 	 */
 	public static function has_archives( string $taxonomy ): bool {
-		if ( ! isset( self::$archives[ $taxonomy ] ) ) {
-			$id        = '' !== $taxonomy && function_exists( 'wc_attribute_taxonomy_id_by_name' ) ? wc_attribute_taxonomy_id_by_name( $taxonomy ) : 0;
-			$attribute = $id > 0 ? wc_get_attribute( $id ) : null;
+		return Request_Cache::remember( self::key( 'archives:' . $taxonomy ), static fn(): bool => self::read_archives( $taxonomy ) );
+	}
 
-			self::$archives[ $taxonomy ] = is_object( $attribute ) && ! empty( $attribute->has_archives );
-		}
+	/**
+	 * Read whether an attribute has archives, uncached.
+	 *
+	 * @param string $taxonomy Attribute taxonomy.
+	 * @return bool
+	 */
+	private static function read_archives( string $taxonomy ): bool {
+		$id        = '' !== $taxonomy && function_exists( 'wc_attribute_taxonomy_id_by_name' ) ? wc_attribute_taxonomy_id_by_name( $taxonomy ) : 0;
+		$attribute = $id > 0 ? wc_get_attribute( $id ) : null;
 
-		return self::$archives[ $taxonomy ];
+		return is_object( $attribute ) && ! empty( $attribute->has_archives );
+	}
+
+	/**
+	 * Request-cache key for term names and archive flags; flush() bumps the
+	 * generation, which drops them all at once.
+	 *
+	 * @param string $part Key suffix.
+	 * @return string
+	 */
+	private static function key( string $part ): string {
+		return 'product-specs-taxonomy:' . (int) Request_Cache::get( 'product-specs-taxonomy:generation', 0 ) . ':' . $part;
 	}
 
 	/**
@@ -218,7 +223,7 @@ final class Product_Specs_Taxonomy {
 				'has_archives' => $on,
 			)
 		);
-		self::$archives[ $taxonomy ] = $on;
+		Request_Cache::set( self::key( 'archives:' . $taxonomy ), $on );
 	}
 
 	/**
@@ -443,22 +448,29 @@ final class Product_Specs_Taxonomy {
 	 * @return list<string>
 	 */
 	public static function names( string $taxonomy ): array {
-		if ( ! isset( self::$names[ $taxonomy ] ) ) {
-			$terms                    = '' !== $taxonomy && taxonomy_exists( $taxonomy )
-				? get_terms(
-					array(
-						'taxonomy'   => $taxonomy,
-						'hide_empty' => false,
-						'fields'     => 'names',
-						'number'     => 200,
-						'orderby'    => 'name',
-					)
-				)
-				: array();
-			self::$names[ $taxonomy ] = is_array( $terms ) ? array_values( array_map( 'strval', $terms ) ) : array();
-		}
+		return Request_Cache::remember( self::key( 'names:' . $taxonomy ), static fn(): array => self::read_names( $taxonomy ) );
+	}
 
-		return self::$names[ $taxonomy ];
+	/**
+	 * Read a taxonomy's term names, uncached (see names()).
+	 *
+	 * @param string $taxonomy Attribute taxonomy.
+	 * @return list<string>
+	 */
+	private static function read_names( string $taxonomy ): array {
+		$terms = '' !== $taxonomy && taxonomy_exists( $taxonomy )
+			? get_terms(
+				array(
+					'taxonomy'   => $taxonomy,
+					'hide_empty' => false,
+					'fields'     => 'names',
+					'number'     => 200,
+					'orderby'    => 'name',
+				)
+			)
+			: array();
+
+		return is_array( $terms ) ? array_values( array_map( 'strval', $terms ) ) : array();
 	}
 
 	/**
@@ -499,8 +511,7 @@ final class Product_Specs_Taxonomy {
 	 * tests).
 	 */
 	public static function flush(): void {
-		self::$names    = array();
-		self::$archives = array();
+		Request_Cache::set( 'product-specs-taxonomy:generation', (int) Request_Cache::get( 'product-specs-taxonomy:generation', 0 ) + 1 );
 	}
 
 	/**

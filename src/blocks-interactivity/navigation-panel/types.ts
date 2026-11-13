@@ -11,17 +11,17 @@ export type PanelAnimationStyle = 'slide' | 'push' | 'reveal' | 'fade';
 export type MenuStyle = 'panel' | 'fullscreen';
 
 export type NavigationPanelAttributes = {
-  panelSlug: string;
-  position: PanelPosition;
-  animationStyle: PanelAnimationStyle;
-  menuStyle: MenuStyle;
-  panelWidth: string;
-  showOverlay: boolean;
-  panelLinkHoverColor?: string;
-  panelLinkHoverBg?: string;
-  overlayColor?: string;
-  overlayOpacity?: number;
-  indicatorColor?: string;
+	panelSlug: string;
+	position: PanelPosition;
+	animationStyle: PanelAnimationStyle;
+	menuStyle: MenuStyle;
+	panelWidth: string;
+	showOverlay: boolean;
+	panelLinkHoverColor?: string;
+	panelLinkHoverBg?: string;
+	overlayColor?: string;
+	overlayOpacity?: number;
+	indicatorColor?: string;
 };
 
 /**
@@ -29,9 +29,9 @@ export type NavigationPanelAttributes = {
  * Mutable state lives in the global store (state._panels[panelSlug]).
  */
 export interface PanelContext {
-  panelSlug: string;
-  /** Trigger-only: width below which the trigger button is shown. */
-  breakpoint?: number;
+	panelSlug: string;
+	/** Trigger-only: width below which the trigger button is shown. */
+	breakpoint?: number;
 }
 
 /**
@@ -39,27 +39,27 @@ export interface PanelContext {
  * Shared between the trigger button and the portaled panel.
  */
 export interface PanelState {
-  isOpen: boolean;
-  activeSubmenuId: string | null;
-  drillStack: string[];
+	isOpen: boolean;
+	activeSubmenuId: string | null;
+	drillStack: string[];
 }
 
 export interface NavigationPanelI18n {
-  menuOpened?: string;
-  menuClosed?: string;
-  submenuOpened?: string;
-  submenuClosed?: string;
-  submenuFallback?: string;
-  openedLevel?: string;
-  backToMain?: string;
-  backToLevel?: string;
+	menuOpened?: string;
+	menuClosed?: string;
+	submenuOpened?: string;
+	submenuClosed?: string;
+	submenuFallback?: string;
+	openedLevel?: string;
+	backToMain?: string;
+	backToLevel?: string;
 }
 
 export interface NavigationPanelStoreState {
-  isOpen: boolean;
-  activeSubmenuId: string | null;
-  drillStack: string[];
-  /** Per-panel mutable state keyed by panelSlug. */
-  _panels: Record<string, PanelState>;
-  i18n?: NavigationPanelI18n;
+	isOpen: boolean;
+	activeSubmenuId: string | null;
+	drillStack: string[];
+	/** Per-panel mutable state keyed by panelSlug. */
+	_panels: Record< string, PanelState >;
+	i18n?: NavigationPanelI18n;
 }

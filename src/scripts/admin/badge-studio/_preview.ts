@@ -24,15 +24,15 @@ const COMPILE_DEBOUNCE_MS = 140;
  * @param label   Badge label text.
  */
 export async function compileBadge(
-  restUrl: string,
-  fields: Record<string, string>,
-  label: string
-): Promise<CompiledBadge> {
-  return apiFetch<CompiledBadge>({
-    url: restUrl,
-    method: 'POST',
-    data: { fields, label },
-  });
+	restUrl: string,
+	fields: Record< string, string >,
+	label: string
+): Promise< CompiledBadge > {
+	return apiFetch< CompiledBadge >( {
+		url: restUrl,
+		method: 'POST',
+		data: { fields, label },
+	} );
 }
 
 /**
@@ -47,38 +47,40 @@ export async function compileBadge(
  * @param label  Current badge label.
  */
 export function useCompiledBadge(
-  config: StudioConfig,
-  fields: Record<string, string>,
-  label: string
+	config: StudioConfig,
+	fields: Record< string, string >,
+	label: string
 ): CompiledBadge {
-  const [compiled, setCompiled] = useState<CompiledBadge>(config.compiled);
-  // Monotonic request id — a slow response must never overwrite a newer one.
-  const requestId = useRef(0);
-  const seeded = useRef(true);
+	const [ compiled, setCompiled ] = useState< CompiledBadge >(
+		config.compiled
+	);
+	// Monotonic request id — a slow response must never overwrite a newer one.
+	const requestId = useRef( 0 );
+	const seeded = useRef( true );
 
-  useEffect(() => {
-    // The seed already reflects the initial fields; skip the redundant round trip.
-    if (seeded.current) {
-      seeded.current = false;
-      return;
-    }
+	useEffect( () => {
+		// The seed already reflects the initial fields; skip the redundant round trip.
+		if ( seeded.current ) {
+			seeded.current = false;
+			return;
+		}
 
-    const id = ++requestId.current;
-    const timer = setTimeout(() => {
-      compileBadge(config.restUrl, fields, label)
-        .then(next => {
-          if (id === requestId.current) {
-            setCompiled(next);
-          }
-        })
-        .catch(() => {
-          // Keep the last good compile; the canvas stays readable and
-          // the next edit retries.
-        });
-    }, COMPILE_DEBOUNCE_MS);
+		const id = ++requestId.current;
+		const timer = setTimeout( () => {
+			compileBadge( config.restUrl, fields, label )
+				.then( ( next ) => {
+					if ( id === requestId.current ) {
+						setCompiled( next );
+					}
+				} )
+				.catch( () => {
+					// Keep the last good compile; the canvas stays readable and
+					// the next edit retries.
+				} );
+		}, COMPILE_DEBOUNCE_MS );
 
-    return () => clearTimeout(timer);
-  }, [config.restUrl, fields, label]);
+		return () => clearTimeout( timer );
+	}, [ config.restUrl, fields, label ] );
 
-  return compiled;
+	return compiled;
 }

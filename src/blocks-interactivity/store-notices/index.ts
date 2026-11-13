@@ -13,8 +13,8 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './style.css';
 import './editor.css';
 
-registerThemeBlock(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  save: Save,
-});
+registerThemeBlock( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	save: Save,
+} );

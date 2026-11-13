@@ -56,30 +56,33 @@
 	font-weight: 700;
 	box-shadow: var(--aa-shadow-sm);
 	transition: transform var(--aa-duration-fast) var(--aa-ease-default);
-	animation: aggressive-apparel-hotspot-pulse 2s var(--aa-ease-default) infinite;
+	animation: aggressive-apparel-hotspot-pulse 2s var(--aa-ease-default)
+		infinite;
 }
 
-.aggressive-apparel-lookbook__hotspot:hover .aggressive-apparel-lookbook__hotspot-dot,
-.aggressive-apparel-lookbook__hotspot.is-active .aggressive-apparel-lookbook__hotspot-dot {
+.aggressive-apparel-lookbook__hotspot:hover
+	.aggressive-apparel-lookbook__hotspot-dot,
+.aggressive-apparel-lookbook__hotspot.is-active
+	.aggressive-apparel-lookbook__hotspot-dot {
 	transform: scale(1.2);
 	animation: none;
 }
 
 @keyframes aggressive-apparel-hotspot-pulse {
-
 	0%,
 	100% {
 		box-shadow: var(--aa-shadow-sm);
 	}
 
 	50% {
-		box-shadow: var(--aa-shadow-sm),
+		box-shadow:
+			var(--aa-shadow-sm),
 			0 0 0 6px
-			color-mix(
-				in oklch,
-				var(--aa-lookbook-hotspot-bg, var(--aa-color-white)) 30%,
-				transparent
-			);
+				color-mix(
+					in oklch,
+					var(--aa-lookbook-hotspot-bg, var(--aa-color-white)) 30%,
+					transparent
+				);
 	}
 }
 
@@ -92,7 +95,8 @@
 		calc(-100% - 1.5rem)
 	);
 	pointer-events: auto;
-	animation: aggressive-apparel-lookbook-popover-in 160ms var(--aa-ease-default) both;
+	animation: aggressive-apparel-lookbook-popover-in 160ms
+		var(--aa-ease-default) both;
 
 	&[hidden] {
 		display: none;
@@ -115,7 +119,10 @@
 	min-width: min(260px, calc(100vw - 1.5rem));
 	max-width: min(320px, calc(100vw - 1.5rem));
 	min-height: 5.5rem;
-	background-color: var(--aa-lookbook-card-bg, var(--aa-color-surface-elevated));
+	background-color: var(
+		--aa-lookbook-card-bg,
+		var(--aa-color-surface-elevated)
+	);
 	color: var(--aa-lookbook-card-text, var(--aa-color-foreground));
 	border-radius: var(--aa-radius-card);
 	box-shadow: var(--aa-shadow-md);
@@ -163,7 +170,6 @@
 }
 
 @keyframes aggressive-apparel-lookbook-popover-in {
-
 	from {
 		opacity: 0;
 	}
@@ -174,7 +180,6 @@
 }
 
 @keyframes aggressive-apparel-lookbook-spinner {
-
 	to {
 		transform: rotate(360deg);
 	}
@@ -242,7 +247,6 @@
 
 /* Reduced motion. */
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-lookbook__hotspot-dot,
 	.aggressive-apparel-lookbook__popover,
 	.aggressive-apparel-lookbook__product-action,

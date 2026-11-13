@@ -24,7 +24,7 @@ namespace Aggressive_Apparel\WooCommerce;
  * The fix (woocommerce/woocommerce#68707) was milestoned for 11.3.0 but
  * reverted before release (#68854); 11.3.0 still ships the unguarded loop.
  * So this is not version-gated: it runs on every WooCommerce, and
- * TestFreeShippingRateHiding checks core's actual behavior to say when it
+ * Test_Free_Shipping_Rate_Hiding checks core's actual behavior to say when it
  * can go. On a core that is fixed, it is harmless: core then hides after the
  * rates filter with the setting already restored, which is a no-op on rates
  * this has already reduced.

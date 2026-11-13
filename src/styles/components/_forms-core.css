@@ -1,0 +1,128 @@
+/**
+ * Form Controls — core block overrides
+ *
+ * Unlayered: <select> states (its paint is theme.json's unlayered
+ * styles.elements.select), core Search and the Comments Form block.
+ *
+ * Partial of components/forms.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ========================================================================
+ * UNLAYERED overrides — must beat theme.json and plugin unlayered styles.
+ * Keep selectors narrow so plugin-specific form chrome can still win.
+ * ====================================================================== */
+
+/* <select> paint is theme.json styles.elements.select (`:root :where(select)`,
+ * unlayered), so its states must also be unlayered or the foundation wins
+ * regardless of specificity. */
+select:hover:not(:focus, :disabled) {
+	background-color: var(--aa-field-bg-hover);
+}
+
+select:focus {
+	outline: 2px solid transparent;
+	border-left-color: var(--aa-field-bar-focus);
+}
+
+select:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+select:user-invalid {
+	border-left-color: var(--aa-field-bar-invalid);
+}
+
+select[aria-invalid="true"] {
+	border-left-color: var(--aa-field-bar-invalid);
+}
+
+/* Multi-row selects: symmetric padding (no chevron) and a selected-option fill
+ * that survives blur (a plain background-color is ignored for :checked). */
+select:is([multiple], [size]:not([size="1"])) {
+	min-height: calc(var(--aa-field-height) * 2);
+	padding: 0.5rem;
+}
+
+select:is([multiple], [size]:not([size="1"])) option {
+	padding: 0.375rem 0.5rem;
+	border-radius: var(--aa-radius-sm);
+	background-color: transparent;
+	color: inherit;
+}
+
+select:is([multiple], [size]:not([size="1"])) option:checked {
+	background: var(--aa-color-accent-fill)
+		linear-gradient(
+			var(--aa-color-accent-fill),
+			var(--aa-color-accent-fill)
+		);
+	color: var(--aa-color-white);
+}
+
+/* Core Search is a full-border pill (theme.json), styled to match the custom
+ * search modal's .aa-search__field: uniform border, muted placeholder, and an
+ * accent border + glow ring on focus (whole border, not just the left edge). */
+.wp-block-search :where(input)::placeholder {
+	color: var(--aa-color-foreground-muted);
+	opacity: 0.6;
+}
+
+.wp-block-search :where(input, textarea):focus {
+	outline: 2px solid transparent;
+	border-color: var(--aa-color-accent);
+	box-shadow: 0 0 0 3px
+		color-mix(in oklch, var(--aa-color-accent) 18%, transparent);
+}
+
+.wp-block-search :where(input, textarea):user-invalid {
+	border-color: var(--aa-field-bar-invalid);
+}
+
+/* Core Comments Form block (singular.html) — block-library paints a 1px grey
+ * frame with unlayered :where() rules, which beat the layered baseline. Restate
+ * the field paint; spacing and typography already come from the baseline. */
+.wp-block-post-comments-form
+	:is(
+		input:not(
+			[type="submit"],
+			[type="checkbox"],
+			[type="radio"],
+			[type="hidden"]
+		),
+		textarea
+	) {
+	padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
+	border: 0 solid transparent;
+	border-left-width: var(--aa-field-bar-width);
+	font-size: var(--aa-field-font-size);
+}
+
+/* The rule above is unlayered, so the bar colours must be restated here too. */
+.wp-block-post-comments-form
+	:is(
+		input:not(
+			[type="submit"],
+			[type="checkbox"],
+			[type="radio"],
+			[type="hidden"]
+		),
+		textarea
+	):focus {
+	border-left-color: var(--aa-field-bar-focus);
+}
+
+.wp-block-post-comments-form
+	:is(
+		input:not(
+			[type="submit"],
+			[type="checkbox"],
+			[type="radio"],
+			[type="hidden"]
+		),
+		textarea
+	):user-invalid {
+	border-left-color: var(--aa-field-bar-invalid);
+}

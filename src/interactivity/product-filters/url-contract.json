@@ -1,0 +1,19 @@
+{
+	"sorts": [
+		"menu_order",
+		"date",
+		"popularity",
+		"rating",
+		"price",
+		"price-desc",
+		"title-asc",
+		"title-desc",
+		"featured",
+		"savings"
+	],
+	"attributeParams": {
+		"color": "pa_color",
+		"size": "pa_size",
+		"collection": "pa_collection"
+	}
+}

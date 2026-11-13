@@ -6,7 +6,7 @@
  * This file is loaded by PHPStan only and is not part of the theme runtime.
  * php-stubs/woocommerce-stubs omits WooCommerce's `Internal` namespace, so this
  * lists exactly the surface Back_In_Stock_Native calls — nothing more. It is
- * the contract: TestBackInStockNativeContract asserts every symbol here still
+ * the contract: Test_Back_In_Stock_Native_Contract asserts every symbol here still
  * exists in the pinned WooCommerce, so an upstream rename fails CI instead of
  * the storefront.
  */

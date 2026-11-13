@@ -7,23 +7,23 @@
 export type OpenTrigger = 'hover' | 'click';
 
 export type NavMegaAttributes = {
-  label: string;
-  url: string;
-  submenuId: string;
-  showArrow: boolean;
-  openOn: OpenTrigger;
-  columns: number;
+	label: string;
+	url: string;
+	submenuId: string;
+	showArrow: boolean;
+	openOn: OpenTrigger;
+	columns: number;
 };
 
 export interface NavMegaContext {
-  'aggressive-apparel/navigationId'?: string;
-  'aggressive-apparel/navigationOpenOn'?: OpenTrigger;
-  'aggressive-apparel/submenuBackgroundColor'?: string;
-  'aggressive-apparel/submenuTextColor'?: string;
-  'aggressive-apparel/submenuLinkHoverColor'?: string;
-  'aggressive-apparel/submenuLinkHoverBg'?: string;
-  'aggressive-apparel/submenuBorderRadius'?: string;
-  'aggressive-apparel/submenuBorderWidth'?: string;
-  'aggressive-apparel/submenuBorderColor'?: string;
-  'aggressive-apparel/submenuBorderStyle'?: string;
+	'aggressive-apparel/navigationId'?: string;
+	'aggressive-apparel/navigationOpenOn'?: OpenTrigger;
+	'aggressive-apparel/submenuBackgroundColor'?: string;
+	'aggressive-apparel/submenuTextColor'?: string;
+	'aggressive-apparel/submenuLinkHoverColor'?: string;
+	'aggressive-apparel/submenuLinkHoverBg'?: string;
+	'aggressive-apparel/submenuBorderRadius'?: string;
+	'aggressive-apparel/submenuBorderWidth'?: string;
+	'aggressive-apparel/submenuBorderColor'?: string;
+	'aggressive-apparel/submenuBorderStyle'?: string;
 }

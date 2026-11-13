@@ -26,15 +26,15 @@ if (!wc_attribute_taxonomy_id_by_name('color')) {
   if (is_wp_error($color_attribute_id)) {
     throw new RuntimeException($color_attribute_id->get_error_message());
   }
-  ${ownAttributePhp('$color_attribute_id')}
+  ${ ownAttributePhp( '$color_attribute_id' ) }
 }
 // WooCommerce registers new attribute taxonomies on the next request.
 if (!taxonomy_exists('pa_color')) {
   register_taxonomy('pa_color', array('product'), array('hierarchical' => false));
 }
 
-$feature_key = '${FEATURE_OPTION}';
-$backup_key = '${FEATURE_BACKUP_OPTION}';
+$feature_key = '${ FEATURE_OPTION }';
+$backup_key = '${ FEATURE_BACKUP_OPTION }';
 
 // Recover state left by an interrupted prior run before opening a new
 // transaction.
@@ -63,7 +63,7 @@ if (!$backup_open) {
   throw new RuntimeException('Variation feature option backup could not be created.');
 }
 
-$old_product_id = wc_get_product_id_by_sku('${VARIATION_FIXTURE_SKU}');
+$old_product_id = wc_get_product_id_by_sku('${ VARIATION_FIXTURE_SKU }');
 if ($old_product_id > 0) {
   foreach (get_children(array('post_parent' => $old_product_id, 'post_type' => 'product_variation')) as $child) {
     wp_delete_post($child->ID, true);
@@ -110,7 +110,7 @@ if (is_wp_error($attachment_id)) {
   wp_delete_file($upload['file']);
   throw new RuntimeException($attachment_id->get_error_message());
 }
-${ownPostPhp('$attachment_id', 'variation-availability')}
+${ ownPostPhp( '$attachment_id', 'variation-availability' ) }
 require_once ABSPATH . 'wp-admin/includes/image.php';
 $attachment_metadata = wp_generate_attachment_metadata($attachment_id, $upload['file']);
 if (is_array($attachment_metadata)) {
@@ -135,7 +135,7 @@ foreach ($colors as $slug => $color) {
     }
     $term_id = (int) $created['term_id'];
     $created_term_ids[] = $term_id;
-    ${ownTermPhp('$term_id', 'variation-availability')}
+    ${ ownTermPhp( '$term_id', 'variation-availability' ) }
     // WooCommerce's own visual-attribute swatch meta.
     update_term_meta($term_id, 'color', $color['value']);
   } else {
@@ -144,27 +144,27 @@ foreach ($colors as $slug => $color) {
   $term_ids[$slug] = $term_id;
 }
 
-$category = get_term_by('slug', '${FIXTURE_CATEGORY_SLUG}', 'product_cat');
+$category = get_term_by('slug', '${ FIXTURE_CATEGORY_SLUG }', 'product_cat');
 $created_category_id = 0;
 if (!$category) {
   $created = wp_insert_term(
     'E2E Browser Fixtures',
     'product_cat',
-    array('slug' => '${FIXTURE_CATEGORY_SLUG}')
+    array('slug' => '${ FIXTURE_CATEGORY_SLUG }')
   );
   if (is_wp_error($created)) {
     throw new RuntimeException($created->get_error_message());
   }
   $category_id = (int) $created['term_id'];
   $created_category_id = $category_id;
-  ${ownTermPhp('$category_id', 'variation-availability')}
+  ${ ownTermPhp( '$category_id', 'variation-availability' ) }
 } else {
   $category_id = (int) $category->term_id;
 }
 
 $product = new WC_Product_Variable();
 $product->set_name('E2E Variation Availability');
-$product->set_sku('${VARIATION_FIXTURE_SKU}');
+$product->set_sku('${ VARIATION_FIXTURE_SKU }');
 $product->set_status('publish');
 $product->set_catalog_visibility('visible');
 $product->set_category_ids(array($category_id));
@@ -182,7 +182,7 @@ $attribute->set_visible(true);
 $attribute->set_variation(true);
 $product->set_attributes(array($attribute));
 $product_id = $product->save();
-${ownPostPhp('$product_id', 'variation-availability')}
+${ ownPostPhp( '$product_id', 'variation-availability' ) }
 
 $variations = array(
   'red'   => array(12, 'instock'),
@@ -219,41 +219,41 @@ echo wp_json_encode(
 `;
 
 export interface VariationFixture {
-  id: number;
-  permalink: string;
-  attachmentId: number;
-  createdTermIds: number[];
-  createdCategoryId: number;
+	id: number;
+	permalink: string;
+	attachmentId: number;
+	createdTermIds: number[];
+	createdCategoryId: number;
 }
 
 /** Create a fresh fixture or fail the suite with an actionable setup error. */
 export function createVariationAvailabilityFixture(): VariationFixture {
-  const output = wpCli(['eval', FIXTURE_PHP]);
-  const data = JSON.parse(output) as Partial<VariationFixture>;
-  const fixture: VariationFixture = {
-    id: Number(data.id) || 0,
-    permalink: String(data.permalink || ''),
-    attachmentId: Number(data.attachmentId) || 0,
-    createdTermIds: Array.isArray(data.createdTermIds)
-      ? data.createdTermIds.map(Number).filter(Number.isInteger)
-      : [],
-    createdCategoryId: Number(data.createdCategoryId) || 0,
-  };
+	const output = wpCli( [ 'eval', FIXTURE_PHP ] );
+	const data = JSON.parse( output ) as Partial< VariationFixture >;
+	const fixture: VariationFixture = {
+		id: Number( data.id ) || 0,
+		permalink: String( data.permalink || '' ),
+		attachmentId: Number( data.attachmentId ) || 0,
+		createdTermIds: Array.isArray( data.createdTermIds )
+			? data.createdTermIds.map( Number ).filter( Number.isInteger )
+			: [],
+		createdCategoryId: Number( data.createdCategoryId ) || 0,
+	};
 
-  if (!fixture.id || !fixture.permalink || !fixture.attachmentId) {
-    throw new Error(`Invalid variation fixture response: ${output}`);
-  }
+	if ( ! fixture.id || ! fixture.permalink || ! fixture.attachmentId ) {
+		throw new Error( `Invalid variation fixture response: ${ output }` );
+	}
 
-  return fixture;
+	return fixture;
 }
 
 /** Remove fixture-owned records and restore the original feature option. */
 export function deleteVariationAvailabilityFixture(
-  fixture: VariationFixture
+	fixture: VariationFixture
 ): void {
-  const termIds = JSON.stringify(fixture.createdTermIds);
-  const script = `
-$product_id = ${Number(fixture.id)};
+	const termIds = JSON.stringify( fixture.createdTermIds );
+	const script = `
+$product_id = ${ Number( fixture.id ) };
 if ($product_id > 0) {
   foreach (get_children(array('post_parent' => $product_id, 'post_type' => 'product_variation')) as $child) {
     wp_delete_post($child->ID, true);
@@ -261,37 +261,37 @@ if ($product_id > 0) {
   wp_delete_post($product_id, true);
 }
 
-$attachment_id = ${Number(fixture.attachmentId)};
+$attachment_id = ${ Number( fixture.attachmentId ) };
 if ($attachment_id > 0) {
   wp_delete_attachment($attachment_id, true);
 }
 
-foreach (${termIds} as $term_id) {
+foreach (${ termIds } as $term_id) {
   if ((int) $term_id > 0) {
     wp_delete_term((int) $term_id, 'pa_color');
   }
 }
 
-$category_id = ${Number(fixture.createdCategoryId)};
+$category_id = ${ Number( fixture.createdCategoryId ) };
 if ($category_id > 0) {
   wp_delete_term($category_id, 'product_cat');
 }
 
-$backup = get_option('${FEATURE_BACKUP_OPTION}', null);
+$backup = get_option('${ FEATURE_BACKUP_OPTION }', null);
 if (!is_array($backup)) {
   throw new RuntimeException('Variation fixture feature backup is missing.');
 }
 if (!empty($backup['existed'])) {
-  update_option('${FEATURE_OPTION}', $backup['value'], false);
+  update_option('${ FEATURE_OPTION }', $backup['value'], false);
 } else {
-  delete_option('${FEATURE_OPTION}');
+  delete_option('${ FEATURE_OPTION }');
 }
-delete_option('${FEATURE_BACKUP_OPTION}');
+delete_option('${ FEATURE_BACKUP_OPTION }');
 echo 'ok';
 `;
 
-  const output = wpCli(['eval', script]);
-  if (!output.endsWith('ok')) {
-    throw new Error(`Variation fixture cleanup failed: ${output}`);
-  }
+	const output = wpCli( [ 'eval', script ] );
+	if ( ! output.endsWith( 'ok' ) ) {
+		throw new Error( `Variation fixture cleanup failed: ${ output }` );
+	}
 }

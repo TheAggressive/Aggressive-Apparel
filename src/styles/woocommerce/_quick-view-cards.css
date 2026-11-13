@@ -27,7 +27,6 @@
 	z-index: 3;
 	display: flex;
 	pointer-events: none;
-
 }
 
 .aggressive-apparel-card-actions > *,
@@ -84,9 +83,17 @@
 }
 
 /* Clear common sale-badge corners so chips do not collide. */
-.wp-block-woocommerce-product-image:has(.wc-block-components-product-sale-badge, .onsale, .wc-block-components-sale-badge)
+.wp-block-woocommerce-product-image:has(
+		.wc-block-components-product-sale-badge,
+		.onsale,
+		.wc-block-components-sale-badge
+	)
 	.aggressive-apparel-card-actions--corner.aggressive-apparel-card-actions--top-right,
-.wp-block-post-featured-image:has(.wc-block-components-product-sale-badge, .onsale, .wc-block-components-sale-badge)
+.wp-block-post-featured-image:has(
+		.wc-block-components-product-sale-badge,
+		.onsale,
+		.wc-block-components-sale-badge
+	)
 	.aggressive-apparel-card-actions--corner.aggressive-apparel-card-actions--top-right {
 	padding-top: 2.5rem;
 }
@@ -115,7 +122,8 @@
 
 /* Bottom bar: Quick View sits left of a pinned heart, so the heart holds the
    corner instead of floating beside an invisible trigger. */
-.aggressive-apparel-card-actions--bottom-bar.aggressive-apparel-card-actions--wishlist-pinned .aggressive-apparel-quick-view__trigger {
+.aggressive-apparel-card-actions--bottom-bar.aggressive-apparel-card-actions--wishlist-pinned
+	.aggressive-apparel-quick-view__trigger {
 	order: -1;
 }
 
@@ -127,7 +135,6 @@
 /* Narrow cards (two-up phone grids): a tighter inset keeps the photo clear;
    the chips keep the shared 44px target. */
 @container product-card (width < 320px) {
-
 	.aggressive-apparel-card-actions--corner {
 		padding: 0.375rem;
 	}
@@ -136,7 +143,6 @@
 /* Trigger button on product cards. Icon-only by default; the bottom-bar
    variant reveals its label and restores the pill shape. */
 .aggressive-apparel-quick-view__trigger {
-
 	.aggressive-apparel-quick-view__trigger-icon {
 		display: inline-flex;
 		flex-shrink: 0;
@@ -185,17 +191,22 @@
 
 /* Devices that can hover: hide until card/media hover or focus. */
 @media (hover: hover) and (pointer: fine) {
-
 	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
 		opacity: 0;
 		transform: translateY(0.15rem);
 	}
 
-	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-card-action,
-	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-card-action,
-	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-card-action,
-	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-card-action,
-	.aggressive-apparel-card-actions:focus-within .aggressive-apparel-card-action {
+	.wp-block-post-featured-image:is(:hover, :focus-within)
+		.aggressive-apparel-card-action,
+	.wp-block-woocommerce-product-image:is(:hover, :focus-within)
+		.aggressive-apparel-card-action,
+	.wp-block-woocommerce-product-template
+		> li:is(:hover, :focus-within)
+		.aggressive-apparel-card-action,
+	.wc-block-grid__product:is(:hover, :focus-within)
+		.aggressive-apparel-card-action,
+	.aggressive-apparel-card-actions:focus-within
+		.aggressive-apparel-card-action {
 		opacity: 1;
 		transform: translateY(0);
 	}
@@ -205,12 +216,15 @@
 	   Positional: matches the `.aa-icon-button` transition list in
 	   components/buttons.css (opacity, background-color, border-color, color,
 	   transform). Delay only, so reduced motion's `transition: none` wins. */
-	.aggressive-apparel-card-actions .aggressive-apparel-card-action + .aggressive-apparel-card-action {
+	.aggressive-apparel-card-actions
+		.aggressive-apparel-card-action
+		+ .aggressive-apparel-card-action {
 		transition-delay: 40ms, 0s, 0s, 0s, 40ms;
 	}
 
 	/* Wishlist Heart with a Mouse → Always visible. */
-	.aggressive-apparel-card-actions--wishlist-pinned .aggressive-apparel-card-action.aggressive-apparel-wishlist__toggle--card-media {
+	.aggressive-apparel-card-actions--wishlist-pinned
+		.aggressive-apparel-card-action.aggressive-apparel-wishlist__toggle--card-media {
 		opacity: 1;
 		transform: none;
 	}
@@ -218,7 +232,6 @@
 
 /* Touch / no-hover: always-visible chips — never full-bleed image hijack. */
 @media (hover: none), (pointer: coarse) {
-
 	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
 		position: relative;
 		opacity: 1;
@@ -236,7 +249,8 @@
 
 	/* Card Buttons on Touch Devices → Wishlist heart only. Tapping the
 	   image opens the product, so Quick View stays a mouse feature. */
-	.aggressive-apparel-card-actions--touch-wishlist .aggressive-apparel-quick-view__trigger {
+	.aggressive-apparel-card-actions--touch-wishlist
+		.aggressive-apparel-quick-view__trigger {
 		display: none;
 	}
 }
@@ -268,24 +282,22 @@
 }
 
 @media (hover: none), (pointer: coarse) {
-
 	.aggressive-apparel-card-actions--touch-hidden {
 		display: none;
 	}
 }
 
 @supports (anchor-name: --aa-card) {
-
 	@media (hover: none), (pointer: coarse) {
-
 		.aggressive-apparel-card-actions--touch-toggle {
-
 			.aggressive-apparel-card-actions__toggle {
 				display: inline-flex;
 			}
 
-			&:has(.aggressive-apparel-card-actions__popover:popover-open) .aggressive-apparel-card-actions__toggle-open,
-			&:not(:has(.aggressive-apparel-card-actions__popover:popover-open)) .aggressive-apparel-card-actions__toggle-close {
+			&:has(.aggressive-apparel-card-actions__popover:popover-open)
+				.aggressive-apparel-card-actions__toggle-open,
+			&:not(:has(.aggressive-apparel-card-actions__popover:popover-open))
+				.aggressive-apparel-card-actions__toggle-close {
 				display: none;
 			}
 
@@ -312,19 +324,27 @@
 				right: anchor(right);
 			}
 
-			&:is(.aggressive-apparel-card-actions--top-left, .aggressive-apparel-card-actions--bottom-left)
+			&:is(
+					.aggressive-apparel-card-actions--top-left,
+					.aggressive-apparel-card-actions--bottom-left
+				)
 				.aggressive-apparel-card-actions__popover:popover-open {
 				right: auto;
 				left: anchor(left);
 			}
 
-			&:is(.aggressive-apparel-card-actions--bottom-right, .aggressive-apparel-card-actions--bottom-left, .aggressive-apparel-card-actions--bottom-bar)
+			&:is(
+					.aggressive-apparel-card-actions--bottom-right,
+					.aggressive-apparel-card-actions--bottom-left,
+					.aggressive-apparel-card-actions--bottom-bar
+				)
 				.aggressive-apparel-card-actions__popover:popover-open {
 				top: auto;
 				bottom: anchor(top);
 			}
 
-			&:not(:has(.aggressive-apparel-card-actions__popover:popover-open)) .aggressive-apparel-card-actions__bar {
+			&:not(:has(.aggressive-apparel-card-actions__popover:popover-open))
+				.aggressive-apparel-card-actions__bar {
 				background: none;
 			}
 		}
@@ -333,13 +353,14 @@
 
 /* Bottom bar: expand label on capable hover devices. */
 @media (hover: hover) and (pointer: fine) {
-
-	.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger-label {
+	.aggressive-apparel-card-actions--bottom-bar
+		.aggressive-apparel-quick-view__trigger-label {
 		display: inline;
 	}
 
 	/* With the label visible the trigger becomes a pill again (icon + text). */
-	.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger {
+	.aggressive-apparel-card-actions--bottom-bar
+		.aggressive-apparel-quick-view__trigger {
 		width: auto;
 		min-width: var(--aa-card-action-size);
 		padding: 0 0.65rem;
@@ -347,7 +368,6 @@
 }
 
 @media (forced-colors: active) {
-
 	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
 		border: 1px solid ButtonText;
 		background: Canvas;
@@ -358,7 +378,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
 		transition: none;
 	}
@@ -397,7 +416,6 @@
 		width: 1.25rem;
 		height: 1.25rem;
 	}
-
 }
 
 .aggressive-apparel-quick-view-success__icon {
@@ -407,7 +425,11 @@
 	width: 3.5rem;
 	height: 3.5rem;
 	border-radius: 50%;
-	background: color-mix(in oklch, var(--quick-view-stock-in) 12%, transparent);
+	background: color-mix(
+		in oklch,
+		var(--quick-view-stock-in) 12%,
+		transparent
+	);
 	color: var(--quick-view-stock-in);
 	font-size: 1.5rem;
 	font-weight: 700;
@@ -471,7 +493,6 @@
 }
 
 @media (width <= 480px) {
-
 	.aggressive-apparel-quick-view-success__panel {
 		width: calc(100vw - 2rem);
 		padding: 1.5rem;

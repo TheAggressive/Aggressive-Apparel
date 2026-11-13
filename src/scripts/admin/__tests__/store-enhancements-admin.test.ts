@@ -1,12 +1,12 @@
 import {
-  initFeatureTabs,
-  initStoreCopyPreviews,
+	initFeatureTabs,
+	initStoreCopyPreviews,
 } from '../store-enhancements-admin';
 
 const TAB_STORAGE_KEY = 'aa_features_tab';
 
 function renderTabs(): void {
-  document.body.innerHTML = `
+	document.body.innerHTML = `
     <div class="aa-features-tabs" role="tablist">
       <a href="#tab-general" role="tab" data-tab="general">General</a>
       <a href="#tab-copy" role="tab" data-tab="copy">Store Copy</a>
@@ -16,73 +16,75 @@ function renderTabs(): void {
   `;
 }
 
-function setSearch(search: string): void {
-  window.history.replaceState({}, '', `/wp-admin/themes.php${search}`);
+function setSearch( search: string ): void {
+	window.history.replaceState( {}, '', `/wp-admin/themes.php${ search }` );
 }
 
 function activePanelId(): string | undefined {
-  return Array.from(
-    document.querySelectorAll<HTMLElement>('.aa-features-tab-panel')
-  ).find(panel => !panel.hidden)?.id;
+	return Array.from(
+		document.querySelectorAll< HTMLElement >( '.aa-features-tab-panel' )
+	).find( ( panel ) => ! panel.hidden )?.id;
 }
 
-describe('store enhancements tabs', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    setSearch('');
-    renderTabs();
-  });
+describe( 'store enhancements tabs', () => {
+	beforeEach( () => {
+		localStorage.clear();
+		setSearch( '' );
+		renderTabs();
+	} );
 
-  it('opens the tab named by a ?tab= deep link', () => {
-    setSearch('?page=aa-features&tab=copy');
+	it( 'opens the tab named by a ?tab= deep link', () => {
+		setSearch( '?page=aa-features&tab=copy' );
 
-    initFeatureTabs();
+		initFeatureTabs();
 
-    expect(activePanelId()).toBe('tab-copy');
-    expect(
-      document.querySelector('[data-tab="copy"]')?.getAttribute('aria-selected')
-    ).toBe('true');
-  });
+		expect( activePanelId() ).toBe( 'tab-copy' );
+		expect(
+			document
+				.querySelector( '[data-tab="copy"]' )
+				?.getAttribute( 'aria-selected' )
+		).toBe( 'true' );
+	} );
 
-  it('lets an explicit link win over the remembered tab', () => {
-    localStorage.setItem(TAB_STORAGE_KEY, 'general');
-    setSearch('?tab=copy');
+	it( 'lets an explicit link win over the remembered tab', () => {
+		localStorage.setItem( TAB_STORAGE_KEY, 'general' );
+		setSearch( '?tab=copy' );
 
-    initFeatureTabs();
+		initFeatureTabs();
 
-    expect(activePanelId()).toBe('tab-copy');
-  });
+		expect( activePanelId() ).toBe( 'tab-copy' );
+	} );
 
-  it('falls back to the remembered tab when there is no deep link', () => {
-    localStorage.setItem(TAB_STORAGE_KEY, 'copy');
+	it( 'falls back to the remembered tab when there is no deep link', () => {
+		localStorage.setItem( TAB_STORAGE_KEY, 'copy' );
 
-    initFeatureTabs();
+		initFeatureTabs();
 
-    expect(activePanelId()).toBe('tab-copy');
-  });
+		expect( activePanelId() ).toBe( 'tab-copy' );
+	} );
 
-  it('ignores a ?tab= naming a panel that does not exist', () => {
-    localStorage.setItem(TAB_STORAGE_KEY, 'copy');
-    setSearch('?tab=nope');
+	it( 'ignores a ?tab= naming a panel that does not exist', () => {
+		localStorage.setItem( TAB_STORAGE_KEY, 'copy' );
+		setSearch( '?tab=nope' );
 
-    initFeatureTabs();
+		initFeatureTabs();
 
-    // Neither the bogus link nor a silent reset — the remembered tab stands.
-    expect(activePanelId()).toBe('tab-copy');
-  });
+		// Neither the bogus link nor a silent reset — the remembered tab stands.
+		expect( activePanelId() ).toBe( 'tab-copy' );
+	} );
 
-  it('leaves the markup alone when there are no tabs', () => {
-    document.body.innerHTML = '<p>no tabs here</p>';
-    setSearch('?tab=copy');
+	it( 'leaves the markup alone when there are no tabs', () => {
+		document.body.innerHTML = '<p>no tabs here</p>';
+		setSearch( '?tab=copy' );
 
-    expect(() => initFeatureTabs()).not.toThrow();
-  });
-});
+		expect( () => initFeatureTabs() ).not.toThrow();
+	} );
+} );
 
-describe('store copy token preview', () => {
-  const render = (value: string, placeholder = 'Save {percent}%'): void => {
-    document.body.innerHTML = `
-      <input type="text" id="aa_sale_badge_text" value="${value}" placeholder="${placeholder}" />
+describe( 'store copy token preview', () => {
+	const render = ( value: string, placeholder = 'Save {percent}%' ): void => {
+		document.body.innerHTML = `
+      <input type="text" id="aa_sale_badge_text" value="${ value }" placeholder="${ placeholder }" />
       <p class="aa-store-copy-preview"
          data-aa-copy-preview="aa_sale_badge_text"
          data-aa-tokens='{"{percent}":"20"}'>
@@ -90,46 +92,46 @@ describe('store copy token preview', () => {
         <span class="aa-store-copy-preview__value"></span>
       </p>
     `;
-  };
+	};
 
-  const previewText = (): string | null =>
-    document.querySelector('.aa-store-copy-preview__value')?.textContent ??
-    null;
+	const previewText = (): string | null =>
+		document.querySelector( '.aa-store-copy-preview__value' )
+			?.textContent ?? null;
 
-  it('substitutes the sample value for the token', () => {
-    render('Save {percent}%');
+	it( 'substitutes the sample value for the token', () => {
+		render( 'Save {percent}%' );
 
-    initStoreCopyPreviews();
+		initStoreCopyPreviews();
 
-    expect(previewText()).toBe('Save 20%');
-  });
+		expect( previewText() ).toBe( 'Save 20%' );
+	} );
 
-  it('shows wording without a token verbatim', () => {
-    render('Now on Sale');
+	it( 'shows wording without a token verbatim', () => {
+		render( 'Now on Sale' );
 
-    initStoreCopyPreviews();
+		initStoreCopyPreviews();
 
-    expect(previewText()).toBe('Now on Sale');
-  });
+		expect( previewText() ).toBe( 'Now on Sale' );
+	} );
 
-  it('surfaces a mistyped token instead of hiding it', () => {
-    render('Save {percnt}%');
+	it( 'surfaces a mistyped token instead of hiding it', () => {
+		render( 'Save {percnt}%' );
 
-    initStoreCopyPreviews();
+		initStoreCopyPreviews();
 
-    expect(previewText()).toBe('Save {percnt}%');
-  });
+		expect( previewText() ).toBe( 'Save {percnt}%' );
+	} );
 
-  it('previews the placeholder when the field is empty', () => {
-    render('');
+	it( 'previews the placeholder when the field is empty', () => {
+		render( '' );
 
-    initStoreCopyPreviews();
+		initStoreCopyPreviews();
 
-    expect(previewText()).toBe('Save 20%');
-  });
+		expect( previewText() ).toBe( 'Save 20%' );
+	} );
 
-  it('bolds asterisked words in highlight fields and keeps a lone asterisk', () => {
-    document.body.innerHTML = `
+	it( 'bolds asterisked words in highlight fields and keeps a lone asterisk', () => {
+		document.body.innerHTML = `
       <input type="text" id="aa_fs" value="{amount} to go for *free shipping* 5*" />
       <p class="aa-store-copy-preview" data-aa-copy-preview="aa_fs"
          data-aa-tokens='{"{amount}":"$25"}' data-aa-highlight>
@@ -137,23 +139,25 @@ describe('store copy token preview', () => {
       </p>
     `;
 
-    initStoreCopyPreviews();
+		initStoreCopyPreviews();
 
-    const value = document.querySelector('.aa-store-copy-preview__value');
-    expect(value?.textContent).toBe('$25 to go for free shipping 5*');
-    expect(value?.querySelector('strong')?.textContent).toBe('free shipping');
-  });
+		const value = document.querySelector( '.aa-store-copy-preview__value' );
+		expect( value?.textContent ).toBe( '$25 to go for free shipping 5*' );
+		expect( value?.querySelector( 'strong' )?.textContent ).toBe(
+			'free shipping'
+		);
+	} );
 
-  it('updates as the merchant types', () => {
-    render('Save {percent}%');
-    initStoreCopyPreviews();
+	it( 'updates as the merchant types', () => {
+		render( 'Save {percent}%' );
+		initStoreCopyPreviews();
 
-    const input = document.getElementById(
-      'aa_sale_badge_text'
-    ) as HTMLInputElement;
-    input.value = '{percent}% off';
-    input.dispatchEvent(new Event('input'));
+		const input = document.getElementById(
+			'aa_sale_badge_text'
+		) as HTMLInputElement;
+		input.value = '{percent}% off';
+		input.dispatchEvent( new Event( 'input' ) );
 
-    expect(previewText()).toBe('20% off');
-  });
-});
+		expect( previewText() ).toBe( '20% off' );
+	} );
+} );

@@ -93,7 +93,6 @@
 
 /* Desktop two-column drawer layout. */
 @media (width > 768px) {
-
 	/* Rigid container — only the body column scrolls, so the image stays fixed. */
 	.aggressive-apparel-quick-view__drawer-panel {
 		overflow: hidden;
@@ -121,7 +120,8 @@
 	}
 
 	/* Hide small thumb on desktop — large image on left replaces it. */
-	.aggressive-apparel-quick-view__drawer-header .aggressive-apparel-quick-view__drawer-thumb {
+	.aggressive-apparel-quick-view__drawer-header
+		.aggressive-apparel-quick-view__drawer-thumb {
 		display: none;
 	}
 
@@ -159,7 +159,6 @@
  * Slightly tighter spacing for mid-size screens.
  * ======================================== */
 @media (width >= 769px) and (width <= 1024px) {
-
 	.aggressive-apparel-quick-view__modal {
 		width: 95vw;
 	}
@@ -188,7 +187,6 @@
  * Full-screen sheet with constrained image.
  * ======================================== */
 @media (width <= 768px) {
-
 	/* Full-screen sheet — scrollable content. */
 	.aggressive-apparel-quick-view__modal {
 		width: 100vw;
@@ -267,7 +265,8 @@
 	}
 
 	/* Undo equal-width in drawer — Buy Now goes full-width below. */
-	.aggressive-apparel-quick-view__drawer-footer .aggressive-apparel-quick-view__buy-now {
+	.aggressive-apparel-quick-view__drawer-footer
+		.aggressive-apparel-quick-view__buy-now {
 		flex: none;
 		width: 100%;
 	}
@@ -278,14 +277,13 @@
  * Smooth entry from display:none → visible.
  * ======================================== */
 @supports selector(@starting-style) {
-
 	.aggressive-apparel-quick-view {
 		transition: display var(--quick-view-animation-duration) allow-discrete;
 	}
 
 	@starting-style {
-
-		.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__modal {
+		.aggressive-apparel-quick-view.is-open
+			.aggressive-apparel-quick-view__modal {
 			opacity: 0;
 			transform: scale(0.95) translateY(20px);
 		}
@@ -293,18 +291,24 @@
 		/* On mobile, skip the transform part of the entry animation
 		   (matches the mobile override that sets transform: none). */
 		@media (width <= 768px) {
-
-			.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__modal {
+			.aggressive-apparel-quick-view.is-open
+				.aggressive-apparel-quick-view__modal {
 				transform: none;
 			}
 		}
 
-		.aggressive-apparel-quick-view__drawer.is-open .aggressive-apparel-quick-view__drawer-panel {
+		.aggressive-apparel-quick-view__drawer.is-open
+			.aggressive-apparel-quick-view__drawer-panel {
 			transform: translateY(100%);
 		}
 
-		.aggressive-apparel-quick-view__drawer.is-open .aggressive-apparel-quick-view__drawer-scrim {
-			background: color-mix(in oklch, var(--aa-color-foreground) 0%, transparent);
+		.aggressive-apparel-quick-view__drawer.is-open
+			.aggressive-apparel-quick-view__drawer-scrim {
+			background: color-mix(
+				in oklch,
+				var(--aa-color-foreground) 0%,
+				transparent
+			);
 		}
 	}
 }
@@ -314,26 +318,38 @@
  * Content stagger + add-to-cart pulse.
  * ======================================== */
 @media (prefers-reduced-motion: no-preference) {
-
-	.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__details > * {
+	.aggressive-apparel-quick-view.is-open
+		.aggressive-apparel-quick-view__details
+		> * {
 		animation: qv-stagger-in 0.4s ease both;
 		animation-delay: calc(var(--stagger-index, 0) * 60ms);
 	}
 
-	.aggressive-apparel-quick-view__details > :nth-child(1) { --stagger-index: 0; }
+	.aggressive-apparel-quick-view__details > :nth-child(1) {
+		--stagger-index: 0;
+	}
 
-	.aggressive-apparel-quick-view__details > :nth-child(2) { --stagger-index: 1; }
+	.aggressive-apparel-quick-view__details > :nth-child(2) {
+		--stagger-index: 1;
+	}
 
-	.aggressive-apparel-quick-view__details > :nth-child(3) { --stagger-index: 2; }
+	.aggressive-apparel-quick-view__details > :nth-child(3) {
+		--stagger-index: 2;
+	}
 
-	.aggressive-apparel-quick-view__details > :nth-child(4) { --stagger-index: 3; }
+	.aggressive-apparel-quick-view__details > :nth-child(4) {
+		--stagger-index: 3;
+	}
 
-	.aggressive-apparel-quick-view__details > :nth-child(5) { --stagger-index: 4; }
+	.aggressive-apparel-quick-view__details > :nth-child(5) {
+		--stagger-index: 4;
+	}
 
-	.aggressive-apparel-quick-view__details > :nth-child(6) { --stagger-index: 5; }
+	.aggressive-apparel-quick-view__details > :nth-child(6) {
+		--stagger-index: 5;
+	}
 
 	@keyframes qv-stagger-in {
-
 		from {
 			opacity: 0;
 			transform: translateY(12px);
@@ -350,7 +366,6 @@
 	}
 
 	@keyframes qv-cart-success {
-
 		0% {
 			transform: scale(1);
 		}
@@ -370,7 +385,6 @@
  * Disable all quick view animations.
  * ======================================== */
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-quick-view__close {
 		backdrop-filter: none;
 	}

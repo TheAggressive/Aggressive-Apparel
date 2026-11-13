@@ -19,25 +19,25 @@ export const THRESHOLD = 200;
 export const PRODUCT_PRICE = 29.99;
 
 export interface FreeShippingFixture {
-  pageUrl: string;
-  productId: number;
+	pageUrl: string;
+	productId: number;
 }
 
 const OPTIONS = [
-  'woocommerce_currency',
-  'woocommerce_currency_pos',
-  'woocommerce_price_decimal_sep',
-  'woocommerce_price_thousand_sep',
-  'woocommerce_price_num_decimals',
-  'woocommerce_default_country',
-  'woocommerce_default_customer_address',
-  // Store Copy wording; restored so a wording test never leaks into the site.
-  'aggressive_apparel_free_shipping_progress_text',
-  'aggressive_apparel_free_shipping_unlocked_text',
+	'woocommerce_currency',
+	'woocommerce_currency_pos',
+	'woocommerce_price_decimal_sep',
+	'woocommerce_price_thousand_sep',
+	'woocommerce_price_num_decimals',
+	'woocommerce_default_country',
+	'woocommerce_default_customer_address',
+	// Store Copy wording; restored so a wording test never leaks into the site.
+	'aggressive_apparel_free_shipping_progress_text',
+	'aggressive_apparel_free_shipping_unlocked_text',
 ];
 
 const RESTORE_PHP = `
-$backup = get_option('${BACKUP_OPTION}', null);
+$backup = get_option('${ BACKUP_OPTION }', null);
 if (is_array($backup)) {
   foreach ((array) ($backup['options'] ?? array()) as $name => $entry) {
     if (!empty($entry['existed'])) {
@@ -52,7 +52,7 @@ if (is_array($backup)) {
       $zone->delete();
     }
   }
-  delete_option('${BACKUP_OPTION}');
+  delete_option('${ BACKUP_OPTION }');
 }
 foreach (array('page', 'product') as $post_type) {
   $ids = get_posts(
@@ -60,8 +60,8 @@ foreach (array('page', 'product') as $post_type) {
       'post_type'      => $post_type,
       'post_status'    => 'any',
       'fields'         => 'ids',
-      'meta_key'       => '${FIXTURE_OWNER_META}',
-      'meta_value'     => '${FIXTURE_OWNER}',
+      'meta_key'       => '${ FIXTURE_OWNER_META }',
+      'meta_value'     => '${ FIXTURE_OWNER }',
       'posts_per_page' => 10,
       'no_found_rows'  => true,
     )
@@ -78,15 +78,15 @@ if (!class_exists('WC_Shipping_Zone')) {
   echo wp_json_encode(array('error' => 'WooCommerce shipping APIs are unavailable.'));
   return;
 }
-${RESTORE_PHP}
+${ RESTORE_PHP }
 $options = array();
-foreach (array(${OPTIONS.map(name => `'${name}'`).join(', ')}) as $name) {
+foreach (array(${ OPTIONS.map( ( name ) => `'${ name }'` ).join( ', ' ) }) as $name) {
   $sentinel = new stdClass();
   $value = get_option($name, $sentinel);
   $options[$name] = array('existed' => $value !== $sentinel, 'value' => $value !== $sentinel ? $value : null);
 }
 $backup = array('options' => $options, 'zones' => array());
-add_option('${BACKUP_OPTION}', $backup, '', false);
+add_option('${ BACKUP_OPTION }', $backup, '', false);
 
 update_option('woocommerce_currency', 'EUR');
 update_option('woocommerce_currency_pos', 'right_space');
@@ -94,11 +94,11 @@ update_option('woocommerce_price_decimal_sep', ',');
 update_option('woocommerce_price_thousand_sep', '.');
 update_option('woocommerce_price_num_decimals', '2');
 update_option('woocommerce_default_customer_address', 'base');
-update_option('woocommerce_default_country', '${FREE_SHIPPING_COUNTRY}');
+update_option('woocommerce_default_country', '${ FREE_SHIPPING_COUNTRY }');
 
 $zones = array(
-  array('${FREE_SHIPPING_COUNTRY}', 'free_shipping'),
-  array('${NO_FREE_SHIPPING_COUNTRY}', 'flat_rate'),
+  array('${ FREE_SHIPPING_COUNTRY }', 'free_shipping'),
+  array('${ NO_FREE_SHIPPING_COUNTRY }', 'flat_rate'),
 );
 foreach ($zones as $index => $definition) {
   $zone = new WC_Shipping_Zone();
@@ -113,22 +113,22 @@ foreach ($zones as $index => $definition) {
       array(
         'title'            => 'Free shipping',
         'requires'         => 'min_amount',
-        'min_amount'       => '${THRESHOLD}',
+        'min_amount'       => '${ THRESHOLD }',
         'ignore_discounts' => 'no',
       )
     );
   }
   $backup['zones'][] = $zone->get_id();
-  update_option('${BACKUP_OPTION}', $backup, false);
+  update_option('${ BACKUP_OPTION }', $backup, false);
 }
 delete_transient('aggressive_apparel_free_shipping_threshold');
 
 $product = new WC_Product_Simple();
 $product->set_name('E2E Free Shipping Product');
-$product->set_regular_price('${PRODUCT_PRICE}');
+$product->set_regular_price('${ PRODUCT_PRICE }');
 $product->set_status('publish');
 $product_id = $product->save();
-update_post_meta($product_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}');
+update_post_meta($product_id, '${ FIXTURE_OWNER_META }', '${ FIXTURE_OWNER }');
 
 $page_id = wp_insert_post(
   array(
@@ -142,7 +142,7 @@ if (is_wp_error($page_id) || $page_id <= 0) {
   echo wp_json_encode(array('error' => 'Could not create the fixture page.'));
   return;
 }
-update_post_meta($page_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}');
+update_post_meta($page_id, '${ FIXTURE_OWNER_META }', '${ FIXTURE_OWNER }');
 
 echo wp_json_encode(
   array(
@@ -152,49 +152,54 @@ echo wp_json_encode(
 );
 `;
 
-function run(php: string, label: string): Record<string, unknown> {
-  const output = wpCli(['eval', php]);
-  try {
-    return JSON.parse(output || '{}') as Record<string, unknown>;
-  } catch {
-    throw new Error(`${label} returned invalid JSON: ${output}`);
-  }
+function run( php: string, label: string ): Record< string, unknown > {
+	const output = wpCli( [ 'eval', php ] );
+	try {
+		return JSON.parse( output || '{}' ) as Record< string, unknown >;
+	} catch {
+		throw new Error( `${ label } returned invalid JSON: ${ output }` );
+	}
 }
 
 export function createFreeShippingFixture(): FreeShippingFixture {
-  try {
-    const result = run(CREATE_PHP, 'Free shipping fixture setup');
-    if (result.error || !result.pageUrl || !result.productId) {
-      throw new Error(
-        String(result.error ?? 'Invalid free shipping fixture response.')
-      );
-    }
+	try {
+		const result = run( CREATE_PHP, 'Free shipping fixture setup' );
+		if ( result.error || ! result.pageUrl || ! result.productId ) {
+			throw new Error(
+				String(
+					result.error ?? 'Invalid free shipping fixture response.'
+				)
+			);
+		}
 
-    return {
-      pageUrl: String(result.pageUrl),
-      productId: Number(result.productId),
-    };
-  } catch (error) {
-    deleteFreeShippingFixture();
-    throw error;
-  }
+		return {
+			pageUrl: String( result.pageUrl ),
+			productId: Number( result.productId ),
+		};
+	} catch ( error ) {
+		deleteFreeShippingFixture();
+		throw error;
+	}
 }
 
 /** Set the site-wide Store Copy wording for the in-progress message. */
-export function setProgressWording(wording: string): void {
-  wpCli([
-    'option',
-    'update',
-    'aggressive_apparel_free_shipping_progress_text',
-    wording,
-  ]);
+export function setProgressWording( wording: string ): void {
+	wpCli( [
+		'option',
+		'update',
+		'aggressive_apparel_free_shipping_progress_text',
+		wording,
+	] );
 }
 
 /** Point the guest default location (store base) at a country. */
-export function setGuestCountry(country: string): void {
-  wpCli(['option', 'update', 'woocommerce_default_country', country]);
+export function setGuestCountry( country: string ): void {
+	wpCli( [ 'option', 'update', 'woocommerce_default_country', country ] );
 }
 
 export function deleteFreeShippingFixture(): void {
-  run(`${RESTORE_PHP} echo wp_json_encode(array('clean' => true));`, 'cleanup');
+	run(
+		`${ RESTORE_PHP } echo wp_json_encode(array('clean' => true));`,
+		'cleanup'
+	);
 }

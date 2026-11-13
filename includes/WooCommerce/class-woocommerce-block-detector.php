@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 use Aggressive_Apparel\Core\Cache_Helper;
 
 // Exit if accessed directly.
@@ -42,32 +44,11 @@ class WooCommerce_Block_Detector {
 	private const CACHE_TTL = DAY_IN_SECONDS;
 
 	/**
-	 * Cached parse results keyed by a hash of the content string.
-	 *
-	 * @var array<string, bool>
-	 */
-	private static array $content_scan_cache = array();
-
-	/**
 	 * Reference keys currently being resolved to prevent infinite recursion.
 	 *
 	 * @var array<string, true>
 	 */
 	private static array $resolving_refs = array();
-
-	/**
-	 * Memoized detect() result for the current request.
-	 *
-	 * @var bool|null
-	 */
-	private static ?bool $detect_result = null;
-
-	/**
-	 * Whether invalidation hooks have been registered.
-	 *
-	 * @var bool
-	 */
-	private static bool $hooks_registered = false;
 
 	/**
 	 * Whether WooCommerce frontend assets should load on this request.
@@ -99,48 +80,55 @@ class WooCommerce_Block_Detector {
 	 * @return bool
 	 */
 	private static function detect(): bool {
-		if ( null !== self::$detect_result ) {
-			return self::$detect_result;
-		}
+		return Request_Cache::remember( self::runtime_key( 'detect' ), static fn(): bool => self::run_detection() );
+	}
 
+	/**
+	 * Request-cache key for this request's derived state; reset_runtime_state()
+	 * bumps the generation, which drops it all at once.
+	 *
+	 * @param string $part Key suffix.
+	 * @return string
+	 */
+	private static function runtime_key( string $part ): string {
+		return 'wc-block-detector:' . (int) Request_Cache::get( 'wc-block-detector:generation', 0 ) . ':' . $part;
+	}
+
+	/**
+	 * Run every detection strategy, cheapest first.
+	 *
+	 * @return bool
+	 */
+	private static function run_detection(): bool {
 		if ( self::is_wc_route() ) {
-			self::$detect_result = true;
-			return self::$detect_result;
+			return true;
 		}
 
 		if ( Product_Context::is_product_display_page() ) {
-			self::$detect_result = true;
-			return self::$detect_result;
+			return true;
 		}
 
 		if ( self::queried_content_has_woocommerce_blocks() ) {
-			self::$detect_result = true;
-			return self::$detect_result;
+			return true;
 		}
 
 		if ( self::resolved_template_has_woocommerce_blocks() ) {
-			self::$detect_result = true;
-			return self::$detect_result;
+			return true;
 		}
 
 		if ( self::theme_template_parts_have_woocommerce_blocks() ) {
-			self::$detect_result = true;
-			return self::$detect_result;
+			return true;
 		}
 
 		if ( self::widget_areas_have_woocommerce_blocks() ) {
-			self::$detect_result = true;
-			return self::$detect_result;
+			return true;
 		}
 
 		if ( self::index_template_has_woocommerce_blocks() ) {
-			self::$detect_result = true;
-			return self::$detect_result;
+			return true;
 		}
 
-		self::$detect_result = false;
-
-		return self::$detect_result;
+		return false;
 	}
 
 	/**
@@ -220,27 +208,18 @@ class WooCommerce_Block_Detector {
 			return false;
 		}
 
-		$cache_key = md5( $content );
-
-		if ( isset( self::$content_scan_cache[ $cache_key ] ) ) {
-			return self::$content_scan_cache[ $cache_key ];
-		}
-
 		if ( str_contains( $content, '<!-- wp:woocommerce/' ) ) {
-			self::$content_scan_cache[ $cache_key ] = true;
 			return true;
 		}
 
 		if ( ! str_contains( $content, '<!-- wp:' ) ) {
-			self::$content_scan_cache[ $cache_key ] = false;
 			return false;
 		}
 
-		$found = self::blocks_contain_woocommerce( parse_blocks( $content ) );
-
-		self::$content_scan_cache[ $cache_key ] = $found;
-
-		return $found;
+		return Request_Cache::remember(
+			self::runtime_key( 'scan:' . md5( $content ) ),
+			static fn(): bool => self::blocks_contain_woocommerce( parse_blocks( $content ) )
+		);
 	}
 
 	/**
@@ -647,20 +626,8 @@ class WooCommerce_Block_Detector {
 	 * @return void
 	 */
 	public static function reset_runtime_state(): void {
-		self::$detect_result      = null;
-		self::$content_scan_cache = array();
-		self::$resolving_refs     = array();
-	}
-
-	/**
-	 * Reset all detector caches. Intended for PHPUnit only.
-	 *
-	 * @return void
-	 */
-	public static function reset_caches_for_tests(): void {
-		self::reset_runtime_state();
-		self::$hooks_registered = false;
-		self::bump_cache_version();
+		Request_Cache::set( 'wc-block-detector:generation', (int) Request_Cache::get( 'wc-block-detector:generation', 0 ) + 1 );
+		self::$resolving_refs = array();
 	}
 
 	/**
@@ -669,11 +636,10 @@ class WooCommerce_Block_Detector {
 	 * @return void
 	 */
 	private static function register_invalidation_hooks(): void {
-		if ( self::$hooks_registered ) {
+		// Idempotent on the real hook state, so it can never drift from it.
+		if ( false !== has_action( 'switch_theme', array( self::class, 'bump_cache_version' ) ) ) {
 			return;
 		}
-
-		self::$hooks_registered = true;
 
 		add_action( 'save_post_wp_template', array( self::class, 'handle_template_save' ) );
 		add_action( 'save_post_wp_template_part', array( self::class, 'handle_template_save' ) );

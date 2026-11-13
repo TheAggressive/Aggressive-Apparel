@@ -216,8 +216,10 @@
 /* No-code layout item builder. */
 
 .aa-custom-tabs-repeater__row[data-source="manual"] [data-source-field],
-.aa-custom-tabs-repeater__row[data-source="product_meta"] [data-source-field="attribute"],
-.aa-custom-tabs-repeater__row[data-source="product_attribute"] [data-source-field="meta"],
+.aa-custom-tabs-repeater__row[data-source="product_meta"]
+	[data-source-field="attribute"],
+.aa-custom-tabs-repeater__row[data-source="product_attribute"]
+	[data-source-field="meta"],
 .aa-custom-tabs-repeater__row[data-layout="rich_text"] .aa-custom-tab-items,
 .aa-custom-tabs-repeater__row[data-layout="custom_html"] .aa-custom-tab-items {
 	display: none;
@@ -311,16 +313,23 @@
 	margin-bottom: 0;
 }
 
-.aa-custom-tabs-preview .aa-product-info__content > :where(p, ul, ol) + :where(p, ul, ol) {
+.aa-custom-tabs-preview
+	.aa-product-info__content
+	> :where(p, ul, ol)
+	+ :where(p, ul, ol) {
 	margin-block-start: 1rem;
 }
 
-.aa-custom-tabs-preview .aa-product-info__content > :where(ul):not(.aa-product-tab-layout) {
+.aa-custom-tabs-preview
+	.aa-product-info__content
+	> :where(ul):not(.aa-product-tab-layout) {
 	padding-inline-start: 1.25rem;
 	list-style: disc;
 }
 
-.aa-custom-tabs-preview .aa-product-info__content > :where(ol):not(.aa-product-tab-layout) {
+.aa-custom-tabs-preview
+	.aa-product-info__content
+	> :where(ol):not(.aa-product-tab-layout) {
 	padding-inline-start: 1.25rem;
 	list-style: decimal;
 }
@@ -352,8 +361,12 @@
 	border-radius: 8px;
 }
 
-.aa-custom-tabs-preview .aa-product-tab-layout--icon-list .aa-product-tab-layout__item,
-.aa-custom-tabs-preview .aa-product-tab-layout--shipping-timeline .aa-product-tab-layout__item {
+.aa-custom-tabs-preview
+	.aa-product-tab-layout--icon-list
+	.aa-product-tab-layout__item,
+.aa-custom-tabs-preview
+	.aa-product-tab-layout--shipping-timeline
+	.aa-product-tab-layout__item {
 	padding: 0;
 	border: 0;
 }
@@ -416,7 +429,6 @@
 }
 
 @media (width <= 1100px) {
-
 	.aa-custom-tab-items__row-fields {
 		grid-template-columns: 5rem repeat(2, minmax(0, 1fr));
 	}
@@ -427,7 +439,6 @@
 }
 
 @media (width <= 782px) {
-
 	.aa-custom-tab-items__row-fields {
 		grid-template-columns: 1fr;
 	}
@@ -573,7 +584,6 @@
 }
 
 @media (width <= 782px) {
-
 	.aa-custom-tabs-manager {
 		grid-template-columns: 1fr;
 	}

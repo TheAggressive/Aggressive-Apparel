@@ -14,20 +14,20 @@ import './style.css';
 
 // Block attributes type derived from block.json.
 type LogoAttributes = {
-  alt: string;
-  lightColor: string;
-  lightHoverColor: string;
-  darkColor: string;
-  darkHoverColor: string;
-  breakpoint: 'mobile' | 'tablet' | 'desktop';
-  largeWidth: number;
-  largeHeight?: number;
-  smallWidth: number;
-  smallHeight?: number;
-  linkToHome: boolean;
+	alt: string;
+	lightColor: string;
+	lightHoverColor: string;
+	darkColor: string;
+	darkHoverColor: string;
+	breakpoint: 'mobile' | 'tablet' | 'desktop';
+	largeWidth: number;
+	largeHeight?: number;
+	smallWidth: number;
+	smallHeight?: number;
+	linkToHome: boolean;
 };
 
-registerThemeBlock<LogoAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-});
+registerThemeBlock< LogoAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+} );

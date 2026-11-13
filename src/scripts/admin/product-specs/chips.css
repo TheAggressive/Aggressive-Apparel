@@ -54,8 +54,9 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-
 	.aa-ps-chip {
-		transition: border-color 0.12s ease, box-shadow 0.12s ease;
+		transition:
+			border-color 0.12s ease,
+			box-shadow 0.12s ease;
 	}
 }

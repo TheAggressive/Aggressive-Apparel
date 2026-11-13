@@ -52,7 +52,6 @@
 }
 
 @supports (backdrop-filter: blur(1px)) {
-
 	.aggressive-apparel-overlay__backdrop {
 		backdrop-filter: blur(0);
 
@@ -63,9 +62,7 @@
 }
 
 @supports selector(@starting-style) {
-
 	.aggressive-apparel-overlay__backdrop {
-
 		@starting-style {
 			background-color: transparent;
 			opacity: 0;
@@ -73,9 +70,7 @@
 	}
 
 	@supports (backdrop-filter: blur(1px)) {
-
 		.aggressive-apparel-overlay__backdrop {
-
 			@starting-style {
 				backdrop-filter: blur(0);
 			}
@@ -84,13 +79,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-overlay__backdrop {
 		transition: none;
 	}
 
 	@supports (backdrop-filter: blur(1px)) {
-
 		.aggressive-apparel-overlay__backdrop {
 			backdrop-filter: none;
 

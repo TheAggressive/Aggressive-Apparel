@@ -367,11 +367,11 @@ class Icon_Block {
 	}
 
 	/**
-	 * Drop cached editor icon payloads (tests / manual invalidation).
+	 * Drop the cached editor icon payloads (after icons are added or changed).
 	 *
 	 * @internal
 	 */
-	public static function flush_list_cache_for_tests(): void {
+	public static function flush_list_cache(): void {
 		delete_transient( self::list_cache_key() );
 		// Legacy keys from earlier iterations.
 		delete_transient( 'aa_icon_slugs_' . md5( self::theme_version() ) );

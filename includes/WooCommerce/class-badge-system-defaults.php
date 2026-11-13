@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -191,11 +193,17 @@ trait Badge_System_Defaults {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function get_system_badges(): array {
-		if ( null !== self::$system_badges_cache ) {
-			return self::$system_badges_cache;
-		}
+		return Request_Cache::remember( 'badges:system', static fn(): array => self::query_system_badges() );
+	}
 
-		self::$system_badges_cache = array();
+	/**
+	 * Query visual data for all system badge terms, uncached (see
+	 * get_system_badges()).
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function query_system_badges(): array {
+		$badges = array();
 
 		$terms = get_terms(
 			array(
@@ -205,7 +213,7 @@ trait Badge_System_Defaults {
 		);
 
 		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return self::$system_badges_cache;
+			return $badges;
 		}
 
 		foreach ( $terms as $term ) {
@@ -216,22 +224,9 @@ trait Badge_System_Defaults {
 
 			$data['name'] = $term->name;
 
-			self::$system_badges_cache[ $data['badge_type'] ] = $data;
+			$badges[ $data['badge_type'] ] = $data;
 		}
 
-		return self::$system_badges_cache;
-	}
-
-	/**
-	 * Drop the per-request system badge cache.
-	 *
-	 * A single request never edits a badge term and then renders a card with
-	 * it, so production has nothing to invalidate. Tests that seed terms after
-	 * something has already read them do.
-	 *
-	 * @return void
-	 */
-	public static function flush_system_badges_cache(): void {
-		self::$system_badges_cache = null;
+		return $badges;
 	}
 }

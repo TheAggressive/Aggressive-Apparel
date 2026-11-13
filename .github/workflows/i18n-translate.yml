@@ -3,146 +3,146 @@
 name: 🌐 i18n MT Drafts
 
 on:
-  workflow_dispatch:
-    inputs:
-      locale:
-        description: 'Locale to update (e.g. fr_FR). Leave empty for all locales.'
-        required: false
-        default: ''
-      limit:
-        description: 'Max strings to translate this run (rate-limit safety).'
-        required: false
-        default: '200'
-  push:
-    branches: [master]
-    paths:
-      - 'languages/aggressive-apparel.pot'
+    workflow_dispatch:
+        inputs:
+            locale:
+                description: 'Locale to update (e.g. fr_FR). Leave empty for all locales.'
+                required: false
+                default: ''
+            limit:
+                description: 'Max strings to translate this run (rate-limit safety).'
+                required: false
+                default: '200'
+    push:
+        branches: [master]
+        paths:
+            - 'languages/aggressive-apparel.pot'
 
 # The App token below opens the pull request, so the workflow's own token only
 # needs to read the tree. Least privilege for the credential that is present on
 # the runner for the whole job.
 permissions:
-  contents: read
+    contents: read
 
 concurrency:
-  group: i18n-mt-drafts
-  cancel-in-progress: false
+    group: i18n-mt-drafts
+    cancel-in-progress: false
 
 jobs:
-  translate:
-    name: Draft translations → PR
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+    translate:
+        name: Draft translations → PR
+        runs-on: ubuntu-latest
+        timeout-minutes: 60
 
-    steps:
-      # A pull request opened with GITHUB_TOKEN does not get an unattended
-      # pipeline run, which is how MT drafts arrived with no completed checks —
-      # a state easily misread as "nothing to review". An App installation token
-      # is a distinct identity, so its pull requests are validated like any
-      # other before anyone merges a catalog.
-      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        id: app-token
-        with:
-          client-id: ${{ secrets.AA_CI_CLIENT_ID }}
-          private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
-          # Scope the minted token down to what this job does. Without these the
-          # token carries the App's whole installation permission set, so a
-          # later permission added to the App for some other repository would be
-          # silently inherited here. Repository scope is already the current
-          # repository by default.
-          permission-contents: write
-          permission-pull-requests: write
+        steps:
+            # A pull request opened with GITHUB_TOKEN does not get an unattended
+            # pipeline run, which is how MT drafts arrived with no completed checks —
+            # a state easily misread as "nothing to review". An App installation token
+            # is a distinct identity, so its pull requests are validated like any
+            # other before anyone merges a catalog.
+            - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+              id: app-token
+              with:
+                  client-id: ${{ secrets.AA_CI_CLIENT_ID }}
+                  private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
+                  # Scope the minted token down to what this job does. Without these the
+                  # token carries the App's whole installation permission set, so a
+                  # later permission added to the App for some other repository would be
+                  # silently inherited here. Repository scope is already the current
+                  # repository by default.
+                  permission-contents: write
+                  permission-pull-requests: write
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
 
-      # Bounded on purpose. This step is a bare apt install with no retry, and
-      # an unreachable mirror once stalled it for 51 minutes until the job's
-      # 60-minute cap killed it — every other run of this workflow has finished
-      # in under 5. Failing fast turns a silent hour into a visible error.
-      - name: Install gettext tools
-        timeout-minutes: 5
-        run: sudo apt-get update && sudo apt-get install -y gettext
+            # Bounded on purpose. This step is a bare apt install with no retry, and
+            # an unreachable mirror once stalled it for 51 minutes until the job's
+            # 60-minute cap killed it — every other run of this workflow has finished
+            # in under 5. Failing fast turns a silent hour into a visible error.
+            - name: Install gettext tools
+              timeout-minutes: 5
+              run: sudo apt-get update && sudo apt-get install -y gettext
 
-      # Must precede setup-node: v5 resolves the `packageManager` field in
-      # package.json and fails if that package manager is not on PATH yet.
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+            # Must precede setup-node: v5 resolves the `packageManager` field in
+            # package.json and fails if that package manager is not on PATH yet.
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '24'
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: '24'
 
-      - name: Skip when no locale catalogs exist
-        id: gate
-        run: |
-          shopt -s nullglob
-          files=(languages/aggressive-apparel-*.po)
-          # Ignore PHPUnit fixture locale if ever copied here.
-          count=0
-          for f in "${files[@]}"; do
-            [[ "$f" == *aa_TEST* ]] && continue
-            count=$((count + 1))
-          done
-          if [[ "$count" -eq 0 ]]; then
-            echo "has_locales=false" >> "$GITHUB_OUTPUT"
-            echo "No locale .po files — scaffold with: pnpm i18n:locale -- fr_FR"
-          else
-            echo "has_locales=true" >> "$GITHUB_OUTPUT"
-          fi
+            - name: Skip when no locale catalogs exist
+              id: gate
+              run: |
+                  shopt -s nullglob
+                  files=(languages/aggressive-apparel-*.po)
+                  # Ignore PHPUnit fixture locale if ever copied here.
+                  count=0
+                  for f in "${files[@]}"; do
+                    [[ "$f" == *aa_TEST* ]] && continue
+                    count=$((count + 1))
+                  done
+                  if [[ "$count" -eq 0 ]]; then
+                    echo "has_locales=false" >> "$GITHUB_OUTPUT"
+                    echo "No locale .po files — scaffold with: pnpm i18n:locale -- fr_FR"
+                  else
+                    echo "has_locales=true" >> "$GITHUB_OUTPUT"
+                  fi
 
-      - name: Sync + machine-translate
-        if: steps.gate.outputs.has_locales == 'true'
-        env:
-          DEEPL_AUTH_KEY: ${{ secrets.DEEPL_AUTH_KEY }}
-          I18N_MT_EMAIL: ${{ secrets.I18N_MT_EMAIL }}
-          I18N_MT_DELAY_MS: '400'
-          I18N_LOCALE: ${{ github.event.inputs.locale || '' }}
-          I18N_LIMIT: ${{ github.event.inputs.limit || '200' }}
-        run: |
-          set -euo pipefail
-          # auto = DeepL when the DEEPL_AUTH_KEY secret is set, MyMemory
-          # fallback otherwise — so this step still works with no secret.
-          export I18N_MT_PROVIDER="${I18N_MT_PROVIDER:-auto}"
-          ARGS=()
-          if [[ -n "$I18N_LOCALE" ]]; then
-            ARGS+=(--locale="$I18N_LOCALE")
-          fi
-          ARGS+=(--limit="$I18N_LIMIT")
-          bash bin/i18n/sync.sh
-          node bin/i18n/translate.mjs "${ARGS[@]}"
+            - name: Sync + machine-translate
+              if: steps.gate.outputs.has_locales == 'true'
+              env:
+                  DEEPL_AUTH_KEY: ${{ secrets.DEEPL_AUTH_KEY }}
+                  I18N_MT_EMAIL: ${{ secrets.I18N_MT_EMAIL }}
+                  I18N_MT_DELAY_MS: '400'
+                  I18N_LOCALE: ${{ github.event.inputs.locale || '' }}
+                  I18N_LIMIT: ${{ github.event.inputs.limit || '200' }}
+              run: |
+                  set -euo pipefail
+                  # auto = DeepL when the DEEPL_AUTH_KEY secret is set, MyMemory
+                  # fallback otherwise — so this step still works with no secret.
+                  export I18N_MT_PROVIDER="${I18N_MT_PROVIDER:-auto}"
+                  ARGS=()
+                  if [[ -n "$I18N_LOCALE" ]]; then
+                    ARGS+=(--locale="$I18N_LOCALE")
+                  fi
+                  ARGS+=(--limit="$I18N_LIMIT")
+                  bash bin/i18n/sync.sh
+                  node bin/i18n/translate.mjs "${ARGS[@]}"
 
-      - name: Create pull request
-        if: steps.gate.outputs.has_locales == 'true'
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          sign-commits: true
-          # chore(i18n) (not fix) so merging translations does NOT cut its own
-          # release — no extra version bump. The reviewed .po lands on master and
-          # ships with the next code release, whose package step recompiles the
-          # .mo from the current catalogs.
-          commit-message: 'chore(i18n): machine-translate empty/fuzzy strings'
-          branch: chore/i18n-mt-drafts
-          delete-branch: true
-          title: 'chore(i18n): MT draft translations'
-          body: |
-            ## Summary
-            Auto-filled **empty / fuzzy** strings after pot sync.
-            **DeepL** when the `DEEPL_AUTH_KEY` secret is set, **MyMemory** fallback otherwise. Each filled entry is tagged `#, aa-mt` — check the provider in its `Auto-translated … via <provider>` comment.
+            - name: Create pull request
+              if: steps.gate.outputs.has_locales == 'true'
+              uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+              with:
+                  token: ${{ steps.app-token.outputs.token }}
+                  sign-commits: true
+                  # chore(i18n) (not fix) so merging translations does NOT cut its own
+                  # release — no extra version bump. The reviewed .po lands on master and
+                  # ships with the next code release, whose package step recompiles the
+                  # .mo from the current catalogs.
+                  commit-message: 'chore(i18n): machine-translate empty/fuzzy strings'
+                  branch: chore/i18n-mt-drafts
+                  delete-branch: true
+                  title: 'chore(i18n): MT draft translations'
+                  body: |
+                      ## Summary
+                      Auto-filled **empty / fuzzy** strings after pot sync.
+                      **DeepL** when the `DEEPL_AUTH_KEY` secret is set, **MyMemory** fallback otherwise. Each filled entry is tagged `#, aa-mt` — check the provider in its `Auto-translated … via <provider>` comment.
 
-            No Poedit / manual typing required — skim and merge.
+                      No Poedit / manual typing required — skim and merge.
 
-            ## Review
-            - [ ] Spot-check cart, filters, nav, 404, shipping copy
-            - [ ] Brand terms look intact (Aggressive Apparel, Quick View, etc.)
-            - [ ] Placeholders (`%s`, `%d`) preserved
+                      ## Review
+                      - [ ] Spot-check cart, filters, nav, 404, shipping copy
+                      - [ ] Brand terms look intact (Aggressive Apparel, Quick View, etc.)
+                      - [ ] Placeholders (`%s`, `%d`) preserved
 
-            ## After merge
-            Release already runs `pnpm i18n:compile`. Locally you can run:
-            ```bash
-            pnpm i18n:compile && pnpm i18n:check
-            ```
+                      ## After merge
+                      Release already runs `pnpm i18n:compile`. Locally you can run:
+                      ```bash
+                      pnpm i18n:compile && pnpm i18n:check
+                      ```
 
-            Re-run anytime via **Actions → 🌐 i18n MT Drafts → Run workflow**.
-          labels: i18n, automated
+                      Re-run anytime via **Actions → 🌐 i18n MT Drafts → Run workflow**.
+                  labels: i18n, automated

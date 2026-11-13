@@ -30,11 +30,9 @@
 		width: 1.25rem;
 		height: 1.25rem;
 	}
-
 }
 
 @supports (backdrop-filter: blur(1px)) {
-
 	.aggressive-apparel-quick-view__close {
 		--aa-icon-button-background: var(--aa-color-surface-80);
 
@@ -98,7 +96,6 @@
 }
 
 @keyframes skeleton-shimmer {
-
 	0% {
 		background-position: 200% 0;
 	}
@@ -156,12 +153,10 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-
 		&:hover img {
 			transform: none;
 		}
 	}
-
 }
 
 /* Sale badge on image. */
@@ -196,7 +191,11 @@
 
 /* Thumbnail scroll arrows. */
 .aggressive-apparel-quick-view__thumb-arrow {
-	--aa-icon-button-background: color-mix(in oklch, currentcolor 8%, transparent);
+	--aa-icon-button-background: color-mix(
+		in oklch,
+		currentcolor 8%,
+		transparent
+	);
 
 	& svg {
 		width: 1rem;
@@ -299,7 +298,7 @@
 	font-size: 2rem;
 	font-weight: 700;
 	line-height: 1.2;
-  color: var(--aa-color-foreground);
+	color: var(--aa-color-foreground);
 }
 
 /* Stock status indicator. */
@@ -321,11 +320,19 @@
 /* The dot carries the raw status color; the label mixes it toward the
  * foreground so the text clears 4.5:1 on light and dark surfaces alike. */
 .aggressive-apparel-quick-view__stock.is-in-stock {
-	color: color-mix(in oklch, var(--quick-view-stock-in) 65%, var(--aa-color-foreground));
+	color: color-mix(
+		in oklch,
+		var(--quick-view-stock-in) 65%,
+		var(--aa-color-foreground)
+	);
 }
 
 .aggressive-apparel-quick-view__stock.is-low-stock {
-	color: color-mix(in oklch, var(--quick-view-stock-low) 65%, var(--aa-color-foreground));
+	color: color-mix(
+		in oklch,
+		var(--quick-view-stock-low) 65%,
+		var(--aa-color-foreground)
+	);
 
 	& .aggressive-apparel-quick-view__stock-dot {
 		background-color: var(--quick-view-stock-low);
@@ -334,7 +341,11 @@
 }
 
 .aggressive-apparel-quick-view__stock.is-out-of-stock {
-	color: color-mix(in oklch, var(--quick-view-stock-out) 65%, var(--aa-color-foreground));
+	color: color-mix(
+		in oklch,
+		var(--quick-view-stock-out) 65%,
+		var(--aa-color-foreground)
+	);
 
 	& .aggressive-apparel-quick-view__stock-dot {
 		background-color: var(--quick-view-stock-out);
@@ -342,7 +353,6 @@
 }
 
 @keyframes pulse {
-
 	0%,
 	100% {
 		opacity: 1;

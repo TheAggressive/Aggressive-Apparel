@@ -11,33 +11,35 @@ import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 type Props = {
-  checked: boolean;
-  /** What switching it does, for screen readers ("Use Fit"). */
-  label: string;
-  onChange: (checked: boolean) => void;
-  /** Words for each state, where On and Off alone could mislead. */
-  onText?: string;
-  offText?: string;
-  /** Words that stay the same either way, when the state is said elsewhere. */
-  text?: string;
+	checked: boolean;
+	/** What switching it does, for screen readers ("Use Fit"). */
+	label: string;
+	onChange: ( checked: boolean ) => void;
+	/** Words for each state, where On and Off alone could mislead. */
+	onText?: string;
+	offText?: string;
+	/** Words that stay the same either way, when the state is said elsewhere. */
+	text?: string;
 };
 
-export default function OnOff({
-  checked,
-  label,
-  onChange,
-  onText = __('On', 'aggressive-apparel'),
-  offText = __('Off', 'aggressive-apparel'),
-  text,
-}: Props) {
-  return (
-    <div className='aa-ps-card__switch'>
-      <FormToggle
-        checked={checked}
-        aria-label={label}
-        onChange={() => onChange(!checked)}
-      />
-      <span aria-hidden='true'>{text ?? (checked ? onText : offText)}</span>
-    </div>
-  );
+export default function OnOff( {
+	checked,
+	label,
+	onChange,
+	onText = __( 'On', 'aggressive-apparel' ),
+	offText = __( 'Off', 'aggressive-apparel' ),
+	text,
+}: Props ) {
+	return (
+		<div className="aa-ps-card__switch">
+			<FormToggle
+				checked={ checked }
+				aria-label={ label }
+				onChange={ () => onChange( ! checked ) }
+			/>
+			<span aria-hidden="true">
+				{ text ?? ( checked ? onText : offText ) }
+			</span>
+		</div>
+	);
 }

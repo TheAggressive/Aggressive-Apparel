@@ -22,14 +22,14 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-async function buildStepper(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const host = document.createElement('div');
-    host.id = 'aa-e2e-stepper';
-    host.className = 'wp-block-woocommerce-filled-mini-cart-contents-block';
-    // Constrain the row so the pill's flex parent tries to squeeze it — the
-    // exact condition that used to clip the "+" button.
-    host.innerHTML = `
+async function buildStepper( page: Page ): Promise< void > {
+	await page.evaluate( () => {
+		const host = document.createElement( 'div' );
+		host.id = 'aa-e2e-stepper';
+		host.className = 'wp-block-woocommerce-filled-mini-cart-contents-block';
+		// Constrain the row so the pill's flex parent tries to squeeze it — the
+		// exact condition that used to clip the "+" button.
+		host.innerHTML = `
       <div class="wc-block-cart-item__quantity"
         style="display:flex;align-items:center;width:120px;overflow:visible;">
         <div class="wc-block-components-quantity-selector">
@@ -43,61 +43,63 @@ async function buildStepper(page: Page): Promise<void> {
             aria-label="Increase quantity">&plus;</button>
         </div>
       </div>`;
-    document.body.appendChild(host);
-  });
+		document.body.appendChild( host );
+	} );
 }
 
-test('mini-cart quantity stepper: no clipped controls, PDP-shared styling', async ({
-  page,
-}) => {
-  await page.goto('/');
-  await buildStepper(page);
+test( 'mini-cart quantity stepper: no clipped controls, PDP-shared styling', async ( {
+	page,
+} ) => {
+	await page.goto( '/' );
+	await buildStepper( page );
 
-  const selector = page.locator(
-    '#aa-e2e-stepper .wc-block-components-quantity-selector'
-  );
-  const minus = selector.locator(
-    '.wc-block-components-quantity-selector__button--minus'
-  );
-  const plus = selector.locator(
-    '.wc-block-components-quantity-selector__button--plus'
-  );
-  const input = selector.locator(
-    '.wc-block-components-quantity-selector__input'
-  );
+	const selector = page.locator(
+		'#aa-e2e-stepper .wc-block-components-quantity-selector'
+	);
+	const minus = selector.locator(
+		'.wc-block-components-quantity-selector__button--minus'
+	);
+	const plus = selector.locator(
+		'.wc-block-components-quantity-selector__button--plus'
+	);
+	const input = selector.locator(
+		'.wc-block-components-quantity-selector__input'
+	);
 
-  await expect(selector).toBeVisible();
+	await expect( selector ).toBeVisible();
 
-  const [selBox, minusBox, plusBox, inputBox] = await Promise.all([
-    selector.boundingBox(),
-    minus.boundingBox(),
-    plus.boundingBox(),
-    input.boundingBox(),
-  ]);
+	const [ selBox, minusBox, plusBox, inputBox ] = await Promise.all( [
+		selector.boundingBox(),
+		minus.boundingBox(),
+		plus.boundingBox(),
+		input.boundingBox(),
+	] );
 
-  // The pill is the 44px control; each −/+ is a 44px-wide tap target that fills
-  // the pill's interior height (44px minus the 2px pill borders).
-  expect(selBox?.height).toBeGreaterThanOrEqual(44);
-  expect(minusBox?.width).toBeGreaterThanOrEqual(44);
-  expect(plusBox?.width).toBeGreaterThanOrEqual(44);
+	// The pill is the 44px control; each −/+ is a 44px-wide tap target that fills
+	// the pill's interior height (44px minus the 2px pill borders).
+	expect( selBox?.height ).toBeGreaterThanOrEqual( 44 );
+	expect( minusBox?.width ).toBeGreaterThanOrEqual( 44 );
+	expect( plusBox?.width ).toBeGreaterThanOrEqual( 44 );
 
-  // The pill hugs its content despite the 120px parent (min-width:max-content),
-  // rather than shrinking to the squeezed width the bug produced.
-  expect(selBox?.width).toBeGreaterThanOrEqual(
-    (minusBox?.width ?? 0) + (inputBox?.width ?? 0) + (plusBox?.width ?? 0)
-  );
+	// The pill hugs its content despite the 120px parent (min-width:max-content),
+	// rather than shrinking to the squeezed width the bug produced.
+	expect( selBox?.width ).toBeGreaterThanOrEqual(
+		( minusBox?.width ?? 0 ) +
+			( inputBox?.width ?? 0 ) +
+			( plusBox?.width ?? 0 )
+	);
 
-  // The trailing "+" is fully inside the pill — not clipped by overflow:hidden.
-  const selRight = (selBox?.x ?? 0) + (selBox?.width ?? 0);
-  const plusRight = (plusBox?.x ?? 0) + (plusBox?.width ?? 0);
-  expect(plusRight).toBeLessThanOrEqual(selRight + 0.5);
+	// The trailing "+" is fully inside the pill — not clipped by overflow:hidden.
+	const selRight = ( selBox?.x ?? 0 ) + ( selBox?.width ?? 0 );
+	const plusRight = ( plusBox?.x ?? 0 ) + ( plusBox?.width ?? 0 );
+	expect( plusRight ).toBeLessThanOrEqual( selRight + 0.5 );
 
-  // Shared-styling tells: the input is centered and chromeless (same rule the
-  // product form / cart / checkout use). Guards against a drifted fork.
-  const inputStyle = await input.evaluate(el => {
-    const cs = getComputedStyle(el);
-    return { textAlign: cs.textAlign, borderTopWidth: cs.borderTopWidth };
-  });
-  expect(inputStyle.textAlign).toBe('center');
-  expect(inputStyle.borderTopWidth).toBe('0px');
-});
+	// Shared-styling tells: the input is centered and chromeless (same rule the
+	// product form / cart / checkout use). Guards against a drifted fork.
+	const inputStyle = await input.evaluate( ( el ) => {
+		const cs = getComputedStyle( el );
+		return { textAlign: cs.textAlign, borderTopWidth: cs.borderTopWidth };
+	} );
+	expect( inputStyle.textAlign ).toBe( 'center' );
+	expect( inputStyle.borderTopWidth ).toBe( '0px' );
+} );

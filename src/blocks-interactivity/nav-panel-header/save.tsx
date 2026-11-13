@@ -9,5 +9,5 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 
 export default function Save(): JSX.Element {
-  return <InnerBlocks.Content />;
+	return <InnerBlocks.Content />;
 }

@@ -15,8 +15,8 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './editor.css';
 import './style.css';
 
-registerThemeBlock<NavigationPanelAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  save: Save,
-});
+registerThemeBlock< NavigationPanelAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	save: Save,
+} );

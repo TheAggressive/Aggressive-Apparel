@@ -13,24 +13,14 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 trait Store_Copy {
-	/**
-	 * Per-locale cache of the built definitions list.
-	 *
-	 * Definitions are static metadata, but building them runs ~50 `__()` calls
-	 * and every read (`get_store_copy_text()`) rebuilds the whole list to find
-	 * one entry — which product cards do per product. Keying by locale keeps
-	 * `switch_to_locale()` correct.
-	 *
-	 * @var array<string, array<string, array<string, mixed>>>
-	 */
-	private static array $store_copy_definitions_cache = array();
-
 	/**
 	 * Whether this request has loaded every Store Copy option in one query.
 	 *
@@ -44,19 +34,14 @@ trait Store_Copy {
 	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>, inherit_default?: bool, highlight?: bool, max_length?: int, show_in_rest?: bool}>
 	 */
 	public static function get_store_copy_definitions(): array {
-		$locale = determine_locale();
-
-		if ( ! isset( self::$store_copy_definitions_cache[ $locale ] ) ) {
-			self::$store_copy_definitions_cache[ $locale ] = self::build_store_copy_definitions();
-		}
-
-		/**
-		 * Cached value is the built list; the property is loosely typed so the
-		 * trait can hold it without repeating the full shape.
-		 *
-		 * @var array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>, inherit_default?: bool, highlight?: bool, max_length?: int, show_in_rest?: bool}>
-		 */
-		return self::$store_copy_definitions_cache[ $locale ];
+		// Definitions are static metadata, but building them runs ~50 `__()`
+		// calls and every read (`get_store_copy_text()`) rebuilds the whole
+		// list to find one entry — which product cards do per product. Keying
+		// by locale keeps `switch_to_locale()` correct.
+		return Request_Cache::remember(
+			'store-copy:definitions:' . determine_locale(),
+			static fn(): array => self::build_store_copy_definitions()
+		);
 	}
 
 	/**

@@ -5,23 +5,23 @@
  */
 
 export type TriggerIconStyle =
-  'hamburger' | 'dots' | 'squeeze' | 'arrow' | 'collapse';
+	'hamburger' | 'dots' | 'squeeze' | 'arrow' | 'collapse';
 
 export type TriggerAnimationType =
-  | 'to-x'
-  | 'spin'
-  | 'squeeze'
-  | 'arrow-left'
-  | 'arrow-right'
-  | 'collapse'
-  | 'none';
+	| 'to-x'
+	| 'spin'
+	| 'squeeze'
+	| 'arrow-left'
+	| 'arrow-right'
+	| 'collapse'
+	| 'none';
 
 export type NavigationTriggerAttributes = {
-  iconStyle: TriggerIconStyle;
-  animationType: TriggerAnimationType;
-  label: string;
-  showLabel: boolean;
-  panelSlug: string;
-  /** Width (px) below which the trigger shows. Used when placed outside a nav. */
-  breakpoint: number;
+	iconStyle: TriggerIconStyle;
+	animationType: TriggerAnimationType;
+	label: string;
+	showLabel: boolean;
+	panelSlug: string;
+	/** Width (px) below which the trigger shows. Used when placed outside a nav. */
+	breakpoint: number;
 };

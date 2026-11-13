@@ -7,11 +7,11 @@
 /**
  * Convert a stored `var:preset|type|slug` value to its CSS custom property.
  */
-export function resolvePresetValue(value: string): string {
-  return value.replace(
-    /^var:preset\|([^|]+)\|(.+)$/,
-    'var(--wp--preset--$1--$2)'
-  );
+export function resolvePresetValue( value: string ): string {
+	return value.replace(
+		/^var:preset\|([^|]+)\|(.+)$/,
+		'var(--wp--preset--$1--$2)'
+	);
 }
 
 /**
@@ -22,18 +22,18 @@ export function resolvePresetValue(value: string): string {
  * custom property instead.
  */
 export function resolveBlockGap(
-  attributes: Record<string, unknown>
+	attributes: Record< string, unknown >
 ): string | undefined {
-  const spacing = (
-    attributes['style'] as Record<string, unknown> | undefined
-  )?.['spacing'] as Record<string, unknown> | undefined;
-  const gap = spacing?.['blockGap'];
-  const value =
-    gap && typeof gap === 'object'
-      ? (gap as Record<string, unknown>)['top']
-      : gap;
+	const spacing = (
+		attributes[ 'style' ] as Record< string, unknown > | undefined
+	 )?.[ 'spacing' ] as Record< string, unknown > | undefined;
+	const gap = spacing?.[ 'blockGap' ];
+	const value =
+		gap && typeof gap === 'object'
+			? ( gap as Record< string, unknown > )[ 'top' ]
+			: gap;
 
-  return typeof value === 'string' && value !== ''
-    ? resolvePresetValue(value)
-    : undefined;
+	return typeof value === 'string' && value !== ''
+		? resolvePresetValue( value )
+		: undefined;
 }

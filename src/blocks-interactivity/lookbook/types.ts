@@ -6,48 +6,56 @@
  */
 
 export interface LookbookHotspot {
-  x: number;
-  y: number;
-  productId: number;
-  productName: string;
+	x: number;
+	y: number;
+	productId: number;
+	productName: string;
 }
 
 export type LookbookAttributes = {
-  mediaId: number;
-  mediaUrl: string;
-  mediaAlt: string;
-  hotspots: LookbookHotspot[];
-  hotspotBgColor: string;
-  hotspotTextColor: string;
-  hotspotSize: number;
-  openOnHover: boolean;
-  cardBgColor: string;
-  cardTextColor: string;
-  actionBgColor: string;
-  actionIconColor: string;
+	mediaId: number;
+	mediaUrl: string;
+	mediaAlt: string;
+	hotspots: LookbookHotspot[];
+	hotspotBgColor: string;
+	hotspotTextColor: string;
+	hotspotSize: number;
+	openOnHover: boolean;
+	cardBgColor: string;
+	cardTextColor: string;
+	actionBgColor: string;
+	actionIconColor: string;
 };
 
 export interface StoreApiImage {
-  src?: string;
-  alt?: string;
+	src?: string;
+	alt?: string;
 }
 
 export interface StoreApiPrices {
-  price?: string;
-  currency_minor_unit?: number;
-  currency_prefix?: string;
-  currency_suffix?: string;
-  currency_decimal_separator?: string;
-  currency_thousand_separator?: string;
+	price?: string;
+	currency_minor_unit?: number;
+	currency_prefix?: string;
+	currency_suffix?: string;
+	currency_decimal_separator?: string;
+	currency_thousand_separator?: string;
 }
 
 export interface StoreApiProduct {
-  id?: number;
-  name?: string;
-  sku?: string;
-  permalink?: string;
-  images?: StoreApiImage[];
-  prices?: StoreApiPrices;
-  price_html?: string;
-  price?: string;
+	id?: number;
+	name?: string;
+	sku?: string;
+	permalink?: string;
+	images?: StoreApiImage[];
+	prices?: StoreApiPrices;
+	price_html?: string;
+	price?: string;
+}
+
+export interface LookbookI18n {
+	loading: string;
+	noProduct: string;
+	loadError: string;
+	viewProduct: string;
+	viewProductName: string;
 }

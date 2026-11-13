@@ -1,14 +1,14 @@
 import {
-  InspectorControls,
-  useBlockProps,
-  PanelColorSettings,
+	InspectorControls,
+	useBlockProps,
+	PanelColorSettings,
 } from '@wordpress/block-editor';
 import {
-  PanelBody,
-  RangeControl,
-  SelectControl,
-  TextControl,
-  ToggleControl,
+	PanelBody,
+	RangeControl,
+	SelectControl,
+	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { useRefEffect } from '@wordpress/compose';
 import { Fragment, useState } from '@wordpress/element';
@@ -20,23 +20,23 @@ import './editor.css';
 type Breakpoint = 'mobile' | 'tablet' | 'desktop';
 
 type Attributes = {
-  alt: string;
-  lightColor: string;
-  lightHoverColor: string;
-  darkColor: string;
-  darkHoverColor: string;
-  breakpoint: Breakpoint;
-  largeWidth: number;
-  largeHeight?: number;
-  smallWidth: number;
-  smallHeight?: number;
-  linkToHome: boolean;
+	alt: string;
+	lightColor: string;
+	lightHoverColor: string;
+	darkColor: string;
+	darkHoverColor: string;
+	breakpoint: Breakpoint;
+	largeWidth: number;
+	largeHeight?: number;
+	smallWidth: number;
+	smallHeight?: number;
+	linkToHome: boolean;
 };
 
-const BREAKPOINT_VALUES: Record<Breakpoint, number> = {
-  mobile: 480,
-  tablet: 768,
-  desktop: 1024,
+const BREAKPOINT_VALUES: Record< Breakpoint, number > = {
+	mobile: 480,
+	tablet: 768,
+	desktop: 1024,
 };
 
 // Inline SVG for large screens (full wordmark).
@@ -45,257 +45,305 @@ const SVG_LARGE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 675 72" 
 // Inline SVG for small screens (icon only).
 const SVG_SMALL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 199 175" aria-hidden="true"><g fill="currentColor"><path d="M12.6,75.3c0-12.1,2.4-22,5.1-29.9c6.5-18.9,26.5-33.8,54.7-33.8h106.8L199,0H68.4c-10.8,0-20.5,1.6-29,4.8c-8.5,3.2-15.6,7.9-21.5,14C12.1,24.9,7.7,32.4,4.6,41.3C1.5,50.2,0,60.2,0,71.3V134l44.6,41l-32-43.7V75.3z"/><path d="M167.6,17.1h-5.2h-8.5H73.3c-8.8,0-16.6,1.3-23.4,3.9c-6.9,2.6-12.6,6.4-17.3,11.3c-4.7,5-8.3,11-10.8,18.2C19.2,57.6,18,65.7,18,74.8v48.6l27,35.4V88h90.4v70.8l27-35.4V29.7h5.2v101.7l-32,43.7l44.6-41V17.1h-1.8H167.6z M135.4,62.5H46.7c0.5-2.6,1.4-5.1,2.6-7.4c1.2-2.3,3.2-4.2,6-5.8c2.8-1.6,6.7-2.8,11.6-3.7c4.9-0.9,11.4-1.3,19.6-1.3h48.9V62.5z"/></g></svg>`;
 
-const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
-  const {
-    alt,
-    lightColor,
-    lightHoverColor,
-    darkColor,
-    darkHoverColor,
-    breakpoint,
-    largeWidth,
-    largeHeight,
-    smallWidth,
-    smallHeight,
-    linkToHome,
-  } = attributes;
+const Edit = ( {
+	attributes,
+	setAttributes,
+}: BlockEditProps< Attributes > ) => {
+	const {
+		alt,
+		lightColor,
+		lightHoverColor,
+		darkColor,
+		darkHoverColor,
+		breakpoint,
+		largeWidth,
+		largeHeight,
+		smallWidth,
+		smallHeight,
+		linkToHome,
+	} = attributes;
 
-  // Preview mode / breakpoint size must use the canvas window (iframe in WP 7.1+),
-  // not the admin page window — see Gutenberg iframe editor migration.
-  const [previewMode, setPreviewMode] = useState<'light' | 'dark'>('light');
-  const breakpointPx = BREAKPOINT_VALUES[breakpoint];
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+	// Preview mode / breakpoint size must use the canvas window (iframe in WP 7.1+),
+	// not the admin page window — see Gutenberg iframe editor migration.
+	const [ previewMode, setPreviewMode ] = useState< 'light' | 'dark' >(
+		'light'
+	);
+	const breakpointPx = BREAKPOINT_VALUES[ breakpoint ];
+	const [ isSmallScreen, setIsSmallScreen ] = useState( false );
 
-  const canvasRef = useRefEffect(
-    element => {
-      const ownerDocument = element.ownerDocument;
-      if (!ownerDocument) {
-        return;
-      }
-      const view = ownerDocument.defaultView;
-      if (!view) {
-        return;
-      }
+	const canvasRef = useRefEffect(
+		( element ) => {
+			const ownerDocument = element.ownerDocument;
+			if ( ! ownerDocument ) {
+				return;
+			}
+			const view = ownerDocument.defaultView;
+			if ( ! view ) {
+				return;
+			}
 
-      const widthQuery = view.matchMedia(`(max-width: ${breakpointPx}px)`);
-      const colorQuery = view.matchMedia('(prefers-color-scheme: dark)');
+			const widthQuery = view.matchMedia(
+				`(max-width: ${ breakpointPx }px)`
+			);
+			const colorQuery = view.matchMedia(
+				'(prefers-color-scheme: dark)'
+			);
 
-      const updateSize = (): void => {
-        setIsSmallScreen(widthQuery.matches);
-      };
-      const updateColor = (): void => {
-        setPreviewMode(colorQuery.matches ? 'dark' : 'light');
-      };
+			const updateSize = (): void => {
+				setIsSmallScreen( widthQuery.matches );
+			};
+			const updateColor = (): void => {
+				setPreviewMode( colorQuery.matches ? 'dark' : 'light' );
+			};
 
-      updateSize();
-      updateColor();
+			updateSize();
+			updateColor();
 
-      widthQuery.addEventListener('change', updateSize);
-      colorQuery.addEventListener('change', updateColor);
+			widthQuery.addEventListener( 'change', updateSize );
+			colorQuery.addEventListener( 'change', updateColor );
 
-      return () => {
-        widthQuery.removeEventListener('change', updateSize);
-        colorQuery.removeEventListener('change', updateColor);
-      };
-    },
-    [breakpointPx]
-  );
+			return () => {
+				widthQuery.removeEventListener( 'change', updateSize );
+				colorQuery.removeEventListener( 'change', updateColor );
+			};
+		},
+		[ breakpointPx ]
+	);
 
-  const blockProps = useBlockProps({
-    ref: canvasRef,
-    className: 'aggressive-apparel-logo',
-    'data-breakpoint': breakpoint,
-  });
+	const blockProps = useBlockProps( {
+		ref: canvasRef,
+		className: 'aggressive-apparel-logo',
+		'data-breakpoint': breakpoint,
+	} );
 
-  const currentColor = previewMode === 'dark' ? darkColor : lightColor;
-  const currentSvg = isSmallScreen ? SVG_SMALL : SVG_LARGE;
-  const currentWidth = isSmallScreen ? smallWidth : largeWidth;
-  const currentHeight = isSmallScreen ? smallHeight : largeHeight;
+	const currentColor = previewMode === 'dark' ? darkColor : lightColor;
+	const currentSvg = isSmallScreen ? SVG_SMALL : SVG_LARGE;
+	const currentWidth = isSmallScreen ? smallWidth : largeWidth;
+	const currentHeight = isSmallScreen ? smallHeight : largeHeight;
 
-  return (
-    <Fragment>
-      <InspectorControls>
-        <PanelBody
-          title={__('Light Mode Colors', 'aggressive-apparel')}
-          initialOpen={true}
-        >
-          <PanelColorSettings
-            __experimentalIsRenderedInSidebar
-            title=''
-            colorSettings={[
-              {
-                value: lightColor,
-                onChange: (color: string | undefined) =>
-                  setAttributes({ lightColor: color || '#000000' }),
-                label: __('Color', 'aggressive-apparel'),
-              },
-              {
-                value: lightHoverColor,
-                onChange: (color: string | undefined) =>
-                  setAttributes({ lightHoverColor: color || '#333333' }),
-                label: __('Hover Color', 'aggressive-apparel'),
-              },
-            ]}
-          />
-        </PanelBody>
+	return (
+		<Fragment>
+			<InspectorControls>
+				<PanelBody
+					title={ __( 'Light Mode Colors', 'aggressive-apparel' ) }
+					initialOpen={ true }
+				>
+					<PanelColorSettings
+						__experimentalIsRenderedInSidebar
+						title=""
+						colorSettings={ [
+							{
+								value: lightColor,
+								onChange: ( color: string | undefined ) =>
+									setAttributes( {
+										lightColor: color || '#000000',
+									} ),
+								label: __( 'Color', 'aggressive-apparel' ),
+							},
+							{
+								value: lightHoverColor,
+								onChange: ( color: string | undefined ) =>
+									setAttributes( {
+										lightHoverColor: color || '#333333',
+									} ),
+								label: __(
+									'Hover Color',
+									'aggressive-apparel'
+								),
+							},
+						] }
+					/>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Dark Mode Colors', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <PanelColorSettings
-            __experimentalIsRenderedInSidebar
-            title=''
-            colorSettings={[
-              {
-                value: darkColor,
-                onChange: (color: string | undefined) =>
-                  setAttributes({ darkColor: color || '#ffffff' }),
-                label: __('Color', 'aggressive-apparel'),
-              },
-              {
-                value: darkHoverColor,
-                onChange: (color: string | undefined) =>
-                  setAttributes({ darkHoverColor: color || '#cccccc' }),
-                label: __('Hover Color', 'aggressive-apparel'),
-              },
-            ]}
-          />
-        </PanelBody>
+				<PanelBody
+					title={ __( 'Dark Mode Colors', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<PanelColorSettings
+						__experimentalIsRenderedInSidebar
+						title=""
+						colorSettings={ [
+							{
+								value: darkColor,
+								onChange: ( color: string | undefined ) =>
+									setAttributes( {
+										darkColor: color || '#ffffff',
+									} ),
+								label: __( 'Color', 'aggressive-apparel' ),
+							},
+							{
+								value: darkHoverColor,
+								onChange: ( color: string | undefined ) =>
+									setAttributes( {
+										darkHoverColor: color || '#cccccc',
+									} ),
+								label: __(
+									'Hover Color',
+									'aggressive-apparel'
+								),
+							},
+						] }
+					/>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Preview', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <div className='aggressive-apparel-logo__preview-toggle'>
-            <span>{__('Mode:', 'aggressive-apparel')}</span>
-            <button
-              type='button'
-              className={`aggressive-apparel-logo__mode-btn ${previewMode === 'light' ? 'is-active' : ''}`}
-              onClick={() => setPreviewMode('light')}
-            >
-              {__('Light', 'aggressive-apparel')}
-            </button>
-            <button
-              type='button'
-              className={`aggressive-apparel-logo__mode-btn ${previewMode === 'dark' ? 'is-active' : ''}`}
-              onClick={() => setPreviewMode('dark')}
-            >
-              {__('Dark', 'aggressive-apparel')}
-            </button>
-          </div>
-        </PanelBody>
+				<PanelBody
+					title={ __( 'Preview', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<div className="aggressive-apparel-logo__preview-toggle">
+						<span>{ __( 'Mode:', 'aggressive-apparel' ) }</span>
+						<button
+							type="button"
+							className={ `aggressive-apparel-logo__mode-btn ${ previewMode === 'light' ? 'is-active' : '' }` }
+							onClick={ () => setPreviewMode( 'light' ) }
+						>
+							{ __( 'Light', 'aggressive-apparel' ) }
+						</button>
+						<button
+							type="button"
+							className={ `aggressive-apparel-logo__mode-btn ${ previewMode === 'dark' ? 'is-active' : '' }` }
+							onClick={ () => setPreviewMode( 'dark' ) }
+						>
+							{ __( 'Dark', 'aggressive-apparel' ) }
+						</button>
+					</div>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Responsive', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <SelectControl
-            label={__('Breakpoint', 'aggressive-apparel')}
-            value={breakpoint}
-            options={[
-              {
-                label: __('Mobile (480px)', 'aggressive-apparel'),
-                value: 'mobile',
-              },
-              {
-                label: __('Tablet (768px)', 'aggressive-apparel'),
-                value: 'tablet',
-              },
-              {
-                label: __('Desktop (1024px)', 'aggressive-apparel'),
-                value: 'desktop',
-              },
-            ]}
-            onChange={value =>
-              setAttributes({ breakpoint: value as Breakpoint })
-            }
-            help={__('Switch to icon below this width.', 'aggressive-apparel')}
-          />
-        </PanelBody>
+				<PanelBody
+					title={ __( 'Responsive', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<SelectControl
+						label={ __( 'Breakpoint', 'aggressive-apparel' ) }
+						value={ breakpoint }
+						options={ [
+							{
+								label: __(
+									'Mobile (480px)',
+									'aggressive-apparel'
+								),
+								value: 'mobile',
+							},
+							{
+								label: __(
+									'Tablet (768px)',
+									'aggressive-apparel'
+								),
+								value: 'tablet',
+							},
+							{
+								label: __(
+									'Desktop (1024px)',
+									'aggressive-apparel'
+								),
+								value: 'desktop',
+							},
+						] }
+						onChange={ ( value ) =>
+							setAttributes( { breakpoint: value as Breakpoint } )
+						}
+						help={ __(
+							'Switch to icon below this width.',
+							'aggressive-apparel'
+						) }
+					/>
+				</PanelBody>
 
-        <PanelBody title={__('Size', 'aggressive-apparel')} initialOpen={false}>
-          <div className='aggressive-apparel-logo__size-group'>
-            <h4>{__('Large Logo', 'aggressive-apparel')}</h4>
-            <RangeControl
-              label={__('Width', 'aggressive-apparel')}
-              value={largeWidth}
-              onChange={value => setAttributes({ largeWidth: value ?? 200 })}
-              min={50}
-              max={600}
-              step={10}
-            />
-            <RangeControl
-              label={__('Height', 'aggressive-apparel')}
-              value={largeHeight ?? 0}
-              onChange={value =>
-                setAttributes({
-                  largeHeight: value && value > 0 ? value : undefined,
-                })
-              }
-              min={0}
-              max={200}
-              step={5}
-              help={__('0 = auto', 'aggressive-apparel')}
-            />
-          </div>
+				<PanelBody
+					title={ __( 'Size', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<div className="aggressive-apparel-logo__size-group">
+						<h4>{ __( 'Large Logo', 'aggressive-apparel' ) }</h4>
+						<RangeControl
+							label={ __( 'Width', 'aggressive-apparel' ) }
+							value={ largeWidth }
+							onChange={ ( value ) =>
+								setAttributes( { largeWidth: value ?? 200 } )
+							}
+							min={ 50 }
+							max={ 600 }
+							step={ 10 }
+						/>
+						<RangeControl
+							label={ __( 'Height', 'aggressive-apparel' ) }
+							value={ largeHeight ?? 0 }
+							onChange={ ( value ) =>
+								setAttributes( {
+									largeHeight:
+										value && value > 0 ? value : undefined,
+								} )
+							}
+							min={ 0 }
+							max={ 200 }
+							step={ 5 }
+							help={ __( '0 = auto', 'aggressive-apparel' ) }
+						/>
+					</div>
 
-          <div className='aggressive-apparel-logo__size-group'>
-            <h4>{__('Small Logo', 'aggressive-apparel')}</h4>
-            <RangeControl
-              label={__('Width', 'aggressive-apparel')}
-              value={smallWidth}
-              onChange={value => setAttributes({ smallWidth: value ?? 48 })}
-              min={24}
-              max={150}
-              step={4}
-            />
-            <RangeControl
-              label={__('Height', 'aggressive-apparel')}
-              value={smallHeight ?? 0}
-              onChange={value =>
-                setAttributes({
-                  smallHeight: value && value > 0 ? value : undefined,
-                })
-              }
-              min={0}
-              max={150}
-              step={4}
-              help={__('0 = auto', 'aggressive-apparel')}
-            />
-          </div>
-        </PanelBody>
+					<div className="aggressive-apparel-logo__size-group">
+						<h4>{ __( 'Small Logo', 'aggressive-apparel' ) }</h4>
+						<RangeControl
+							label={ __( 'Width', 'aggressive-apparel' ) }
+							value={ smallWidth }
+							onChange={ ( value ) =>
+								setAttributes( { smallWidth: value ?? 48 } )
+							}
+							min={ 24 }
+							max={ 150 }
+							step={ 4 }
+						/>
+						<RangeControl
+							label={ __( 'Height', 'aggressive-apparel' ) }
+							value={ smallHeight ?? 0 }
+							onChange={ ( value ) =>
+								setAttributes( {
+									smallHeight:
+										value && value > 0 ? value : undefined,
+								} )
+							}
+							min={ 0 }
+							max={ 150 }
+							step={ 4 }
+							help={ __( '0 = auto', 'aggressive-apparel' ) }
+						/>
+					</div>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Link & Accessibility', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <ToggleControl
-            label={__('Link to Home', 'aggressive-apparel')}
-            checked={linkToHome}
-            onChange={value => setAttributes({ linkToHome: value })}
-          />
-          <TextControl
-            label={__('Alt Text', 'aggressive-apparel')}
-            value={alt}
-            onChange={value => setAttributes({ alt: value })}
-          />
-        </PanelBody>
-      </InspectorControls>
+				<PanelBody
+					title={ __( 'Link & Accessibility', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<ToggleControl
+						label={ __( 'Link to Home', 'aggressive-apparel' ) }
+						checked={ linkToHome }
+						onChange={ ( value ) =>
+							setAttributes( { linkToHome: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Alt Text', 'aggressive-apparel' ) }
+						value={ alt }
+						onChange={ ( value ) =>
+							setAttributes( { alt: value } )
+						}
+					/>
+				</PanelBody>
+			</InspectorControls>
 
-      <div {...blockProps}>
-        <div
-          className='aggressive-apparel-logo__svg-wrapper'
-          style={{
-            color: currentColor,
-            width: currentWidth ? `${currentWidth}px` : 'auto',
-            height: currentHeight ? `${currentHeight}px` : 'auto',
-          }}
-          dangerouslySetInnerHTML={{ __html: currentSvg }}
-        />
-      </div>
-    </Fragment>
-  );
+			<div { ...blockProps }>
+				<div
+					className="aggressive-apparel-logo__svg-wrapper"
+					style={ {
+						color: currentColor,
+						width: currentWidth ? `${ currentWidth }px` : 'auto',
+						height: currentHeight ? `${ currentHeight }px` : 'auto',
+					} }
+					dangerouslySetInnerHTML={ { __html: currentSvg } }
+				/>
+			</div>
+		</Fragment>
+	);
 };
 
 export default Edit;

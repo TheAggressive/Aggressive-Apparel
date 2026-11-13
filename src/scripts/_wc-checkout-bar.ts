@@ -21,19 +21,19 @@ export const CHECKOUT_BAR_HEIGHT_VAR = '--aa-wc-checkout-bar-height';
  *
  * @param doc Document to sync.
  */
-export function syncCheckoutBar(doc: Document = document): void {
-  const bar = doc.querySelector<HTMLElement>(
-    '.wc-block-cart__submit-container--sticky'
-  );
-  const height = bar ? Math.round(bar.getBoundingClientRect().height) : 0;
+export function syncCheckoutBar( doc: Document = document ): void {
+	const bar = doc.querySelector< HTMLElement >(
+		'.wc-block-cart__submit-container--sticky'
+	);
+	const height = bar ? Math.round( bar.getBoundingClientRect().height ) : 0;
 
-  doc.body.classList.toggle(CHECKOUT_BAR_CLASS, height > 0);
+	doc.body.classList.toggle( CHECKOUT_BAR_CLASS, height > 0 );
 
-  if (height > 0) {
-    doc.body.style.setProperty(CHECKOUT_BAR_HEIGHT_VAR, `${height}px`);
-  } else {
-    doc.body.style.removeProperty(CHECKOUT_BAR_HEIGHT_VAR);
-  }
+	if ( height > 0 ) {
+		doc.body.style.setProperty( CHECKOUT_BAR_HEIGHT_VAR, `${ height }px` );
+	} else {
+		doc.body.style.removeProperty( CHECKOUT_BAR_HEIGHT_VAR );
+	}
 }
 
 /**
@@ -45,40 +45,40 @@ export function syncCheckoutBar(doc: Document = document): void {
  * @param doc Document to watch.
  * @return Stop watching.
  */
-export function watchCheckoutBar(doc: Document = document): () => void {
-  const cart = doc.querySelector('.wp-block-woocommerce-cart');
-  const view = doc.defaultView;
+export function watchCheckoutBar( doc: Document = document ): () => void {
+	const cart = doc.querySelector( '.wp-block-woocommerce-cart' );
+	const view = doc.defaultView;
 
-  if (!cart || !view) {
-    return () => {};
-  }
+	if ( ! cart || ! view ) {
+		return () => {};
+	}
 
-  let frame = 0;
-  const schedule = () => {
-    if (frame) {
-      return;
-    }
-    frame = view.requestAnimationFrame(() => {
-      frame = 0;
-      syncCheckoutBar(doc);
-    });
-  };
+	let frame = 0;
+	const schedule = () => {
+		if ( frame ) {
+			return;
+		}
+		frame = view.requestAnimationFrame( () => {
+			frame = 0;
+			syncCheckoutBar( doc );
+		} );
+	};
 
-  const observer = new view.MutationObserver(schedule);
-  observer.observe(cart, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['class'],
-  });
-  view.addEventListener('resize', schedule);
-  schedule();
+	const observer = new view.MutationObserver( schedule );
+	observer.observe( cart, {
+		subtree: true,
+		childList: true,
+		attributes: true,
+		attributeFilter: [ 'class' ],
+	} );
+	view.addEventListener( 'resize', schedule );
+	schedule();
 
-  return () => {
-    observer.disconnect();
-    view.removeEventListener('resize', schedule);
-    if (frame) {
-      view.cancelAnimationFrame(frame);
-    }
-  };
+	return () => {
+		observer.disconnect();
+		view.removeEventListener( 'resize', schedule );
+		if ( frame ) {
+			view.cancelAnimationFrame( frame );
+		}
+	};
 }

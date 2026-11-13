@@ -18,19 +18,19 @@ export const SEARCH_OPEN_BODY_CLASS = 'has-search-modal-open';
 export const YIELDS_NAV_FOCUS_ATTR = 'data-aa-yields-nav-focus';
 
 /** Selector for overlays that yield nav focus while open. */
-export const YIELDS_NAV_FOCUS_SELECTOR = `[${YIELDS_NAV_FOCUS_ATTR}]`;
+export const YIELDS_NAV_FOCUS_SELECTOR = `[${ YIELDS_NAV_FOCUS_ATTR }]`;
 
 /**
  * Whether focus may live in an overlay above the nav panel instead of the drawer.
  */
 export function isWithinOverlayThatYieldsNavFocus(
-  target: HTMLElement
+	target: HTMLElement
 ): boolean {
-  const overlay = target.closest<HTMLElement>(YIELDS_NAV_FOCUS_SELECTOR);
+	const overlay = target.closest< HTMLElement >( YIELDS_NAV_FOCUS_SELECTOR );
 
-  return Boolean(
-    overlay &&
-    !overlay.hasAttribute('hidden') &&
-    overlay.classList.contains('is-open')
-  );
+	return Boolean(
+		overlay &&
+		! overlay.hasAttribute( 'hidden' ) &&
+		overlay.classList.contains( 'is-open' )
+	);
 }

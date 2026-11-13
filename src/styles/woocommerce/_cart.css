@@ -20,8 +20,12 @@
 /* Spelled out rather than nested: nesting under a selector list compiles to
  * :is(), which would lift the lighter selector to the heavier one's
  * specificity. */
-.wp-block-woocommerce-cart .wc-block-components-product-name:is(:hover, :focus-visible),
-.wc-block-saved-for-later .wc-block-shopper-list-item .wp-block-post-title a:is(:hover, :focus-visible) {
+.wp-block-woocommerce-cart
+	.wc-block-components-product-name:is(:hover, :focus-visible),
+.wc-block-saved-for-later
+	.wc-block-shopper-list-item
+	.wp-block-post-title
+	a:is(:hover, :focus-visible) {
 	text-decoration: underline;
 }
 
@@ -37,7 +41,10 @@
  * name, prices and details stacked, but put the quantity stepper, remove and
  * "Save for later" on one line, so more items fit on screen. The matching top
  * margin keeps the link centred on the stepper (see checkout.css). */
-.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__wrap {
+.wp-block-woocommerce-cart
+	table.wc-block-cart-items
+	.wc-block-cart-items__row
+	.wc-block-cart-item__wrap {
 	flex-flow: row wrap;
 	align-items: center;
 	column-gap: var(--wp--preset--spacing--4);
@@ -56,8 +63,10 @@
  * overflow the viewport. Let the product column flex; on phones, where even
  * that can't fit beside the line total, move the total under the details. */
 @container (max-width: 919px) {
-
-	.wp-block-woocommerce-cart .wc-block-cart table.wc-block-cart-items .wc-block-cart-items__row {
+	.wp-block-woocommerce-cart
+		.wc-block-cart
+		table.wc-block-cart-items
+		.wc-block-cart-items__row {
 		grid-template-columns: 80px minmax(0, 1fr) auto;
 	}
 }
@@ -67,8 +76,10 @@
  * level with the name (which alone shares its line, so only it keeps clear).
  * The lines below take the column's full width. */
 @container (max-width: 479px) {
-
-	.wp-block-woocommerce-cart .wc-block-cart table.wc-block-cart-items .wc-block-cart-items__row {
+	.wp-block-woocommerce-cart
+		.wc-block-cart
+		table.wc-block-cart-items
+		.wc-block-cart-items__row {
 		position: relative;
 		grid-template-columns: 80px minmax(0, 1fr);
 
@@ -91,10 +102,12 @@
 /* Desktop: keep the totals and checkout button in view while a long cart
  * scrolls. The site header scrolls away, so only clear the admin bar. */
 @container (min-width: 920px) {
-
 	.wp-block-woocommerce-cart .wc-block-cart__sidebar {
 		position: sticky;
-		top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wp--preset--spacing--6));
+		top: calc(
+			var(--wp-admin--admin-bar--height, 0px) +
+				var(--wp--preset--spacing--6)
+		);
 		align-self: flex-start;
 	}
 }
@@ -137,7 +150,10 @@
 }
 
 .aa-cart-shipping-meta--strip {
-	margin-block-start: var(--wp--style--block-gap, var(--wp--preset--spacing--6));
+	margin-block-start: var(
+		--wp--style--block-gap,
+		var(--wp--preset--spacing--6)
+	);
 
 	.aa-cart-shipping-meta__message {
 		font-size: var(--wp--preset--font-size--medium);
@@ -145,14 +161,12 @@
 }
 
 @container (min-width: 920px) {
-
 	.aa-cart-shipping-meta--strip {
 		display: none;
 	}
 }
 
 @container (max-width: 919px) {
-
 	.wp-block-woocommerce-cart .aa-cart-shipping-meta--card {
 		display: none;
 	}
@@ -161,7 +175,6 @@
 /* Theme-owned colours sit in a layer, so the editor and WooCommerce's own
  * unlayered styles keep priority. */
 @layer aa-woocommerce {
-
 	.aa-cart-shipping-meta__track {
 		background-color: color-mix(in oklch, currentcolor 15%, transparent);
 	}
@@ -171,7 +184,6 @@
 	}
 
 	.aa-cart-shipping-meta.is-complete {
-
 		.aa-cart-shipping-meta__progress {
 			background-color: var(--aa-color-success);
 		}
@@ -183,7 +195,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-cart-shipping-meta__progress {
 		transition: none;
 	}
@@ -202,13 +213,20 @@
 }
 
 /* Name at body size, so it leads the price and details beneath it. */
-.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-components-product-name {
+.wp-block-woocommerce-cart
+	table.wc-block-cart-items
+	.wc-block-cart-items__row
+	.wc-block-components-product-name {
 	font-size: var(--wp--preset--font-size--medium);
 }
 
 /* "Save for later" — a quiet secondary action beside the stepper. Dimmed
  * with opacity, not a colour, so it keeps the row's (editor-set) text color. */
-.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__save-for-later .wc-block-cart-item__save-for-later-link {
+.wp-block-woocommerce-cart
+	table.wc-block-cart-items
+	.wc-block-cart-items__row
+	.wc-block-cart-item__save-for-later
+	.wc-block-cart-item__save-for-later-link {
 	font-size: var(--wp--preset--font-size--small);
 	text-underline-offset: 0.2em;
 	opacity: 0.75;
@@ -223,8 +241,10 @@
  * tell apart. The column was sized by the (now hidden) header cell; the cell
  * is border-box, so add WooCommerce's 16px gutter padding to the image size. */
 @container (min-width: 920px) {
-
-	.wp-block-woocommerce-cart table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__image {
+	.wp-block-woocommerce-cart
+		table.wc-block-cart-items
+		.wc-block-cart-items__row
+		.wc-block-cart-item__image {
 		width: calc(6rem + 16px);
 	}
 }

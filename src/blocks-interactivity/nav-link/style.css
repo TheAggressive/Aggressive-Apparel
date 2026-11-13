@@ -5,54 +5,51 @@
  */
 
 .wp-block-aggressive-apparel-nav-link {
-  --nav-link-color: currentcolor;
-  --nav-link-hover-color: var(--wp--preset--color--accent, currentColor);
-  --nav-link-transition: var(--aa-nav-transition-fast);
+	--nav-link-color: currentcolor;
+	--nav-link-hover-color: var(--wp--preset--color--accent, currentColor);
+	--nav-link-transition: var(--aa-nav-transition-fast);
 
-  display: flex;
-  margin: 0;
-  padding: 0;
-
+	display: flex;
+	margin: 0;
+	padding: 0;
 }
 
 .wp-block-aggressive-apparel-nav-link__link {
-  position: relative; /* Required for ::after current page indicator */
-  display: flex;
-  flex-direction: column;
-  gap: var(--wp--preset--spacing--0-5);
-  padding: var(--wp--preset--spacing--2) 0;
-  color: var(--nav-link-color);
-  text-decoration: none;
-  transition:
-    color var(--nav-link-transition),
-    opacity var(--nav-link-transition);
+	position: relative; /* Required for ::after current page indicator */
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--0-5);
+	padding: var(--wp--preset--spacing--2) 0;
+	color: var(--nav-link-color);
+	text-decoration: none;
+	transition:
+		color var(--nav-link-transition),
+		opacity var(--nav-link-transition);
 
-  &:hover,
-  &:focus {
-    color: var(--nav-link-hover-color);
-  }
+	&:hover,
+	&:focus {
+		color: var(--nav-link-hover-color);
+	}
 
-  &:focus-visible {
-    outline: var(--aa-nav-focus-width) solid var(--aa-nav-focus-color);
-    outline-offset: var(--aa-nav-focus-offset);
-    border-radius: var(--aa-nav-radius-sm);
-  }
+	&:focus-visible {
+		outline: var(--aa-nav-focus-width) solid var(--aa-nav-focus-color);
+		outline-offset: var(--aa-nav-focus-offset);
+		border-radius: var(--aa-nav-radius-sm);
+	}
 }
 
 .wp-block-aggressive-apparel-nav-link__label {
-  font-weight: inherit;
+	font-weight: inherit;
 }
 
 .wp-block-aggressive-apparel-nav-link__description {
-  font-size: 0.875em;
-  opacity: 0.7;
+	font-size: 0.875em;
+	opacity: 0.7;
 }
 
 /* Reduced motion. */
 @media (prefers-reduced-motion: reduce) {
-
-  .wp-block-aggressive-apparel-nav-link {
-    --nav-link-transition: 0ms;
-  }
+	.wp-block-aggressive-apparel-nav-link {
+		--nav-link-transition: 0ms;
+	}
 }
-

@@ -1,36 +1,36 @@
 name: Ruleset Drift
 
 on:
-  schedule:
-    - cron: '47 6 * * 1'
-  workflow_dispatch:
+    schedule:
+        - cron: '47 6 * * 1'
+    workflow_dispatch:
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  drift:
-    name: Ruleset Drift
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      # The default Actions token can read the ruleset but omits bypass actors,
-      # which makes a complete security-sensitive comparison impossible. Mint a
-      # repository-scoped installation token from the existing CI App instead.
-      # The App private key does not expire automatically; this short-lived
-      # token is generated for each run and revoked when the job finishes.
-      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        id: audit-token
-        with:
-          client-id: ${{ secrets.AA_CI_CLIENT_ID }}
-          private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
-          permission-administration: read
+    drift:
+        name: Ruleset Drift
+        runs-on: ubuntu-24.04
+        timeout-minutes: 5
+        steps:
+            # The default Actions token can read the ruleset but omits bypass actors,
+            # which makes a complete security-sensitive comparison impossible. Mint a
+            # repository-scoped installation token from the existing CI App instead.
+            # The App private key does not expire automatically; this short-lived
+            # token is generated for each run and revoked when the job finishes.
+            - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+              id: audit-token
+              with:
+                  client-id: ${{ secrets.AA_CI_CLIENT_ID }}
+                  private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
+                  permission-administration: read
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
 
-      - name: Compare live rules with committed intent
-        env:
-          GH_TOKEN: ${{ steps.audit-token.outputs.token }}
-        run: node bin/ci/ruleset-drift.mjs
+            - name: Compare live rules with committed intent
+              env:
+                  GH_TOKEN: ${{ steps.audit-token.outputs.token }}
+              run: node bin/ci/ruleset-drift.mjs

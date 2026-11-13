@@ -1,0 +1,259 @@
+/*
+ * Product Tabs — Narrow layout (container-aware, with a viewport fallback) and reduced motion.
+ *
+ * Partial of style.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ===================================================================
+ * Narrow layout — container-aware children + viewport fallback
+ * =================================================================== */
+
+/* Spacing tighten on the container element — must stay @media. */
+@media (width < 768px) {
+	.aa-product-info {
+		--aa-pi-gap: 1.125rem;
+	}
+}
+
+@container product-info (width < 768px) {
+	/* Stack the layout once the block itself (not the viewport) is narrow, so a
+	 * scrollspy sitting in WooCommerce's ~50% summary column on tablet collapses
+	 * to the sticky horizontal bar instead of forcing a cramped two-column grid. */
+	.aa-product-info--scrollspy .aa-product-info__layout {
+		display: block;
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__sidebar {
+		position: sticky;
+		top: var(--aa-pi-nav-offset, 0);
+		z-index: 1;
+		flex-direction: row;
+		overflow-x: auto;
+		scrollbar-width: none;
+		border-right: none;
+		border-bottom: 1px solid var(--aa-pi-border);
+		padding-right: 0;
+		padding-bottom: 0;
+		margin-bottom: var(--aa-pi-gap);
+		background: var(--aa-color-surface);
+		gap: 0;
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__sidebar::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Land click / hash navigation below the now-sticky horizontal bar. */
+	.aa-product-info--scrollspy .aa-product-info__section {
+		scroll-margin-top: calc(var(--aa-pi-nav-offset, 0px) + 3.5rem);
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__nav-link {
+		white-space: nowrap;
+		border-left: none;
+		margin-left: 0;
+		padding: 0.75rem 1rem;
+		border-bottom: 2px solid transparent;
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__nav-link.is-active {
+		border-left-color: transparent;
+		border-bottom-color: var(--aa-pi-accent);
+	}
+
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav {
+		gap: 0;
+		scroll-snap-type: x mandatory;
+	}
+
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role="tab"] {
+		padding: 0.75rem 0.875rem;
+		font-size: var(--wp--preset--font-size--x-small);
+		scroll-snap-align: start;
+	}
+
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav,
+	.aa-product-info--scrollspy .aa-product-info__sidebar {
+		mask-image: linear-gradient(
+			to right,
+			var(--aa-color-foreground) calc(100% - 1.5rem),
+			transparent
+		);
+	}
+
+	.aa-product-info .commentlist .comment_container {
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.aa-product-info .commentlist .comment_container > img {
+		width: 40px;
+		height: 40px;
+	}
+}
+
+.aa-product-info__content table {
+	width: 100%;
+	table-layout: auto;
+	overflow-wrap: normal;
+	word-break: normal;
+}
+
+/*
+ * WooCommerce Additional Information — spacing only, no row rules.
+ * Accordion chrome frames the block; beat WC italics / dotted borders.
+ */
+.aa-product-info.woocommerce table.shop_attributes,
+.aa-product-info table.woocommerce-product-attributes {
+	display: table;
+	width: 100%;
+	margin: 0;
+	border: 0;
+
+	/* `separate` (with zero spacing, so layout is unchanged) is required for the
+	   corner cells below to render a radius at all — `collapse` discards it. */
+	border-collapse: separate;
+	border-spacing: 0;
+	border-radius: 0;
+	background: transparent;
+	font-size: inherit;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.5;
+}
+
+.aa-product-info.woocommerce table.shop_attributes tr,
+.aa-product-info table.woocommerce-product-attributes tr {
+	background: transparent;
+	transition: none;
+}
+
+.aa-product-info.woocommerce table.shop_attributes th,
+.aa-product-info.woocommerce table.shop_attributes td,
+.aa-product-info table.woocommerce-product-attributes th,
+.aa-product-info table.woocommerce-product-attributes td,
+.aa-product-info.woocommerce table.shop_attributes tr:nth-child(even) th,
+.aa-product-info.woocommerce table.shop_attributes tr:nth-child(even) td,
+.aa-product-info table.woocommerce-product-attributes tr:nth-child(even) th,
+.aa-product-info table.woocommerce-product-attributes tr:nth-child(even) td {
+	padding: 0.55rem 0.75rem;
+	border: 0;
+	border-top: 0;
+	border-bottom: 0;
+	background: transparent;
+	text-align: start;
+	vertical-align: baseline;
+}
+
+/* Stripe the row, not its cells: a per-cell background is what makes the label
+   column read as a separate chip from its value, which is most obvious on
+   narrow screens where the two cells are close in width. */
+.aa-product-info.woocommerce table.shop_attributes tr:nth-child(odd),
+.aa-product-info table.woocommerce-product-attributes tr:nth-child(odd) {
+	background: color-mix(in oklch, var(--aa-color-foreground) 6%, transparent);
+}
+
+/* `border-radius` has no effect on <tr> in any border-collapse mode, so the
+   table's outer corners have to live on the four corner cells. Rounding every
+   cell instead notches each label's inner edge mid-table. The row background
+   above is clipped to these radii. */
+.aa-product-info.woocommerce table.shop_attributes tr:first-child th,
+.aa-product-info table.woocommerce-product-attributes tr:first-child th {
+	border-start-start-radius: var(--aa-radius-sm, 0.25rem);
+}
+
+.aa-product-info.woocommerce table.shop_attributes tr:first-child td:last-child,
+.aa-product-info
+	table.woocommerce-product-attributes
+	tr:first-child
+	td:last-child {
+	border-start-end-radius: var(--aa-radius-sm, 0.25rem);
+}
+
+.aa-product-info.woocommerce table.shop_attributes tr:last-child th,
+.aa-product-info table.woocommerce-product-attributes tr:last-child th {
+	border-end-start-radius: var(--aa-radius-sm, 0.25rem);
+}
+
+.aa-product-info.woocommerce table.shop_attributes tr:last-child td:last-child,
+.aa-product-info
+	table.woocommerce-product-attributes
+	tr:last-child
+	td:last-child {
+	border-end-end-radius: var(--aa-radius-sm, 0.25rem);
+}
+
+.aa-product-info.woocommerce table.shop_attributes th,
+.aa-product-info table.woocommerce-product-attributes th {
+	width: 9.5rem;
+	padding-right: 1.5rem;
+	padding-inline-end: 1.5rem;
+	color: var(--aa-color-foreground);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: none;
+	white-space: nowrap;
+}
+
+.aa-product-info.woocommerce table.shop_attributes td,
+.aa-product-info table.woocommerce-product-attributes td {
+	width: auto;
+
+	/* Pulled toward the foreground: plain muted text drops under 4.5:1 on the
+	   striped rows. */
+	color: color-mix(
+		in oklch,
+		var(--aa-color-foreground-muted) 70%,
+		var(--aa-color-foreground)
+	);
+	font-style: normal;
+	font-weight: 400;
+}
+
+.aa-product-info.woocommerce table.shop_attributes td p,
+.aa-product-info table.woocommerce-product-attributes td p {
+	margin: 0;
+	padding: 0;
+	font-style: normal;
+}
+
+.aa-product-info.woocommerce table.shop_attributes td p + p,
+.aa-product-info table.woocommerce-product-attributes td p + p {
+	margin-block-start: 0.25rem;
+}
+
+/* Attribute values link to their archives (rel="tag") and take the global
+   accent link colour, which falls short of 4.5:1 on the striped rows in dark
+   mode. The raised-surface accent keeps them brand red and passes on every
+   row; applied to the whole table so links don't change colour row to row.
+   At rest only, so the global link :hover / :focus colour still applies. */
+.aa-product-info.woocommerce table.shop_attributes td a:not(:hover, :focus),
+.aa-product-info table.woocommerce-product-attributes td a:not(:hover, :focus) {
+	color: var(--aa-color-accent-on-raised);
+}
+
+/* ===================================================================
+ * Reduced motion
+ * =================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+	.aa-product-info--accordion .aa-product-info__chevron,
+	.aa-product-info--accordion .aa-product-info__heading,
+	.aa-product-info--accordion .aa-product-info__reveal {
+		transition: none;
+	}
+
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role="tab"] {
+		transition: none;
+	}
+
+	.aa-product-info--modern-tabs .aa-product-info__tab-panel {
+		animation: none;
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__nav-link {
+		transition: none;
+	}
+}

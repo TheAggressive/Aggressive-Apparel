@@ -17,25 +17,25 @@
  * Omnisend decides the width and the editor decides where it sits. The form
  * box is the only <div> inside #omnisend-form-<id>.
  */
-[id^='omnisend-embedded-v2-'] {
+[id^="omnisend-embedded-v2-"] {
 	width: 100%;
 	min-width: 0;
 }
 
-[id^='omnisend-embedded-v2-'] > [id^='omnisend-form-'] > div {
+[id^="omnisend-embedded-v2-"] > [id^="omnisend-form-"] > div {
 	margin-inline: 0;
 }
 
 .is-content-justification-center
-	> [id^='omnisend-embedded-v2-']
-	> [id^='omnisend-form-']
+	> [id^="omnisend-embedded-v2-"]
+	> [id^="omnisend-form-"]
 	> div {
 	margin-inline: auto;
 }
 
 .is-content-justification-right
-	> [id^='omnisend-embedded-v2-']
-	> [id^='omnisend-form-']
+	> [id^="omnisend-embedded-v2-"]
+	> [id^="omnisend-form-"]
 	> div {
 	margin-inline: auto 0;
 }
@@ -54,16 +54,15 @@
  * then sits in the space below the form; keep at least ~40px clear there.
  */
 @media (width > 600px) {
-
-	[id^='omnisend-embedded-v2-'] [class*='-content-inner'] {
+	[id^="omnisend-embedded-v2-"] [class*="-content-inner"] {
 		overflow: visible;
 	}
 
-	[id^='omnisend-embedded-v2-'] [class*='-field-container-'] {
+	[id^="omnisend-embedded-v2-"] [class*="-field-container-"] {
 		position: relative;
 	}
 
-	[id^='omnisend-embedded-v2-'] [class*='-field-container-'] > input ~ div {
+	[id^="omnisend-embedded-v2-"] [class*="-field-container-"] > input ~ div {
 		position: absolute;
 		inset-block-start: 100%;
 		inset-inline: 0;
@@ -79,14 +78,14 @@
  * error border. Show one ring, flush with the border, on keyboard focus only:
  * the text color normally, red when the field has an error.
  */
-[id^='omnisend-embedded-v2-'] input:focus {
+[id^="omnisend-embedded-v2-"] input:focus {
 	box-shadow: none !important;
 }
 
-[id^='omnisend-embedded-v2-'] input:focus-visible {
+[id^="omnisend-embedded-v2-"] input:focus-visible {
 	box-shadow: 0 0 0 2px currentcolor !important;
 }
 
-[id^='omnisend-embedded-v2-'] input.error:focus-visible {
+[id^="omnisend-embedded-v2-"] input.error:focus-visible {
 	box-shadow: 0 0 0 2px var(--wp--preset--color--red) !important;
 }

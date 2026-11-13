@@ -17,7 +17,6 @@
 }
 
 @keyframes aggressive-apparel-marquee {
-
 	0% {
 		transform: translateX(0);
 	}
@@ -29,7 +28,6 @@
 
 /* Respect reduced motion preferences. */
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-marquee__track {
 		animation: none;
 	}

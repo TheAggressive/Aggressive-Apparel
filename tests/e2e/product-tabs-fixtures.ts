@@ -30,11 +30,11 @@ const FIXTURE_HEADER = 'x-aa-e2e-product-tabs-fixture';
 export type TabStyle = 'accordion' | 'inline' | 'modern-tabs' | 'scrollspy';
 
 interface ProductTabsRequest {
-  style: TabStyle;
-  exclusive?: boolean;
-  headingFontSize?: string;
-  headingColor?: string;
-  accentColor?: string;
+	style: TabStyle;
+	exclusive?: boolean;
+	headingFontSize?: string;
+	headingColor?: string;
+	accentColor?: string;
 }
 
 /**
@@ -43,36 +43,36 @@ interface ProductTabsRequest {
  * giving the accordion / scrollspy multiple stacked sections.
  */
 export function createProductTabsFixture(): { id: number; url: string } {
-  const paragraph =
-    '<p>Detailed product description paragraph used to give the first ' +
-    'accordion section real height so a scroll-anchor regression is ' +
-    'unmistakable when the section above collapses.</p>';
+	const paragraph =
+		'<p>Detailed product description paragraph used to give the first ' +
+		'accordion section real height so a scroll-anchor regression is ' +
+		'unmistakable when the section above collapses.</p>';
 
-  const script = `
+	const script = `
 if (!function_exists('wc_get_product')) { echo '0|'; return; }
 $p = new WC_Product_Simple();
 $p->set_name('E2E Product Tabs Fixture');
 $p->set_regular_price('20');
 $p->set_status('publish');
 $p->set_catalog_visibility('visible');
-$p->set_description(str_repeat(${JSON.stringify(paragraph)}, 40));
+$p->set_description(str_repeat(${ JSON.stringify( paragraph ) }, 40));
 $p->set_short_description('<p>Short description.</p>');
 $p->set_weight('1.5');
 $p->set_length('20');
 $p->set_width('15');
 $p->set_height('5');
 $id = $p->save();
-${ownPostPhp('$id', 'product-tabs')}
+${ ownPostPhp( '$id', 'product-tabs' ) }
 echo $id . '|' . get_permalink($id);
 `.trim();
 
-  const out = wpCli(['eval', script]);
-  const [idRaw, url] = out.split('|');
-  const id = Number.parseInt(idRaw, 10);
-  if (!Number.isFinite(id) || id <= 0 || !url) {
-    throw new Error(`Failed to create product-tabs fixture: ${out}`);
-  }
-  return { id, url };
+	const out = wpCli( [ 'eval', script ] );
+	const [ idRaw, url ] = out.split( '|' );
+	const id = Number.parseInt( idRaw, 10 );
+	if ( ! Number.isFinite( id ) || id <= 0 || ! url ) {
+		throw new Error( `Failed to create product-tabs fixture: ${ out }` );
+	}
+	return { id, url };
 }
 
 /**
@@ -82,48 +82,48 @@ echo $id . '|' . get_permalink($id);
  * timeouts when the test mu-plugin integration is missing.
  */
 export async function assertProductTabsFixtureReady(
-  productUrl: string
-): Promise<void> {
-  const url = new URL(
-    productTabsFixtureUrl(productUrl, { style: 'modern-tabs' })
-  );
-  url.searchParams.set(PROBE_PARAM, '1');
+	productUrl: string
+): Promise< void > {
+	const url = new URL(
+		productTabsFixtureUrl( productUrl, { style: 'modern-tabs' } )
+	);
+	url.searchParams.set( PROBE_PARAM, '1' );
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      redirect: 'follow',
-      signal: controller.signal,
-    });
-  } catch (error) {
-    throw new Error(
-      `Product Tabs E2E fixture probe failed: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-  } finally {
-    clearTimeout(timeout);
-  }
-  if (!response.ok) {
-    throw new Error(
-      `Product Tabs E2E fixture probe returned HTTP ${response.status}: ${response.url}`
-    );
-  }
+	const controller = new AbortController();
+	const timeout = setTimeout( () => controller.abort(), 15_000 );
+	let response: Response;
+	try {
+		response = await fetch( url, {
+			redirect: 'follow',
+			signal: controller.signal,
+		} );
+	} catch ( error ) {
+		throw new Error(
+			`Product Tabs E2E fixture probe failed: ${
+				error instanceof Error ? error.message : String( error )
+			}`
+		);
+	} finally {
+		clearTimeout( timeout );
+	}
+	if ( ! response.ok ) {
+		throw new Error(
+			`Product Tabs E2E fixture probe returned HTTP ${ response.status }: ${ response.url }`
+		);
+	}
 
-  if (response.headers.get(FIXTURE_HEADER) !== 'ready') {
-    throw new Error(
-      `Product Tabs E2E fixture is not loaded by WordPress: ${response.url}`
-    );
-  }
+	if ( response.headers.get( FIXTURE_HEADER ) !== 'ready' ) {
+		throw new Error(
+			`Product Tabs E2E fixture is not loaded by WordPress: ${ response.url }`
+		);
+	}
 
-  const html = await response.text();
-  if (!html.includes('aa-product-info--modern-tabs')) {
-    throw new Error(
-      'Product Tabs E2E fixture loaded, but its request-scoped block attributes were not rendered.'
-    );
-  }
+	const html = await response.text();
+	if ( ! html.includes( 'aa-product-info--modern-tabs' ) ) {
+		throw new Error(
+			'Product Tabs E2E fixture loaded, but its request-scoped block attributes were not rendered.'
+		);
+	}
 }
 
 /**
@@ -133,25 +133,25 @@ export async function assertProductTabsFixtureReady(
  * PHP process caches, retries, and prior test cleanup cannot change the result.
  */
 export function productTabsFixtureUrl(
-  productUrl: string,
-  request: ProductTabsRequest
+	productUrl: string,
+	request: ProductTabsRequest
 ): string {
-  const url = new URL(productUrl);
-  url.searchParams.set(STYLE_PARAM, request.style);
-  url.searchParams.set(REQUEST_PARAM, randomUUID());
-  if (request.exclusive) {
-    url.searchParams.set(EXCLUSIVE_PARAM, '1');
-  }
-  if (request.headingFontSize) {
-    url.searchParams.set(HEADING_SIZE_PARAM, request.headingFontSize);
-  }
-  if (request.headingColor) {
-    url.searchParams.set(HEADING_COLOR_PARAM, request.headingColor);
-  }
-  if (request.accentColor) {
-    url.searchParams.set(ACCENT_COLOR_PARAM, request.accentColor);
-  }
-  return url.toString();
+	const url = new URL( productUrl );
+	url.searchParams.set( STYLE_PARAM, request.style );
+	url.searchParams.set( REQUEST_PARAM, randomUUID() );
+	if ( request.exclusive ) {
+		url.searchParams.set( EXCLUSIVE_PARAM, '1' );
+	}
+	if ( request.headingFontSize ) {
+		url.searchParams.set( HEADING_SIZE_PARAM, request.headingFontSize );
+	}
+	if ( request.headingColor ) {
+		url.searchParams.set( HEADING_COLOR_PARAM, request.headingColor );
+	}
+	if ( request.accentColor ) {
+		url.searchParams.set( ACCENT_COLOR_PARAM, request.accentColor );
+	}
+	return url.toString();
 }
 
 /**
@@ -160,11 +160,11 @@ export function productTabsFixtureUrl(
  * transactional across cancellations and retries.
  */
 export function isolateGlobalTabsOption(): void {
-  const output = wpCli([
-    'eval',
-    `
-$option_key = '${GLOBAL_TABS_OPTION}';
-$backup_key = '${GLOBAL_TABS_BACKUP_OPTION}';
+	const output = wpCli( [
+		'eval',
+		`
+$option_key = '${ GLOBAL_TABS_OPTION }';
+$backup_key = '${ GLOBAL_TABS_BACKUP_OPTION }';
 
 $stale = get_option($backup_key, null);
 if (is_array($stale)) {
@@ -198,22 +198,22 @@ if ($remaining !== $sentinel) {
 }
 echo 'ok';
 `.trim(),
-  ]);
+	] );
 
-  if (!output.endsWith('ok')) {
-    throw new Error(
-      `Failed to isolate the global Product Tabs option: ${output}`
-    );
-  }
+	if ( ! output.endsWith( 'ok' ) ) {
+		throw new Error(
+			`Failed to isolate the global Product Tabs option: ${ output }`
+		);
+	}
 }
 
 /** Restore the exact Product Tabs option state captured by the suite. */
 export function restoreGlobalTabsOption(): void {
-  const output = wpCli([
-    'eval',
-    `
-$option_key = '${GLOBAL_TABS_OPTION}';
-$backup_key = '${GLOBAL_TABS_BACKUP_OPTION}';
+	const output = wpCli( [
+		'eval',
+		`
+$option_key = '${ GLOBAL_TABS_OPTION }';
+$backup_key = '${ GLOBAL_TABS_BACKUP_OPTION }';
 $backup = get_option($backup_key, null);
 if (!is_array($backup)) {
   throw new RuntimeException('Global Product Tabs option backup is missing.');
@@ -226,22 +226,22 @@ if (!empty($backup['existed'])) {
 delete_option($backup_key);
 echo 'ok';
 `.trim(),
-  ]);
+	] );
 
-  if (!output.endsWith('ok')) {
-    throw new Error(
-      `Failed to restore the global Product Tabs option: ${output}`
-    );
-  }
+	if ( ! output.endsWith( 'ok' ) ) {
+		throw new Error(
+			`Failed to restore the global Product Tabs option: ${ output }`
+		);
+	}
 }
 
 /** Delete the fixture product created for the suite. */
-export function deleteProductTabsFixture(id: number): void {
-  if (!id) return;
-  const output = wpCli([
-    'eval',
-    `
-$product_id = ${Number(id)};
+export function deleteProductTabsFixture( id: number ): void {
+	if ( ! id ) return;
+	const output = wpCli( [
+		'eval',
+		`
+$product_id = ${ Number( id ) };
 if (get_post($product_id)) {
   wp_delete_post($product_id, true);
 }
@@ -250,8 +250,8 @@ if (get_post($product_id)) {
 }
 echo 'ok';
 `.trim(),
-  ]);
-  if (!output.endsWith('ok')) {
-    throw new Error(`Product Tabs fixture cleanup failed: ${output}`);
-  }
+	] );
+	if ( ! output.endsWith( 'ok' ) ) {
+		throw new Error( `Product Tabs fixture cleanup failed: ${ output }` );
+	}
 }

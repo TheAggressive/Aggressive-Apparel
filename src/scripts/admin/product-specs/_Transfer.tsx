@@ -12,12 +12,12 @@
 
 import { useEffect, useState } from '@wordpress/element';
 import {
-  Button,
-  DropZone,
-  FormFileUpload,
-  Modal,
-  Notice,
-  Spinner,
+	Button,
+	DropZone,
+	FormFileUpload,
+	Modal,
+	Notice,
+	Spinner,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -27,460 +27,531 @@ import { exportName } from './_transferName';
 type Changes = { added: string[]; changed: string[]; same: number };
 
 type Plan = {
-  site: string;
-  exported: string;
-  specs: Changes;
-  guides: Changes;
-  /** Store-wide settings the file changes, as sentences. */
-  settings: string[];
-  missing: string[];
-  /** What an import couldn't do (only after importing). */
-  problems: string[];
+	site: string;
+	exported: string;
+	specs: Changes;
+	guides: Changes;
+	/** Store-wide settings the file changes, as sentences. */
+	settings: string[];
+	missing: string[];
+	/** What an import couldn't do (only after importing). */
+	problems: string[];
 };
 
 type Props = {
-  /** The settings REST path. */
-  restPath: string;
-  /** The largest file this site accepts, in bytes. */
-  maxUpload: number;
-  /** Whether anything on the page is unsaved. */
-  dirty: boolean;
+	/** The settings REST path. */
+	restPath: string;
+	/** The largest file this site accepts, in bytes. */
+	maxUpload: number;
+	/** Whether anything on the page is unsaved. */
+	dirty: boolean;
 };
 
 /** A byte count as megabytes ("4.2 MB"). */
-function megabytes(bytes: number): string {
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+function megabytes( bytes: number ): string {
+	return `${ ( bytes / 1024 / 1024 ).toFixed( 1 ) } MB`;
 }
 
-function Counts({
-  title,
-  changes,
-  noun,
+function Counts( {
+	title,
+	changes,
+	noun,
 }: {
-  title: string;
-  changes: Changes;
-  noun: (count: number) => string;
-}) {
-  const parts = [
-    changes.added.length > 0 &&
-      sprintf(
-        /* translators: %d: number of new items. */
-        __('%d new', 'aggressive-apparel'),
-        changes.added.length
-      ),
-    changes.changed.length > 0 &&
-      sprintf(
-        /* translators: %d: number of updated items. */
-        __('%d updated', 'aggressive-apparel'),
-        changes.changed.length
-      ),
-    changes.same > 0 &&
-      sprintf(
-        /* translators: %d: number of unchanged items. */
-        __('%d already the same', 'aggressive-apparel'),
-        changes.same
-      ),
-  ].filter(Boolean);
-  const total = changes.added.length + changes.changed.length + changes.same;
+	title: string;
+	changes: Changes;
+	noun: ( count: number ) => string;
+} ) {
+	const parts = [
+		changes.added.length > 0 &&
+			sprintf(
+				/* translators: %d: number of new items. */
+				__( '%d new', 'aggressive-apparel' ),
+				changes.added.length
+			),
+		changes.changed.length > 0 &&
+			sprintf(
+				/* translators: %d: number of updated items. */
+				__( '%d updated', 'aggressive-apparel' ),
+				changes.changed.length
+			),
+		changes.same > 0 &&
+			sprintf(
+				/* translators: %d: number of unchanged items. */
+				__( '%d already the same', 'aggressive-apparel' ),
+				changes.same
+			),
+	].filter( Boolean );
+	const total = changes.added.length + changes.changed.length + changes.same;
 
-  return (
-    <div className='aa-ps-transfer__part'>
-      <h3 className='aa-ps-eyebrow'>{title}</h3>
-      <p>
-        <strong>{noun(total)}</strong>
-        {parts.length > 0 && ` · ${parts.join(' · ')}`}
-      </p>
-      {changes.added.length + changes.changed.length > 0 && (
-        <ul className='aa-ps-transfer__list'>
-          {changes.added.map(name => (
-            <li key={`added-${name}`}>
-              <span className='aa-ps-badge'>
-                {__('New', 'aggressive-apparel')}
-              </span>
-              {name}
-            </li>
-          ))}
-          {changes.changed.map(name => (
-            <li key={`changed-${name}`}>
-              <span className='aa-ps-badge'>
-                {__('Updated', 'aggressive-apparel')}
-              </span>
-              {name}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+	return (
+		<div className="aa-ps-transfer__part">
+			<h3 className="aa-ps-eyebrow">{ title }</h3>
+			<p>
+				<strong>{ noun( total ) }</strong>
+				{ parts.length > 0 && ` · ${ parts.join( ' · ' ) }` }
+			</p>
+			{ changes.added.length + changes.changed.length > 0 && (
+				<ul className="aa-ps-transfer__list">
+					{ changes.added.map( ( name ) => (
+						<li key={ `added-${ name }` }>
+							<span className="aa-ps-badge">
+								{ __( 'New', 'aggressive-apparel' ) }
+							</span>
+							{ name }
+						</li>
+					) ) }
+					{ changes.changed.map( ( name ) => (
+						<li key={ `changed-${ name }` }>
+							<span className="aa-ps-badge">
+								{ __( 'Updated', 'aggressive-apparel' ) }
+							</span>
+							{ name }
+						</li>
+					) ) }
+				</ul>
+			) }
+		</div>
+	);
 }
 
-export default function Transfer({ restPath, maxUpload, dirty }: Props) {
-  const [exporting, setExporting] = useState(false);
-  const [exportNote, setExportNote] = useState('');
-  const [importing, setImporting] = useState(false);
-  // The checked file waits on the server under this token.
-  const [token, setToken] = useState('');
-  const [plan, setPlan] = useState<Plan | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [done, setDone] = useState<Plan | null>(null);
+export default function Transfer( { restPath, maxUpload, dirty }: Props ) {
+	const [ exporting, setExporting ] = useState( false );
+	const [ exportNote, setExportNote ] = useState( '' );
+	const [ importing, setImporting ] = useState( false );
+	// The checked file waits on the server under this token.
+	const [ token, setToken ] = useState( '' );
+	const [ plan, setPlan ] = useState< Plan | null >( null );
+	const [ busy, setBusy ] = useState( false );
+	const [ error, setError ] = useState( '' );
+	const [ done, setDone ] = useState< Plan | null >( null );
 
-  // The export note says its piece, then gets out of the way.
-  useEffect(() => {
-    if (exportNote === '') {
-      return;
-    }
-    const timer = window.setTimeout(() => setExportNote(''), 6000);
-    return () => window.clearTimeout(timer);
-  }, [exportNote]);
+	// The export note says its piece, then gets out of the way.
+	useEffect( () => {
+		if ( exportNote === '' ) {
+			return;
+		}
+		const timer = window.setTimeout( () => setExportNote( '' ), 6000 );
+		return () => window.clearTimeout( timer );
+	}, [ exportNote ] );
 
-  const download = async () => {
-    setExporting(true);
-    setExportNote('');
-    try {
-      const data = await apiFetch({ path: `${restPath}/export` });
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: 'application/json',
-      });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = exportName(window.location.hostname, new Date());
-      link.click();
-      URL.revokeObjectURL(link.href);
-      setExportNote(
-        dirty
-          ? __(
-              'Exported what’s saved. Your unsaved changes aren’t in the file.',
-              'aggressive-apparel'
-            )
-          : __('Exported.', 'aggressive-apparel')
-      );
-    } catch (failure) {
-      setExportNote(
-        errorText(
-          failure,
-          __('The export failed. Try again.', 'aggressive-apparel')
-        )
-      );
-    } finally {
-      setExporting(false);
-    }
-  };
+	const download = async () => {
+		setExporting( true );
+		setExportNote( '' );
+		try {
+			const data = await apiFetch( { path: `${ restPath }/export` } );
+			const blob = new Blob( [ JSON.stringify( data, null, 2 ) ], {
+				type: 'application/json',
+			} );
+			const link = document.createElement( 'a' );
+			link.href = URL.createObjectURL( blob );
+			link.download = exportName( window.location.hostname, new Date() );
+			link.click();
+			URL.revokeObjectURL( link.href );
+			setExportNote(
+				dirty
+					? __(
+							'Exported what’s saved. Your unsaved changes aren’t in the file.',
+							'aggressive-apparel'
+						)
+					: __( 'Exported.', 'aggressive-apparel' )
+			);
+		} catch ( failure ) {
+			setExportNote(
+				errorText(
+					failure,
+					__( 'The export failed. Try again.', 'aggressive-apparel' )
+				)
+			);
+		} finally {
+			setExporting( false );
+		}
+	};
 
-  const reset = () => {
-    setToken('');
-    setPlan(null);
-    setError('');
-    setDone(null);
-  };
+	const reset = () => {
+		setToken( '' );
+		setPlan( null );
+		setError( '' );
+		setDone( null );
+	};
 
-  const close = () => {
-    setImporting(false);
-    reset();
-  };
+	const close = () => {
+		setImporting( false );
+		reset();
+	};
 
-  const read = async (chosen: File | undefined) => {
-    if (!chosen) {
-      return;
-    }
-    reset();
-    if (maxUpload > 0 && chosen.size > maxUpload) {
-      setError(
-        sprintf(
-          /* translators: 1: file size, 2: largest size this site accepts. */
-          __(
-            'That file is %1$s, more than this site accepts (%2$s). Ask your host to raise the upload limit, then try again.',
-            'aggressive-apparel'
-          ),
-          megabytes(chosen.size),
-          megabytes(maxUpload)
-        )
-      );
-      return;
-    }
-    setBusy(true);
-    try {
-      const body = new FormData();
-      body.append('file', chosen);
-      const checked = await apiFetch<{ token: string; plan: Plan }>({
-        path: `${restPath}/import`,
-        method: 'POST',
-        body,
-      });
-      setToken(checked.token);
-      setPlan(checked.plan);
-    } catch (failure) {
-      setError(
-        errorText(
-          failure,
-          __('That file couldn’t be checked.', 'aggressive-apparel')
-        )
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
+	const read = async ( chosen: File | undefined ) => {
+		if ( ! chosen ) {
+			return;
+		}
+		reset();
+		if ( maxUpload > 0 && chosen.size > maxUpload ) {
+			setError(
+				sprintf(
+					/* translators: 1: file size, 2: largest size this site accepts. */
+					__(
+						'That file is %1$s, more than this site accepts (%2$s). Ask your host to raise the upload limit, then try again.',
+						'aggressive-apparel'
+					),
+					megabytes( chosen.size ),
+					megabytes( maxUpload )
+				)
+			);
+			return;
+		}
+		setBusy( true );
+		try {
+			const body = new FormData();
+			body.append( 'file', chosen );
+			const checked = await apiFetch< { token: string; plan: Plan } >( {
+				path: `${ restPath }/import`,
+				method: 'POST',
+				body,
+			} );
+			setToken( checked.token );
+			setPlan( checked.plan );
+		} catch ( failure ) {
+			setError(
+				errorText(
+					failure,
+					__( 'That file couldn’t be checked.', 'aggressive-apparel' )
+				)
+			);
+		} finally {
+			setBusy( false );
+		}
+	};
 
-  const apply = async () => {
-    setBusy(true);
-    setError('');
-    try {
-      setDone(
-        await apiFetch<Plan>({
-          path: `${restPath}/import/apply`,
-          method: 'POST',
-          data: { token },
-        })
-      );
-    } catch (failure) {
-      const stopped = __(
-        'The import stopped before it finished, so part of it may already be saved. Check your size guides, then import the file again: anything already imported is matched, not added twice.',
-        'aggressive-apparel'
-      );
-      // A dropped connection or a server that gave up says nothing useful;
-      // a refusal from the import itself (nothing saved) explains itself.
-      const code = (failure as { code?: string } | null)?.code ?? '';
-      setError(
-        code === '' || code === 'fetch_error' || code === 'invalid_json'
-          ? stopped
-          : errorText(failure, stopped)
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
+	const apply = async () => {
+		setBusy( true );
+		setError( '' );
+		try {
+			setDone(
+				await apiFetch< Plan >( {
+					path: `${ restPath }/import/apply`,
+					method: 'POST',
+					data: { token },
+				} )
+			);
+		} catch ( failure ) {
+			const stopped = __(
+				'The import stopped before it finished, so part of it may already be saved. Check your size guides, then import the file again: anything already imported is matched, not added twice.',
+				'aggressive-apparel'
+			);
+			// A dropped connection or a server that gave up says nothing useful;
+			// a refusal from the import itself (nothing saved) explains itself.
+			const code = ( failure as { code?: string } | null )?.code ?? '';
+			setError(
+				code === '' || code === 'fetch_error' || code === 'invalid_json'
+					? stopped
+					: errorText( failure, stopped )
+			);
+		} finally {
+			setBusy( false );
+		}
+	};
 
-  const pending = plan
-    ? plan.specs.added.length +
-      plan.specs.changed.length +
-      plan.guides.added.length +
-      plan.guides.changed.length +
-      plan.settings.length
-    : 0;
+	const pending = plan
+		? plan.specs.added.length +
+			plan.specs.changed.length +
+			plan.guides.added.length +
+			plan.guides.changed.length +
+			plan.settings.length
+		: 0;
 
-  return (
-    <div className='aa-ps-transfer'>
-      {exportNote && (
-        <span className='aa-ps-help' role='status'>
-          {exportNote}
-        </span>
-      )}
-      <Button
-        variant='tertiary'
-        size='compact'
-        icon='download'
-        disabled={exporting}
-        onClick={() => void download()}
-      >
-        {__('Export to file', 'aggressive-apparel')}
-      </Button>
-      <Button
-        variant='tertiary'
-        size='compact'
-        icon='upload'
-        onClick={() => setImporting(true)}
-      >
-        {__('Import from file', 'aggressive-apparel')}
-      </Button>
+	return (
+		<div className="aa-ps-transfer">
+			{ exportNote && (
+				<span className="aa-ps-help" role="status">
+					{ exportNote }
+				</span>
+			) }
+			<Button
+				variant="tertiary"
+				size="compact"
+				icon="download"
+				disabled={ exporting }
+				onClick={ () => void download() }
+			>
+				{ __( 'Export to file', 'aggressive-apparel' ) }
+			</Button>
+			<Button
+				variant="tertiary"
+				size="compact"
+				icon="upload"
+				onClick={ () => setImporting( true ) }
+			>
+				{ __( 'Import from file', 'aggressive-apparel' ) }
+			</Button>
 
-      {importing && (
-        <Modal
-          title={__('Import from another site', 'aggressive-apparel')}
-          onRequestClose={close}
-          className='aa-ps-transfer__modal'
-          size='medium'
-        >
-          {done && (
-            <>
-              <Notice
-                status={done.problems.length > 0 ? 'warning' : 'success'}
-                isDismissible={false}
-              >
-                {sprintf(
-                  /* translators: 1: "3 specs", 2: "2 size guides". */
-                  __(
-                    'Imported: %1$s and %2$s added or updated.',
-                    'aggressive-apparel'
-                  ),
-                  sprintf(
-                    /* translators: %d: number of specs. */
-                    _n(
-                      '%d spec',
-                      '%d specs',
-                      done.specs.added.length + done.specs.changed.length,
-                      'aggressive-apparel'
-                    ),
-                    done.specs.added.length + done.specs.changed.length
-                  ),
-                  sprintf(
-                    /* translators: %d: number of size guides. */
-                    _n(
-                      '%d size guide',
-                      '%d size guides',
-                      done.guides.added.length + done.guides.changed.length,
-                      'aggressive-apparel'
-                    ),
-                    done.guides.added.length + done.guides.changed.length
-                  )
-                )}
-              </Notice>
-              {done.problems.length > 0 && (
-                <ul className='aa-ps-transfer__list'>
-                  {done.problems.map(problem => (
-                    <li key={problem}>{problem}</li>
-                  ))}
-                </ul>
-              )}
-              <div className='aa-ps-transfer__actions'>
-                <Button
-                  variant='primary'
-                  onClick={() => window.location.reload()}
-                >
-                  {__('Reload to see them', 'aggressive-apparel')}
-                </Button>
-              </div>
-            </>
-          )}
+			{ importing && (
+				<Modal
+					title={ __(
+						'Import from another site',
+						'aggressive-apparel'
+					) }
+					onRequestClose={ close }
+					className="aa-ps-transfer__modal"
+					size="medium"
+				>
+					{ done && (
+						<>
+							<Notice
+								status={
+									done.problems.length > 0
+										? 'warning'
+										: 'success'
+								}
+								isDismissible={ false }
+							>
+								{ sprintf(
+									/* translators: 1: "3 specs", 2: "2 size guides". */
+									__(
+										'Imported: %1$s and %2$s added or updated.',
+										'aggressive-apparel'
+									),
+									sprintf(
+										/* translators: %d: number of specs. */
+										_n(
+											'%d spec',
+											'%d specs',
+											done.specs.added.length +
+												done.specs.changed.length,
+											'aggressive-apparel'
+										),
+										done.specs.added.length +
+											done.specs.changed.length
+									),
+									sprintf(
+										/* translators: %d: number of size guides. */
+										_n(
+											'%d size guide',
+											'%d size guides',
+											done.guides.added.length +
+												done.guides.changed.length,
+											'aggressive-apparel'
+										),
+										done.guides.added.length +
+											done.guides.changed.length
+									)
+								) }
+							</Notice>
+							{ done.problems.length > 0 && (
+								<ul className="aa-ps-transfer__list">
+									{ done.problems.map( ( problem ) => (
+										<li key={ problem }>{ problem }</li>
+									) ) }
+								</ul>
+							) }
+							<div className="aa-ps-transfer__actions">
+								<Button
+									variant="primary"
+									onClick={ () => window.location.reload() }
+								>
+									{ __(
+										'Reload to see them',
+										'aggressive-apparel'
+									) }
+								</Button>
+							</div>
+						</>
+					) }
 
-          {!done && !plan && (
-            <div className='aa-ps-transfer__drop'>
-              <DropZone
-                label={__('Drop the file to check it', 'aggressive-apparel')}
-                onFilesDrop={files => void read(files[0])}
-              />
-              <p>
-                {__(
-                  'Use a file made with “Export to file” on another site, such as your local copy. You’ll see what it adds and changes before anything is saved.',
-                  'aggressive-apparel'
-                )}
-              </p>
-              <FormFileUpload
-                accept='application/json,.json'
-                onChange={event => void read(event.currentTarget.files?.[0])}
-                render={({ openFileDialog }) => (
-                  <Button
-                    variant='secondary'
-                    disabled={busy}
-                    onClick={openFileDialog}
-                  >
-                    {__('Choose a file', 'aggressive-apparel')}
-                  </Button>
-                )}
-              />
-              <span className='aa-ps-help'>
-                {__('or drop it here', 'aggressive-apparel')}
-              </span>
-              {busy && <Spinner />}
-            </div>
-          )}
+					{ ! done && ! plan && (
+						<div className="aa-ps-transfer__drop">
+							<DropZone
+								label={ __(
+									'Drop the file to check it',
+									'aggressive-apparel'
+								) }
+								onFilesDrop={ ( files ) =>
+									void read( files[ 0 ] )
+								}
+							/>
+							<p>
+								{ __(
+									'Use a file made with “Export to file” on another site, such as your local copy. You’ll see what it adds and changes before anything is saved.',
+									'aggressive-apparel'
+								) }
+							</p>
+							<FormFileUpload
+								accept="application/json,.json"
+								onChange={ ( event ) =>
+									void read(
+										event.currentTarget.files?.[ 0 ]
+									)
+								}
+								render={ ( { openFileDialog } ) => (
+									<Button
+										variant="secondary"
+										disabled={ busy }
+										onClick={ openFileDialog }
+									>
+										{ __(
+											'Choose a file',
+											'aggressive-apparel'
+										) }
+									</Button>
+								) }
+							/>
+							<span className="aa-ps-help">
+								{ __(
+									'or drop it here',
+									'aggressive-apparel'
+								) }
+							</span>
+							{ busy && <Spinner /> }
+						</div>
+					) }
 
-          {!done && plan && (
-            <>
-              <p className='aa-ps-help'>
-                {sprintf(
-                  /* translators: 1: site address, 2: date exported. */
-                  __('From %1$s, exported %2$s.', 'aggressive-apparel'),
-                  plan.site || __('another site', 'aggressive-apparel'),
-                  plan.exported
-                    ? new Date(plan.exported).toLocaleString()
-                    : __('at an unknown time', 'aggressive-apparel')
-                )}
-              </p>
-              <Counts
-                title={__('Specs', 'aggressive-apparel')}
-                changes={plan.specs}
-                noun={count =>
-                  sprintf(
-                    /* translators: %d: number of specs. */
-                    _n('%d spec', '%d specs', count, 'aggressive-apparel'),
-                    count
-                  )
-                }
-              />
-              <Counts
-                title={__('Size guides', 'aggressive-apparel')}
-                changes={plan.guides}
-                noun={count =>
-                  sprintf(
-                    /* translators: %d: number of size guides. */
-                    _n(
-                      '%d size guide',
-                      '%d size guides',
-                      count,
-                      'aggressive-apparel'
-                    ),
-                    count
-                  )
-                }
-              />
-              {plan.settings.length > 0 && (
-                <div className='aa-ps-transfer__part'>
-                  <h3 className='aa-ps-eyebrow'>
-                    {__('Settings', 'aggressive-apparel')}
-                  </h3>
-                  {plan.settings.map(setting => (
-                    <p key={setting}>{setting}</p>
-                  ))}
-                </div>
-              )}
-              {plan.missing.length > 0 && (
-                <Notice status='warning' isDismissible={false}>
-                  {sprintf(
-                    /* translators: %s: category paths. */
-                    __(
-                      'These categories aren’t on this site, so guides and boundaries skip them: %s. Create them first to include them.',
-                      'aggressive-apparel'
-                    ),
-                    plan.missing.join(', ')
-                  )}
-                </Notice>
-              )}
-              {dirty && pending > 0 && (
-                <Notice status='warning' isDismissible={false}>
-                  {__(
-                    'This page has unsaved changes. Save or discard them first: importing reloads the page.',
-                    'aggressive-apparel'
-                  )}
-                </Notice>
-              )}
-              <p className='aa-ps-help'>
-                {pending > 0
-                  ? __(
-                      'Nothing on this site is deleted. Guides are matched by their Printful product, else by name.',
-                      'aggressive-apparel'
-                    )
-                  : __(
-                      'Everything in this file is already on this site.',
-                      'aggressive-apparel'
-                    )}
-              </p>
-              <div className='aa-ps-transfer__actions'>
-                {pending > 0 && (
-                  <Button
-                    variant='primary'
-                    disabled={busy || dirty}
-                    onClick={() => void apply()}
-                  >
-                    {busy
-                      ? __('Importing…', 'aggressive-apparel')
-                      : __('Import', 'aggressive-apparel')}
-                  </Button>
-                )}
-                {busy && <Spinner />}
-                <Button variant='tertiary' disabled={busy} onClick={reset}>
-                  {__('Choose another file', 'aggressive-apparel')}
-                </Button>
-              </div>
-            </>
-          )}
+					{ ! done && plan && (
+						<>
+							<p className="aa-ps-help">
+								{ sprintf(
+									/* translators: 1: site address, 2: date exported. */
+									__(
+										'From %1$s, exported %2$s.',
+										'aggressive-apparel'
+									),
+									plan.site ||
+										__(
+											'another site',
+											'aggressive-apparel'
+										),
+									plan.exported
+										? new Date(
+												plan.exported
+											).toLocaleString()
+										: __(
+												'at an unknown time',
+												'aggressive-apparel'
+											)
+								) }
+							</p>
+							<Counts
+								title={ __( 'Specs', 'aggressive-apparel' ) }
+								changes={ plan.specs }
+								noun={ ( count ) =>
+									sprintf(
+										/* translators: %d: number of specs. */
+										_n(
+											'%d spec',
+											'%d specs',
+											count,
+											'aggressive-apparel'
+										),
+										count
+									)
+								}
+							/>
+							<Counts
+								title={ __(
+									'Size guides',
+									'aggressive-apparel'
+								) }
+								changes={ plan.guides }
+								noun={ ( count ) =>
+									sprintf(
+										/* translators: %d: number of size guides. */
+										_n(
+											'%d size guide',
+											'%d size guides',
+											count,
+											'aggressive-apparel'
+										),
+										count
+									)
+								}
+							/>
+							{ plan.settings.length > 0 && (
+								<div className="aa-ps-transfer__part">
+									<h3 className="aa-ps-eyebrow">
+										{ __(
+											'Settings',
+											'aggressive-apparel'
+										) }
+									</h3>
+									{ plan.settings.map( ( setting ) => (
+										<p key={ setting }>{ setting }</p>
+									) ) }
+								</div>
+							) }
+							{ plan.missing.length > 0 && (
+								<Notice
+									status="warning"
+									isDismissible={ false }
+								>
+									{ sprintf(
+										/* translators: %s: category paths. */
+										__(
+											'These categories aren’t on this site, so guides and boundaries skip them: %s. Create them first to include them.',
+											'aggressive-apparel'
+										),
+										plan.missing.join( ', ' )
+									) }
+								</Notice>
+							) }
+							{ dirty && pending > 0 && (
+								<Notice
+									status="warning"
+									isDismissible={ false }
+								>
+									{ __(
+										'This page has unsaved changes. Save or discard them first: importing reloads the page.',
+										'aggressive-apparel'
+									) }
+								</Notice>
+							) }
+							<p className="aa-ps-help">
+								{ pending > 0
+									? __(
+											'Nothing on this site is deleted. Guides are matched by their Printful product, else by name.',
+											'aggressive-apparel'
+										)
+									: __(
+											'Everything in this file is already on this site.',
+											'aggressive-apparel'
+										) }
+							</p>
+							<div className="aa-ps-transfer__actions">
+								{ pending > 0 && (
+									<Button
+										variant="primary"
+										disabled={ busy || dirty }
+										onClick={ () => void apply() }
+									>
+										{ busy
+											? __(
+													'Importing…',
+													'aggressive-apparel'
+												)
+											: __(
+													'Import',
+													'aggressive-apparel'
+												) }
+									</Button>
+								) }
+								{ busy && <Spinner /> }
+								<Button
+									variant="tertiary"
+									disabled={ busy }
+									onClick={ reset }
+								>
+									{ __(
+										'Choose another file',
+										'aggressive-apparel'
+									) }
+								</Button>
+							</div>
+						</>
+					) }
 
-          {error && (
-            <Notice status='error' isDismissible={false}>
-              {error}
-            </Notice>
-          )}
-        </Modal>
-      )}
-    </div>
-  );
+					{ error && (
+						<Notice status="error" isDismissible={ false }>
+							{ error }
+						</Notice>
+					) }
+				</Modal>
+			) }
+		</div>
+	);
 }

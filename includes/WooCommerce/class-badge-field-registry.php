@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -40,13 +42,6 @@ class Badge_Field_Registry {
 	);
 
 	/**
-	 * Cached, fully-expanded field table.
-	 *
-	 * @var array<string, array<string, mixed>>|null
-	 */
-	private static ?array $fields = null;
-
-	/**
 	 * The badge field table, keyed by schema key.
 	 *
 	 * Type reference:
@@ -63,10 +58,15 @@ class Badge_Field_Registry {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function fields(): array {
-		if ( null !== self::$fields ) {
-			return self::$fields;
-		}
+		return Request_Cache::remember( 'badge-fields:table', static fn(): array => self::build_fields() );
+	}
 
+	/**
+	 * Build the fully-expanded field table, uncached (see fields()).
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function build_fields(): array {
 		$fields = array(
 			// Legacy core fields.
 			'bg_color'           => array(
@@ -316,9 +316,7 @@ class Badge_Field_Registry {
 			$fields[ $key ]['min']   = $spec['min'] ?? 0;
 		}
 
-		self::$fields = $fields;
-
-		return self::$fields;
+		return $fields;
 	}
 
 	/**

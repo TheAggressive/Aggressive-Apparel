@@ -32,7 +32,6 @@
 
 /* Show on mobile. */
 @media (width < 1024px) {
-
 	.aa-bottom-nav {
 		display: flex;
 		align-items: center;
@@ -47,7 +46,6 @@
 
 /* Expose the height variable on :root for other features. */
 @media (width < 1024px) {
-
 	:root {
 		--aa-bottom-nav-height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 	}
@@ -175,7 +173,6 @@
  * ----------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-bottom-nav {
 		transition: none;
 	}

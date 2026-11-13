@@ -1,44 +1,44 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/nav-panel-header",
-  "version": "1.0.0",
-  "title": "Nav Panel Header",
-  "category": "aggressive-apparel",
-  "description": "Style the mobile panel header and add optional content to the left of its close button.",
-  "keywords": ["navigation", "mobile", "panel", "header"],
-  "textdomain": "aggressive-apparel",
-  "parent": ["aggressive-apparel/navigation-panel"],
-  "supports": {
-    "html": false,
-    "reusable": false,
-    "lock": false,
-    "className": true,
-    "color": {
-      "background": true,
-      "text": true,
-      "link": true
-    },
-    "spacing": {
-      "padding": true
-    },
-    "__experimentalBorder": {
-      "color": true,
-      "radius": true,
-      "style": true,
-      "width": true
-    },
-    "typography": {
-      "__experimentalFontFamily": true,
-      "fontSize": true,
-      "__experimentalFontStyle": true,
-      "__experimentalFontWeight": true,
-      "__experimentalLetterSpacing": true,
-      "lineHeight": true,
-      "__experimentalTextTransform": true
-    }
-  },
-  "render": "file:./render.php",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css"
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/nav-panel-header",
+	"version": "1.0.0",
+	"title": "Nav Panel Header",
+	"category": "aggressive-apparel",
+	"description": "Style the mobile panel header and add optional content to the left of its close button.",
+	"keywords": [ "navigation", "mobile", "panel", "header" ],
+	"textdomain": "aggressive-apparel",
+	"parent": [ "aggressive-apparel/navigation-panel" ],
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"lock": false,
+		"className": true,
+		"color": {
+			"background": true,
+			"text": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
+		"typography": {
+			"__experimentalFontFamily": true,
+			"fontSize": true,
+			"__experimentalFontStyle": true,
+			"__experimentalFontWeight": true,
+			"__experimentalLetterSpacing": true,
+			"lineHeight": true,
+			"__experimentalTextTransform": true
+		}
+	},
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css"
 }

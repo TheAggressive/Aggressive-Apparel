@@ -1,8 +1,8 @@
 export { escapeHtml } from '../../utils/escape-html';
 
 /** Whether a filter option is unavailable (the one marker CSS styles too). */
-export function isUnavailable(option: Element): boolean {
-  return option.getAttribute('aria-disabled') === 'true';
+export function isUnavailable( option: Element ): boolean {
+	return option.getAttribute( 'aria-disabled' ) === 'true';
 }
 
 /**
@@ -13,26 +13,28 @@ export function isUnavailable(option: Element): boolean {
  * their activation, which `aria-disabled` does not block.
  */
 export function setFilterVisibility(
-  selector: string,
-  predicate: (element: HTMLElement) => boolean
+	selector: string,
+	predicate: ( element: HTMLElement ) => boolean
 ): void {
-  document.querySelectorAll<HTMLElement>(selector).forEach(element => {
-    if (predicate(element)) {
-      element.removeAttribute('aria-disabled');
-    } else {
-      element.setAttribute('aria-disabled', 'true');
-    }
-  });
+	document
+		.querySelectorAll< HTMLElement >( selector )
+		.forEach( ( element ) => {
+			if ( predicate( element ) ) {
+				element.removeAttribute( 'aria-disabled' );
+			} else {
+				element.setAttribute( 'aria-disabled', 'true' );
+			}
+		} );
 }
 
 /**
  * The value of the filter option a click activated, or '' when it hit no
  * option or an unavailable one.
  */
-export function chosenOption(event: Event, selector: string): string {
-  const option = (event.target as Element | null)?.closest<HTMLElement>(
-    selector
-  );
-  if (!option || isUnavailable(option)) return '';
-  return option.dataset.filterValue ?? '';
+export function chosenOption( event: Event, selector: string ): string {
+	const option = ( event.target as Element | null )?.closest< HTMLElement >(
+		selector
+	);
+	if ( ! option || isUnavailable( option ) ) return '';
+	return option.dataset.filterValue ?? '';
 }

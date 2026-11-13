@@ -10,8 +10,16 @@
 
 .aa-product-specs {
 	--aa-product-specs-fill: var(--aa-color-accent, currentcolor);
-	--aa-product-specs-track: color-mix(in oklch, currentcolor 14%, transparent);
-	--aa-product-specs-muted: color-mix(in oklch, currentcolor 62%, transparent);
+	--aa-product-specs-track: color-mix(
+		in oklch,
+		currentcolor 14%,
+		transparent
+	);
+	--aa-product-specs-muted: color-mix(
+		in oklch,
+		currentcolor 62%,
+		transparent
+	);
 	--aa-product-specs-bar: 0.5rem;
 
 	display: flex;
@@ -27,7 +35,8 @@
 .aa-product-specs__scale {
 	display: grid;
 	grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
-	gap: var(--wp--preset--spacing--2-5, 0.625rem) var(--wp--preset--spacing--8, 2rem);
+	gap: var(--wp--preset--spacing--2-5, 0.625rem)
+		var(--wp--preset--spacing--8, 2rem);
 	padding-block: var(--wp--preset--spacing--5, 1.25rem);
 	border-bottom: 1px solid var(--aa-product-specs-track);
 }
@@ -263,8 +272,10 @@
 .aa-product-specs__detail {
 	display: grid;
 	grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
-	gap: var(--wp--preset--spacing--2, 0.5rem) var(--wp--preset--spacing--4, 1rem);
-	padding: var(--wp--preset--spacing--3-5, 0.875rem) var(--wp--preset--spacing--4, 1rem);
+	gap: var(--wp--preset--spacing--2, 0.5rem)
+		var(--wp--preset--spacing--4, 1rem);
+	padding: var(--wp--preset--spacing--3-5, 0.875rem)
+		var(--wp--preset--spacing--4, 1rem);
 }
 
 .aa-product-specs__detail:nth-child(odd) {
@@ -280,7 +291,6 @@
 }
 
 @media (width <= 480px) {
-
 	.aa-product-specs__scale,
 	.aa-product-specs__detail {
 		grid-template-columns: minmax(0, 1fr);

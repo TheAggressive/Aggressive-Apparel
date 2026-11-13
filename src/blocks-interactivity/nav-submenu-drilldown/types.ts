@@ -7,9 +7,9 @@
 export type AnimationStyle = 'overlay' | 'push';
 
 export type NavDrilldownAttributes = {
-  label: string;
-  url: string;
-  submenuId: string;
-  showArrow: boolean;
-  animationStyle: AnimationStyle;
+	label: string;
+	url: string;
+	submenuId: string;
+	showArrow: boolean;
+	animationStyle: AnimationStyle;
 };

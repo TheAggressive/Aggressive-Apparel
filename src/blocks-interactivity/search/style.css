@@ -42,7 +42,8 @@
 	/* Above the mobile navigation panel (--aa-z-nav-panel) so opening search
 	 * while the menu is open brings it to the front. !important beats the nav
 	 * panel critical CSS injected in wp_footer. */
-	z-index: var(--aa-z-search-modal, 100001) !important; /* stylelint-disable-line declaration-no-important */
+	/* stylelint-disable-next-line declaration-no-important */
+	z-index: var(--aa-z-search-modal, 100001) !important;
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
@@ -54,16 +55,25 @@
 	 * Interactivity runtime has applied .is-open. The [hidden] attribute handles
 	 * the fully-closed (display:none) state. */
 	pointer-events: none;
-	background-color: color-mix(in oklch, var(--aa-color-surface) 0%, transparent);
+	background-color: color-mix(
+		in oklch,
+		var(--aa-color-surface) 0%,
+		transparent
+	);
 	backdrop-filter: blur(0);
-	transition: opacity var(--aa-duration-normal) var(--aa-ease-default),
+	transition:
+		opacity var(--aa-duration-normal) var(--aa-ease-default),
 		background-color var(--aa-duration-normal) var(--aa-ease-default),
 		backdrop-filter var(--aa-duration-normal) var(--aa-ease-default);
 
 	&.is-open {
 		opacity: 1;
 		pointer-events: auto;
-		background-color: color-mix(in oklch, var(--aa-color-surface) 65%, transparent);
+		background-color: color-mix(
+			in oklch,
+			var(--aa-color-surface) 65%,
+			transparent
+		);
 		backdrop-filter: blur(4px);
 	}
 
@@ -98,7 +108,8 @@
 	overflow: hidden;
 	opacity: 1;
 	transform: translateY(0) scale(1);
-	transition: opacity var(--aa-duration-normal) var(--aa-ease-default),
+	transition:
+		opacity var(--aa-duration-normal) var(--aa-ease-default),
 		transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
@@ -108,9 +119,7 @@
 }
 
 @supports selector(@starting-style) {
-
 	@starting-style {
-
 		.aa-search.is-open .aa-search__dialog {
 			opacity: 0;
 			transform: translateY(-1rem) scale(0.98);
@@ -142,13 +151,15 @@
 	background-color: var(--aa-color-surface);
 	border: 2px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-full);
-	transition: border-color var(--aa-duration-fast) var(--aa-ease-default),
+	transition:
+		border-color var(--aa-duration-fast) var(--aa-ease-default),
 		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
 
 	&:focus-within {
 		outline: 2px solid transparent;
 		border-color: var(--aa-color-accent);
-		box-shadow: 0 0 0 3px color-mix(in oklch, var(--aa-color-accent) 18%, transparent);
+		box-shadow: 0 0 0 3px
+			color-mix(in oklch, var(--aa-color-accent) 18%, transparent);
 	}
 }
 
@@ -176,7 +187,6 @@
 	outline: none;
 
 	&::placeholder {
-
 		/* Fade the placeholder so the user's typed value reads as more
 		 * prominent than the prompt. */
 		color: var(--aa-color-foreground-muted);
@@ -225,7 +235,9 @@
 .aa-search__tab {
 	flex: 0 0 auto;
 	white-space: nowrap;
-	transition: color 0.35s ease-in-out, transform var(--aa-duration-fast) var(--aa-ease-default);
+	transition:
+		color 0.35s ease-in-out,
+		transform var(--aa-duration-fast) var(--aa-ease-default);
 
 	/* Wipe fill (slides in from the left) and selected paint/border are owned by
 	   the shared .aa-choice-pill primitive; this file only adds the search tab's
@@ -244,7 +256,6 @@
 }
 
 @media (hover: hover) {
-
 	/* Stronger border on hover; the wipe fill itself comes from the shared
 	   .aa-choice-pill primitive. */
 	.aa-search__tab:hover:not(.is-active, [aria-selected="true"]) {
@@ -268,7 +279,8 @@
 	margin-right: 0.375rem;
 	opacity: 0;
 	transform: translateX(-0.5625rem) scale(0);
-	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s,
+	transition:
+		transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s,
 		opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
 	& svg {
@@ -330,7 +342,6 @@
 .aa-search__empty,
 .aa-search__error,
 .aa-search__tab-empty {
-
 	/* auto vertical margins center the message in the flex-column body, so the
 	 * idle prompt sits in the middle on every screen size. */
 	margin: auto 0;
@@ -368,7 +379,6 @@
 /* Groups are re-rendered on every search + tab switch; fade them in so the
  * client-side tab filter reads as a smooth swap rather than a hard cut. */
 @keyframes aa-search-group-in {
-
 	from {
 		opacity: 0;
 		transform: translateY(6px);
@@ -389,7 +399,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-search__group {
 		animation: none;
 	}
@@ -425,20 +434,29 @@
 	 * title; only the <mark> highlight uses the accent. */
 	color: var(--aa-color-foreground);
 	text-decoration: none;
-	transition: background-color var(--aa-duration-fast) var(--aa-ease-default),
+	transition:
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
 		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
 
 	&:hover,
 	&:focus,
 	&:focus-visible {
 		color: var(--aa-color-foreground);
-		background-color: color-mix(in oklch, var(--aa-color-foreground) 6%, transparent);
+		background-color: color-mix(
+			in oklch,
+			var(--aa-color-foreground) 6%,
+			transparent
+		);
 	}
 
 	/* Keyboard-focused row: stronger fill + a brand accent edge so arrow-key
 	 * users can track position distinctly from mouse hover. */
 	&.is-focused {
-		background-color: color-mix(in oklch, var(--aa-color-foreground) 9%, transparent);
+		background-color: color-mix(
+			in oklch,
+			var(--aa-color-foreground) 9%,
+			transparent
+		);
 		box-shadow: inset 3px 0 0 var(--aa-color-accent);
 	}
 
@@ -459,7 +477,11 @@
 	height: 52px;
 	object-fit: cover;
 	border-radius: var(--aa-radius-md);
-	background-color: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
+	background-color: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 8%,
+		transparent
+	);
 }
 
 .aa-search__thumb--empty {
@@ -614,7 +636,11 @@
 		justify-content: center;
 		min-width: 1.25rem;
 		padding: 0.05rem 0.3rem;
-		background-color: color-mix(in oklch, var(--aa-color-foreground) 10%, transparent);
+		background-color: color-mix(
+			in oklch,
+			var(--aa-color-foreground) 10%,
+			transparent
+		);
 		color: var(--aa-color-foreground-muted);
 		border-radius: 0.25rem;
 		font-family: inherit;
@@ -627,9 +653,7 @@
  * Responsive — full-bleed sheet on small screens
  * -------------------------------------------------------------------------- */
 @media (width <= 600px) {
-
 	.aa-search__dialog {
-
 		/* dvw pins the sheet to the device width regardless of the containing
 		 * block (a transformed/overflowing ancestor can make 100% wider). */
 		width: 100dvw;
@@ -649,7 +673,6 @@
  * Reduced motion
  * -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-search,
 	.aa-search__dialog,
 	.aa-search__footer {

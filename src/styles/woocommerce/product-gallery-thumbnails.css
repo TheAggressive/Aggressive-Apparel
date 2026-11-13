@@ -27,7 +27,6 @@
  */
 
 @media (width > 600px) {
-
 	.wc-block-product-gallery .wc-block-product-gallery-large-image__container {
 		/* stylelint-disable-next-line declaration-property-value-no-unknown -- CSS Values 4 round() removes fractional scroll geometry. */
 		inline-size: round(down, 100%, 1px);
@@ -35,7 +34,6 @@
 }
 
 @media (width <= 600px) {
-
 	.wc-block-product-gallery .wc-block-product-gallery-thumbnails {
 		aspect-ratio: auto !important;
 		width: 100%;
@@ -54,7 +52,8 @@
 		scrollbar-width: none;
 	}
 
-	.wc-block-product-gallery .wc-block-product-gallery-thumbnails__scrollable::-webkit-scrollbar {
+	.wc-block-product-gallery
+		.wc-block-product-gallery-thumbnails__scrollable::-webkit-scrollbar {
 		display: none;
 	}
 
@@ -66,7 +65,8 @@
 		scroll-snap-align: start;
 	}
 
-	.wc-block-product-gallery .wc-block-product-gallery-thumbnails__thumbnail__image {
+	.wc-block-product-gallery
+		.wc-block-product-gallery-thumbnails__thumbnail__image {
 		width: 100%;
 		max-width: none;
 		height: 100%;

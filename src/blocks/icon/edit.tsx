@@ -7,118 +7,132 @@
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
-  Notice,
-  PanelBody,
-  RangeControl,
-  TextControl,
-  ToggleControl,
+	Notice,
+	PanelBody,
+	RangeControl,
+	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import {
-  ICON_SIZE_BLOCK_MAX,
-  ICON_SIZE_BLOCK_MIN,
+	ICON_SIZE_BLOCK_MAX,
+	ICON_SIZE_BLOCK_MIN,
 } from '../../utils/icon-constants';
 import { IconComboboxControl } from '../../utils/icon-combobox-control';
 import { IconEditorPreview } from '../../utils/icon-editor-preview';
 
 export type IconBlockAttributes = {
-  icon: string;
-  iconSize: number;
-  label: string;
-  isDecorative: boolean;
+	icon: string;
+	iconSize: number;
+	label: string;
+	isDecorative: boolean;
 };
 
-export default function Edit({
-  attributes,
-  setAttributes,
-}: BlockEditProps<IconBlockAttributes>) {
-  const { icon, iconSize, label, isDecorative } = attributes;
+export default function Edit( {
+	attributes,
+	setAttributes,
+}: BlockEditProps< IconBlockAttributes > ) {
+	const { icon, iconSize, label, isDecorative } = attributes;
 
-  // Text alignment comes from native `typography.textAlign` support.
-  const blockProps = useBlockProps({ className: 'aggressive-apparel-icon' });
+	// Text alignment comes from native `typography.textAlign` support.
+	const blockProps = useBlockProps( {
+		className: 'aggressive-apparel-icon',
+	} );
 
-  const showLabelNotice = !isDecorative && !label.trim();
+	const showLabelNotice = ! isDecorative && ! label.trim();
 
-  return (
-    <>
-      <InspectorControls>
-        <PanelBody title={__('Icon', 'aggressive-apparel')} initialOpen>
-          <IconComboboxControl
-            label={__('Icon', 'aggressive-apparel')}
-            value={icon}
-            onChange={value => {
-              if (value) {
-                setAttributes({ icon: value });
-              }
-            }}
-            help={__(
-              'Search by slug. Brand and UI icons share the same library.',
-              'aggressive-apparel'
-            )}
-          />
-          <RangeControl
-            __next40pxDefaultSize
-            __nextHasNoMarginBottom
-            label={__('Size', 'aggressive-apparel')}
-            value={iconSize}
-            onChange={value => setAttributes({ iconSize: value ?? iconSize })}
-            min={ICON_SIZE_BLOCK_MIN}
-            max={ICON_SIZE_BLOCK_MAX}
-            step={1}
-            help={sprintf(
-              /* translators: %d: icon size in pixels. */
-              __('%d pixels', 'aggressive-apparel'),
-              iconSize
-            )}
-          />
-        </PanelBody>
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody
+					title={ __( 'Icon', 'aggressive-apparel' ) }
+					initialOpen
+				>
+					<IconComboboxControl
+						label={ __( 'Icon', 'aggressive-apparel' ) }
+						value={ icon }
+						onChange={ ( value ) => {
+							if ( value ) {
+								setAttributes( { icon: value } );
+							}
+						} }
+						help={ __(
+							'Search by slug. Brand and UI icons share the same library.',
+							'aggressive-apparel'
+						) }
+					/>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Size', 'aggressive-apparel' ) }
+						value={ iconSize }
+						onChange={ ( value ) =>
+							setAttributes( { iconSize: value ?? iconSize } )
+						}
+						min={ ICON_SIZE_BLOCK_MIN }
+						max={ ICON_SIZE_BLOCK_MAX }
+						step={ 1 }
+						help={ sprintf(
+							/* translators: %d: icon size in pixels. */
+							__( '%d pixels', 'aggressive-apparel' ),
+							iconSize
+						) }
+					/>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Accessibility', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <ToggleControl
-            __nextHasNoMarginBottom
-            label={__('Decorative icon', 'aggressive-apparel')}
-            help={__(
-              'Turn off when the icon conveys meaning not already in nearby text.',
-              'aggressive-apparel'
-            )}
-            checked={isDecorative}
-            onChange={value => setAttributes({ isDecorative: value })}
-          />
-          {!isDecorative && (
-            <TextControl
-              __next40pxDefaultSize
-              __nextHasNoMarginBottom
-              label={__('Accessible label', 'aggressive-apparel')}
-              value={label}
-              onChange={value => setAttributes({ label: value })}
-              help={__(
-                'Required when the icon is meaningful. Hidden from sighted users when a visible label already describes it.',
-                'aggressive-apparel'
-              )}
-            />
-          )}
-          {showLabelNotice && (
-            <Notice status='warning' isDismissible={false}>
-              {__(
-                'Add an accessible label, or mark the icon as decorative.',
-                'aggressive-apparel'
-              )}
-            </Notice>
-          )}
-        </PanelBody>
-      </InspectorControls>
+				<PanelBody
+					title={ __( 'Accessibility', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Decorative icon', 'aggressive-apparel' ) }
+						help={ __(
+							'Turn off when the icon conveys meaning not already in nearby text.',
+							'aggressive-apparel'
+						) }
+						checked={ isDecorative }
+						onChange={ ( value ) =>
+							setAttributes( { isDecorative: value } )
+						}
+					/>
+					{ ! isDecorative && (
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __(
+								'Accessible label',
+								'aggressive-apparel'
+							) }
+							value={ label }
+							onChange={ ( value ) =>
+								setAttributes( { label: value } )
+							}
+							help={ __(
+								'Required when the icon is meaningful. Hidden from sighted users when a visible label already describes it.',
+								'aggressive-apparel'
+							) }
+						/>
+					) }
+					{ showLabelNotice && (
+						<Notice status="warning" isDismissible={ false }>
+							{ __(
+								'Add an accessible label, or mark the icon as decorative.',
+								'aggressive-apparel'
+							) }
+						</Notice>
+					) }
+				</PanelBody>
+			</InspectorControls>
 
-      <span {...blockProps}>
-        <IconEditorPreview
-          slug={icon}
-          size={iconSize}
-          empty='placeholder'
-          showLoadingSpinner
-        />
-      </span>
-    </>
-  );
+			<span { ...blockProps }>
+				<IconEditorPreview
+					slug={ icon }
+					size={ iconSize }
+					empty="placeholder"
+					showLoadingSpinner
+				/>
+			</span>
+		</>
+	);
 }

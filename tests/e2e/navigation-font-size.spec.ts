@@ -10,39 +10,39 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const BLOCK_STYLES = [
-  'navigation',
-  'nav-link',
-  'nav-submenu-accordion',
-  'nav-submenu-drilldown',
-  'nav-submenu-dropdown',
-  'nav-submenu-mega',
-  'navigation-panel',
-  'navigation-trigger',
+	'navigation',
+	'nav-link',
+	'nav-submenu-accordion',
+	'nav-submenu-drilldown',
+	'nav-submenu-dropdown',
+	'nav-submenu-mega',
+	'navigation-panel',
+	'navigation-trigger',
 ];
 
-async function loadNavigationStyles(page: Page): Promise<void> {
-  await page.setContent('<main id="font-size-fixture"></main>');
+async function loadNavigationStyles( page: Page ): Promise< void > {
+	await page.setContent( '<main id="font-size-fixture"></main>' );
 
-  for (const block of BLOCK_STYLES) {
-    await page.addStyleTag({
-      path: `build/blocks-interactivity/${block}/style-index.css`,
-    });
-  }
+	for ( const block of BLOCK_STYLES ) {
+		await page.addStyleTag( {
+			path: `build/blocks-interactivity/${ block }/style-index.css`,
+		} );
+	}
 }
 
-test.describe('navigation font-size controls', () => {
-  test('every interactive navigation label follows its block wrapper', async ({
-    page,
-  }) => {
-    await loadNavigationStyles(page);
+test.describe( 'navigation font-size controls', () => {
+	test( 'every interactive navigation label follows its block wrapper', async ( {
+		page,
+	} ) => {
+		await loadNavigationStyles( page );
 
-    const sizes = await page.evaluate(() => {
-      const fixture = document.getElementById('font-size-fixture');
-      if (!fixture) {
-        throw new Error('Navigation font-size fixture is missing.');
-      }
+		const sizes = await page.evaluate( () => {
+			const fixture = document.getElementById( 'font-size-fixture' );
+			if ( ! fixture ) {
+				throw new Error( 'Navigation font-size fixture is missing.' );
+			}
 
-      fixture.innerHTML = `
+			fixture.innerHTML = `
         <nav class="wp-block-aggressive-apparel-navigation" style="font-size: 22px">
           <ul class="aa-nav__menubar">
             <li class="wp-block-aggressive-apparel-nav-link">
@@ -129,47 +129,49 @@ test.describe('navigation font-size controls', () => {
           </ul>
         </div>`;
 
-      const read = (id: string) => {
-        const element = document.getElementById(id);
-        if (!element) {
-          throw new Error(`Navigation fixture #${id} is missing.`);
-        }
-        return getComputedStyle(element).fontSize;
-      };
+			const read = ( id: string ) => {
+				const element = document.getElementById( id );
+				if ( ! element ) {
+					throw new Error(
+						`Navigation fixture #${ id } is missing.`
+					);
+				}
+				return getComputedStyle( element ).fontSize;
+			};
 
-      return {
-        navigationChild: read('navigation-child'),
-        navLink: read('nav-link'),
-        accordion: read('accordion'),
-        accordionChild: read('accordion-child'),
-        drilldown: read('drilldown'),
-        drilldownBack: read('drilldown-back'),
-        dropdown: read('dropdown'),
-        dropdownChild: read('dropdown-child'),
-        mega: read('mega'),
-        megaChild: read('mega-child'),
-        navigationTrigger: read('navigation-trigger'),
-        panelLink: read('panel-link'),
-        fullscreenItem: read('fullscreen-item'),
-        fullscreenChildOverride: read('fullscreen-child-override'),
-      };
-    });
+			return {
+				navigationChild: read( 'navigation-child' ),
+				navLink: read( 'nav-link' ),
+				accordion: read( 'accordion' ),
+				accordionChild: read( 'accordion-child' ),
+				drilldown: read( 'drilldown' ),
+				drilldownBack: read( 'drilldown-back' ),
+				dropdown: read( 'dropdown' ),
+				dropdownChild: read( 'dropdown-child' ),
+				mega: read( 'mega' ),
+				megaChild: read( 'mega-child' ),
+				navigationTrigger: read( 'navigation-trigger' ),
+				panelLink: read( 'panel-link' ),
+				fullscreenItem: read( 'fullscreen-item' ),
+				fullscreenChildOverride: read( 'fullscreen-child-override' ),
+			};
+		} );
 
-    expect(sizes).toEqual({
-      navigationChild: '22px',
-      navLink: '23px',
-      accordion: '24px',
-      accordionChild: '17px',
-      drilldown: '25px',
-      drilldownBack: '25px',
-      dropdown: '26px',
-      dropdownChild: '18px',
-      mega: '27px',
-      megaChild: '27px',
-      navigationTrigger: '28px',
-      panelLink: '29px',
-      fullscreenItem: '31px',
-      fullscreenChildOverride: '19px',
-    });
-  });
-});
+		expect( sizes ).toEqual( {
+			navigationChild: '22px',
+			navLink: '23px',
+			accordion: '24px',
+			accordionChild: '17px',
+			drilldown: '25px',
+			drilldownBack: '25px',
+			dropdown: '26px',
+			dropdownChild: '18px',
+			mega: '27px',
+			megaChild: '27px',
+			navigationTrigger: '28px',
+			panelLink: '29px',
+			fullscreenItem: '31px',
+			fullscreenChildOverride: '19px',
+		} );
+	} );
+} );

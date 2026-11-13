@@ -52,7 +52,8 @@
 }
 
 .is-selected .aggressive-apparel-quick-view__option-check,
-.aa-sticky-cart__drawer-option.is-selected .aa-sticky-cart__drawer-option-check {
+.aa-sticky-cart__drawer-option.is-selected
+	.aa-sticky-cart__drawer-option-check {
 	opacity: 1;
 	transform: translateX(0) scale(1);
 }
@@ -105,14 +106,25 @@
 .aggressive-apparel-quick-view__attribute-option.is-color-swatch.is-selected,
 .aa-sticky-cart__drawer-option.is-color-swatch.is-selected {
 	transform: scale(0.78);
-	outline: 3px solid color-mix(in oklch, var(--swatch-color, var(--aa-color-muted-40)) 60%, var(--aa-color-foreground));
+	outline: 3px solid
+		color-mix(
+			in oklch,
+			var(--swatch-color, var(--aa-color-muted-40)) 60%,
+			var(--aa-color-foreground)
+		);
 	outline-offset: 4px;
 	background-color: inherit;
 	color: transparent;
 }
 
-.aggressive-apparel-quick-view__attribute-option.is-color-swatch:hover:not(.is-selected, .is-unavailable),
-.aa-sticky-cart__drawer-option.is-color-swatch:hover:not(.is-selected, .is-unavailable) {
+.aggressive-apparel-quick-view__attribute-option.is-color-swatch:hover:not(
+		.is-selected,
+		.is-unavailable
+	),
+.aa-sticky-cart__drawer-option.is-color-swatch:hover:not(
+		.is-selected,
+		.is-unavailable
+	) {
 	transform: scale(1.1);
 }
 
@@ -136,7 +148,6 @@
  * ----------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-quick-view__attribute-option,
 	.aa-sticky-cart__drawer-option {
 		transition: none;
@@ -160,9 +171,11 @@
 	}
 
 	.is-selected .aggressive-apparel-quick-view__option-check,
-	.aa-sticky-cart__drawer-option.is-selected .aa-sticky-cart__drawer-option-check,
+	.aa-sticky-cart__drawer-option.is-selected
+		.aa-sticky-cart__drawer-option-check,
 	.is-selected .aggressive-apparel-quick-view__option-name,
-	.aa-sticky-cart__drawer-option.is-selected .aa-sticky-cart__drawer-option-name {
+	.aa-sticky-cart__drawer-option.is-selected
+		.aa-sticky-cart__drawer-option-name {
 		transform: translateX(0) scale(1);
 	}
 
@@ -179,7 +192,6 @@
  * outline transparent — paint it with the system Highlight color instead.
  */
 @media (forced-colors: active) {
-
 	.aggressive-apparel-quick-view__attribute-option.is-color-swatch,
 	.aa-sticky-cart__drawer-option.is-color-swatch {
 		forced-color-adjust: none;

@@ -1,0 +1,180 @@
+<?php
+/**
+ * Unit tests for the Aggressive Apparel Nav Accordion block.
+ *
+ * @package Aggressive_Apparel\Tests\Unit\Blocks
+ */
+
+declare(strict_types=1);
+
+
+namespace Aggressive_Apparel\Tests\Unit\Blocks;
+
+use Aggressive_Apparel\Blocks\Blocks;
+use WP_UnitTestCase;
+
+/**
+ * Test the nav-submenu-accordion block render output.
+ */
+class Nav_Submenu_Accordion_Block_Test extends WP_UnitTestCase {
+	/**
+	 * Set up the test fixture and register the blocks.
+	 *
+	 * @return void
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		Blocks::init();
+	}
+
+	/**
+	 * Render the accordion block with the given attributes.
+	 *
+	 * @param array<string,mixed> $attrs Block attributes.
+	 * @return string
+	 */
+	private function render( array $attrs ): string {
+		return render_block(
+			array(
+				'blockName'    => 'aggressive-apparel/nav-submenu-accordion',
+				'attrs'        => $attrs,
+				'innerBlocks'  => array(),
+				'innerContent' => array(),
+			)
+		);
+	}
+
+	/**
+	 * Verify the block is registered.
+	 *
+	 * @return void
+	 */
+	public function test_block_is_registered(): void {
+		$this->assertTrue(
+			Blocks::is_block_registered( 'aggressive-apparel/nav-submenu-accordion' )
+		);
+	}
+
+	/**
+	 * Verify the trigger toggles the submenu and carries ARIA attributes.
+	 *
+	 * @return void
+	 */
+	public function test_trigger_toggles_submenu_with_aria(): void {
+		$html = $this->render(
+			array(
+				'label'     => 'Shop',
+				'submenuId' => 'acc-shop',
+			)
+		);
+
+		$this->assertStringContainsString( 'role="menuitem"', $html );
+		$this->assertStringContainsString( 'aria-controls="acc-shop"', $html );
+		$this->assertStringContainsString( 'data-wp-on--click="actions.toggleSubmenu"', $html );
+		// aria-expanded is bound to the store. Server-side directive processing
+		// resolves the initial value from the binding (the static
+		// aria-expanded="false" is consumed), so assert the binding directive.
+		$this->assertStringContainsString(
+			'data-wp-bind--aria-expanded="callbacks.isSubmenuOpen"',
+			$html
+		);
+	}
+
+	/**
+	 * Verify the open-state class is bound to the store callback.
+	 *
+	 * @return void
+	 */
+	public function test_open_state_class_bound_to_callback(): void {
+		$html = $this->render(
+			array(
+				'label'     => 'Shop',
+				'submenuId' => 'acc-shop',
+			) 
+		);
+		$this->assertStringContainsString(
+			'data-wp-class--is-open="callbacks.isSubmenuOpen"',
+			$html
+		);
+	}
+
+	/**
+	 * Verify the panel renders as a menu.
+	 *
+	 * @return void
+	 */
+	public function test_panel_contains_a_menu(): void {
+		$html = $this->render(
+			array(
+				'label'     => 'Shop',
+				'submenuId' => 'acc-shop',
+			) 
+		);
+		$this->assertMatchesRegularExpression(
+			'/<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel" id="acc-shop"/',
+			$html
+		);
+		$this->assertStringContainsString( 'role="menu"', $html );
+	}
+
+	/**
+	 * Verify the parent URL is kept as a menu item.
+	 *
+	 * @return void
+	 */
+	public function test_parent_url_remains_available_as_a_menu_item(): void {
+		$html = $this->render(
+			array(
+				'label'     => 'Shop',
+				'url'       => '/shop/',
+				'submenuId' => 'acc-shop',
+			)
+		);
+
+		$this->assertStringContainsString(
+			'<a class="wp-block-aggressive-apparel-nav-submenu-accordion__view-all" href="/shop/" role="menuitem">View all in Shop</a>',
+			$html
+		);
+	}
+
+	/**
+	 * Verify the label is escaped in the markup.
+	 *
+	 * @return void
+	 */
+	public function test_escapes_label(): void {
+		$html = $this->render(
+			array(
+				'label'     => '<script>x</script>Shop',
+				'submenuId' => 'acc-x',
+			)
+		);
+		$this->assertStringNotContainsString( '<script>x</script>', $html );
+	}
+
+	/**
+	 * Links and other blocks render in editor order: the view-all list, a
+	 * content section, then the next list. Block spacing becomes a property.
+	 */
+	public function test_renders_links_and_content_in_editor_order(): void {
+		$html = do_blocks(
+			'<!-- wp:aggressive-apparel/nav-submenu-accordion {"label":"Shop","url":"/shop/","submenuId":"accordion-shop","style":{"spacing":{"blockGap":"var:preset|spacing|2"}}} -->'
+			. '<!-- wp:core/paragraph --><p>Promo</p><!-- /wp:core/paragraph -->'
+			. '<!-- wp:aggressive-apparel/nav-link {"label":"Tees","url":"/tees/"} /-->'
+			. '<!-- /wp:aggressive-apparel/nav-submenu-accordion -->'
+		);
+
+		$view_all = strpos( $html, 'View all in Shop' );
+		$section  = strpos( $html, '<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-section"><p' );
+		$tees     = strpos( $html, 'Tees' );
+
+		$this->assertIsInt( $view_all );
+		$this->assertIsInt( $section );
+		$this->assertIsInt( $tees );
+		$this->assertLessThan( $section, $view_all );
+		$this->assertLessThan( $tees, $section );
+		$this->assertStringContainsString( 'Promo</p></div>', substr( $html, $section, $tees - $section ) );
+		$this->assertSame( 2, substr_count( $html, 'class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner" role="menu"' ) );
+		$this->assertStringContainsString( '--aa-nav-submenu-gap: var(--wp--preset--spacing--2)', $html );
+	}
+}

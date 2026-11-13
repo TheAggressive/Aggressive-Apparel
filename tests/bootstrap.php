@@ -9,7 +9,7 @@
  * @package Aggressive_Apparel
  */
 
-// Get WordPress test suite directory
+// Get WordPress test suite directory.
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $_tests_dir ) {
@@ -17,64 +17,67 @@ if ( ! $_tests_dir ) {
 }
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
-	echo "Could not find {$_tests_dir}/includes/functions.php\n";
+	echo "Could not find {$_tests_dir}/includes/functions.php\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CLI message before WordPress (and its escaping) is loaded.
 	echo "Run composer install, then use pnpm test:php.\n";
 	exit( 1 );
 }
 
-// Composer autoloader MUST be loaded first
+// Composer autoloader MUST be loaded first.
 if ( file_exists( dirname( __DIR__ ) . '/vendor/autoload.php' ) ) {
 	require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 }
 
-// Load theme autoloader before WordPress bootstraps
+// Load theme autoloader before WordPress bootstraps.
 require_once dirname( __DIR__ ) . '/includes/class-autoloader.php';
 
-// Give access to tests_add_filter() function
+// Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 
 /**
  * Manually load the theme being tested
  */
 function _aggressive_apparel_manually_load_environment() {
-	// Initialize autoloader
+	// Initialize autoloader.
 	new Aggressive_Apparel\Autoloader();
 
-	// Get theme directory path
-	$theme_dir = dirname( __DIR__ ); // Go up from tests/ to theme root
+	// Get theme directory path.
+	$theme_dir = dirname( __DIR__ ); // Go up from tests/ to theme root.
 
-	// Define theme constants (normally done in functions.php)
+	// Define theme constants (normally done in functions.php).
 	if ( ! defined( 'AGGRESSIVE_APPAREL_VERSION' ) ) {
 		define( 'AGGRESSIVE_APPAREL_VERSION', wp_get_theme()->get( 'Version' ) );
 		define( 'AGGRESSIVE_APPAREL_DIR', $theme_dir );
 		define( 'AGGRESSIVE_APPAREL_URI', get_template_directory_uri() );
 	}
 
-	// Load theme helper functions (normally done in functions.php)
+	// Load theme helper functions (normally done in functions.php).
 	if ( file_exists( $theme_dir . '/includes/helpers.php' ) ) {
 		require_once $theme_dir . '/includes/helpers.php';
 	}
 
-	// Load the theme
+	// Load the theme.
 	switch_theme( 'aggressive-apparel' );
 
-	// Initialize theme support early (before wp_loaded)
+	// Initialize theme support early (before wp_loaded).
 	$theme_support = new Aggressive_Apparel\Core\Theme_Support();
 	$theme_support->init();
 
-	// Initialize theme components (similar to functions.php)
+	// Initialize theme components (similar to functions.php).
 	if ( function_exists( 'aggressive_apparel_init' ) ) {
 		aggressive_apparel_init();
 	}
 
-	// If WooCommerce is present in the selected test environment,
-	// activate it so its classes/blocks load during the test run.
-	if ( file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' ) ) {
-		$plugins = get_option( 'active_plugins', array() );
-		if ( ! in_array( 'woocommerce/woocommerce.php', $plugins, true ) ) {
-			$plugins[] = 'woocommerce/woocommerce.php';
-			update_option( 'active_plugins', $plugins );
-		}
+	// This is a WooCommerce theme: the suite runs against WooCommerce, so a
+	// missing plugin fails the run here, once, instead of as scattered skips.
+	if ( ! file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' ) ) {
+		fwrite( STDERR, 'WooCommerce is required to run the test suite (expected ' . WP_PLUGIN_DIR . "/woocommerce).\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- Test bootstrap output.
+		exit( 1 );
+	}
+
+	$plugins = get_option( 'active_plugins', array() );
+	if ( ! in_array( 'woocommerce/woocommerce.php', $plugins, true ) ) {
+		$plugins[] = 'woocommerce/woocommerce.php';
+		update_option( 'active_plugins', $plugins );
 	}
 }
 tests_add_filter( 'muplugins_loaded', '_aggressive_apparel_manually_load_environment' );
@@ -89,7 +92,7 @@ tests_add_filter( 'muplugins_loaded', '_aggressive_apparel_manually_load_environ
  * @return string
  */
 function _aggressive_apparel_test_server_value( string $value, string $key ): string {
-	return isset( $_SERVER[ $key ] ) && is_string( $_SERVER[ $key ] ) ? $_SERVER[ $key ] : $value;
+	return isset( $_SERVER[ $key ] ) && is_string( $_SERVER[ $key ] ) ? $_SERVER[ $key ] : $value; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passes the raw value to the production input boundary, which sanitizes it.
 }
 tests_add_filter( 'aggressive_apparel_server_value', '_aggressive_apparel_test_server_value', 10, 2 );
 
@@ -97,8 +100,7 @@ tests_add_filter( 'aggressive_apparel_server_value', '_aggressive_apparel_test_s
  * Install WooCommerce's schema once it has loaded.
  *
  * Runs after plugins load (so WC_Install exists), creating WC's tables + roles
- * so tests that create products — and the variation-block contract test — run
- * instead of skipping. No-op when WooCommerce is absent.
+ * so tests that create products — and the variation-block contract test — run.
  *
  * @return void
  */
@@ -109,5 +111,5 @@ function _aggressive_apparel_install_woocommerce() {
 }
 tests_add_filter( 'setup_theme', '_aggressive_apparel_install_woocommerce' );
 
-// Start up the WP testing environment
+// Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';

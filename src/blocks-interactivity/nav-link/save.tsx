@@ -12,5 +12,5 @@
  * @return null Always returns null for server-side rendering.
  */
 export default function Save() {
-  return null;
+	return null;
 }

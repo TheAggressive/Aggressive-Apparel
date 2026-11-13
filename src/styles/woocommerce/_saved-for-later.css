@@ -138,8 +138,8 @@
  * instead. The attribute selector outranks WooCommerce's `.columns-N` rule, so
  * stylesheet order doesn't decide it. Gap stays WooCommerce's block-gap. */
 @container (width < 60rem) {
-
-	.wc-block-saved-for-later .wc-block-saved-for-later__list[class*="columns-"] {
+	.wc-block-saved-for-later
+		.wc-block-saved-for-later__list[class*="columns-"] {
 		grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
 	}
 }

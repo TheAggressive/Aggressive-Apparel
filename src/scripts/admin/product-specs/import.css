@@ -301,7 +301,14 @@
 	inset: calc(var(--aa-ps-tag-width) * -1);
 	background: var(--aa-ps-tag-line);
 	content: "";
-	clip-path: polygon(calc(16px + var(--aa-ps-tag-width) * 0.42) 0, calc(100% - 16px - var(--aa-ps-tag-width) * 0.42) 0, 100% calc(16px + var(--aa-ps-tag-width) * 0.42), 100% 100%, 0 100%, 0 calc(16px + var(--aa-ps-tag-width) * 0.42));
+	clip-path: polygon(
+		calc(16px + var(--aa-ps-tag-width) * 0.42) 0,
+		calc(100% - 16px - var(--aa-ps-tag-width) * 0.42) 0,
+		100% calc(16px + var(--aa-ps-tag-width) * 0.42),
+		100% 100%,
+		0 100%,
+		0 calc(16px + var(--aa-ps-tag-width) * 0.42)
+	);
 }
 
 .aa-ps-tag.is-active,
@@ -339,7 +346,14 @@
 	font: inherit;
 	text-align: center;
 	cursor: default;
-	clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%, 0 16px);
+	clip-path: polygon(
+		16px 0,
+		calc(100% - 16px) 0,
+		100% 16px,
+		100% 100%,
+		0 100%,
+		0 16px
+	);
 }
 
 button.aa-ps-tag__body {
@@ -458,9 +472,10 @@ button.aa-ps-tag__body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-
 	.aa-ps-blank,
 	.aa-ps-pill {
-		transition: border-color 0.12s ease, box-shadow 0.12s ease;
+		transition:
+			border-color 0.12s ease,
+			box-shadow 0.12s ease;
 	}
 }

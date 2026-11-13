@@ -147,7 +147,7 @@ code.
   badges; CSS applies the breakpoint, so pages stay cache-safe.
 
 `card-touch-actions.spec.ts` covers the chip (including on appended cards);
-`TestCardDisplaySettings` covers the options and badge ranking.
+`Test_Card_Display_Settings` covers the options and badge ranking.
 
 ## Free shipping (international)
 
@@ -192,7 +192,7 @@ code.
 **Upgrade contract.** Whether free shipping is unlocked is always WooCommerce's
 own verdict (`WC_Shipping_Free_Shipping::is_available()`, filters included) —
 the theme never re-implements it. Only the displayed amount is derived, and
-`TestFreeShipping`'s parity cases assert it agrees with that verdict at the
+`Test_Free_Shipping`'s parity cases assert it agrees with that verdict at the
 boundaries (discounts, `ignore_discounts`, tax-inclusive display, rounding).
 WooCommerce upgrades go through the pinned version in `bin/ci/.wp-env.json`, so
 a behaviour change fails CI on the pin bump rather than drifting in production.
@@ -226,7 +226,7 @@ Until both are on, the theme renders nothing and shows an admin notice.
 - **One adapter.** Every call into WooCommerce's `Internal` namespace goes
   through `Back_In_Stock_Native`. That namespace has no compatibility promise:
   its surface is listed in `stubs/woocommerce-stock-notifications.php` (for
-  PHPStan) and `TestBackInStockNativeContract` checks every symbol against the
+  PHPStan) and `Test_Back_In_Stock_Native_Contract` checks every symbol against the
   pinned WooCommerce, so an upstream rename fails CI, not checkout. Bump the
   CI pin (`bin/ci/.wp-env.json`) before trusting a new WooCommerce release.
 - **Email links act on POST only.** WooCommerce's verify and unsubscribe links

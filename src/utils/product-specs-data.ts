@@ -9,27 +9,28 @@
  */
 
 export type SpecEditorItem = {
-  key: string;
-  type: 'pick' | 'number' | 'text';
-  name: string;
-  steps: string[];
-  start: string;
-  mid: string;
-  end: string;
-  centered: boolean;
+	key: string;
+	type: 'pick' | 'number' | 'text';
+	name: string;
+	steps: string[];
+	start: string;
+	mid: string;
+	end: string;
+	centered: boolean;
 };
 
 export type ProductSpecsEditorData = {
-  items: SpecEditorItem[];
-  manageUrl: string;
+	items: SpecEditorItem[];
+	manageUrl: string;
 };
 
 /** The spec items printed for the editor, or an empty set. */
 export function getProductSpecsData(): ProductSpecsEditorData {
-  const data = (window as Window & { aaProductSpecs?: ProductSpecsEditorData })
-    .aaProductSpecs;
+	const data = (
+		window as Window & { aaProductSpecs?: ProductSpecsEditorData }
+	 ).aaProductSpecs;
 
-  return data ?? { items: [], manageUrl: '' };
+	return data ?? { items: [], manageUrl: '' };
 }
 
 /**
@@ -38,6 +39,8 @@ export function getProductSpecsData(): ProductSpecsEditorData {
  * Used instead of `${base}${cond ? ' modifier' : ''}` template literals, so
  * conditional modifiers never depend on a hand-placed leading space.
  */
-export function cx(...parts: Array<string | false | null | undefined>): string {
-  return parts.filter(Boolean).join(' ');
+export function cx(
+	...parts: Array< string | false | null | undefined >
+): string {
+	return parts.filter( Boolean ).join( ' ' );
 }

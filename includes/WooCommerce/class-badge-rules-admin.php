@@ -91,7 +91,7 @@ trait Badge_Rules_Admin {
 							<li class="aa-badge-rules__chip aa-badge-rules__chip--<?php echo $chip['enabled'] ? 'on' : 'off'; ?>">
 								<span class="aa-badge-rules__chip-dot" aria-hidden="true"></span>
 								<?php echo esc_html( $chip['label'] ); ?>
-								<span class="aa-badge-sr-only">
+								<span class="screen-reader-text">
 									<?php
 									echo $chip['enabled']
 										? esc_html__( 'enabled', 'aggressive-apparel' )

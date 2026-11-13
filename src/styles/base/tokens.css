@@ -17,57 +17,56 @@
 
 /* Navigation sliding indicator */
 @property --indicator-width {
-	syntax: '<length>';
+	syntax: "<length>";
 	inherits: true;
 	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
 }
 
 @property --indicator-x {
-	syntax: '<length>';
+	syntax: "<length>";
 	inherits: true;
 	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
 }
 
 @property --indicator-opacity {
-	syntax: '<number>';
+	syntax: "<number>";
 	inherits: true;
 	initial-value: 0;
 }
 
 /* Parallax transforms */
 @property --parallax-translate-x {
-	syntax: '<length>';
+	syntax: "<length>";
 	inherits: false;
 	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
 }
 
 @property --parallax-translate-y {
-	syntax: '<length>';
+	syntax: "<length>";
 	inherits: false;
 	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
 }
 
 @property --parallax-scale {
-	syntax: '<number>';
+	syntax: "<number>";
 	inherits: false;
 	initial-value: 1;
 }
 
 @property --parallax-opacity {
-	syntax: '<number>';
+	syntax: "<number>";
 	inherits: false;
 	initial-value: 1;
 }
 
 /* Overlay / modal backdrop */
 @property --aa-overlay-opacity {
-	syntax: '<number>';
+	syntax: "<number>";
 	inherits: true;
 	initial-value: 0.5;
 }
 
 :root {
-
 	/* Adaptive semantic colors (light-dark() injected by Adaptive_Colors). */
 	--aa-color-surface: var(--wp--preset--color--surface);
 	--aa-color-surface-elevated: var(--wp--preset--color--surface-elevated);
@@ -77,7 +76,9 @@
 	--aa-color-foreground-muted: var(--wp--preset--color--foreground-muted);
 	--aa-color-accent: var(--wp--preset--color--accent);
 	--aa-color-accent-fill: var(--wp--preset--color--accent-fill);
-	--aa-color-accent-on-foreground: var(--wp--preset--color--accent-on-foreground);
+	--aa-color-accent-on-foreground: var(
+		--wp--preset--color--accent-on-foreground
+	);
 
 	/* Accent text on raised dark surfaces (striped rows, tinted panels): the
 	   brand accent clears 4.5:1 on the page surface but not on a lighter one
@@ -98,15 +99,28 @@
 	--aa-duration-fast: var(--wp--custom--motion--duration--fast, 150ms);
 	--aa-duration-normal: var(--wp--custom--motion--duration--normal, 300ms);
 	--aa-duration-slow: var(--wp--custom--motion--duration--slow, 500ms);
-	--aa-ease-default: var(--wp--custom--motion--ease, cubic-bezier(0.4, 0, 0.2, 1));
+	--aa-ease-default: var(
+		--wp--custom--motion--ease,
+		cubic-bezier(0.4, 0, 0.2, 1)
+	);
 
 	/* Entrances decelerate into place; exits accelerate away. */
-	--aa-ease-enter: var(--wp--custom--motion--ease-enter, cubic-bezier(0.16, 1, 0.3, 1));
-	--aa-ease-exit: var(--wp--custom--motion--ease-exit, cubic-bezier(0.4, 0, 1, 1));
+	--aa-ease-enter: var(
+		--wp--custom--motion--ease-enter,
+		cubic-bezier(0.16, 1, 0.3, 1)
+	);
+	--aa-ease-exit: var(
+		--wp--custom--motion--ease-exit,
+		cubic-bezier(0.4, 0, 1, 1)
+	);
 
 	/* Overshoots slightly, then settles — checkmarks popping in. */
-	--aa-ease-spring: var(--wp--custom--motion--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
-	--aa-transition-overlay: opacity var(--aa-duration-normal) var(--aa-ease-default),
+	--aa-ease-spring: var(
+		--wp--custom--motion--ease-spring,
+		cubic-bezier(0.34, 1.56, 0.64, 1)
+	);
+	--aa-transition-overlay:
+		opacity var(--aa-duration-normal) var(--aa-ease-default),
 		backdrop-filter var(--aa-duration-normal) var(--aa-ease-default);
 
 	/* Overlay (from settings.custom.overlay). */
@@ -139,33 +153,78 @@
 	   escape hatch: primary actions, drawers, forms, and PDP choices stay 44px. */
 	--aa-control-min-dense: var(--wp--custom--size--dense-control-min, 2rem);
 	--aa-card-swatch-min: var(--wp--custom--size--card-swatch-min, 2rem);
-	--aa-card-swatch-dense-min: var(--wp--custom--size--card-swatch-dense-min, 1.75rem);
+	--aa-card-swatch-dense-min: var(
+		--wp--custom--size--card-swatch-dense-min,
+		1.75rem
+	);
 	--aa-button-height-md: var(--wp--custom--size--button-height--md, 2.75rem);
 	--aa-button-height-lg: var(--wp--custom--size--button-height--lg, 3.25rem);
 	--aa-icon-button-size: var(--wp--custom--size--icon-button, 2.75rem);
-	--aa-compact-action-height: var(--wp--custom--compact-action--height, 2.925rem);
-	--aa-compact-action-padding-block: var(--wp--custom--compact-action--padding-block, 0.65rem);
-	--aa-compact-action-padding-inline: var(--wp--custom--compact-action--padding-inline, 1.15rem);
-	--aa-compact-action-border-width: var(--wp--custom--compact-action--border-width, 2px);
-	--aa-compact-action-font-size: var(--wp--custom--compact-action--font-size, 0.75rem);
-	--aa-compact-action-font-weight: var(--wp--custom--compact-action--font-weight, 700);
-	--aa-compact-action-line-height: var(--wp--custom--compact-action--line-height, 1);
-	--aa-compact-action-letter-spacing: var(--wp--custom--compact-action--letter-spacing, 0.06em);
+	--aa-compact-action-height: var(
+		--wp--custom--compact-action--height,
+		2.925rem
+	);
+	--aa-compact-action-padding-block: var(
+		--wp--custom--compact-action--padding-block,
+		0.65rem
+	);
+	--aa-compact-action-padding-inline: var(
+		--wp--custom--compact-action--padding-inline,
+		1.15rem
+	);
+	--aa-compact-action-border-width: var(
+		--wp--custom--compact-action--border-width,
+		2px
+	);
+	--aa-compact-action-font-size: var(
+		--wp--custom--compact-action--font-size,
+		0.75rem
+	);
+	--aa-compact-action-font-weight: var(
+		--wp--custom--compact-action--font-weight,
+		700
+	);
+	--aa-compact-action-line-height: var(
+		--wp--custom--compact-action--line-height,
+		1
+	);
+	--aa-compact-action-letter-spacing: var(
+		--wp--custom--compact-action--letter-spacing,
+		0.06em
+	);
 	--aa-input-height: var(--wp--custom--size--input-height, 3.25rem);
 
 	/* Button label + padding (from settings.custom.button). These mirror
 	   styles.elements.button, which stays literal so Global Styles can edit it;
-	   TestStyles keeps the two in step. Only fallbacks for controls that can't
+	   Test_Styles keeps the two in step. Only fallbacks for controls that can't
 	   carry .wp-element-button read them (raw .aggressive-apparel-button
 	   variants, native <input> submits). */
-	--aa-button-font-family: var(--wp--custom--button--font-family, var(--wp--preset--font-family--space-grotesk));
-	--aa-button-font-size: var(--wp--custom--button--font-size, var(--wp--preset--font-size--medium));
+	--aa-button-font-family: var(
+		--wp--custom--button--font-family,
+		var(--wp--preset--font-family--space-grotesk)
+	);
+	--aa-button-font-size: var(
+		--wp--custom--button--font-size,
+		var(--wp--preset--font-size--medium)
+	);
 	--aa-button-font-weight: var(--wp--custom--button--font-weight, 700);
 	--aa-button-line-height: var(--wp--custom--button--line-height, 1.1);
-	--aa-button-letter-spacing: var(--wp--custom--button--letter-spacing, 0.06em);
-	--aa-button-text-transform: var(--wp--custom--button--text-transform, uppercase);
-	--aa-button-padding-block: var(--wp--custom--button--padding-block, var(--wp--preset--spacing--3));
-	--aa-button-padding-inline: var(--wp--custom--button--padding-inline, var(--wp--preset--spacing--8));
+	--aa-button-letter-spacing: var(
+		--wp--custom--button--letter-spacing,
+		0.06em
+	);
+	--aa-button-text-transform: var(
+		--wp--custom--button--text-transform,
+		uppercase
+	);
+	--aa-button-padding-block: var(
+		--wp--custom--button--padding-block,
+		var(--wp--preset--spacing--3)
+	);
+	--aa-button-padding-inline: var(
+		--wp--custom--button--padding-inline,
+		var(--wp--preset--spacing--8)
+	);
 
 	/* Close-button glyph size shared by the toast overlays (store-notices +
 	   social-proof) so the two "×" stay the same size. */
@@ -175,10 +234,19 @@
 	--aa-panel-width-lg: var(--wp--custom--size--panel-width--lg, 40rem);
 	--aa-panel-width-xl: var(--wp--custom--size--panel-width--xl, 56.25rem);
 	--aa-panel-width-guide: var(--wp--custom--size--panel-width--guide, 48rem);
-	--aa-panel-width-drawer: var(--wp--custom--size--panel-width--drawer, 21.25rem);
+	--aa-panel-width-drawer: var(
+		--wp--custom--size--panel-width--drawer,
+		21.25rem
+	);
 	--aa-wl-columns: var(--wp--custom--size--wishlist--columns, 3);
-	--aa-wl-columns-mobile: var(--wp--custom--size--wishlist--mobile-columns, 1);
-	--aa-wl-gap: var(--wp--custom--size--wishlist--gap, var(--wp--preset--spacing--6));
+	--aa-wl-columns-mobile: var(
+		--wp--custom--size--wishlist--mobile-columns,
+		1
+	);
+	--aa-wl-gap: var(
+		--wp--custom--size--wishlist--gap,
+		var(--wp--preset--spacing--6)
+	);
 	--aa-bottom-nav-height: 0;
 	--aa-sticky-cart-height: 0;
 	--scrollbar-width: 0;
@@ -188,17 +256,35 @@
 	--aa-radius-md: var(--wp--custom--radius--md, 0.375rem);
 	--aa-radius-lg: var(--wp--custom--radius--lg, 0.5rem);
 	--aa-radius-full: var(--wp--custom--radius--full, calc(infinity * 1px));
-	--aa-radius-button: var(--wp--custom--radius--button, var(--aa-radius-full));
-	--aa-radius-control: var(--wp--custom--radius--control, var(--aa-radius-md));
+	--aa-radius-button: var(
+		--wp--custom--radius--button,
+		var(--aa-radius-full)
+	);
+	--aa-radius-control: var(
+		--wp--custom--radius--control,
+		var(--aa-radius-md)
+	);
 	--aa-radius-panel: var(--wp--custom--radius--panel, var(--aa-radius-lg));
 	--aa-radius-card: var(--wp--custom--radius--card, var(--aa-radius-md));
 
 	/* Elevation — sourced from the theme.json shadow presets (also pickable in
 	   the editor's shadow control). */
-	--aa-shadow-sm: var(--wp--preset--shadow--small, 0 2px 8px var(--aa-color-shadow));
-	--aa-shadow-md: var(--wp--preset--shadow--medium, 0 10px 25px -5px var(--aa-color-shadow));
-	--aa-shadow-lg: var(--wp--preset--shadow--large, 0 12px 40px var(--aa-color-shadow-strong));
-	--aa-shadow-panel: var(--wp--preset--shadow--x-large, 0 25px 50px -12px var(--aa-color-shadow-strong));
+	--aa-shadow-sm: var(
+		--wp--preset--shadow--small,
+		0 2px 8px var(--aa-color-shadow)
+	);
+	--aa-shadow-md: var(
+		--wp--preset--shadow--medium,
+		0 10px 25px -5px var(--aa-color-shadow)
+	);
+	--aa-shadow-lg: var(
+		--wp--preset--shadow--large,
+		0 12px 40px var(--aa-color-shadow-strong)
+	);
+	--aa-shadow-panel: var(
+		--wp--preset--shadow--x-large,
+		0 25px 50px -12px var(--aa-color-shadow-strong)
+	);
 
 	/* Font stacks. --aa-font-body is the global-styles body family (including
 	   Site Editor changes), emitted inline on this stylesheet by
@@ -208,27 +294,87 @@
 	--aa-font-mono: var(--wp--custom--font-family--mono, monospace);
 
 	/* Typography roles. */
-	--aa-type-eyebrow-size: var(--wp--custom--type-role--eyebrow--font-size, var(--wp--preset--font-size--x-small));
-	--aa-type-eyebrow-weight: var(--wp--custom--type-role--eyebrow--font-weight, 700);
-	--aa-type-eyebrow-line-height: var(--wp--custom--type-role--eyebrow--line-height, 1.2);
-	--aa-type-eyebrow-letter-spacing: var(--wp--custom--type-role--eyebrow--letter-spacing, 0.08em);
-	--aa-type-caption-size: var(--wp--custom--type-role--caption--font-size, var(--wp--preset--font-size--small));
-	--aa-type-caption-weight: var(--wp--custom--type-role--caption--font-weight, 400);
-	--aa-type-caption-line-height: var(--wp--custom--type-role--caption--line-height, 1.5);
-	--aa-type-meta-size: var(--wp--custom--type-role--meta--font-size, var(--wp--preset--font-size--x-small));
+	--aa-type-eyebrow-size: var(
+		--wp--custom--type-role--eyebrow--font-size,
+		var(--wp--preset--font-size--x-small)
+	);
+	--aa-type-eyebrow-weight: var(
+		--wp--custom--type-role--eyebrow--font-weight,
+		700
+	);
+	--aa-type-eyebrow-line-height: var(
+		--wp--custom--type-role--eyebrow--line-height,
+		1.2
+	);
+	--aa-type-eyebrow-letter-spacing: var(
+		--wp--custom--type-role--eyebrow--letter-spacing,
+		0.08em
+	);
+	--aa-type-caption-size: var(
+		--wp--custom--type-role--caption--font-size,
+		var(--wp--preset--font-size--small)
+	);
+	--aa-type-caption-weight: var(
+		--wp--custom--type-role--caption--font-weight,
+		400
+	);
+	--aa-type-caption-line-height: var(
+		--wp--custom--type-role--caption--line-height,
+		1.5
+	);
+	--aa-type-meta-size: var(
+		--wp--custom--type-role--meta--font-size,
+		var(--wp--preset--font-size--x-small)
+	);
 	--aa-type-meta-weight: var(--wp--custom--type-role--meta--font-weight, 500);
-	--aa-type-meta-line-height: var(--wp--custom--type-role--meta--line-height, 1.4);
-	--aa-type-meta-letter-spacing: var(--wp--custom--type-role--meta--letter-spacing, 0.04em);
-	--aa-type-legal-size: var(--wp--custom--type-role--legal--font-size, var(--wp--preset--font-size--x-small));
-	--aa-type-legal-weight: var(--wp--custom--type-role--legal--font-weight, 400);
-	--aa-type-legal-line-height: var(--wp--custom--type-role--legal--line-height, 1.5);
-	--aa-type-price-size: var(--wp--custom--type-role--price--font-size, var(--wp--preset--font-size--small));
-	--aa-type-price-weight: var(--wp--custom--type-role--price--font-weight, 700);
-	--aa-type-price-line-height: var(--wp--custom--type-role--price--line-height, 1.2);
-	--aa-type-price-letter-spacing: var(--wp--custom--type-role--price--letter-spacing, 0.01em);
-	--aa-type-product-title-size: var(--wp--custom--type-role--product-title--font-size, var(--wp--preset--font-size--small));
-	--aa-type-product-title-weight: var(--wp--custom--type-role--product-title--font-weight, 400);
-	--aa-type-product-title-line-height: var(--wp--custom--type-role--product-title--line-height, 1.2);
+	--aa-type-meta-line-height: var(
+		--wp--custom--type-role--meta--line-height,
+		1.4
+	);
+	--aa-type-meta-letter-spacing: var(
+		--wp--custom--type-role--meta--letter-spacing,
+		0.04em
+	);
+	--aa-type-legal-size: var(
+		--wp--custom--type-role--legal--font-size,
+		var(--wp--preset--font-size--x-small)
+	);
+	--aa-type-legal-weight: var(
+		--wp--custom--type-role--legal--font-weight,
+		400
+	);
+	--aa-type-legal-line-height: var(
+		--wp--custom--type-role--legal--line-height,
+		1.5
+	);
+	--aa-type-price-size: var(
+		--wp--custom--type-role--price--font-size,
+		var(--wp--preset--font-size--small)
+	);
+	--aa-type-price-weight: var(
+		--wp--custom--type-role--price--font-weight,
+		700
+	);
+	--aa-type-price-line-height: var(
+		--wp--custom--type-role--price--line-height,
+		1.2
+	);
+	--aa-type-price-letter-spacing: var(
+		--wp--custom--type-role--price--letter-spacing,
+		0.01em
+	);
+	--aa-type-product-title-size: var(
+		--wp--custom--type-role--product-title--font-size,
+		var(--wp--preset--font-size--small)
+	);
+	--aa-type-product-title-weight: var(
+		--wp--custom--type-role--product-title--font-weight,
+		400
+	);
+	--aa-type-product-title-line-height: var(
+		--wp--custom--type-role--product-title--line-height,
+		1.2
+	);
 
 	/* Form fields (from settings.custom.field) — the branded checkout field:
 	   translucent fill, soft radius, and a 3px left bar that turns accent on
@@ -236,7 +382,10 @@
 	   .aggressive-apparel-field, the WooCommerce overrides, plugin adapters,
 	   and theme.json styles.elements.select. */
 	--aa-field-height: var(--aa-input-height);
-	--aa-field-font-family: var(--wp--custom--field--font-family, var(--wp--preset--font-family--space-grotesk, inherit));
+	--aa-field-font-family: var(
+		--wp--custom--field--font-family,
+		var(--wp--preset--font-family--space-grotesk, inherit)
+	);
 	--aa-field-font-size: var(--wp--custom--field--font-size, 1rem);
 	--aa-field-line-height: var(--wp--custom--field--line-height, 1.4);
 	--aa-field-padding-block: var(--wp--custom--field--padding-block, 0.75rem);
@@ -245,10 +394,19 @@
 	--aa-field-bar-width: var(--wp--custom--field--bar-width, 3px);
 	--aa-field-gap: var(--wp--custom--field--gap, 0.375rem);
 	--aa-field-choice-gap: var(--wp--custom--field--choice-gap, 0.75rem);
-	--aa-field-label-size: var(--wp--custom--field--label--font-size, var(--wp--preset--font-size--small));
+	--aa-field-label-size: var(
+		--wp--custom--field--label--font-size,
+		var(--wp--preset--font-size--small)
+	);
 	--aa-field-label-weight: var(--wp--custom--field--label--font-weight, 500);
-	--aa-field-label-tracking: var(--wp--custom--field--label--letter-spacing, 0.05em);
-	--aa-field-label-transform: var(--wp--custom--field--label--text-transform, uppercase);
+	--aa-field-label-tracking: var(
+		--wp--custom--field--label--letter-spacing,
+		0.05em
+	);
+	--aa-field-label-transform: var(
+		--wp--custom--field--label--text-transform,
+		uppercase
+	);
 
 	/* Focus ring — outer ring for free-standing controls. */
 	--aa-focus-ring: var(
@@ -260,58 +418,191 @@
 	/* Derived foreground mixes (adapt with color scheme).
 	   border-subtle stays a transparent mix for chrome hairlines;
 	   solid picker token is adaptive border-muted. */
-	--aa-color-border-subtle: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
-	--aa-color-border-default: color-mix(in oklch, var(--aa-color-foreground) 12%, transparent);
-	--aa-color-border-strong: color-mix(in oklch, var(--aa-color-foreground) 15%, transparent);
-	--aa-color-border-input: color-mix(in oklch, var(--aa-color-foreground) 20%, transparent);
-	--aa-color-hover-subtle: color-mix(in oklch, var(--aa-color-foreground) 6%, transparent);
-	--aa-color-hover-default: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
-	--aa-color-muted-40: color-mix(in oklch, var(--aa-color-foreground) 40%, transparent);
-	--aa-color-muted-50: color-mix(in oklch, var(--aa-color-foreground) 50%, transparent);
-	--aa-color-muted-55: color-mix(in oklch, var(--aa-color-foreground) 55%, transparent);
-	--aa-color-shadow: var(--wp--custom--shadow--color, color-mix(in oklch, var(--aa-color-foreground) 15%, transparent));
-	--aa-color-shadow-strong: var(--wp--custom--shadow--color-strong, color-mix(in oklch, var(--aa-color-foreground) 30%, transparent));
-	--aa-color-surface-80: color-mix(in oklch, var(--aa-color-surface) 80%, transparent);
-	--aa-color-surface-90: color-mix(in oklch, var(--aa-color-surface) 90%, transparent);
-	--aa-color-skeleton-from: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
-	--aa-color-skeleton-mid: color-mix(in oklch, var(--aa-color-foreground) 11%, var(--aa-color-surface));
-	--aa-color-skeleton-image: color-mix(in oklch, var(--aa-color-foreground) 8%, var(--aa-color-surface));
+	--aa-color-border-subtle: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 8%,
+		transparent
+	);
+	--aa-color-border-default: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 12%,
+		transparent
+	);
+	--aa-color-border-strong: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 15%,
+		transparent
+	);
+	--aa-color-border-input: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 20%,
+		transparent
+	);
+	--aa-color-hover-subtle: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 6%,
+		transparent
+	);
+	--aa-color-hover-default: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 8%,
+		transparent
+	);
+	--aa-color-muted-40: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 40%,
+		transparent
+	);
+	--aa-color-muted-50: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 50%,
+		transparent
+	);
+	--aa-color-muted-55: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 55%,
+		transparent
+	);
+	--aa-color-shadow: var(
+		--wp--custom--shadow--color,
+		color-mix(in oklch, var(--aa-color-foreground) 15%, transparent)
+	);
+	--aa-color-shadow-strong: var(
+		--wp--custom--shadow--color-strong,
+		color-mix(in oklch, var(--aa-color-foreground) 30%, transparent)
+	);
+	--aa-color-surface-80: color-mix(
+		in oklch,
+		var(--aa-color-surface) 80%,
+		transparent
+	);
+	--aa-color-surface-90: color-mix(
+		in oklch,
+		var(--aa-color-surface) 90%,
+		transparent
+	);
+	--aa-color-skeleton-from: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 6%,
+		var(--aa-color-surface)
+	);
+	--aa-color-skeleton-mid: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 11%,
+		var(--aa-color-surface)
+	);
+	--aa-color-skeleton-image: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 8%,
+		var(--aa-color-surface)
+	);
 
 	/* Form field paint (derived; fill strengths from settings.custom.field).
 	   --aa-field-bg-solid is the same fill flattened onto the page surface, for
 	   the autofill inset shadow, which must be opaque. */
-	--aa-field-bg: color-mix(in oklch, var(--aa-color-foreground) var(--wp--custom--field--fill, 8%), transparent);
-	--aa-field-bg-hover: color-mix(in oklch, var(--aa-color-foreground) var(--wp--custom--field--fill-hover, 11%), transparent);
-	--aa-field-bg-solid: color-mix(in oklch, var(--aa-color-foreground) var(--wp--custom--field--fill, 8%), var(--aa-color-surface));
+	--aa-field-bg: color-mix(
+		in oklch,
+		var(--aa-color-foreground) var(--wp--custom--field--fill, 8%),
+		transparent
+	);
+	--aa-field-bg-hover: color-mix(
+		in oklch,
+		var(--aa-color-foreground) var(--wp--custom--field--fill-hover, 11%),
+		transparent
+	);
+	--aa-field-bg-solid: color-mix(
+		in oklch,
+		var(--aa-color-foreground) var(--wp--custom--field--fill, 8%),
+		var(--aa-color-surface)
+	);
 	--aa-field-text: var(--aa-color-foreground);
 
 	/* Placeholder: muted text nudged toward foreground — foreground-muted alone
 	   is ~4.05:1 on the light fill; this is ~4.9:1. */
-	--aa-field-placeholder: color-mix(in oklch, var(--aa-color-foreground-muted) 90%, var(--aa-color-foreground));
+	--aa-field-placeholder: color-mix(
+		in oklch,
+		var(--aa-color-foreground-muted) 90%,
+		var(--aa-color-foreground)
+	);
 
 	/* Labels can sit ON the fill (checkout's floating labels), where plain
 	   foreground-muted is ~4.0:1; the same nudge as the placeholder clears
 	   4.5:1 on the fill and the page. */
-	--aa-field-label-color: color-mix(in oklch, var(--aa-color-foreground-muted) 90%, var(--aa-color-foreground));
+	--aa-field-label-color: color-mix(
+		in oklch,
+		var(--aa-color-foreground-muted) 90%,
+		var(--aa-color-foreground)
+	);
 	--aa-field-bar-focus: var(--aa-color-accent);
 	--aa-field-bar-invalid: var(--aa-color-error-text);
 	--aa-field-bar-valid: var(--aa-color-success-text);
 
 	/* Static status colors (stock, alerts — not adaptive). */
-	--aa-color-success: var(--wp--preset--color--success, oklch(52.7% 0.137 150.1deg));
-	--aa-color-warning: var(--wp--preset--color--warning, oklch(55.3% 0.174 38.4deg));
-	--aa-color-error: var(--wp--preset--color--error, oklch(57.7% 0.215 27.3deg));
-	--aa-color-info: var(--wp--preset--color--info, oklch(48.8% 0.217 264.4deg));
-	--aa-color-neutral-muted: var(--wp--preset--color--neutral, oklch(55.1% 0.023 264.4deg));
-	--aa-color-success-bg: color-mix(in oklch, var(--aa-color-success) 12%, transparent);
-	--aa-color-success-border: color-mix(in oklch, var(--aa-color-success) 30%, transparent);
-	--aa-color-warning-bg: color-mix(in oklch, var(--aa-color-warning) 12%, transparent);
-	--aa-color-warning-border: color-mix(in oklch, var(--aa-color-warning) 30%, transparent);
-	--aa-color-error-bg: color-mix(in oklch, var(--aa-color-error) 12%, transparent);
-	--aa-color-error-border: color-mix(in oklch, var(--aa-color-error) 30%, transparent);
-	--aa-color-info-bg: color-mix(in oklch, var(--aa-color-info) 12%, transparent);
-	--aa-color-info-border: color-mix(in oklch, var(--aa-color-info) 30%, transparent);
-	--aa-color-neutral-bg: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
+	--aa-color-success: var(
+		--wp--preset--color--success,
+		oklch(52.7% 0.137 150.1deg)
+	);
+	--aa-color-warning: var(
+		--wp--preset--color--warning,
+		oklch(55.3% 0.174 38.4deg)
+	);
+	--aa-color-error: var(
+		--wp--preset--color--error,
+		oklch(57.7% 0.215 27.3deg)
+	);
+	--aa-color-info: var(
+		--wp--preset--color--info,
+		oklch(48.8% 0.217 264.4deg)
+	);
+	--aa-color-neutral-muted: var(
+		--wp--preset--color--neutral,
+		oklch(55.1% 0.023 264.4deg)
+	);
+	--aa-color-success-bg: color-mix(
+		in oklch,
+		var(--aa-color-success) 12%,
+		transparent
+	);
+	--aa-color-success-border: color-mix(
+		in oklch,
+		var(--aa-color-success) 30%,
+		transparent
+	);
+	--aa-color-warning-bg: color-mix(
+		in oklch,
+		var(--aa-color-warning) 12%,
+		transparent
+	);
+	--aa-color-warning-border: color-mix(
+		in oklch,
+		var(--aa-color-warning) 30%,
+		transparent
+	);
+	--aa-color-error-bg: color-mix(
+		in oklch,
+		var(--aa-color-error) 12%,
+		transparent
+	);
+	--aa-color-error-border: color-mix(
+		in oklch,
+		var(--aa-color-error) 30%,
+		transparent
+	);
+	--aa-color-info-bg: color-mix(
+		in oklch,
+		var(--aa-color-info) 12%,
+		transparent
+	);
+	--aa-color-info-border: color-mix(
+		in oklch,
+		var(--aa-color-info) 30%,
+		transparent
+	);
+	--aa-color-neutral-bg: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 6%,
+		var(--aa-color-surface)
+	);
 
 	/* Status colours as TEXT. The static status swatches sit near 3.3–3.7:1 on
 	   the page surface, below the 4.5:1 that small text (validation messages,
@@ -325,8 +616,19 @@
 	   clears 4.5:1 on the page surface (pure #f00 is only ~4.35:1). It is the
 	   same value as the theme.json dark accent, but deliberately not an alias:
 	   errors and sale text must stay red when the accent is re-themed. */
-	--aa-color-error-text: light-dark(color-mix(in oklch, var(--aa-color-error) 70%, var(--aa-color-foreground)), oklch(65% 0.236 29deg));
-	--aa-color-success-text: color-mix(in oklch, var(--aa-color-success) 70%, var(--aa-color-foreground));
+	--aa-color-error-text: light-dark(
+		color-mix(
+			in oklch,
+			var(--aa-color-error) 70%,
+			var(--aa-color-foreground)
+		),
+		oklch(65% 0.236 29deg)
+	);
+	--aa-color-success-text: color-mix(
+		in oklch,
+		var(--aa-color-success) 70%,
+		var(--aa-color-foreground)
+	);
 
 	/* Commerce-state colors — semantic aliases of the status colors above. */
 	--aa-commerce-sale: var(--aa-color-error);
@@ -337,20 +639,56 @@
 	--aa-commerce-new-bg: var(--aa-color-info-bg);
 	--aa-commerce-new-border: var(--aa-color-info-border);
 	--aa-commerce-featured: var(--aa-color-accent);
-	--aa-commerce-featured-bg: color-mix(in oklch, var(--aa-color-accent) 12%, transparent);
-	--aa-commerce-featured-border: color-mix(in oklch, var(--aa-color-accent) 30%, transparent);
+	--aa-commerce-featured-bg: color-mix(
+		in oklch,
+		var(--aa-color-accent) 12%,
+		transparent
+	);
+	--aa-commerce-featured-border: color-mix(
+		in oklch,
+		var(--aa-color-accent) 30%,
+		transparent
+	);
 	--aa-commerce-low-stock: var(--aa-color-warning);
 	--aa-commerce-low-stock-bg: var(--aa-color-warning-bg);
 	--aa-commerce-low-stock-border: var(--aa-color-warning-border);
 	--aa-commerce-out-of-stock: var(--aa-color-neutral-muted);
 	--aa-commerce-out-of-stock-bg: var(--aa-color-neutral-bg);
 	--aa-commerce-out-of-stock-border: var(--aa-color-border-default);
-	--aa-color-scrim: color-mix(in oklch, var(--aa-color-foreground) 80%, transparent);
+	--aa-color-scrim: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 80%,
+		transparent
+	);
 	--aa-color-on-scrim: var(--aa-color-white);
-	--aa-color-on-scrim-90: color-mix(in oklch, var(--aa-color-white) 90%, transparent);
-	--aa-color-on-scrim-70: color-mix(in oklch, var(--aa-color-white) 70%, transparent);
-	--aa-color-on-scrim-60: color-mix(in oklch, var(--aa-color-white) 60%, transparent);
-	--aa-color-scrim-border: color-mix(in oklch, var(--aa-color-white) 10%, transparent);
-	--aa-color-scrim-hover: color-mix(in oklch, var(--aa-color-white) 10%, transparent);
-	--aa-color-scrim-hover-subtle: color-mix(in oklch, var(--aa-color-white) 5%, transparent);
+	--aa-color-on-scrim-90: color-mix(
+		in oklch,
+		var(--aa-color-white) 90%,
+		transparent
+	);
+	--aa-color-on-scrim-70: color-mix(
+		in oklch,
+		var(--aa-color-white) 70%,
+		transparent
+	);
+	--aa-color-on-scrim-60: color-mix(
+		in oklch,
+		var(--aa-color-white) 60%,
+		transparent
+	);
+	--aa-color-scrim-border: color-mix(
+		in oklch,
+		var(--aa-color-white) 10%,
+		transparent
+	);
+	--aa-color-scrim-hover: color-mix(
+		in oklch,
+		var(--aa-color-white) 10%,
+		transparent
+	);
+	--aa-color-scrim-hover-subtle: color-mix(
+		in oklch,
+		var(--aa-color-white) 5%,
+		transparent
+	);
 }

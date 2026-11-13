@@ -12,75 +12,60 @@
  * CSS CUSTOM PROPERTIES
  * ======================================== */
 :root {
+	/* Borders */
+	--aa-nav-border-subtle: var(--aa-color-border-subtle);
+	--aa-nav-border-light: var(--aa-color-border-default);
 
-  /* Borders */
-  --aa-nav-border-subtle: var(--aa-color-border-subtle);
-  --aa-nav-border-light: var(--aa-color-border-default);
+	/* Overlays & Hover */
+	--aa-nav-hover-bg: var(--aa-color-hover-subtle);
+	--aa-nav-shadow: 0 4px 20px var(--aa-color-shadow);
 
-  /* Overlays & Hover */
-  --aa-nav-hover-bg: var(--aa-color-hover-subtle);
-  --aa-nav-shadow: 0 4px 20px var(--aa-color-shadow);
+	/* Transitions */
+	--aa-nav-transition: var(--aa-duration-normal) var(--aa-ease-default);
+	--aa-nav-transition-fast: var(--aa-duration-fast) var(--aa-ease-default);
+	--navigation-transition: var(--aa-duration-normal) var(--aa-ease-default);
 
-  /* Transitions */
-  --aa-nav-transition: var(--aa-duration-normal) var(--aa-ease-default);
-  --aa-nav-transition-fast: var(--aa-duration-fast) var(--aa-ease-default);
-  --navigation-transition: var(--aa-duration-normal) var(--aa-ease-default);
+	/* Radii */
+	--aa-nav-radius-sm: var(--aa-radius-sm);
+	--aa-nav-radius-md: var(--aa-radius-md);
+	--aa-nav-radius-lg: var(--aa-radius-panel);
 
-  /* Radii */
-  --aa-nav-radius-sm: var(--aa-radius-sm);
-  --aa-nav-radius-md: var(--aa-radius-md);
-  --aa-nav-radius-lg: var(--aa-radius-panel);
+	/* Focus */
+	--aa-nav-focus-color: var(--aa-color-accent);
+	--aa-nav-focus-width: 2px;
+	--aa-nav-focus-offset: 2px;
 
-  /* Focus */
-  --aa-nav-focus-color: var(--aa-color-accent);
-  --aa-nav-focus-width: 2px;
-  --aa-nav-focus-offset: 2px;
-
-  /* Indicator */
-  --indicator-height: 3px;
-  --indicator-opacity: 0;
-  --indicator-radius: 1.5px;
-  --indicator-width: 0;
-  --indicator-x: 0;
-  --indicator-y: -3px;
-}
-
-/* Screen reader only text. */
-.screen-reader-text {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip-path: inset(50%) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
+	/* Indicator */
+	--indicator-height: 3px;
+	--indicator-opacity: 0;
+	--indicator-radius: 1.5px;
+	--indicator-width: 0;
+	--indicator-x: 0;
+	--indicator-y: -3px;
 }
 
 /* ========================================
  * NAVIGATION CONTAINER
  * ======================================== */
 .wp-block-aggressive-apparel-navigation {
-  --navigation-gap: var(--wp--preset--spacing--6);
+	--navigation-gap: var(--wp--preset--spacing--6);
 
-  position: relative;
-  width: 100%;
+	position: relative;
+	width: 100%;
 
-  &:not(.is-layout-flex) {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--navigation-gap);
-  }
+	&:not(.is-layout-flex) {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--navigation-gap);
+	}
 
-  /* JS-controlled mobile state: hide the desktop menubar on mobile. */
-  &.is-mobile {
-
-    & .aa-nav__menubar {
-      display: none;
-    }
-  }
+	/* JS-controlled mobile state: hide the desktop menubar on mobile. */
+	&.is-mobile {
+		& .aa-nav__menubar {
+			display: none;
+		}
+	}
 }
 
 /* ========================================
@@ -96,32 +81,30 @@
 
 /* Tighten gap on small viewports */
 @media (width <= 600px) {
-
-  .wp-block-aggressive-apparel-navigation {
-    --navigation-gap: var(--wp--preset--spacing--3, 0.75rem);
-  }
+	.wp-block-aggressive-apparel-navigation {
+		--navigation-gap: var(--wp--preset--spacing--3, 0.75rem);
+	}
 }
 
 /* Pre-hydration fallback: hide the desktop menubar below the default breakpoint. */
 @media (width <= 1023px) {
-
-  .wp-block-aggressive-apparel-navigation:not(.is-hydrated) .aa-nav__menubar {
-    display: none;
-  }
+	.wp-block-aggressive-apparel-navigation:not(.is-hydrated) .aa-nav__menubar {
+		display: none;
+	}
 }
 
 /* ========================================
  * DESKTOP MENUBAR
  * ======================================== */
 .aa-nav__menubar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--navigation-gap);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--navigation-gap);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: relative;
 }
 
 /* ========================================
@@ -132,96 +115,100 @@
  * set by JavaScript on hover/focus/submenu-open.
  * ======================================== */
 .aa-nav__indicator-wrap {
-  display: contents;
+	display: contents;
 }
 
 .aa-nav__indicator {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  height: var(--indicator-height, 3px);
-  background: var(--indicator-color, var(--wp--preset--color--accent, currentColor));
-  border-radius: var(--indicator-radius, 1.5px);
-  width: var(--indicator-width, 0);
-  transform: translateX(var(--indicator-x, 0)) translateY(var(--indicator-y, -3px));
-  opacity: var(--indicator-opacity, 0);
-  z-index: 101;
-  transition:
-    transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    width 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 150ms ease;
-  pointer-events: none;
-  will-change: transform, width;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	height: var(--indicator-height, 3px);
+	background: var(
+		--indicator-color,
+		var(--wp--preset--color--accent, currentColor)
+	);
+	border-radius: var(--indicator-radius, 1.5px);
+	width: var(--indicator-width, 0);
+	transform: translateX(var(--indicator-x, 0))
+		translateY(var(--indicator-y, -3px));
+	opacity: var(--indicator-opacity, 0);
+	z-index: 101;
+	transition:
+		transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+		width 250ms cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 150ms ease;
+	pointer-events: none;
+	will-change: transform, width;
 }
 
 /* ========================================
  * ENHANCED FOCUS-VISIBLE
  * ======================================== */
 @supports selector(:focus-visible) {
+	.wp-block-aggressive-apparel-navigation :focus:not(:focus-visible) {
+		outline: none;
+	}
 
-  .wp-block-aggressive-apparel-navigation :focus:not(:focus-visible) {
-    outline: none;
-  }
+	.wp-block-aggressive-apparel-navigation :focus-visible {
+		outline: var(--aa-nav-focus-width, 2px) solid
+			var(--aa-nav-focus-color, currentColor);
+		outline-offset: var(--aa-nav-focus-offset, 2px);
+		border-radius: var(--aa-nav-radius-sm, 2px);
+	}
 
-  .wp-block-aggressive-apparel-navigation :focus-visible {
-    outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
-    outline-offset: var(--aa-nav-focus-offset, 2px);
-    border-radius: var(--aa-nav-radius-sm, 2px);
-  }
+	@media (prefers-reduced-motion: no-preference) {
+		.wp-block-aggressive-apparel-navigation :focus-visible {
+			animation: aa-nav-focus-glow 300ms ease-out;
+		}
 
-  @media (prefers-reduced-motion: no-preference) {
+		@keyframes aa-nav-focus-glow {
+			from {
+				box-shadow: 0 0 0 0
+					color-mix(
+						in srgb,
+						var(--aa-nav-focus-color) 50%,
+						transparent
+					);
+			}
 
-    .wp-block-aggressive-apparel-navigation :focus-visible {
-      animation: aa-nav-focus-glow 300ms ease-out;
-    }
+			to {
+				box-shadow: 0 0 0 4px transparent;
+			}
+		}
+	}
 
-    @keyframes aa-nav-focus-glow {
-
-      from {
-        box-shadow: 0 0 0 0 color-mix(in srgb, var(--aa-nav-focus-color) 50%, transparent);
-      }
-
-      to {
-        box-shadow: 0 0 0 4px transparent;
-      }
-    }
-  }
-
-  @media (forced-colors: active) {
-
-    .wp-block-aggressive-apparel-navigation :focus-visible {
-      outline: 3px solid CanvasText;
-      outline-offset: 3px;
-    }
-  }
+	@media (forced-colors: active) {
+		.wp-block-aggressive-apparel-navigation :focus-visible {
+			outline: 3px solid CanvasText;
+			outline-offset: 3px;
+		}
+	}
 }
 
 /* ========================================
  * REDUCED MOTION (Desktop nav)
  * ======================================== */
 @media (prefers-reduced-motion: reduce) {
+	:root {
+		--navigation-transition: 0ms;
+	}
 
-  :root {
-    --navigation-transition: 0ms;
-  }
+	.wp-block-aggressive-apparel-navigation *,
+	.wp-block-aggressive-apparel-navigation *::before,
+	.wp-block-aggressive-apparel-navigation *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 
-  .wp-block-aggressive-apparel-navigation *,
-  .wp-block-aggressive-apparel-navigation *::before,
-  .wp-block-aggressive-apparel-navigation *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+	/* Indicator snaps instantly */
+	.aa-nav__indicator {
+		transition: none !important;
+	}
 
-  /* Indicator snaps instantly */
-  .aa-nav__indicator {
-    transition: none !important;
-  }
-
-  @supports (view-transition-name: none) {
-
-    .wp-block-aggressive-apparel-navigation {
-      view-transition-name: none !important;
-    }
-  }
+	@supports (view-transition-name: none) {
+		.wp-block-aggressive-apparel-navigation {
+			view-transition-name: none !important;
+		}
+	}
 }

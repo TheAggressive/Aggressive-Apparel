@@ -9,36 +9,36 @@ export type Scope = 'all' | 'only' | 'except';
 
 /** One spec item as stored by Product_Specs_Registry. */
 export type SpecItem = {
-  key: string;
-  type: ItemType;
-  name: string;
-  enabled: boolean;
-  steps: string[];
-  start: string;
-  mid: string;
-  end: string;
-  centered: boolean;
-  unit: string;
-  thresholds: number[];
-  advice: string[];
-  attributes: string[];
-  scope: Scope;
-  categories: number[];
-  category_steps: CategorySteps[];
-  in_table: boolean;
-  /** Value every product gets unless it sets its own ('' for none). */
-  default: string;
-  /** WooCommerce attribute holding the values ('' until first saved). */
-  taxonomy: string;
-  /** A picked scale's terms, one per step (kept through renames). */
-  step_terms: number[];
-  default_term: number;
-  /** A text spec holds several values, like an attribute with several terms. */
-  multiple: boolean;
-  /** Values link to their archive pages (the attribute's "Enable archives"). */
-  archives: boolean;
-  /** A text spec's existing values (its terms) and their product counts. */
-  terms?: { name: string; count: number }[];
+	key: string;
+	type: ItemType;
+	name: string;
+	enabled: boolean;
+	steps: string[];
+	start: string;
+	mid: string;
+	end: string;
+	centered: boolean;
+	unit: string;
+	thresholds: number[];
+	advice: string[];
+	attributes: string[];
+	scope: Scope;
+	categories: number[];
+	category_steps: CategorySteps[];
+	in_table: boolean;
+	/** Value every product gets unless it sets its own ('' for none). */
+	default: string;
+	/** WooCommerce attribute holding the values ('' until first saved). */
+	taxonomy: string;
+	/** A picked scale's terms, one per step (kept through renames). */
+	step_terms: number[];
+	default_term: number;
+	/** A text spec holds several values, like an attribute with several terms. */
+	multiple: boolean;
+	/** Values link to their archive pages (the attribute's "Enable archives"). */
+	archives: boolean;
+	/** A text spec's existing values (its terms) and their product counts. */
+	terms?: { name: string; count: number }[];
 };
 
 /** Number-scale boundaries for one category. */
@@ -48,12 +48,12 @@ export type CategorySteps = { category: number; thresholds: number[] };
 export type DraftItem = SpecItem & { uid: string; isNew: boolean };
 
 export type Registry = {
-  items: SpecItem[];
-  hide_dimensions: boolean;
-  /** Bumped on every save, so a stale editor's save merges instead. */
-  revision: number;
-  /** Global attributes after the save, taxonomy => label. */
-  taxonomies?: Record<string, string>;
+	items: SpecItem[];
+	hide_dimensions: boolean;
+	/** Bumped on every save, so a stale editor's save merges instead. */
+	revision: number;
+	/** Global attributes after the save, taxonomy => label. */
+	taxonomies?: Record< string, string >;
 };
 
 export type Category = { id: number; name: string };
@@ -65,77 +65,77 @@ export type Usage = { global: boolean; categories: string[]; products: number };
 export type ChartColumn = { label: string; type: 'measure' | 'text' };
 export type ChartRow = { size: string; values: string[] };
 export type Chart = {
-  unit: 'in' | 'cm';
-  columns: ChartColumn[];
-  rows: ChartRow[];
+	unit: 'in' | 'cm';
+	columns: ChartColumn[];
+	rows: ChartRow[];
 };
 
 /** A size guide in the list. */
 export type GuideSummary = {
-  id: number;
-  title: string;
-  sizes: number;
-  columns: number;
-  usage: Usage;
-  legacy: boolean;
-  /** No chart, but sets specs: a specs-only guide. */
-  specs: boolean;
+	id: number;
+	title: string;
+	sizes: number;
+	columns: number;
+	usage: Usage;
+	legacy: boolean;
+	/** No chart, but sets specs: a specs-only guide. */
+	specs: boolean;
 };
 
 /** A size guide being edited. */
 export type GuideDetail = {
-  id: number;
-  title: string;
-  chart: Chart;
-  notes: string;
-  diagram: { id: number; url: string } | null;
-  /** Notes and diagram show on product pages; off keeps them, hidden. */
-  showNotes: boolean;
-  showDiagram: boolean;
-  /** Spec values products using the guide inherit (item key => value). */
-  specs: Record<string, string>;
-  /** Store-wide specs hidden on this guide's products. */
-  hidden: string[];
-  /** Wording for this guide's products only: item key => field => text. */
-  wording: Record<string, Record<string, string>>;
-  /** Where the guide was imported from, if anywhere. */
-  source: { provider: string; id: number; title: string } | null;
-  categories: number[];
-  isDefault: boolean;
-  usage: Usage;
-  legacyHtml: string;
-  legacyEditUrl: string;
+	id: number;
+	title: string;
+	chart: Chart;
+	notes: string;
+	diagram: { id: number; url: string } | null;
+	/** Notes and diagram show on product pages; off keeps them, hidden. */
+	showNotes: boolean;
+	showDiagram: boolean;
+	/** Spec values products using the guide inherit (item key => value). */
+	specs: Record< string, string >;
+	/** Store-wide specs hidden on this guide's products. */
+	hidden: string[];
+	/** Wording for this guide's products only: item key => field => text. */
+	wording: Record< string, Record< string, string > >;
+	/** Where the guide was imported from, if anywhere. */
+	source: { provider: string; id: number; title: string } | null;
+	categories: number[];
+	isDefault: boolean;
+	usage: Usage;
+	legacyHtml: string;
+	legacyEditUrl: string;
 };
 
 /** An attribute the store already uses that could become a spec. */
 export type Suggestion = {
-  name: string;
-  products: number;
-  values: string[];
-  type: ItemType;
-  unit: string;
-  steps: string[];
-  thresholds: number[];
+	name: string;
+	products: number;
+	values: string[];
+	type: ItemType;
+	unit: string;
+	steps: string[];
+	thresholds: number[];
 };
 
 /** One spec on one product in the Products grid. */
 export type GridCell = {
-  applies: boolean;
-  own: string;
-  shown: string;
-  inherited: string;
-  hidden: boolean;
+	applies: boolean;
+	own: string;
+	shown: string;
+	inherited: string;
+	hidden: boolean;
 };
 
 export type GridRow = {
-  id: number;
-  title: string;
-  editUrl: string;
-  thumb: string;
-  categories: string[];
-  /** The size guide the product uses (0 for none). */
-  guide: number;
-  specs: Record<string, GridCell>;
+	id: number;
+	title: string;
+	editUrl: string;
+	thumb: string;
+	categories: string[];
+	/** The size guide the product uses (0 for none). */
+	guide: number;
+	specs: Record< string, GridCell >;
 };
 
 /** One garment's typical fabric weight boundaries, in g/m². */
@@ -143,83 +143,83 @@ export type WeightGarment = { key: string; label: string; bands: number[] };
 
 /** Every garment's boundaries, and the garment each category is named like. */
 export type WeightPresets = {
-  garments: WeightGarment[];
-  categories: { category: number; garment: string }[];
+	garments: WeightGarment[];
+	categories: { category: number; garment: string }[];
 };
 
 export type Config = {
-  registry: Registry;
-  defaults: SpecItem[];
-  categories: Category[];
-  restPath: string;
-  gridPath: string;
-  guidesPath: string;
-  guides: GuideSummary[];
-  suggest: Suggestion[];
-  /** Attribute names in use on products. */
-  attributes: string[];
-  /** Global attributes, taxonomy => label. */
-  taxonomies: Record<string, string>;
-  /** Typical fabric weights by garment (Fabric_Weight_Bands::presets). */
-  weightPresets: WeightPresets;
-  /** The largest file an import can upload, in bytes. */
-  maxUpload: number;
-  tab: Tab;
-  guide: number | 'new';
-  limits: {
-    items: number;
-    minSteps: number;
-    maxSteps: number;
-    columns: number;
-    rows: number;
-  };
+	registry: Registry;
+	defaults: SpecItem[];
+	categories: Category[];
+	restPath: string;
+	gridPath: string;
+	guidesPath: string;
+	guides: GuideSummary[];
+	suggest: Suggestion[];
+	/** Attribute names in use on products. */
+	attributes: string[];
+	/** Global attributes, taxonomy => label. */
+	taxonomies: Record< string, string >;
+	/** Typical fabric weights by garment (Fabric_Weight_Bands::presets). */
+	weightPresets: WeightPresets;
+	/** The largest file an import can upload, in bytes. */
+	maxUpload: number;
+	tab: Tab;
+	guide: number | 'new';
+	limits: {
+		items: number;
+		minSteps: number;
+		maxSteps: number;
+		columns: number;
+		rows: number;
+	};
 };
 
 /** A Printful catalog product in search results. */
 export type PrintfulProduct = {
-  id: number;
-  title: string;
-  brand: string;
-  model: string;
-  image: string;
-  group: string;
-  /** The guide already imported from it (0 for none). */
-  guide: number;
-  /** A common blank, listed first before a search. */
-  popular: boolean;
+	id: number;
+	title: string;
+	brand: string;
+	model: string;
+	image: string;
+	group: string;
+	/** The guide already imported from it (0 for none). */
+	guide: number;
+	/** A common blank, listed first before a search. */
+	popular: boolean;
 };
 
 /** One description bullet and the spec it maps to (Printful_Import). */
 export type ImportFact = {
-  /** Rule key: the text with numbers generalized. */
-  key: string;
-  text: string;
-  /** A spec key, 'skip', or '' when unsure. */
-  target: string;
-  value: string;
-  status: 'sure' | 'guess' | 'unsure' | 'skipped';
+	/** Rule key: the text with numbers generalized. */
+	key: string;
+	text: string;
+	/** A spec key, 'skip', or '' when unsure. */
+	target: string;
+	value: string;
+	status: 'sure' | 'guess' | 'unsure' | 'skipped';
 };
 
 /** A Printful product as a size guide draft to review. */
 export type ImportDraft = {
-  source: { provider: string; id: number; title: string };
-  title: string;
-  image: string;
-  charts: { garment: Chart | null; body: Chart | null };
-  notes: { garment: string; body: string };
-  diagrams: { garment: string; body: string };
-  facts: ImportFact[];
-  /** The guide the store already has for this blank (0 for none). */
-  guide: number;
-  /** Where the guide should apply (Printful_Import_Categories). */
-  where: {
-    /** The garment, for remembering the store's choice. */
-    key: string;
-    categories: number[];
-    source: '' | 'remembered' | 'matched';
-    /** Categories that fit but another guide already uses. */
-    taken: ImportTaken[];
-  };
+	source: { provider: string; id: number; title: string };
+	title: string;
+	image: string;
+	charts: { garment: Chart | null; body: Chart | null };
+	notes: { garment: string; body: string };
+	diagrams: { garment: string; body: string };
+	facts: ImportFact[];
+	/** The guide the store already has for this blank (0 for none). */
+	guide: number;
+	/** Where the guide should apply (Printful_Import_Categories). */
+	where: {
+		/** The garment, for remembering the store's choice. */
+		key: string;
+		categories: number[];
+		source: '' | 'remembered' | 'matched';
+		/** Categories that fit but another guide already uses. */
+		taken: ImportTaken[];
+	};
 };
 
 /** A category that fits a blank but another guide already uses. */
@@ -227,46 +227,46 @@ export type ImportTaken = { id: number; name: string; guide: string };
 
 /** A spec made while importing: new, or an existing attribute made a spec. */
 export type ImportAttribute = {
-  /** Spec key, fixed when first set up. */
-  key: string;
-  name: string;
-  kind: 'text' | 'multiple' | 'pick' | 'number';
-  archives: boolean;
-  /** Comma-separated steps, for a scale. */
-  steps: string;
-  unit: string;
-  /** An existing WooCommerce attribute to use ('' for a new one). */
-  taxonomy: string;
+	/** Spec key, fixed when first set up. */
+	key: string;
+	name: string;
+	kind: 'text' | 'multiple' | 'pick' | 'number';
+	archives: boolean;
+	/** Comma-separated steps, for a scale. */
+	steps: string;
+	unit: string;
+	/** An existing WooCommerce attribute to use ('' for a new one). */
+	taxonomy: string;
 };
 
 /** Where one description line goes. */
 export type ImportMapping = {
-  /** Spec key, 'skip', 'new' (an ImportAttribute), or '' (undecided). */
-  target: string;
-  value: string;
-  /** Set by the store (not inherited from another blank). */
-  touched: boolean;
-  /** The store decided the same line on another blank. */
-  confirmed?: boolean;
+	/** Spec key, 'skip', 'new' (an ImportAttribute), or '' (undecided). */
+	target: string;
+	value: string;
+	/** Set by the store (not inherited from another blank). */
+	touched: boolean;
+	/** The store decided the same line on another blank. */
+	confirmed?: boolean;
 };
 
 /** The store's edits to one blank before it becomes a guide. */
 export type ImportBlankState = {
-  title: string;
-  kind: 'garment' | 'body';
-  /** Notes per chart, so switching charts keeps edits to either. */
-  notes: { garment: string; body: string };
-  /** Whether the notes come along (kept while off, so turning back on restores them). */
-  withNotes: boolean;
-  /** Whether the measuring diagram comes along. */
-  diagram: boolean;
-  /** Make a guide even though the store already has one for this blank. */
-  secondGuide: boolean;
-  categories: number[];
-  /** Categories that fit but another guide (or blank here) already has. */
-  taken: ImportTaken[];
-  isDefault: boolean;
-  mappings: ImportMapping[];
+	title: string;
+	kind: 'garment' | 'body';
+	/** Notes per chart, so switching charts keeps edits to either. */
+	notes: { garment: string; body: string };
+	/** Whether the notes come along (kept while off, so turning back on restores them). */
+	withNotes: boolean;
+	/** Whether the measuring diagram comes along. */
+	diagram: boolean;
+	/** Make a guide even though the store already has one for this blank. */
+	secondGuide: boolean;
+	categories: number[];
+	/** Categories that fit but another guide (or blank here) already has. */
+	taken: ImportTaken[];
+	isDefault: boolean;
+	mappings: ImportMapping[];
 };
 
 /** Why a blank can't go straight through, in the order to deal with them. */
@@ -274,20 +274,20 @@ export type ImportStop = 'decide' | 'confirm' | 'name' | 'where' | 'empty';
 
 /** What an import made of one blank, for the summary. */
 export type ImportResult = {
-  id: number;
-  title: string;
-  /** New guide ID; 0 when it failed. */
-  guide: number;
-  error: string;
-  chart: '' | 'garment' | 'body';
-  /** Rows in the chart. */
-  sizes: number;
-  /** Specs given a value. */
-  specs: number;
-  /** New attributes this guide made or joined. */
-  attributes: string[];
-  categories: string[];
-  isDefault: boolean;
-  /** A diagram is on its way (it downloads in the background). */
-  diagram: boolean;
+	id: number;
+	title: string;
+	/** New guide ID; 0 when it failed. */
+	guide: number;
+	error: string;
+	chart: '' | 'garment' | 'body';
+	/** Rows in the chart. */
+	sizes: number;
+	/** Specs given a value. */
+	specs: number;
+	/** New attributes this guide made or joined. */
+	attributes: string[];
+	categories: string[];
+	isDefault: boolean;
+	/** A diagram is on its way (it downloads in the background). */
+	diagram: boolean;
 };

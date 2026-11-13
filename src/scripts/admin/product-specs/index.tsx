@@ -22,19 +22,19 @@ import './import.css';
 import './import-review.css';
 import './transfer.css';
 
-domReady(() => {
-  const root = document.getElementById('aa-product-specs-root');
-  const raw = root?.getAttribute('data-aa-product-specs');
-  if (!(root instanceof HTMLElement) || !raw) {
-    return;
-  }
+domReady( () => {
+	const root = document.getElementById( 'aa-product-specs-root' );
+	const raw = root?.getAttribute( 'data-aa-product-specs' );
+	if ( ! ( root instanceof HTMLElement ) || ! raw ) {
+		return;
+	}
 
-  let config: Config;
-  try {
-    config = JSON.parse(raw) as Config;
-  } catch {
-    return;
-  }
+	let config: Config;
+	try {
+		config = JSON.parse( raw ) as Config;
+	} catch {
+		return;
+	}
 
-  createRoot(root).render(<App config={config} />);
-});
+	createRoot( root ).render( <App config={ config } /> );
+} );

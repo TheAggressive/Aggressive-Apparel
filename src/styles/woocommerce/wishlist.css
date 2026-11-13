@@ -61,7 +61,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-wishlist__icon-fill,
 	.aggressive-apparel-wishlist__icon-stroke {
 		transition: none;
@@ -70,14 +69,13 @@
 
 /* Heartbeat animation on like. */
 @media (prefers-reduced-motion: no-preference) {
-
-	.aggressive-apparel-wishlist__toggle.is-beating .aggressive-apparel-wishlist__icon {
+	.aggressive-apparel-wishlist__toggle.is-beating
+		.aggressive-apparel-wishlist__icon {
 		animation: wishlist-heartbeat 0.8s ease-in-out;
 		transform-origin: center;
 	}
 
 	@keyframes wishlist-heartbeat {
-
 		0% {
 			transform: scale(1);
 		}

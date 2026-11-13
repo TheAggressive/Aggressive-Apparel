@@ -7,11 +7,17 @@
 
 declare(strict_types=1);
 
-/** Read a local test override. */
-function aggressive_apparel_tests_env( string $name, string $default ): string {
+/**
+ * Read a local test override.
+ *
+ * @param string $name     Environment variable name.
+ * @param string $fallback Value returned when the variable is unset or empty.
+ * @return string
+ */
+function aggressive_apparel_tests_env( string $name, string $fallback ): string {
 	$value = getenv( $name );
 
-	return is_string( $value ) && '' !== $value ? $value : $default;
+	return is_string( $value ) && '' !== $value ? $value : $fallback;
 }
 
 define( 'ABSPATH', rtrim( aggressive_apparel_tests_env( 'AA_TESTS_ABSPATH', '/var/www/html' ), '/' ) . '/' );
@@ -34,7 +40,7 @@ define( 'SECURE_AUTH_SALT', 'aggressive-apparel-tests-secure-auth-salt' );
 define( 'LOGGED_IN_SALT', 'aggressive-apparel-tests-logged-in-salt' );
 define( 'NONCE_SALT', 'aggressive-apparel-tests-nonce-salt' );
 
-$table_prefix = 'wptests_';
+$table_prefix = 'wptests_'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- The WordPress test config defines this global.
 
 define( 'WP_TESTS_DOMAIN', 'example.test' );
 define( 'WP_TESTS_EMAIL', 'admin@example.test' );

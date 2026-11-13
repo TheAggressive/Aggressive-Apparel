@@ -1,88 +1,88 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/countdown-timer",
-  "version": "1.0.0",
-  "title": "Sale Countdown Timer",
-  "category": "aggressive-apparel",
-  "description": "Live countdown for products with a scheduled sale end date. Place on the single product template.",
-  "keywords": ["countdown", "sale", "timer", "urgency"],
-  "supports": {
-    "requiresPlugins": ["woocommerce"],
-    "html": false,
-    "interactivity": true,
-    "color": {
-      "background": true,
-      "gradients": true,
-      "text": true
-    },
-    "spacing": {
-      "margin": true,
-      "padding": true
-    },
-    "typography": {
-      "fontSize": true,
-      "lineHeight": true
-    },
-    "__experimentalBorder": {
-      "color": true,
-      "radius": true,
-      "style": true,
-      "width": true
-    }
-  },
-  "attributes": {
-    "displayStyle": {
-      "type": "string",
-      "default": "inline",
-      "enum": [
-        "inline",
-        "compact",
-        "minimal",
-        "card",
-        "chips",
-        "banner",
-        "strip",
-        "pill",
-        "boxed",
-        "outline",
-        "editorial",
-        "magazine",
-        "hero",
-        "hero-center",
-        "hero-split",
-        "hero-panel"
-      ]
-    },
-    "endDateTime": {
-      "type": "string",
-      "default": ""
-    },
-    "saleLabelColor": {
-      "type": "string",
-      "default": ""
-    },
-    "timeValueColor": {
-      "type": "string",
-      "default": ""
-    },
-    "unitLabelColor": {
-      "type": "string",
-      "default": ""
-    },
-    "timerBorderColor": {
-      "type": "string",
-      "default": ""
-    },
-    "dropPageUrl": {
-      "type": "string",
-      "default": ""
-    }
-  },
-  "textdomain": "aggressive-apparel",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css",
-  "style": "file:./style-index.css",
-  "render": "file:./render.php",
-  "viewScriptModule": "file:./view.js"
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/countdown-timer",
+	"version": "1.0.0",
+	"title": "Sale Countdown Timer",
+	"category": "aggressive-apparel",
+	"description": "Live countdown for products with a scheduled sale end date. Place on the single product template.",
+	"keywords": [ "countdown", "sale", "timer", "urgency" ],
+	"supports": {
+		"requiresPlugins": [ "woocommerce" ],
+		"html": false,
+		"interactivity": true,
+		"color": {
+			"background": true,
+			"gradients": true,
+			"text": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		}
+	},
+	"attributes": {
+		"displayStyle": {
+			"type": "string",
+			"default": "inline",
+			"enum": [
+				"inline",
+				"compact",
+				"minimal",
+				"card",
+				"chips",
+				"banner",
+				"strip",
+				"pill",
+				"boxed",
+				"outline",
+				"editorial",
+				"magazine",
+				"hero",
+				"hero-center",
+				"hero-split",
+				"hero-panel"
+			]
+		},
+		"endDateTime": {
+			"type": "string",
+			"default": ""
+		},
+		"saleLabelColor": {
+			"type": "string",
+			"default": ""
+		},
+		"timeValueColor": {
+			"type": "string",
+			"default": ""
+		},
+		"unitLabelColor": {
+			"type": "string",
+			"default": ""
+		},
+		"timerBorderColor": {
+			"type": "string",
+			"default": ""
+		},
+		"dropPageUrl": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"textdomain": "aggressive-apparel",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:./view.js"
 }

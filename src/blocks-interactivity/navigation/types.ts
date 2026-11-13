@@ -8,29 +8,29 @@
 
 export type BorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
 export type ScrollBehavior =
-  'none' | 'sticky' | 'hide-on-scroll' | 'transparent-to-opaque';
+	'none' | 'sticky' | 'hide-on-scroll' | 'transparent-to-opaque';
 
 export type NavigationAttributes = {
-  breakpoint: number;
-  ariaLabel: string;
-  openOn: 'hover' | 'click';
-  navId?: string;
-  scrollBehavior: ScrollBehavior;
-  /** When true the desktop nav auto-renders the mobile panel template part. */
-  autoLoadMobilePanel: boolean;
-  /** Slug of the template part holding the mobile navigation panel. */
-  mobileNavPart: string;
-  // Indicator
-  indicatorColor?: string;
-  // Submenu styling
-  submenuBackgroundColor?: string;
-  submenuTextColor?: string;
-  submenuLinkHoverColor?: string;
-  submenuLinkHoverBg?: string;
-  submenuBorderRadius?: string;
-  submenuBorderWidth?: string;
-  submenuBorderColor?: string;
-  submenuBorderStyle?: BorderStyle;
+	breakpoint: number;
+	ariaLabel: string;
+	openOn: 'hover' | 'click';
+	navId?: string;
+	scrollBehavior: ScrollBehavior;
+	/** When true the desktop nav auto-renders the mobile panel template part. */
+	autoLoadMobilePanel: boolean;
+	/** Slug of the template part holding the mobile navigation panel. */
+	mobileNavPart: string;
+	// Indicator
+	indicatorColor?: string;
+	// Submenu styling
+	submenuBackgroundColor?: string;
+	submenuTextColor?: string;
+	submenuLinkHoverColor?: string;
+	submenuLinkHoverBg?: string;
+	submenuBorderRadius?: string;
+	submenuBorderWidth?: string;
+	submenuBorderColor?: string;
+	submenuBorderStyle?: BorderStyle;
 };
 
 /**
@@ -45,9 +45,9 @@ export type NavigationAttributes = {
  *   Fields cannot be reactive; all mutable per-nav state goes into _navs[navId].
  */
 export interface NavigationContext {
-  navId: string;
-  breakpoint: number;
-  openOn: 'hover' | 'click';
+	navId: string;
+	breakpoint: number;
+	openOn: 'hover' | 'click';
 }
 
 /**
@@ -57,10 +57,10 @@ export interface NavigationContext {
  *   getContext<NavigationContext & SubmenuContext>()
  */
 export interface SubmenuContext {
-  /** Matches the id attribute on the .wp-block-...-nav-submenu panel element. */
-  submenuId: string;
-  /** Selects the close/indicator behaviour: 'dropdown' clips; 'mega' spans viewport. */
-  menuType: 'dropdown' | 'mega';
+	/** Matches the id attribute on the .wp-block-...-nav-submenu panel element. */
+	submenuId: string;
+	/** Selects the close/indicator behaviour: 'dropdown' clips; 'mega' spans viewport. */
+	menuType: 'dropdown' | 'mega';
 }
 
 /**
@@ -69,19 +69,19 @@ export interface SubmenuContext {
  * - activeSubmenuId tracks which desktop dropdown/mega is open.
  */
 export interface NavState {
-  isMobile: boolean;
-  activeSubmenuId: string | null;
+	isMobile: boolean;
+	activeSubmenuId: string | null;
 }
 
 export interface NavigationI18n {
-  submenuOpened?: string;
-  submenuClosed?: string;
+	submenuOpened?: string;
+	submenuClosed?: string;
 }
 
 export interface NavigationState {
-  isMobile: boolean;
-  activeSubmenuId: string | null;
-  /** Per-nav-instance mutable state keyed by navId. */
-  _navs: Record<string, NavState>;
-  i18n?: NavigationI18n;
+	isMobile: boolean;
+	activeSubmenuId: string | null;
+	/** Per-nav-instance mutable state keyed by navId. */
+	_navs: Record< string, NavState >;
+	i18n?: NavigationI18n;
 }

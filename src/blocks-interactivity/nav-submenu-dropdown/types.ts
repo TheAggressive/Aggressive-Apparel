@@ -7,22 +7,22 @@
 export type OpenTrigger = 'hover' | 'click';
 
 export type NavDropdownAttributes = {
-  label: string;
-  url: string;
-  submenuId: string;
-  showArrow: boolean;
-  openOn: OpenTrigger;
+	label: string;
+	url: string;
+	submenuId: string;
+	showArrow: boolean;
+	openOn: OpenTrigger;
 };
 
 export interface NavDropdownContext {
-  'aggressive-apparel/navigationId'?: string;
-  'aggressive-apparel/navigationOpenOn'?: OpenTrigger;
-  'aggressive-apparel/submenuBackgroundColor'?: string;
-  'aggressive-apparel/submenuTextColor'?: string;
-  'aggressive-apparel/submenuLinkHoverColor'?: string;
-  'aggressive-apparel/submenuLinkHoverBg'?: string;
-  'aggressive-apparel/submenuBorderRadius'?: string;
-  'aggressive-apparel/submenuBorderWidth'?: string;
-  'aggressive-apparel/submenuBorderColor'?: string;
-  'aggressive-apparel/submenuBorderStyle'?: string;
+	'aggressive-apparel/navigationId'?: string;
+	'aggressive-apparel/navigationOpenOn'?: OpenTrigger;
+	'aggressive-apparel/submenuBackgroundColor'?: string;
+	'aggressive-apparel/submenuTextColor'?: string;
+	'aggressive-apparel/submenuLinkHoverColor'?: string;
+	'aggressive-apparel/submenuLinkHoverBg'?: string;
+	'aggressive-apparel/submenuBorderRadius'?: string;
+	'aggressive-apparel/submenuBorderWidth'?: string;
+	'aggressive-apparel/submenuBorderColor'?: string;
+	'aggressive-apparel/submenuBorderStyle'?: string;
 }

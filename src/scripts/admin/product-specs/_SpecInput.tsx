@@ -17,109 +17,111 @@ import type { SpecItem } from './_types';
 import { stepFor } from './_utils';
 
 type Props = {
-  item: SpecItem;
-  value: string;
-  label: string;
-  inherited?: string;
-  changed?: boolean;
-  showStep?: boolean;
-  onChange: (value: string) => void;
-  /** Leaving the field (to tidy what was typed). */
-  onBlur?: () => void;
+	item: SpecItem;
+	value: string;
+	label: string;
+	inherited?: string;
+	changed?: boolean;
+	showStep?: boolean;
+	onChange: ( value: string ) => void;
+	/** Leaving the field (to tidy what was typed). */
+	onBlur?: () => void;
 };
 
-export default function SpecInput({
-  item,
-  value,
-  label,
-  inherited = '',
-  changed = false,
-  showStep = false,
-  onChange,
-  onBlur,
-}: Props) {
-  const className = cx('aa-ps-input', changed && 'is-changed');
-  const id = useId();
+export default function SpecInput( {
+	item,
+	value,
+	label,
+	inherited = '',
+	changed = false,
+	showStep = false,
+	onChange,
+	onBlur,
+}: Props ) {
+	const className = cx( 'aa-ps-input', changed && 'is-changed' );
+	const id = useId();
 
-  if (item.type === 'pick') {
-    return (
-      <select
-        className={className}
-        aria-label={label}
-        value={value}
-        onChange={event => onChange(event.target.value)}
-      >
-        <option value=''>
-          {inherited
-            ? sprintf(
-                /* translators: %s: inherited value. */
-                __('Inherit: %s', 'aggressive-apparel'),
-                inherited
-              )
-            : '—'}
-        </option>
-        {item.steps.map((step, i) => (
-          <option key={i} value={String(i)}>
-            {step}
-          </option>
-        ))}
-      </select>
-    );
-  }
+	if ( item.type === 'pick' ) {
+		return (
+			<select
+				className={ className }
+				aria-label={ label }
+				value={ value }
+				onChange={ ( event ) => onChange( event.target.value ) }
+			>
+				<option value="">
+					{ inherited
+						? sprintf(
+								/* translators: %s: inherited value. */
+								__( 'Inherit: %s', 'aggressive-apparel' ),
+								inherited
+							)
+						: '—' }
+				</option>
+				{ item.steps.map( ( step, i ) => (
+					<option key={ i } value={ String( i ) }>
+						{ step }
+					</option>
+				) ) }
+			</select>
+		);
+	}
 
-  const number = Number(value);
-  const step =
-    showStep && item.type === 'number' && value !== '' && number > 0
-      ? item.steps[stepFor(number, item.thresholds)]
-      : '';
+	const number = Number( value );
+	const step =
+		showStep && item.type === 'number' && value !== '' && number > 0
+			? item.steps[ stepFor( number, item.thresholds ) ]
+			: '';
 
-  // A text spec's values are its attribute's terms: offer them, so a value
-  // is picked rather than retyped with a different spelling.
-  const listId =
-    item.type === 'text' && item.terms?.length ? `${id}-terms` : undefined;
+	// A text spec's values are its attribute's terms: offer them, so a value
+	// is picked rather than retyped with a different spelling.
+	const listId =
+		item.type === 'text' && item.terms?.length
+			? `${ id }-terms`
+			: undefined;
 
-  return (
-    <span className='aa-ps-input-wrap'>
-      {listId && (
-        <datalist id={listId}>
-          {item.terms?.map(term => (
-            <option key={term.name} value={term.name} />
-          ))}
-        </datalist>
-      )}
-      <input
-        className={className}
-        aria-label={label}
-        list={listId}
-        type={item.type === 'number' ? 'number' : 'text'}
-        min={item.type === 'number' ? 0 : undefined}
-        step={item.type === 'number' ? 'any' : undefined}
-        placeholder={
-          inherited ||
-          (item.type === 'number'
-            ? item.unit
-            : item.multiple
-              ? __('Value | Value', 'aggressive-apparel')
-              : '')
-        }
-        value={value}
-        onChange={event => onChange(event.target.value)}
-        onBlur={onBlur}
-      />
-      {step && (
-        <span className='aa-ps-input__hint'>
-          {item.category_steps.length > 0
-            ? sprintf(
-                /* translators: %s: step name. */
-                __(
-                  '%s by default; some categories differ',
-                  'aggressive-apparel'
-                ),
-                step
-              )
-            : step}
-        </span>
-      )}
-    </span>
-  );
+	return (
+		<span className="aa-ps-input-wrap">
+			{ listId && (
+				<datalist id={ listId }>
+					{ item.terms?.map( ( term ) => (
+						<option key={ term.name } value={ term.name } />
+					) ) }
+				</datalist>
+			) }
+			<input
+				className={ className }
+				aria-label={ label }
+				list={ listId }
+				type={ item.type === 'number' ? 'number' : 'text' }
+				min={ item.type === 'number' ? 0 : undefined }
+				step={ item.type === 'number' ? 'any' : undefined }
+				placeholder={
+					inherited ||
+					( item.type === 'number'
+						? item.unit
+						: item.multiple
+							? __( 'Value | Value', 'aggressive-apparel' )
+							: '' )
+				}
+				value={ value }
+				onChange={ ( event ) => onChange( event.target.value ) }
+				onBlur={ onBlur }
+			/>
+			{ step && (
+				<span className="aa-ps-input__hint">
+					{ item.category_steps.length > 0
+						? sprintf(
+								/* translators: %s: step name. */
+								__(
+									'%s by default; some categories differ',
+									'aggressive-apparel'
+								),
+								step
+							)
+						: step }
+				</span>
+			) }
+		</span>
+	);
 }

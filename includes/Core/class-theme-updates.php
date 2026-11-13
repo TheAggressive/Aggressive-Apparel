@@ -27,13 +27,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Theme_Updates {
 
 	/**
-	 * The single instance of the class.
-	 *
-	 * @var Theme_Updates|null
-	 */
-	private static ?Theme_Updates $instance = null;
-
-	/**
 	 * GitHub release repository.
 	 *
 	 * @var Theme_Update_Release_Repository
@@ -48,42 +41,16 @@ class Theme_Updates {
 	private Theme_Update_Package_Verifier $packages;
 
 	/**
-	 * Private constructor for singleton.
+	 * Wire the updater. The service container owns its lifetime (one per
+	 * request); collaborators default to the real GitHub-backed ones.
+	 *
+	 * @param Theme_Update_Release_Repository|null $releases Release repository.
+	 * @param Theme_Update_Package_Verifier|null   $packages Package verifier.
 	 */
-	private function __construct() {
+	public function __construct( ?Theme_Update_Release_Repository $releases = null, ?Theme_Update_Package_Verifier $packages = null ) {
 		$http           = new Theme_Update_Http_Client();
-		$this->releases = new Theme_Update_Release_Repository( $http );
-		$this->packages = new Theme_Update_Package_Verifier( $this->releases, $http );
-	}
-
-	/**
-	 * Prevent cloning.
-	 *
-	 * @return void
-	 */
-	private function __clone() {}
-
-	/**
-	 * Prevent unserializing.
-	 *
-	 * @return void
-	 * @throws \RuntimeException Cannot unserialize singleton.
-	 */
-	public function __wakeup() {
-		throw new \RuntimeException( 'Cannot unserialize singleton.' );
-	}
-
-	/**
-	 * Get singleton instance.
-	 *
-	 * @since 1.0.0
-	 * @return Theme_Updates
-	 */
-	public static function get_instance(): Theme_Updates {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
+		$this->releases = $releases ?? new Theme_Update_Release_Repository( $http );
+		$this->packages = $packages ?? new Theme_Update_Package_Verifier( $this->releases, $http );
 	}
 
 	/**
@@ -206,8 +173,8 @@ class Theme_Updates {
 	 * Check for updates by comparing the current version with the GitHub release.
 	 *
 	 * @since 1.0.0
-	 * @param object $transient Transient update data.
-	 * @return object Modified transient.
+	 * @param \stdClass $transient Transient update data (WordPress builds it as stdClass).
+	 * @return \stdClass Modified transient.
 	 */
 	public function check_for_update( $transient ) {
 		if ( empty( $transient->checked ) ) {
@@ -239,7 +206,7 @@ class Theme_Updates {
 			}
 
 			if ( ! isset( $transient->response ) ) {
-				$transient->response = array(); // @phpstan-ignore property.notFound
+				$transient->response = array();
 			}
 
 			$transient->response[ $theme_slug ] = array(

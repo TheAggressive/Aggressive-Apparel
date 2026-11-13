@@ -15,8 +15,8 @@
  * @package Aggressive_Apparel
  */
 
-@import './_account-layout.css';
-@import './_account-dashboard.css';
-@import './_account-orders.css';
-@import './_account-forms.css';
-@import './_account-order-view.css';
+@import "./_account-layout.css";
+@import "./_account-dashboard.css";
+@import "./_account-orders.css";
+@import "./_account-forms.css";
+@import "./_account-order-view.css";

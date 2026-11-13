@@ -8,232 +8,245 @@
  */
 
 import type {
-  InteractivityActions,
-  InteractivityCallbacks,
+	InteractivityActions,
+	InteractivityCallbacks,
 } from '../../types/interactivity-shared';
 
 import { store } from '@wordpress/interactivity';
 import {
-  prepareOverlayOpen,
-  activateOverlayFocus,
-  closeOverlay,
+	prepareOverlayOpen,
+	activateOverlayFocus,
+	closeOverlay,
 } from '@aggressive-apparel/use-overlay';
 
 interface JQueryLike {
-  on(events: string, handler: () => void): void;
+	on( events: string, handler: () => void ): void;
 }
-declare const jQuery: (el: EventTarget) => JQueryLike;
+declare const jQuery: ( el: EventTarget ) => JQueryLike;
 
 interface BottomNavState {
-  isSearchOpen: boolean;
-  isHiddenByScroll: boolean;
-  cartCount: number;
-  cartApiUrl: string;
-  /** Translated cart labels from PHP; `%d` is the item count. */
-  i18n?: { cart?: string; cartOne?: string; cartOther?: string };
-  readonly hasEmptyCart: boolean;
-  readonly cartAriaLabel: string;
+	isSearchOpen: boolean;
+	isHiddenByScroll: boolean;
+	cartCount: number;
+	cartApiUrl: string;
+	/** Translated cart labels from PHP; `%d` is the item count. */
+	i18n?: { cart?: string; cartOne?: string; cartOther?: string };
+	readonly hasEmptyCart: boolean;
+	readonly cartAriaLabel: string;
 }
 
 interface CartApiResponse {
-  items_count?: number;
+	items_count?: number;
 }
 
-let focusTrapCleanup: (() => void) | null = null;
+let focusTrapCleanup: ( () => void ) | null = null;
 let searchTrigger: HTMLElement | null = null;
 
 function getSearchOverlay(): HTMLElement | null {
-  return document.querySelector<HTMLElement>('.aa-bottom-nav__search-overlay');
+	return document.querySelector< HTMLElement >(
+		'.aa-bottom-nav__search-overlay'
+	);
 }
 
 function openSearchOverlay(): void {
-  const overlay = getSearchOverlay();
-  if (!overlay) return;
+	const overlay = getSearchOverlay();
+	if ( ! overlay ) return;
 
-  searchTrigger = document.activeElement as HTMLElement | null;
+	searchTrigger = document.activeElement as HTMLElement | null;
 
-  prepareOverlayOpen(overlay, { manageOpenClass: false });
-  state.isSearchOpen = true;
+	prepareOverlayOpen( overlay, { manageOpenClass: false } );
+	state.isSearchOpen = true;
 
-  const panel = overlay.querySelector<HTMLElement>(
-    '.aa-bottom-nav__search-panel'
-  );
+	const panel = overlay.querySelector< HTMLElement >(
+		'.aa-bottom-nav__search-panel'
+	);
 
-  if (panel) {
-    focusTrapCleanup = activateOverlayFocus({
-      shell: overlay,
-      panel,
-      focusSelector: '.aa-bottom-nav__search-input',
-    });
-  }
+	if ( panel ) {
+		focusTrapCleanup = activateOverlayFocus( {
+			shell: overlay,
+			panel,
+			focusSelector: '.aa-bottom-nav__search-input',
+		} );
+	}
 }
 
 function closeSearchOverlay(): void {
-  state.isSearchOpen = false;
+	state.isSearchOpen = false;
 
-  const overlay = getSearchOverlay();
-  const panel = overlay?.querySelector<HTMLElement>(
-    '.aa-bottom-nav__search-panel'
-  );
+	const overlay = getSearchOverlay();
+	const panel = overlay?.querySelector< HTMLElement >(
+		'.aa-bottom-nav__search-panel'
+	);
 
-  if (!overlay || !panel) {
-    focusTrapCleanup?.();
-    focusTrapCleanup = null;
-    searchTrigger = null;
-    return;
-  }
+	if ( ! overlay || ! panel ) {
+		focusTrapCleanup?.();
+		focusTrapCleanup = null;
+		searchTrigger = null;
+		return;
+	}
 
-  closeOverlay({
-    shell: overlay,
-    panel,
-    focusTrapCleanup,
-    triggerElement: searchTrigger,
-    manageOpenClass: false,
-    isStillOpen: () => state.isSearchOpen,
-    onFinish: () => {
-      searchTrigger = null;
-    },
-  });
+	closeOverlay( {
+		shell: overlay,
+		panel,
+		focusTrapCleanup,
+		triggerElement: searchTrigger,
+		manageOpenClass: false,
+		isStillOpen: () => state.isSearchOpen,
+		onFinish: () => {
+			searchTrigger = null;
+		},
+	} );
 
-  focusTrapCleanup = null;
+	focusTrapCleanup = null;
 }
 
 interface BottomNavStore {
-  state: BottomNavState;
-  actions: InteractivityActions;
-  callbacks: InteractivityCallbacks;
+	state: BottomNavState;
+	actions: InteractivityActions;
+	callbacks: InteractivityCallbacks;
 }
 
-const { state, actions } = store<BottomNavStore>(
-  'aggressive-apparel/bottom-nav',
-  {
-    state: {
-      get hasEmptyCart(): boolean {
-        return state.cartCount === 0;
-      },
-      get cartAriaLabel(): string {
-        const i18n = state.i18n ?? {};
-        if (state.cartCount <= 0) {
-          return i18n.cart ?? 'Cart';
-        }
-        const format =
-          state.cartCount === 1
-            ? (i18n.cartOne ?? 'Cart (%d item)')
-            : (i18n.cartOther ?? 'Cart (%d items)');
-        return format.replace('%d', String(state.cartCount));
-      },
-    },
+const { state, actions } = store< BottomNavStore >(
+	'aggressive-apparel/bottom-nav',
+	{
+		state: {
+			get hasEmptyCart(): boolean {
+				return state.cartCount === 0;
+			},
+			get cartAriaLabel(): string {
+				const i18n = state.i18n ?? {};
+				if ( state.cartCount <= 0 ) {
+					return i18n.cart ?? 'Cart';
+				}
+				const format =
+					state.cartCount === 1
+						? ( i18n.cartOne ?? 'Cart (%d item)' )
+						: ( i18n.cartOther ?? 'Cart (%d items)' );
+				return format.replace( '%d', String( state.cartCount ) );
+			},
+		},
 
-    actions: {
-      toggleSearch(): void {
-        if (state.isSearchOpen) {
-          closeSearchOverlay();
-        } else {
-          openSearchOverlay();
-        }
-      },
+		actions: {
+			toggleSearch(): void {
+				if ( state.isSearchOpen ) {
+					closeSearchOverlay();
+				} else {
+					openSearchOverlay();
+				}
+			},
 
-      closeSearch(): void {
-        if (!state.isSearchOpen) return;
-        closeSearchOverlay();
-      },
+			closeSearch(): void {
+				if ( ! state.isSearchOpen ) return;
+				closeSearchOverlay();
+			},
 
-      refreshCartCount(): void {
-        fetch(state.cartApiUrl, {
-          credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
-        })
-          .then((res: Response) => res.json())
-          .then((cart: CartApiResponse) => {
-            state.cartCount = cart.items_count ?? 0;
-          })
-          .catch(() => {
-            // Silently fail — count stays stale.
-          });
-      },
-    },
+			refreshCartCount(): void {
+				fetch( state.cartApiUrl, {
+					credentials: 'same-origin',
+					headers: { 'Content-Type': 'application/json' },
+				} )
+					.then( ( res: Response ) => res.json() )
+					.then( ( cart: CartApiResponse ) => {
+						state.cartCount = cart.items_count ?? 0;
+					} )
+					.catch( () => {
+						// Silently fail — count stays stale.
+					} );
+			},
+		},
 
-    callbacks: {
-      init(): void {
-        // One-shot: header mini-cart replaces the bottom-nav cart link on
-        // mobile (mini-cart.css). A class beats body:has(block) — see above.
-        if (document.querySelector('.wp-block-woocommerce-mini-cart')) {
-          document.body.classList.add('aa-has-mini-cart');
-        }
+		callbacks: {
+			init(): void {
+				// One-shot: header mini-cart replaces the bottom-nav cart link on
+				// mobile (mini-cart.css). A class beats body:has(block) — see above.
+				if (
+					document.querySelector( '.wp-block-woocommerce-mini-cart' )
+				) {
+					document.body.classList.add( 'aa-has-mini-cart' );
+				}
 
-        // Scroll-aware show/hide.
-        const prefersReducedMotion = window.matchMedia(
-          '(prefers-reduced-motion: reduce)'
-        ).matches;
+				// Scroll-aware show/hide.
+				const prefersReducedMotion = window.matchMedia(
+					'(prefers-reduced-motion: reduce)'
+				).matches;
 
-        if (!prefersReducedMotion) {
-          let lastScrollY: number = window.scrollY;
-          let ticking = false;
+				if ( ! prefersReducedMotion ) {
+					let lastScrollY: number = window.scrollY;
+					let ticking = false;
 
-          const onScroll = (): void => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(() => {
-              const currentY = window.scrollY;
-              const delta = currentY - lastScrollY;
+					const onScroll = (): void => {
+						if ( ticking ) return;
+						ticking = true;
+						requestAnimationFrame( () => {
+							const currentY = window.scrollY;
+							const delta = currentY - lastScrollY;
 
-              if (delta > 50 && currentY > 100) {
-                state.isHiddenByScroll = true;
-              } else if (delta < -10) {
-                state.isHiddenByScroll = false;
-              }
-              // Mirrored as a body class so dependent CSS (sticky cart
-              // offset) avoids body:has() — a body-level :has() forces a
-              // document-wide style re-scan on every childList mutation.
-              document.body.classList.toggle(
-                'aa-bottom-nav-hidden',
-                state.isHiddenByScroll
-              );
+							if ( delta > 50 && currentY > 100 ) {
+								state.isHiddenByScroll = true;
+							} else if ( delta < -10 ) {
+								state.isHiddenByScroll = false;
+							}
+							// Mirrored as a body class so dependent CSS (sticky cart
+							// offset) avoids body:has() — a body-level :has() forces a
+							// document-wide style re-scan on every childList mutation.
+							document.body.classList.toggle(
+								'aa-bottom-nav-hidden',
+								state.isHiddenByScroll
+							);
 
-              lastScrollY = currentY;
-              ticking = false;
-            });
-          };
+							lastScrollY = currentY;
+							ticking = false;
+						} );
+					};
 
-          window.addEventListener('scroll', onScroll, { passive: true });
-        }
+					window.addEventListener( 'scroll', onScroll, {
+						passive: true,
+					} );
+				}
 
-        // Cart count sync. The server-rendered count is baked into the
-        // Interactivity state at render time, so a full-page cache (Varnish,
-        // Batcache, WP Rocket, edge) would serve the cache-priming visitor's
-        // count to everyone. Rehydrate once on load so the badge self-corrects
-        // regardless of what the page cache served, then keep it in sync via
-        // WooCommerce cart events.
-        //
-        // Skip the fetch when WooCommerce signals an empty cart: the count is
-        // then 0 and the Store API round-trip is pure waste. WC sets
-        // `woocommerce_items_in_cart` only while the cart holds items, so its
-        // absence is an authoritative "nothing to correct" for anonymous
-        // visitors — which is the common case on a page-cached mobile view.
-        if (/(?:^|;\s*)woocommerce_items_in_cart=/.test(document.cookie)) {
-          actions.refreshCartCount();
-        } else {
-          state.cartCount = 0;
-        }
+				// Cart count sync. The server-rendered count is baked into the
+				// Interactivity state at render time, so a full-page cache (Varnish,
+				// Batcache, WP Rocket, edge) would serve the cache-priming visitor's
+				// count to everyone. Rehydrate once on load so the badge self-corrects
+				// regardless of what the page cache served, then keep it in sync via
+				// WooCommerce cart events.
+				//
+				// Skip the fetch when WooCommerce signals an empty cart: the count is
+				// then 0 and the Store API round-trip is pure waste. WC sets
+				// `woocommerce_items_in_cart` only while the cart holds items, so its
+				// absence is an authoritative "nothing to correct" for anonymous
+				// visitors — which is the common case on a page-cached mobile view.
+				if (
+					/(?:^|;\s*)woocommerce_items_in_cart=/.test(
+						document.cookie
+					)
+				) {
+					actions.refreshCartCount();
+				} else {
+					state.cartCount = 0;
+				}
 
-        document.addEventListener('wc-blocks_added_to_cart', () => {
-          actions.refreshCartCount();
-        });
+				document.addEventListener( 'wc-blocks_added_to_cart', () => {
+					actions.refreshCartCount();
+				} );
 
-        // jQuery event from classic WooCommerce.
-        if (typeof jQuery !== 'undefined') {
-          jQuery(document.body).on('added_to_cart removed_from_cart', () => {
-            actions.refreshCartCount();
-          });
-        }
+				// jQuery event from classic WooCommerce.
+				if ( typeof jQuery !== 'undefined' ) {
+					jQuery( document.body ).on(
+						'added_to_cart removed_from_cart',
+						() => {
+							actions.refreshCartCount();
+						}
+					);
+				}
 
-        // Escape key closes search.
-        document.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Escape' && state.isSearchOpen) {
-            actions.closeSearch();
-          }
-        });
-      },
-    },
-  }
+				// Escape key closes search.
+				document.addEventListener( 'keydown', ( e: KeyboardEvent ) => {
+					if ( e.key === 'Escape' && state.isSearchOpen ) {
+						actions.closeSearch();
+					}
+				} );
+			},
+		},
+	}
 );

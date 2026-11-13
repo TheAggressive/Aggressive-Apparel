@@ -29,7 +29,7 @@
 
 /* Text-like inputs only: checkboxes/radios carrying this class are drawn by
  * the shared choice control in forms.css. */
-.aggressive-apparel-field__input:not([type='checkbox'], [type='radio']) {
+.aggressive-apparel-field__input:not([type="checkbox"], [type="radio"]) {
 	box-sizing: border-box;
 	width: 100%;
 	min-height: var(--aa-field-height);
@@ -69,7 +69,7 @@
 		border-left-color: var(--aa-field-bar-invalid);
 	}
 
-	&[aria-invalid='true'] {
+	&[aria-invalid="true"] {
 		border-left-color: var(--aa-field-bar-invalid);
 	}
 }
@@ -105,13 +105,14 @@
 
 	/* Only placement here; the box itself is the shared drawn checkbox. The
 	 * flex gap spaces the text, so drop the baseline's choice margin. */
-	& input[type='checkbox'] {
+	& input[type="checkbox"] {
 		margin-top: 0.0625rem;
 		margin-inline-end: 0;
 	}
 }
 
-.aggressive-apparel-field--error .aggressive-apparel-field__input:not([type='checkbox'], [type='radio']) {
+.aggressive-apparel-field--error
+	.aggressive-apparel-field__input:not([type="checkbox"], [type="radio"]) {
 	border-left-color: var(--aa-field-bar-invalid);
 }
 
@@ -141,7 +142,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-field__input {
 		transition: none;
 	}

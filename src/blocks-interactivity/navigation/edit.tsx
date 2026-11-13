@@ -9,31 +9,31 @@
  */
 
 import {
-  InspectorControls,
-  useBlockProps,
-  useInnerBlocksProps,
-  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Core radius control (theme units + presets)
-  __experimentalBorderRadiusControl as BorderRadiusControl,
+	InspectorControls,
+	useBlockProps,
+	useInnerBlocksProps,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Core radius control (theme units + presets)
+	__experimentalBorderRadiusControl as BorderRadiusControl,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
-  BaseControl,
-  Button,
-  PanelBody,
-  SelectControl,
-  TextControl,
-  ToggleControl,
-  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
-  __experimentalUnitControl as UnitControl,
-  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for numeric input
-  __experimentalNumberControl as NumberControl,
+	BaseControl,
+	Button,
+	PanelBody,
+	SelectControl,
+	TextControl,
+	ToggleControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
+	__experimentalUnitControl as UnitControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for numeric input
+	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { addQueryArgs } from '@wordpress/url';
 import {
-  AdaptiveColorPanelHeader,
-  AdaptiveCssValueSettingsDropdown,
+	AdaptiveColorPanelHeader,
+	AdaptiveCssValueSettingsDropdown,
 } from '../../utils/adaptive-color-controls';
 import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 import { __ } from '@wordpress/i18n';
@@ -42,321 +42,392 @@ import type { BorderStyle, NavigationAttributes } from './types';
 import { controlValueToRadius, radiusToControlValue } from './border-radius';
 
 const ALLOWED_BLOCKS = [
-  'aggressive-apparel/nav-link',
-  'aggressive-apparel/nav-submenu-dropdown',
-  'aggressive-apparel/nav-submenu-mega',
-  'aggressive-apparel/navigation-trigger',
-  'core/site-logo',
-  'core/site-title',
-  'core/search',
-  'core/social-links',
-  'core/buttons',
-  'core/group',
+	'aggressive-apparel/nav-link',
+	'aggressive-apparel/nav-submenu-dropdown',
+	'aggressive-apparel/nav-submenu-mega',
+	'aggressive-apparel/navigation-trigger',
+	'core/site-logo',
+	'core/site-title',
+	'core/search',
+	'core/social-links',
+	'core/buttons',
+	'core/group',
 ];
 
-const TEMPLATE: [string, Record<string, unknown>?][] = [
-  ['aggressive-apparel/nav-link', { label: 'Home', url: '/' }],
-  ['aggressive-apparel/nav-link', { label: 'Shop', url: '/shop' }],
-  ['aggressive-apparel/nav-link', { label: 'About', url: '/about' }],
-  ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
-  ['aggressive-apparel/navigation-trigger'],
+const TEMPLATE: [ string, Record< string, unknown >? ][] = [
+	[ 'aggressive-apparel/nav-link', { label: 'Home', url: '/' } ],
+	[ 'aggressive-apparel/nav-link', { label: 'Shop', url: '/shop' } ],
+	[ 'aggressive-apparel/nav-link', { label: 'About', url: '/about' } ],
+	[ 'aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' } ],
+	[ 'aggressive-apparel/navigation-trigger' ],
 ];
 
-export default function Edit({
-  attributes,
-  setAttributes,
-  clientId,
-}: BlockEditProps<NavigationAttributes>) {
-  const {
-    breakpoint,
-    ariaLabel,
-    openOn,
-    navId,
-    autoLoadMobilePanel,
-    mobileNavPart,
-    indicatorColor,
-    submenuBackgroundColor,
-    submenuTextColor,
-    submenuLinkHoverColor,
-    submenuLinkHoverBg,
-    submenuBorderRadius,
-    submenuBorderWidth,
-    submenuBorderColor,
-    submenuBorderStyle,
-  } = attributes;
+export default function Edit( {
+	attributes,
+	setAttributes,
+	clientId,
+}: BlockEditProps< NavigationAttributes > ) {
+	const {
+		breakpoint,
+		ariaLabel,
+		openOn,
+		navId,
+		autoLoadMobilePanel,
+		mobileNavPart,
+		indicatorColor,
+		submenuBackgroundColor,
+		submenuTextColor,
+		submenuLinkHoverColor,
+		submenuLinkHoverBg,
+		submenuBorderRadius,
+		submenuBorderWidth,
+		submenuBorderColor,
+		submenuBorderStyle,
+	} = attributes;
 
-  // Active theme stylesheet, needed to build the Site Editor link to the mobile
-  // navigation template part (template part IDs are "<stylesheet>//<slug>").
-  const stylesheet = useSelect(
-    select =>
-      (
-        select(coreStore).getCurrentTheme() as
-          { stylesheet?: string } | undefined
-      )?.stylesheet,
-    []
-  );
+	// Active theme stylesheet, needed to build the Site Editor link to the mobile
+	// navigation template part (template part IDs are "<stylesheet>//<slug>").
+	const stylesheet = useSelect(
+		( select ) =>
+			(
+				select( coreStore ).getCurrentTheme() as
+					{ stylesheet?: string } | undefined
+			 )?.stylesheet,
+		[]
+	);
 
-  const partSlug = mobileNavPart || 'mobile-nav';
-  const editPanelUrl = stylesheet
-    ? addQueryArgs('site-editor.php', {
-        postType: 'wp_template_part',
-        postId: `${stylesheet}//${partSlug}`,
-        canvas: 'edit',
-      })
-    : undefined;
+	const partSlug = mobileNavPart || 'mobile-nav';
+	const editPanelUrl = stylesheet
+		? addQueryArgs( 'site-editor.php', {
+				postType: 'wp_template_part',
+				postId: `${ stylesheet }//${ partSlug }`,
+				canvas: 'edit',
+			} )
+		: undefined;
 
-  useUniqueBlockId({
-    attributeName: 'navId',
-    blockNames: ['aggressive-apparel/navigation'],
-    clientId,
-    currentId: navId ?? '',
-    prefix: 'nav',
-    setId: id => setAttributes({ navId: id }),
-  });
+	useUniqueBlockId( {
+		attributeName: 'navId',
+		blockNames: [ 'aggressive-apparel/navigation' ],
+		clientId,
+		currentId: navId ?? '',
+		prefix: 'nav',
+		setId: ( id ) => setAttributes( { navId: id } ),
+	} );
 
-  const blockProps = useBlockProps({
-    className: 'wp-block-aggressive-apparel-navigation--editor',
-  });
+	const blockProps = useBlockProps( {
+		className: 'wp-block-aggressive-apparel-navigation--editor',
+	} );
 
-  const innerBlocksProps = useInnerBlocksProps(blockProps, {
-    allowedBlocks: ALLOWED_BLOCKS,
-    template: TEMPLATE,
-    templateLock: false,
-  });
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		template: TEMPLATE,
+		templateLock: false,
+	} );
 
-  return (
-    <>
-      <InspectorControls>
-        <PanelBody title={__('Responsive Settings', 'aggressive-apparel')}>
-          <NumberControl
-            label={__('Mobile Breakpoint (px)', 'aggressive-apparel')}
-            help={__(
-              'Screen width below which the desktop menubar is hidden and the trigger is shown.',
-              'aggressive-apparel'
-            )}
-            value={breakpoint}
-            onChange={value =>
-              setAttributes({
-                breakpoint: value ? parseInt(value, 10) || 1024 : 1024,
-              })
-            }
-            min={320}
-            max={1920}
-            step={1}
-            spinControls='custom'
-          />
-          <SelectControl
-            label={__('Open Submenus On', 'aggressive-apparel')}
-            help={__('How submenus open on desktop.', 'aggressive-apparel')}
-            value={openOn}
-            options={[
-              { label: __('Hover', 'aggressive-apparel'), value: 'hover' },
-              { label: __('Click', 'aggressive-apparel'), value: 'click' },
-            ]}
-            onChange={value =>
-              setAttributes({ openOn: value as 'hover' | 'click' })
-            }
-          />
-        </PanelBody>
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody
+					title={ __( 'Responsive Settings', 'aggressive-apparel' ) }
+				>
+					<NumberControl
+						label={ __(
+							'Mobile Breakpoint (px)',
+							'aggressive-apparel'
+						) }
+						help={ __(
+							'Screen width below which the desktop menubar is hidden and the trigger is shown.',
+							'aggressive-apparel'
+						) }
+						value={ breakpoint }
+						onChange={ ( value ) =>
+							setAttributes( {
+								breakpoint: value
+									? parseInt( value, 10 ) || 1024
+									: 1024,
+							} )
+						}
+						min={ 320 }
+						max={ 1920 }
+						step={ 1 }
+						spinControls="custom"
+					/>
+					<SelectControl
+						label={ __( 'Open Submenus On', 'aggressive-apparel' ) }
+						help={ __(
+							'How submenus open on desktop.',
+							'aggressive-apparel'
+						) }
+						value={ openOn }
+						options={ [
+							{
+								label: __( 'Hover', 'aggressive-apparel' ),
+								value: 'hover',
+							},
+							{
+								label: __( 'Click', 'aggressive-apparel' ),
+								value: 'click',
+							},
+						] }
+						onChange={ ( value ) =>
+							setAttributes( {
+								openOn: value as 'hover' | 'click',
+							} )
+						}
+					/>
+				</PanelBody>
 
-        <PanelBody title={__('Mobile Menu', 'aggressive-apparel')}>
-          <ToggleControl
-            __nextHasNoMarginBottom
-            label={__('Auto-place mobile menu', 'aggressive-apparel')}
-            help={__(
-              'Render the Mobile Navigation template part on the frontend automatically, so you don’t have to place it in your header yourself.',
-              'aggressive-apparel'
-            )}
-            checked={autoLoadMobilePanel}
-            onChange={value => setAttributes({ autoLoadMobilePanel: value })}
-          />
-          <BaseControl
-            id='edit-mobile-nav-part'
-            __nextHasNoMarginBottom
-            help={__(
-              'Opens the Mobile Navigation template part in the Site Editor to edit its links and panel settings.',
-              'aggressive-apparel'
-            )}
-          >
-            <Button
-              __next40pxDefaultSize
-              variant='secondary'
-              href={editPanelUrl}
-              disabled={!editPanelUrl}
-              aria-disabled={!editPanelUrl}
-            >
-              {__('Edit Mobile Navigation', 'aggressive-apparel')}
-            </Button>
-          </BaseControl>
-        </PanelBody>
+				<PanelBody title={ __( 'Mobile Menu', 'aggressive-apparel' ) }>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __(
+							'Auto-place mobile menu',
+							'aggressive-apparel'
+						) }
+						help={ __(
+							'Render the Mobile Navigation template part on the frontend automatically, so you don’t have to place it in your header yourself.',
+							'aggressive-apparel'
+						) }
+						checked={ autoLoadMobilePanel }
+						onChange={ ( value ) =>
+							setAttributes( { autoLoadMobilePanel: value } )
+						}
+					/>
+					<BaseControl
+						id="edit-mobile-nav-part"
+						__nextHasNoMarginBottom
+						help={ __(
+							'Opens the Mobile Navigation template part in the Site Editor to edit its links and panel settings.',
+							'aggressive-apparel'
+						) }
+					>
+						<Button
+							__next40pxDefaultSize
+							variant="secondary"
+							href={ editPanelUrl }
+							disabled={ ! editPanelUrl }
+							aria-disabled={ ! editPanelUrl }
+						>
+							{ __(
+								'Edit Mobile Navigation',
+								'aggressive-apparel'
+							) }
+						</Button>
+					</BaseControl>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Indicator', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <p
-            style={{
-              ...EDITOR_HELP_TEXT_STYLE,
-              marginBottom: '12px',
-            }}
-          >
-            {__(
-              'Sliding underline on desktop that follows the active menu item.',
-              'aggressive-apparel'
-            )}
-          </p>
-          <div className='aa-adaptive-color-panel'>
-            <AdaptiveColorPanelHeader
-              description={__(
-                'Indicator color can differ in light and dark mode.',
-                'aggressive-apparel'
-              )}
-            />
-            <AdaptiveCssValueSettingsDropdown
-              panelId={`${clientId}-nav-indicator`}
-              settings={[
-                {
-                  id: 'indicator',
-                  label: __('Color', 'aggressive-apparel'),
-                  value: indicatorColor,
-                  onChange: v => setAttributes({ indicatorColor: v }),
-                },
-              ]}
-            />
-          </div>
-        </PanelBody>
+				<PanelBody
+					title={ __( 'Indicator', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<p
+						style={ {
+							...EDITOR_HELP_TEXT_STYLE,
+							marginBottom: '12px',
+						} }
+					>
+						{ __(
+							'Sliding underline on desktop that follows the active menu item.',
+							'aggressive-apparel'
+						) }
+					</p>
+					<div className="aa-adaptive-color-panel">
+						<AdaptiveColorPanelHeader
+							description={ __(
+								'Indicator color can differ in light and dark mode.',
+								'aggressive-apparel'
+							) }
+						/>
+						<AdaptiveCssValueSettingsDropdown
+							panelId={ `${ clientId }-nav-indicator` }
+							settings={ [
+								{
+									id: 'indicator',
+									label: __( 'Color', 'aggressive-apparel' ),
+									value: indicatorColor,
+									onChange: ( v ) =>
+										setAttributes( { indicatorColor: v } ),
+								},
+							] }
+						/>
+					</div>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Accessibility', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <TextControl
-            label={__('Navigation Label', 'aggressive-apparel')}
-            help={__(
-              'Accessible label for screen readers.',
-              'aggressive-apparel'
-            )}
-            value={ariaLabel}
-            onChange={value => setAttributes({ ariaLabel: value })}
-          />
-        </PanelBody>
+				<PanelBody
+					title={ __( 'Accessibility', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<TextControl
+						label={ __( 'Navigation Label', 'aggressive-apparel' ) }
+						help={ __(
+							'Accessible label for screen readers.',
+							'aggressive-apparel'
+						) }
+						value={ ariaLabel }
+						onChange={ ( value ) =>
+							setAttributes( { ariaLabel: value } )
+						}
+					/>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Submenu Colors', 'aggressive-apparel')}
-          initialOpen={false}
-          className='aa-adaptive-color-panel-body'
-        >
-          <div className='aa-adaptive-color-panel'>
-            <AdaptiveColorPanelHeader
-              description={__(
-                'Choose Light or Dark, then set submenu colors with the standard WordPress color picker.',
-                'aggressive-apparel'
-              )}
-            />
-            <AdaptiveCssValueSettingsDropdown
-              panelId={`${clientId}-nav-submenu-colors`}
-              settings={[
-                {
-                  id: 'submenuBackground',
-                  label: __('Background', 'aggressive-apparel'),
-                  value: submenuBackgroundColor,
-                  onChange: v => setAttributes({ submenuBackgroundColor: v }),
-                  allowGradient: true,
-                },
-                {
-                  id: 'submenuText',
-                  label: __('Text', 'aggressive-apparel'),
-                  value: submenuTextColor,
-                  onChange: v => setAttributes({ submenuTextColor: v }),
-                },
-                {
-                  id: 'submenuLinkHover',
-                  label: __('Link Hover Text', 'aggressive-apparel'),
-                  value: submenuLinkHoverColor,
-                  onChange: v => setAttributes({ submenuLinkHoverColor: v }),
-                },
-                {
-                  id: 'submenuLinkHoverBg',
-                  label: __('Link Hover Background', 'aggressive-apparel'),
-                  value: submenuLinkHoverBg,
-                  onChange: v => setAttributes({ submenuLinkHoverBg: v }),
-                  allowGradient: true,
-                },
-              ]}
-            />
-          </div>
-        </PanelBody>
+				<PanelBody
+					title={ __( 'Submenu Colors', 'aggressive-apparel' ) }
+					initialOpen={ false }
+					className="aa-adaptive-color-panel-body"
+				>
+					<div className="aa-adaptive-color-panel">
+						<AdaptiveColorPanelHeader
+							description={ __(
+								'Choose Light or Dark, then set submenu colors with the standard WordPress color picker.',
+								'aggressive-apparel'
+							) }
+						/>
+						<AdaptiveCssValueSettingsDropdown
+							panelId={ `${ clientId }-nav-submenu-colors` }
+							settings={ [
+								{
+									id: 'submenuBackground',
+									label: __(
+										'Background',
+										'aggressive-apparel'
+									),
+									value: submenuBackgroundColor,
+									onChange: ( v ) =>
+										setAttributes( {
+											submenuBackgroundColor: v,
+										} ),
+									allowGradient: true,
+								},
+								{
+									id: 'submenuText',
+									label: __( 'Text', 'aggressive-apparel' ),
+									value: submenuTextColor,
+									onChange: ( v ) =>
+										setAttributes( {
+											submenuTextColor: v,
+										} ),
+								},
+								{
+									id: 'submenuLinkHover',
+									label: __(
+										'Link Hover Text',
+										'aggressive-apparel'
+									),
+									value: submenuLinkHoverColor,
+									onChange: ( v ) =>
+										setAttributes( {
+											submenuLinkHoverColor: v,
+										} ),
+								},
+								{
+									id: 'submenuLinkHoverBg',
+									label: __(
+										'Link Hover Background',
+										'aggressive-apparel'
+									),
+									value: submenuLinkHoverBg,
+									onChange: ( v ) =>
+										setAttributes( {
+											submenuLinkHoverBg: v,
+										} ),
+									allowGradient: true,
+								},
+							] }
+						/>
+					</div>
+				</PanelBody>
 
-        <PanelBody
-          title={__('Submenu Panel Border', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <p
-            style={{
-              ...EDITOR_HELP_TEXT_STYLE,
-              marginBottom: '12px',
-            }}
-          >
-            {__(
-              "Applies to every submenu panel. A submenu block's own Border setting styles its menu item instead.",
-              'aggressive-apparel'
-            )}
-          </p>
-          <BorderRadiusControl
-            values={radiusToControlValue(submenuBorderRadius)}
-            onChange={value =>
-              setAttributes({
-                submenuBorderRadius: controlValueToRadius(value),
-              })
-            }
-          />
-          <UnitControl
-            label={__('Border Width', 'aggressive-apparel')}
-            value={submenuBorderWidth}
-            onChange={(value: string | undefined) =>
-              setAttributes({ submenuBorderWidth: value })
-            }
-            units={[
-              { value: 'px', label: 'px', default: 0 },
-              { value: 'em', label: 'em', default: 0 },
-              { value: 'rem', label: 'rem', default: 0 },
-            ]}
-          />
-          <SelectControl
-            label={__('Border Style', 'aggressive-apparel')}
-            value={submenuBorderStyle ?? 'solid'}
-            options={[
-              { label: __('Solid', 'aggressive-apparel'), value: 'solid' },
-              { label: __('Dashed', 'aggressive-apparel'), value: 'dashed' },
-              { label: __('Dotted', 'aggressive-apparel'), value: 'dotted' },
-              { label: __('None', 'aggressive-apparel'), value: 'none' },
-            ]}
-            onChange={value =>
-              setAttributes({ submenuBorderStyle: value as BorderStyle })
-            }
-          />
-          <div className='aa-adaptive-color-panel'>
-            <AdaptiveColorPanelHeader
-              description={__(
-                'Border color can differ in light and dark mode.',
-                'aggressive-apparel'
-              )}
-            />
-            <AdaptiveCssValueSettingsDropdown
-              panelId={`${clientId}-nav-submenu-border`}
-              settings={[
-                {
-                  id: 'submenuBorder',
-                  label: __('Border Color', 'aggressive-apparel'),
-                  value: submenuBorderColor,
-                  onChange: v => setAttributes({ submenuBorderColor: v }),
-                },
-              ]}
-            />
-          </div>
-        </PanelBody>
-      </InspectorControls>
-      <nav {...innerBlocksProps} aria-label={ariaLabel} />
-    </>
-  );
+				<PanelBody
+					title={ __( 'Submenu Panel Border', 'aggressive-apparel' ) }
+					initialOpen={ false }
+				>
+					<p
+						style={ {
+							...EDITOR_HELP_TEXT_STYLE,
+							marginBottom: '12px',
+						} }
+					>
+						{ __(
+							"Applies to every submenu panel. A submenu block's own Border setting styles its menu item instead.",
+							'aggressive-apparel'
+						) }
+					</p>
+					<BorderRadiusControl
+						values={ radiusToControlValue( submenuBorderRadius ) }
+						onChange={ ( value ) =>
+							setAttributes( {
+								submenuBorderRadius:
+									controlValueToRadius( value ),
+							} )
+						}
+					/>
+					<UnitControl
+						label={ __( 'Border Width', 'aggressive-apparel' ) }
+						value={ submenuBorderWidth }
+						onChange={ ( value: string | undefined ) =>
+							setAttributes( { submenuBorderWidth: value } )
+						}
+						units={ [
+							{ value: 'px', label: 'px', default: 0 },
+							{ value: 'em', label: 'em', default: 0 },
+							{ value: 'rem', label: 'rem', default: 0 },
+						] }
+					/>
+					<SelectControl
+						label={ __( 'Border Style', 'aggressive-apparel' ) }
+						value={ submenuBorderStyle ?? 'solid' }
+						options={ [
+							{
+								label: __( 'Solid', 'aggressive-apparel' ),
+								value: 'solid',
+							},
+							{
+								label: __( 'Dashed', 'aggressive-apparel' ),
+								value: 'dashed',
+							},
+							{
+								label: __( 'Dotted', 'aggressive-apparel' ),
+								value: 'dotted',
+							},
+							{
+								label: __( 'None', 'aggressive-apparel' ),
+								value: 'none',
+							},
+						] }
+						onChange={ ( value ) =>
+							setAttributes( {
+								submenuBorderStyle: value as BorderStyle,
+							} )
+						}
+					/>
+					<div className="aa-adaptive-color-panel">
+						<AdaptiveColorPanelHeader
+							description={ __(
+								'Border color can differ in light and dark mode.',
+								'aggressive-apparel'
+							) }
+						/>
+						<AdaptiveCssValueSettingsDropdown
+							panelId={ `${ clientId }-nav-submenu-border` }
+							settings={ [
+								{
+									id: 'submenuBorder',
+									label: __(
+										'Border Color',
+										'aggressive-apparel'
+									),
+									value: submenuBorderColor,
+									onChange: ( v ) =>
+										setAttributes( {
+											submenuBorderColor: v,
+										} ),
+								},
+							] }
+						/>
+					</div>
+				</PanelBody>
+			</InspectorControls>
+			<nav { ...innerBlocksProps } aria-label={ ariaLabel } />
+		</>
+	);
 }

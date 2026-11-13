@@ -17,7 +17,9 @@
    Store Notices block has moved into toasts — and its margin still pushes
    the page down. Hide it when every child is one of those. (On a product
    page the container also wraps the add-to-cart form, so it stays.) */
-.wc-block-components-notices:not(:has(> :not(template, .wc-block-components-notice-banner[hidden]))) {
+.wc-block-components-notices:not(
+	:has(> :not(template, .wc-block-components-notice-banner[hidden]))
+) {
 	display: none;
 }
 
@@ -122,7 +124,12 @@
 	color: var(--aa-color-foreground) !important;
 }
 
-.wc-block-components-notice-banner:is(.is-success, .is-error, .is-info, .is-warning) {
+.wc-block-components-notice-banner:is(
+	.is-success,
+	.is-error,
+	.is-info,
+	.is-warning
+) {
 	border: 0 !important;
 	border-inline-start: 3px solid var(--aa-wc-notice-color) !important;
 	background-color: var(--aa-wc-notice-bg) !important;
@@ -140,20 +147,24 @@
 	color: var(--aa-color-surface) !important;
 }
 
-.wc-block-components-notice-banner > .wc-block-components-notice-banner__content {
+.wc-block-components-notice-banner
+	> .wc-block-components-notice-banner__content {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
 	flex: 1 1 0;
 	gap: var(--wp--preset--spacing--4);
 	min-width: 0;
-	padding-inline: 0 !important;
-	color: var(--aa-color-foreground) !important;
+	padding-inline: 0;
+	color: var(--aa-color-foreground);
 }
 
 /* Checkout's error banner is a summary line over a list of problems: stack
  * them so it reads top to bottom instead of as two side-by-side columns. */
-.wc-block-components-notice-banner > .wc-block-components-notice-banner__content:has(> .wc-block-components-notice-banner__summary) {
+.wc-block-components-notice-banner
+	> .wc-block-components-notice-banner__content:has(
+		> .wc-block-components-notice-banner__summary
+	) {
 	flex-direction: column;
 	align-items: flex-start;
 	gap: var(--wp--preset--spacing--2);
@@ -161,26 +172,33 @@
 
 /* WooCommerce prints the action link before the message text; show it after,
  * sharing the row once there's room (the text shrinks and wraps beside it). */
-.wc-block-components-notice-banner > .wc-block-components-notice-banner__content > :is(.button, .wc-forward) {
+.wc-block-components-notice-banner
+	> .wc-block-components-notice-banner__content
+	> :is(.button, .wc-forward) {
 	order: 1;
 }
 
 @media (width >= 600px) {
-
-	.wc-block-components-notice-banner > .wc-block-components-notice-banner__content:has(> :is(.button, .wc-forward)) {
+	.wc-block-components-notice-banner
+		> .wc-block-components-notice-banner__content:has(
+			> :is(.button, .wc-forward)
+		) {
 		flex-wrap: nowrap;
 	}
 }
 
 /* Primary notice actions use the theme's compact button language. */
 :is(
-	.woocommerce-message,
-	.woocommerce-info,
-	.woocommerce-error,
-	.woocommerce-warning
-) :is(.button, .wc-forward),
+		.woocommerce-message,
+		.woocommerce-info,
+		.woocommerce-error,
+		.woocommerce-warning
+	)
+	:is(.button, .wc-forward),
 .wc-block-components-notice-banner .button,
-.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward {
+.wc-block-components-notice-banner
+	> .wc-block-components-notice-banner__content
+	.wc-forward {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -190,10 +208,14 @@
 	float: none !important;
 	margin: 0 !important;
 	margin-inline-start: auto !important;
-	padding: var(--aa-compact-action-padding-block) var(--aa-compact-action-padding-inline) !important;
-	border: var(--aa-compact-action-border-width) solid var(--wp--custom--button--secondary--border) !important;
+	padding: var(--aa-compact-action-padding-block)
+		var(--aa-compact-action-padding-inline) !important;
+	border: var(--aa-compact-action-border-width) solid
+		var(--wp--custom--button--secondary--border) !important;
 	border-radius: var(--aa-radius-button);
-	background-color: var(--wp--custom--button--secondary--background) !important;
+	background-color: var(
+		--wp--custom--button--secondary--background
+	) !important;
 	color: var(--wp--custom--button--secondary--text) !important;
 	box-shadow: none !important;
 	font-family: inherit;
@@ -210,26 +232,34 @@
 }
 
 :is(
-	.woocommerce-message,
-	.woocommerce-info,
-	.woocommerce-error,
-	.woocommerce-warning
-) :is(.button, .wc-forward):hover,
+		.woocommerce-message,
+		.woocommerce-info,
+		.woocommerce-error,
+		.woocommerce-warning
+	)
+	:is(.button, .wc-forward):hover,
 .wc-block-components-notice-banner .button:hover,
-.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward:hover {
-	background-color: var(--wp--custom--button--secondary--hover-background) !important;
+.wc-block-components-notice-banner
+	> .wc-block-components-notice-banner__content
+	.wc-forward:hover {
+	background-color: var(
+		--wp--custom--button--secondary--hover-background
+	) !important;
 	color: var(--wp--custom--button--secondary--hover-text) !important;
 	opacity: 1;
 }
 
 :is(
-	.woocommerce-message,
-	.woocommerce-info,
-	.woocommerce-error,
-	.woocommerce-warning
-) :is(.button, .wc-forward):focus-visible,
+		.woocommerce-message,
+		.woocommerce-info,
+		.woocommerce-error,
+		.woocommerce-warning
+	)
+	:is(.button, .wc-forward):focus-visible,
 .wc-block-components-notice-banner .button:focus-visible,
-.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward:focus-visible,
+.wc-block-components-notice-banner
+	> .wc-block-components-notice-banner__content
+	.wc-forward:focus-visible,
 .wc-block-components-notice-banner__dismiss:focus-visible {
 	outline: 2px solid transparent;
 	box-shadow: var(--aa-focus-ring);
@@ -237,19 +267,23 @@
 
 /* Secondary inline links inherit the status color without losing an underline. */
 :is(
-	.woocommerce-message,
-	.woocommerce-info,
-	.woocommerce-error,
-	.woocommerce-warning
-) a:not(.button, .wc-forward),
-.wc-block-components-notice-banner > .wc-block-components-notice-banner__content a:not(.button, .wc-forward) {
+		.woocommerce-message,
+		.woocommerce-info,
+		.woocommerce-error,
+		.woocommerce-warning
+	)
+	a:not(.button, .wc-forward),
+.wc-block-components-notice-banner
+	> .wc-block-components-notice-banner__content
+	a:not(.button, .wc-forward) {
 	color: var(--aa-wc-notice-color);
 	font-weight: 600;
 	text-decoration-thickness: 0.08em;
 	text-underline-offset: 0.15em;
 }
 
-.wc-block-components-notice-banner > .wc-block-components-button.wc-block-components-notice-banner__dismiss {
+.wc-block-components-notice-banner
+	> .wc-block-components-button.wc-block-components-notice-banner__dismiss {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -270,7 +304,8 @@
 		color var(--aa-duration-fast) var(--aa-ease-default);
 }
 
-.wc-block-components-notice-banner > .wc-block-components-button.wc-block-components-notice-banner__dismiss:hover {
+.wc-block-components-notice-banner
+	> .wc-block-components-button.wc-block-components-notice-banner__dismiss:hover {
 	color: var(--wp--custom--button--icon--hover-text) !important;
 }
 
@@ -281,7 +316,6 @@
 }
 
 @media (width < 600px) {
-
 	.woocommerce-message,
 	.woocommerce-info {
 		align-items: flex-start;
@@ -289,7 +323,9 @@
 	}
 
 	:is(.woocommerce-message, .woocommerce-info) :is(.button, .wc-forward),
-	.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward {
+	.wc-block-components-notice-banner
+		> .wc-block-components-notice-banner__content
+		.wc-forward {
 		width: 100%;
 		float: none;
 		margin: var(--wp--preset--spacing--3) 0 0 !important;
@@ -297,15 +333,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	:is(
-		.woocommerce-message,
-		.woocommerce-info,
-		.woocommerce-error,
-		.woocommerce-warning
-	) :is(.button, .wc-forward),
+			.woocommerce-message,
+			.woocommerce-info,
+			.woocommerce-error,
+			.woocommerce-warning
+		)
+		:is(.button, .wc-forward),
 	.wc-block-components-notice-banner .button,
-	.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward,
+	.wc-block-components-notice-banner
+		> .wc-block-components-notice-banner__content
+		.wc-forward,
 	.wc-block-components-notice-banner__dismiss {
 		transition: none;
 	}

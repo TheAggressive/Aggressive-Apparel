@@ -21,49 +21,49 @@
  * in place, so they must stay consecutive and directly after the layer
  * statement. breakpoints.css defines @custom-media, which the build expands
  * into literal queries everywhere in this bundle. */
-@import './base/breakpoints.css';
-@import './base/reset.css';
-@import './base/typography.css';
-@import './base/content-elements.css';
-@import './components/buttons.css';
-@import './components/field.css';
-@import './components/omnisend.css';
+@import "./base/breakpoints.css";
+@import "./base/reset.css";
+@import "./base/typography.css";
+@import "./base/content-elements.css";
+@import "./components/buttons.css";
+@import "./components/field.css";
+@import "./components/omnisend.css";
 
 /* NOTE: components/forms.css is intentionally NOT imported here. main.css loads
  * in the editor canvas (enqueue_block_assets); the form baseline styles native
  * input/select/label and would bleed into the editor (white text in dark mode).
  * It's built standalone and enqueued frontend-only — see Assets\Styles. Its
  * aa-forms layer still takes its position from the declaration above. */
-@import './components/layout.css';
-@import './components/marquee.css';
-@import './components/overlay.css';
-@import './components/panel.css';
-@import './components/adaptive-block-colors.css';
-@import './components/block-styles.css';
-@import './layout/header.css';
-@import './layout/footer.css';
-@import './layout/content.css';
-@import './utilities/helpers.css';
+@import "./components/layout.css";
+@import "./components/marquee.css";
+@import "./components/overlay.css";
+@import "./components/panel.css";
+@import "./components/adaptive-block-colors.css";
+@import "./components/block-styles.css";
+@import "./layout/header.css";
+@import "./layout/footer.css";
+@import "./layout/content.css";
+@import "./utilities/helpers.css";
 
 /* Skip-to-content link — visible on focus for keyboard users. */
 .skip-to-content:focus {
-  position: fixed;
-  top: 0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100000;
-  clip-path: none;
-  width: auto;
-  height: auto;
-  overflow: visible;
-  padding: 0.5rem 1.25rem;
-  background-color: var(--aa-color-foreground);
-  color: var(--aa-color-surface);
-  font-size: var(--wp--preset--font-size--small);
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+	position: fixed;
+	top: 0.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 100000;
+	clip-path: none;
+	width: auto;
+	height: auto;
+	overflow: visible;
+	padding: 0.5rem 1.25rem;
+	background-color: var(--aa-color-foreground);
+	color: var(--aa-color-surface);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	text-decoration: none;
+	border-radius: 0.375rem;
+	box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
 }
 
 /* Smooth theme switching via View Transitions API.
@@ -72,14 +72,16 @@
  * * { transition } rule (which felt delayed and often did nothing visible). */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: var(--aa-duration-normal, 300ms);
-  animation-timing-function: var(--aa-ease-default, cubic-bezier(0.4, 0, 0.2, 1));
+	animation-duration: var(--aa-duration-normal, 300ms);
+	animation-timing-function: var(
+		--aa-ease-default,
+		cubic-bezier(0.4, 0, 0.2, 1)
+	);
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
-  }
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none !important;
+	}
 }

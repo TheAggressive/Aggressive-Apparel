@@ -1,33 +1,33 @@
 {
-  "compilerOptions": {
-    "target": "ES2021",
-    "lib": ["ES2021", "DOM", "DOM.Iterable"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "ESNext",
-    // "bundler" rather than the legacy "node" (node10), which TypeScript 6
-    // reports as a hard error and TypeScript 7 removes. It is also the correct
-    // model for this project: webpack resolves the imports, so package.json
-    // "exports" maps and extensionless specifiers should be honoured.
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "types": [
-      "jest",
-      "node",
-      "@types/react",
-      "@types/react-dom",
-      "@types/wordpress__block-editor",
-      "@types/wordpress__edit-post"
-    ]
-  },
-  "include": ["src/**/*", "types/**/*"],
-  "exclude": ["node_modules", "vendor", "build"]
+	"compilerOptions": {
+		"target": "ES2021",
+		"lib": [ "ES2021", "DOM", "DOM.Iterable" ],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"module": "ESNext",
+		// "bundler" rather than the legacy "node" (node10), which TypeScript 6
+		// reports as a hard error and TypeScript 7 removes. It is also the correct
+		// model for this project: webpack resolves the imports, so package.json
+		// "exports" maps and extensionless specifiers should be honoured.
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"types": [
+			"jest",
+			"node",
+			"@types/react",
+			"@types/react-dom",
+			"@types/wordpress__block-editor",
+			"@types/wordpress__edit-post"
+		]
+	},
+	"include": [ "src/**/*", "types/**/*" ],
+	"exclude": [ "node_modules", "vendor", "build" ]
 }

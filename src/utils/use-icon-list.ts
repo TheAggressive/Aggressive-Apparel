@@ -7,96 +7,101 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
-  fetchIconList,
-  getCachedIconSvg,
-  prefetchIconThumbnails,
-  subscribeIconThumbnails,
-  type IconListItem,
+	fetchIconList,
+	getCachedIconSvg,
+	prefetchIconThumbnails,
+	subscribeIconThumbnails,
+	type IconListItem,
 } from './icon-library';
 
 export interface UseIconListResult {
-  icons: IconListItem[];
-  isLoading: boolean;
-  error: string;
+	icons: IconListItem[];
+	isLoading: boolean;
+	error: string;
 }
 
 /**
  * Merge cached thumbnail SVGs onto the slug list.
  */
-function withCachedSvgs(list: IconListItem[]): IconListItem[] {
-  return list.map(item => {
-    const svg = getCachedIconSvg(item.slug);
+function withCachedSvgs( list: IconListItem[] ): IconListItem[] {
+	return list.map( ( item ) => {
+		const svg = getCachedIconSvg( item.slug );
 
-    if (undefined === svg) {
-      return item;
-    }
+		if ( undefined === svg ) {
+			return item;
+		}
 
-    return {
-      ...item,
-      svg,
-    };
-  });
+		return {
+			...item,
+			svg,
+		};
+	} );
 }
 
 /**
  * Fetch icon slugs immediately, then fill thumbnails as they arrive.
  */
 export function useIconList(): UseIconListResult {
-  const [icons, setIcons] = useState<IconListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+	const [ icons, setIcons ] = useState< IconListItem[] >( [] );
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ error, setError ] = useState( '' );
 
-  useEffect(() => {
-    let cancelled = false;
+	useEffect( () => {
+		let cancelled = false;
 
-    const loadIcons = async () => {
-      setIsLoading(true);
-      setError('');
+		const loadIcons = async () => {
+			setIsLoading( true );
+			setError( '' );
 
-      try {
-        const list = await fetchIconList();
+			try {
+				const list = await fetchIconList();
 
-        if (cancelled) {
-          return;
-        }
+				if ( cancelled ) {
+					return;
+				}
 
-        setIcons(withCachedSvgs(list));
-        setIsLoading(false);
+				setIcons( withCachedSvgs( list ) );
+				setIsLoading( false );
 
-        // Prefetch is owned by the list hook (not fetchIconList) so canvas-only
-        // preview mounts do not pull the bulk thumbnail payload.
-        void prefetchIconThumbnails().catch(() => {
-          // Labels remain available even if thumbnails fail.
-        });
-      } catch {
-        if (!cancelled) {
-          setError(__('Could not load icon library.', 'aggressive-apparel'));
-          setIsLoading(false);
-        }
-      }
-    };
+				// Prefetch is owned by the list hook (not fetchIconList) so canvas-only
+				// preview mounts do not pull the bulk thumbnail payload.
+				void prefetchIconThumbnails().catch( () => {
+					// Labels remain available even if thumbnails fail.
+				} );
+			} catch {
+				if ( ! cancelled ) {
+					setError(
+						__(
+							'Could not load icon library.',
+							'aggressive-apparel'
+						)
+					);
+					setIsLoading( false );
+				}
+			}
+		};
 
-    void loadIcons();
+		void loadIcons();
 
-    const unsubscribe = subscribeIconThumbnails(() => {
-      if (cancelled) {
-        return;
-      }
+		const unsubscribe = subscribeIconThumbnails( () => {
+			if ( cancelled ) {
+				return;
+			}
 
-      setIcons(current => {
-        if (!current.length) {
-          return current;
-        }
+			setIcons( ( current ) => {
+				if ( ! current.length ) {
+					return current;
+				}
 
-        return withCachedSvgs(current);
-      });
-    });
+				return withCachedSvgs( current );
+			} );
+		} );
 
-    return () => {
-      cancelled = true;
-      unsubscribe();
-    };
-  }, []);
+		return () => {
+			cancelled = true;
+			unsubscribe();
+		};
+	}, [] );
 
-  return { icons, isLoading, error };
+	return { icons, isLoading, error };
 }

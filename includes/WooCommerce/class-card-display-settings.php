@@ -102,7 +102,7 @@ trait Card_Display_Settings {
 	/**
 	 * Admin field per card display option: the feature it sits under, its
 	 * title, choice labels (keyed and ordered like CARD_DISPLAY_CHOICES —
-	 * TestCardDisplaySettings enforces it) and help text.
+	 * Test_Card_Display_Settings enforces it) and help text.
 	 *
 	 * @return array<string, array{feature: string, title: string, choices: array<string, string>, description: string}>
 	 */

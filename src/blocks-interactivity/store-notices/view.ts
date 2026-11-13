@@ -15,25 +15,25 @@
  */
 
 import {
-  store,
-  getContext,
-  getElement,
-  withSyncEvent,
+	store,
+	getContext,
+	getElement,
+	withSyncEvent,
 } from '@wordpress/interactivity';
 import { sanitizeNoticeHtml } from './sanitize';
 
 type NoticeType = 'success' | 'error' | 'notice';
 
 interface StoreNotice {
-  id: string;
-  type: NoticeType;
-  message: string;
-  leaving: boolean;
-  thumbnail?: string;
-  noThumbnail?: boolean;
-  isSuccess?: boolean;
-  isError?: boolean;
-  isNotice?: boolean;
+	id: string;
+	type: NoticeType;
+	message: string;
+	leaving: boolean;
+	thumbnail?: string;
+	noThumbnail?: boolean;
+	isSuccess?: boolean;
+	isError?: boolean;
+	isNotice?: boolean;
 }
 
 /**
@@ -42,59 +42,59 @@ interface StoreNotice {
  * their toast paints untyped and shows a spurious empty thumbnail slot.
  */
 export function makeNotice(
-  type: NoticeType,
-  message: string,
-  id: string
+	type: NoticeType,
+	message: string,
+	id: string
 ): StoreNotice {
-  return {
-    id,
-    type,
-    message,
-    leaving: false,
-    thumbnail: '',
-    noThumbnail: true,
-    isSuccess: type === 'success',
-    isError: type === 'error',
-    isNotice: type === 'notice',
-  };
+	return {
+		id,
+		type,
+		message,
+		leaving: false,
+		thumbnail: '',
+		noThumbnail: true,
+		isSuccess: type === 'success',
+		isError: type === 'error',
+		isNotice: type === 'notice',
+	};
 }
 
 interface NoticesContext {
-  notices: StoreNotice[];
-  maxVisible: number;
-  durations: Record<NoticeType, number>;
-  captureBlockNotices: boolean;
-  nextId: number;
-  i18n: { dismiss: string };
-  /** Present only inside a `data-wp-each` item scope. */
-  notice?: StoreNotice;
+	notices: StoreNotice[];
+	maxVisible: number;
+	durations: Record< NoticeType, number >;
+	captureBlockNotices: boolean;
+	nextId: number;
+	i18n: { dismiss: string };
+	/** Present only inside a `data-wp-each` item scope. */
+	notice?: StoreNotice;
 }
 
 interface TimerRecord {
-  el: HTMLElement;
-  notices: StoreNotice[];
-  id: string;
-  duration: number;
-  timeoutId: ReturnType<typeof setTimeout> | null;
-  remaining: number;
-  startedAt: number;
+	el: HTMLElement;
+	notices: StoreNotice[];
+	id: string;
+	duration: number;
+	timeoutId: ReturnType< typeof setTimeout > | null;
+	remaining: number;
+	startedAt: number;
 }
 
 /** How long the exit transition runs before the node is spliced (ms). */
 const EXIT_MS = 350;
 
-const timers = new Map<string, TimerRecord>();
+const timers = new Map< string, TimerRecord >();
 
 /** Guards the singleton block-notice bridge so it wires up at most once. */
 let bridgeStarted = false;
 
 const currentNotice = (): StoreNotice | undefined =>
-  getContext<NoticesContext>().notice;
+	getContext< NoticesContext >().notice;
 
 /** The timer record for the notice in the current `data-wp-each` item scope. */
 const currentRecord = (): TimerRecord | undefined => {
-  const notice = currentNotice();
-  return notice ? timers.get(notice.id) : undefined;
+	const notice = currentNotice();
+	return notice ? timers.get( notice.id ) : undefined;
 };
 
 /**
@@ -103,35 +103,35 @@ const currentRecord = (): TimerRecord | undefined => {
  * interrupt; everything else to the polite one. The message is reduced to plain
  * text so screen readers read the words, not the markup.
  */
-function announce(toastEl: HTMLElement, notice: StoreNotice): void {
-  const container = toastEl.closest('.aa-notices');
-  if (!container) {
-    return;
-  }
-  const target = notice.type === 'error' ? 'assertive' : 'polite';
-  const region = container.querySelector<HTMLElement>(
-    `[data-aa-live="${target}"]`
-  );
-  if (!region) {
-    return;
-  }
-  // notice.message is already sanitised (server wp_kses / client sanitize on
-  // capture). Parse into a <template> anyway: its content is inert, whereas a
-  // detached <div> still loads <img> and fires onerror, so this stays safe if
-  // a future notice path skips the sanitiser.
-  const scratch = document.createElement('template');
-  scratch.innerHTML = notice.message;
-  const text = (scratch.content.textContent ?? '').trim();
-  if (!text) {
-    return;
-  }
-  // Append each announcement as its own node (the regions are non-atomic) so
-  // simultaneous notices are each read instead of clobbering one another, then
-  // clear it so the region doesn't accumulate.
-  const line = document.createElement('div');
-  line.textContent = text;
-  region.appendChild(line);
-  setTimeout(() => line.remove(), 1000);
+function announce( toastEl: HTMLElement, notice: StoreNotice ): void {
+	const container = toastEl.closest( '.aa-notices' );
+	if ( ! container ) {
+		return;
+	}
+	const target = notice.type === 'error' ? 'assertive' : 'polite';
+	const region = container.querySelector< HTMLElement >(
+		`[data-aa-live="${ target }"]`
+	);
+	if ( ! region ) {
+		return;
+	}
+	// notice.message is already sanitised (server wp_kses / client sanitize on
+	// capture). Parse into a <template> anyway: its content is inert, whereas a
+	// detached <div> still loads <img> and fires onerror, so this stays safe if
+	// a future notice path skips the sanitiser.
+	const scratch = document.createElement( 'template' );
+	scratch.innerHTML = notice.message;
+	const text = ( scratch.content.textContent ?? '' ).trim();
+	if ( ! text ) {
+		return;
+	}
+	// Append each announcement as its own node (the regions are non-atomic) so
+	// simultaneous notices are each read instead of clobbering one another, then
+	// clear it so the region doesn't accumulate.
+	const line = document.createElement( 'div' );
+	line.textContent = text;
+	region.appendChild( line );
+	setTimeout( () => line.remove(), 1000 );
 }
 
 /**
@@ -139,75 +139,84 @@ function announce(toastEl: HTMLElement, notice: StoreNotice): void {
  * Idempotent via a `done` flag; falls back to a timeout when no transitionend
  * fires (reduced motion, display:none edge cases).
  */
-function beginExit(record: TimerRecord): void {
-  const notice = record.notices.find(n => n.id === record.id);
-  if (!notice || notice.leaving) {
-    return;
-  }
+function beginExit( record: TimerRecord ): void {
+	const notice = record.notices.find( ( n ) => n.id === record.id );
+	if ( ! notice || notice.leaving ) {
+		return;
+	}
 
-  notice.leaving = true;
+	notice.leaving = true;
 
-  if (record.timeoutId) {
-    clearTimeout(record.timeoutId);
-    record.timeoutId = null;
-  }
+	if ( record.timeoutId ) {
+		clearTimeout( record.timeoutId );
+		record.timeoutId = null;
+	}
 
-  let done = false;
-  const finish = (): void => {
-    if (done) {
-      return;
-    }
-    done = true;
-    const index = record.notices.findIndex(n => n.id === record.id);
-    if (index !== -1) {
-      record.notices.splice(index, 1);
-    }
-    timers.delete(record.id);
-  };
+	let done = false;
+	const finish = (): void => {
+		if ( done ) {
+			return;
+		}
+		done = true;
+		const index = record.notices.findIndex( ( n ) => n.id === record.id );
+		if ( index !== -1 ) {
+			record.notices.splice( index, 1 );
+		}
+		timers.delete( record.id );
+	};
 
-  const onEnd = (event: TransitionEvent): void => {
-    if (event.propertyName === 'opacity') {
-      record.el.removeEventListener('transitionend', onEnd as EventListener);
-      finish();
-    }
-  };
+	const onEnd = ( event: TransitionEvent ): void => {
+		if ( event.propertyName === 'opacity' ) {
+			record.el.removeEventListener(
+				'transitionend',
+				onEnd as EventListener
+			);
+			finish();
+		}
+	};
 
-  record.el.addEventListener('transitionend', onEnd as EventListener);
-  setTimeout(finish, EXIT_MS + 50);
+	record.el.addEventListener( 'transitionend', onEnd as EventListener );
+	setTimeout( finish, EXIT_MS + 50 );
 }
 
-function startTimer(record: TimerRecord): void {
-  if (record.duration <= 0) {
-    return; // Sticky (errors default to this): wait for manual dismiss.
-  }
-  if (record.remaining <= 0) {
-    record.remaining = record.duration;
-  }
-  record.startedAt = Date.now();
-  record.timeoutId = setTimeout(() => beginExit(record), record.remaining);
+function startTimer( record: TimerRecord ): void {
+	if ( record.duration <= 0 ) {
+		return; // Sticky (errors default to this): wait for manual dismiss.
+	}
+	if ( record.remaining <= 0 ) {
+		record.remaining = record.duration;
+	}
+	record.startedAt = Date.now();
+	record.timeoutId = setTimeout(
+		() => beginExit( record ),
+		record.remaining
+	);
 }
 
-function pauseTimer(record: TimerRecord): void {
-  if (record.timeoutId === null) {
-    return;
-  }
-  clearTimeout(record.timeoutId);
-  record.timeoutId = null;
-  const elapsed = Date.now() - record.startedAt;
-  record.remaining = Math.max(record.remaining - elapsed, 0);
+function pauseTimer( record: TimerRecord ): void {
+	if ( record.timeoutId === null ) {
+		return;
+	}
+	clearTimeout( record.timeoutId );
+	record.timeoutId = null;
+	const elapsed = Date.now() - record.startedAt;
+	record.remaining = Math.max( record.remaining - elapsed, 0 );
 }
 
-const BRIDGE_SOURCES: Array<{ selector: string; type: NoticeType }> = [
-  { selector: '.wc-block-components-notice-banner.is-error', type: 'error' },
-  {
-    selector: '.wc-block-components-notice-banner.is-success',
-    type: 'success',
-  },
-  { selector: '.wc-block-components-notice-banner.is-info', type: 'notice' },
-  { selector: '.wc-block-components-notice-banner.is-warning', type: 'notice' },
-  { selector: '.woocommerce-error', type: 'error' },
-  { selector: '.woocommerce-message', type: 'success' },
-  { selector: '.woocommerce-info', type: 'notice' },
+const BRIDGE_SOURCES: Array< { selector: string; type: NoticeType } > = [
+	{ selector: '.wc-block-components-notice-banner.is-error', type: 'error' },
+	{
+		selector: '.wc-block-components-notice-banner.is-success',
+		type: 'success',
+	},
+	{ selector: '.wc-block-components-notice-banner.is-info', type: 'notice' },
+	{
+		selector: '.wc-block-components-notice-banner.is-warning',
+		type: 'notice',
+	},
+	{ selector: '.woocommerce-error', type: 'error' },
+	{ selector: '.woocommerce-message', type: 'success' },
+	{ selector: '.woocommerce-info', type: 'notice' },
 ];
 
 /**
@@ -218,16 +227,19 @@ const BRIDGE_SOURCES: Array<{ selector: string; type: NoticeType }> = [
  * dismissible corner toast. Success and info notices still become toasts.
  */
 const INLINE_CHECKOUT_NOTICE = [
-  '.wc-block-components-notice-banner.is-error',
-  '.wc-block-components-notice-banner.is-warning',
-  '.woocommerce-error',
-].join(', ');
+	'.wc-block-components-notice-banner.is-error',
+	'.wc-block-components-notice-banner.is-warning',
+	'.woocommerce-error',
+].join( ', ' );
 const CHECKOUT_FORM =
-  '.wp-block-woocommerce-checkout, form.woocommerce-checkout';
+	'.wp-block-woocommerce-checkout, form.woocommerce-checkout';
 
 /** Whether a notice node is a checkout error/warning that stays inline. */
-export function staysInline(node: Element): boolean {
-  return node.matches(INLINE_CHECKOUT_NOTICE) && !!node.closest(CHECKOUT_FORM);
+export function staysInline( node: Element ): boolean {
+	return (
+		node.matches( INLINE_CHECKOUT_NOTICE ) &&
+		!! node.closest( CHECKOUT_FORM )
+	);
 }
 
 /**
@@ -241,251 +253,258 @@ export function staysInline(node: Element): boolean {
  * Selectors target WooCommerce's current markup and degrade to "do nothing" if
  * that markup changes.
  */
-function startBridge(ctx: NoticesContext, root: HTMLElement): void {
-  if (bridgeStarted) {
-    return;
-  }
-  bridgeStarted = true;
+function startBridge( ctx: NoticesContext, root: HTMLElement ): void {
+	if ( bridgeStarted ) {
+		return;
+	}
+	bridgeStarted = true;
 
-  const seen = new WeakSet<Element>();
+	const seen = new WeakSet< Element >();
 
-  /** The banner's message element (classic notices are the message). */
-  const contentNode = (node: Element): Element =>
-    node.querySelector('.wc-block-components-notice-banner__content') ?? node;
+	/** The banner's message element (classic notices are the message). */
+	const contentNode = ( node: Element ): Element =>
+		node.querySelector( '.wc-block-components-notice-banner__content' ) ??
+		node;
 
-  // Keep the message's inline markup (links included) but run it through the
-  // same allowlist sanitiser as everything else before it can be stored.
-  const contentOf = (node: Element): string =>
-    sanitizeNoticeHtml(contentNode(node).innerHTML ?? '');
+	// Keep the message's inline markup (links included) but run it through the
+	// same allowlist sanitiser as everything else before it can be stored.
+	const contentOf = ( node: Element ): string =>
+		sanitizeNoticeHtml( contentNode( node ).innerHTML ?? '' );
 
-  const textOf = (node: Element): string =>
-    contentNode(node).textContent?.trim() ?? '';
+	const textOf = ( node: Element ): string =>
+		contentNode( node ).textContent?.trim() ?? '';
 
-  const hide = (node: Element): void => {
-    node.setAttribute('hidden', '');
-    (node as HTMLElement).style.display = 'none';
-  };
+	const hide = ( node: Element ): void => {
+		node.setAttribute( 'hidden', '' );
+		( node as HTMLElement ).style.display = 'none';
+	};
 
-  /** Banners waiting for WooCommerce to fill in their text. */
-  const pending = new WeakSet<Element>();
+	/** Banners waiting for WooCommerce to fill in their text. */
+	const pending = new WeakSet< Element >();
 
-  /**
-   * WooCommerce's interactive notices (add-to-cart validation, Product
-   * Collection) insert the banner first and fill its text from a
-   * `data-wp-init` callback. Capture once the text arrives, hidden meanwhile
-   * so it never flashes into the page; give it back if none does.
-   */
-  const awaitText = (node: Element, type: NoticeType): void => {
-    if (pending.has(node)) {
-      return;
-    }
-    pending.add(node);
-    hide(node);
+	/**
+	 * WooCommerce's interactive notices (add-to-cart validation, Product
+	 * Collection) insert the banner first and fill its text from a
+	 * `data-wp-init` callback. Capture once the text arrives, hidden meanwhile
+	 * so it never flashes into the page; give it back if none does.
+	 */
+	const awaitText = ( node: Element, type: NoticeType ): void => {
+		if ( pending.has( node ) ) {
+			return;
+		}
+		pending.add( node );
+		hide( node );
 
-    const observer = new MutationObserver(() => {
-      if (textOf(node)) {
-        observer.disconnect();
-        clearTimeout(timer);
-        pending.delete(node);
-        capture(node, type);
-      }
-    });
-    observer.observe(node, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
-    const timer = setTimeout(() => {
-      observer.disconnect();
-      pending.delete(node);
-      node.removeAttribute('hidden');
-      (node as HTMLElement).style.display = '';
-    }, 2000);
-  };
+		const observer = new MutationObserver( () => {
+			if ( textOf( node ) ) {
+				observer.disconnect();
+				clearTimeout( timer );
+				pending.delete( node );
+				capture( node, type );
+			}
+		} );
+		observer.observe( node, {
+			childList: true,
+			subtree: true,
+			characterData: true,
+		} );
+		const timer = setTimeout( () => {
+			observer.disconnect();
+			pending.delete( node );
+			node.removeAttribute( 'hidden' );
+			( node as HTMLElement ).style.display = '';
+		}, 2000 );
+	};
 
-  const capture = (node: Element, type: NoticeType): void => {
-    if (seen.has(node) || staysInline(node)) {
-      return;
-    }
-    if (!textOf(node)) {
-      awaitText(node, type);
-      return;
-    }
-    seen.add(node);
+	const capture = ( node: Element, type: NoticeType ): void => {
+		if ( seen.has( node ) || staysInline( node ) ) {
+			return;
+		}
+		if ( ! textOf( node ) ) {
+			awaitText( node, type );
+			return;
+		}
+		seen.add( node );
 
-    const message = contentOf(node);
+		const message = contentOf( node );
 
-    // Hide WooCommerce's own copy; ours replaces it.
-    hide(node);
+		// Hide WooCommerce's own copy; ours replaces it.
+		hide( node );
 
-    // WooCommerce re-renders its block notices as fresh DOM nodes (the WeakSet
-    // above only dedups a given node), so skip if an identical toast is already
-    // live — otherwise a re-render stacks a duplicate. Ignore ones already
-    // animating out so a re-issued notice isn't swallowed by the exiting copy.
-    if (
-      ctx.notices.some(
-        n => !n.leaving && n.type === type && n.message === message
-      )
-    ) {
-      return;
-    }
+		// WooCommerce re-renders its block notices as fresh DOM nodes (the WeakSet
+		// above only dedups a given node), so skip if an identical toast is already
+		// live — otherwise a re-render stacks a duplicate. Ignore ones already
+		// animating out so a re-issued notice isn't swallowed by the exiting copy.
+		if (
+			ctx.notices.some(
+				( n ) => ! n.leaving && n.type === type && n.message === message
+			)
+		) {
+			return;
+		}
 
-    if (ctx.notices.length >= ctx.maxVisible) {
-      const oldest = ctx.notices[0];
-      if (oldest) {
-        const record = timers.get(oldest.id);
-        if (record) {
-          beginExit(record);
-        } else {
-          ctx.notices.shift();
-        }
-      }
-    }
+		if ( ctx.notices.length >= ctx.maxVisible ) {
+			const oldest = ctx.notices[ 0 ];
+			if ( oldest ) {
+				const record = timers.get( oldest.id );
+				if ( record ) {
+					beginExit( record );
+				} else {
+					ctx.notices.shift();
+				}
+			}
+		}
 
-    ctx.notices.push(
-      makeNotice(type, message, `aa-notice-bridged-${ctx.nextId++}`)
-    );
-  };
+		ctx.notices.push(
+			makeNotice( type, message, `aa-notice-bridged-${ ctx.nextId++ }` )
+		);
+	};
 
-  const scan = (scope: ParentNode): void => {
-    for (const { selector, type } of BRIDGE_SOURCES) {
-      scope.querySelectorAll?.(selector).forEach(node => {
-        if (!root.contains(node)) {
-          capture(node, type);
-        }
-      });
-      if (
-        scope instanceof Element &&
-        scope.matches?.(selector) &&
-        !root.contains(scope)
-      ) {
-        capture(scope, type);
-      }
-    }
-  };
+	const scan = ( scope: ParentNode ): void => {
+		for ( const { selector, type } of BRIDGE_SOURCES ) {
+			scope.querySelectorAll?.( selector ).forEach( ( node ) => {
+				if ( ! root.contains( node ) ) {
+					capture( node, type );
+				}
+			} );
+			if (
+				scope instanceof Element &&
+				scope.matches?.( selector ) &&
+				! root.contains( scope )
+			) {
+				capture( scope, type );
+			}
+		}
+	};
 
-  scan(document.body);
+	scan( document.body );
 
-  const observer = new MutationObserver(mutations => {
-    for (const mutation of mutations) {
-      mutation.addedNodes.forEach(node => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          scan(node as Element);
-        }
-      });
-    }
-  });
+	const observer = new MutationObserver( ( mutations ) => {
+		for ( const mutation of mutations ) {
+			mutation.addedNodes.forEach( ( node ) => {
+				if ( node.nodeType === Node.ELEMENT_NODE ) {
+					scan( node as Element );
+				}
+			} );
+		}
+	} );
 
-  observer.observe(document.body, { childList: true, subtree: true });
+	observer.observe( document.body, { childList: true, subtree: true } );
 }
 
-export const storeNoticesStore = store('aggressive-apparel/store-notices', {
-  state: {
-    get dismissLabel(): string {
-      return getContext<NoticesContext>().i18n.dismiss;
-    },
-  },
+export const storeNoticesStore = store( 'aggressive-apparel/store-notices', {
+	state: {
+		get dismissLabel(): string {
+			return getContext< NoticesContext >().i18n.dismiss;
+		},
+	},
 
-  actions: {
-    dismiss(): void {
-      const record = currentRecord();
-      if (record) {
-        beginExit(record);
-      }
-    },
+	actions: {
+		dismiss(): void {
+			const record = currentRecord();
+			if ( record ) {
+				beginExit( record );
+			}
+		},
 
-    pause(): void {
-      const record = currentRecord();
-      if (record) {
-        pauseTimer(record);
-      }
-    },
+		pause(): void {
+			const record = currentRecord();
+			if ( record ) {
+				pauseTimer( record );
+			}
+		},
 
-    resume(): void {
-      const record = currentRecord();
-      if (record && record.timeoutId === null && !currentNotice()?.leaving) {
-        startTimer(record);
-      }
-    },
+		resume(): void {
+			const record = currentRecord();
+			if (
+				record &&
+				record.timeoutId === null &&
+				! currentNotice()?.leaving
+			) {
+				startTimer( record );
+			}
+		},
 
-    /** Dismiss the focused toast on Escape (keyboard users). */
-    onKeydown: withSyncEvent((event: KeyboardEvent): void => {
-      if (event.key !== 'Escape' && event.key !== 'Esc') {
-        return;
-      }
-      const record = currentRecord();
-      if (!record) {
-        return;
-      }
-      event.stopPropagation();
-      beginExit(record);
-    }),
-  },
+		/** Dismiss the focused toast on Escape (keyboard users). */
+		onKeydown: withSyncEvent( ( event: KeyboardEvent ): void => {
+			if ( event.key !== 'Escape' && event.key !== 'Esc' ) {
+				return;
+			}
+			const record = currentRecord();
+			if ( ! record ) {
+				return;
+			}
+			event.stopPropagation();
+			beginExit( record );
+		} ),
+	},
 
-  callbacks: {
-    init(): void {
-      const ctx = getContext<NoticesContext>();
-      const { ref } = getElement();
-      if (ctx.captureBlockNotices && ref) {
-        startBridge(ctx, ref as HTMLElement);
-      }
-    },
+	callbacks: {
+		init(): void {
+			const ctx = getContext< NoticesContext >();
+			const { ref } = getElement();
+			if ( ctx.captureBlockNotices && ref ) {
+				startBridge( ctx, ref as HTMLElement );
+				// Observable "capturing" state (tests and debugging wait on it).
+				ref.setAttribute( 'data-aa-bridge', 'ready' );
+			}
+		},
 
-    /**
-     * Paint the notice message as sanitised HTML. The Interactivity API has no
-     * `data-wp-html` directive, so trusted HTML is applied imperatively — the
-     * same pattern the social-proof toast uses. Every message passes through
-     * the allowlist sanitiser here regardless of origin (defence-in-depth).
-     */
-    syncMessage(): void {
-      const notice = currentNotice();
-      const { ref } = getElement();
-      if (!ref) {
-        return;
-      }
-      ref.innerHTML = sanitizeNoticeHtml(notice?.message ?? '');
-    },
+		/**
+		 * Paint the notice message as sanitised HTML. The Interactivity API has no
+		 * `data-wp-html` directive, so trusted HTML is applied imperatively — the
+		 * same pattern the social-proof toast uses. Every message passes through
+		 * the allowlist sanitiser here regardless of origin (defence-in-depth).
+		 */
+		syncMessage(): void {
+			const notice = currentNotice();
+			const { ref } = getElement();
+			if ( ! ref ) {
+				return;
+			}
+			ref.innerHTML = sanitizeNoticeHtml( notice?.message ?? '' );
+		},
 
-    /**
-     * Point the toast's product thumbnail at the captured image URL. Avoids
-     * assigning src="" (which would fire a request to the page URL) when a
-     * notice has no image.
-     */
-    syncThumb(): void {
-      const notice = currentNotice();
-      const { ref } = getElement();
-      if (!ref) {
-        return;
-      }
-      const img = ref as HTMLImageElement;
-      const src = notice?.thumbnail?.trim() ?? '';
-      if (src) {
-        img.src = src;
-      } else {
-        img.removeAttribute('src');
-      }
-    },
+		/**
+		 * Point the toast's product thumbnail at the captured image URL. Avoids
+		 * assigning src="" (which would fire a request to the page URL) when a
+		 * notice has no image.
+		 */
+		syncThumb(): void {
+			const notice = currentNotice();
+			const { ref } = getElement();
+			if ( ! ref ) {
+				return;
+			}
+			const img = ref as HTMLImageElement;
+			const src = notice?.thumbnail?.trim() ?? '';
+			if ( src ) {
+				img.src = src;
+			} else {
+				img.removeAttribute( 'src' );
+			}
+		},
 
-    initToast(): void {
-      const ctx = getContext<NoticesContext>();
-      const notice = ctx.notice;
-      const { ref } = getElement();
-      if (!notice || !ref || timers.has(notice.id)) {
-        return;
-      }
+		initToast(): void {
+			const ctx = getContext< NoticesContext >();
+			const notice = ctx.notice;
+			const { ref } = getElement();
+			if ( ! notice || ! ref || timers.has( notice.id ) ) {
+				return;
+			}
 
-      const record: TimerRecord = {
-        el: ref as HTMLElement,
-        notices: ctx.notices,
-        id: notice.id,
-        duration: ctx.durations[notice.type] ?? 0,
-        timeoutId: null,
-        remaining: 0,
-        startedAt: 0,
-      };
-      timers.set(notice.id, record);
-      startTimer(record);
-      announce(ref as HTMLElement, notice);
-    },
-  },
-});
+			const record: TimerRecord = {
+				el: ref as HTMLElement,
+				notices: ctx.notices,
+				id: notice.id,
+				duration: ctx.durations[ notice.type ] ?? 0,
+				timeoutId: null,
+				remaining: 0,
+				startedAt: 0,
+			};
+			timers.set( notice.id, record );
+			startTimer( record );
+			announce( ref as HTMLElement, notice );
+		},
+	},
+} );

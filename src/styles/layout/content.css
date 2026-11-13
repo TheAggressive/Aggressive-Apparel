@@ -21,5 +21,5 @@
  * on <main>) is not affected by this — clear that on the block in the Site Editor.
  * ------------------------------------------------------------------------- */
 :root :where(.wp-site-blocks) > * {
-  margin-block-start: 0;
+	margin-block-start: 0;
 }

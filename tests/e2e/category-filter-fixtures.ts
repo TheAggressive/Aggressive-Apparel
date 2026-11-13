@@ -1,9 +1,9 @@
 import {
-  backupOptions,
-  FIXTURE_OWNER_META,
-  ownAttributePhp,
-  ownPostPhp,
-  ownTermPhp,
+	backupOptions,
+	FIXTURE_OWNER_META,
+	ownAttributePhp,
+	ownPostPhp,
+	ownTermPhp,
 } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
@@ -24,47 +24,47 @@ export const PARENT_NAME = 'E2E Filter Parent';
 export const CHILD_COLLECTION = 'e2e-child-only';
 
 export interface CategoryFilterFixtures {
-  parentUrl: string;
-  audienceUrl: string;
-  audienceCategoryUrl: string;
+	parentUrl: string;
+	audienceUrl: string;
+	audienceCategoryUrl: string;
 }
 
 export function ensureCategoryFilterFixtures(): CategoryFilterFixtures {
-  backupOptions([FEATURE_OPTION]);
-  const urls = wpCli([
-    'eval',
-    `$features = get_option('${FEATURE_OPTION}', array());
+	backupOptions( [ FEATURE_OPTION ] );
+	const urls = wpCli( [
+		'eval',
+		`$features = get_option('${ FEATURE_OPTION }', array());
 $features = is_array($features) ? $features : array();
 $features['product_filters'] = 1;
-update_option('${FEATURE_OPTION}', $features, false);
+update_option('${ FEATURE_OPTION }', $features, false);
 
 if (!wc_attribute_taxonomy_id_by_name('collection')) {
 	$attribute_id = wc_create_attribute(array('name' => 'Collection', 'slug' => 'collection'));
 	if (!is_wp_error($attribute_id)) {
-		${ownAttributePhp('$attribute_id')}
+		${ ownAttributePhp( '$attribute_id' ) }
 	}
 }
 // WooCommerce registers new attribute taxonomies on the next request.
 if (!taxonomy_exists('pa_collection')) {
 	register_taxonomy('pa_collection', array('product'), array('hierarchical' => false));
 }
-if (!term_exists('${CHILD_COLLECTION}', 'pa_collection')) {
-	$created = wp_insert_term('E2E Child Only', 'pa_collection', array('slug' => '${CHILD_COLLECTION}'));
-	${ownTermPhp('$created["term_id"]', FIXTURE_OWNER)}
+if (!term_exists('${ CHILD_COLLECTION }', 'pa_collection')) {
+	$created = wp_insert_term('E2E Child Only', 'pa_collection', array('slug' => '${ CHILD_COLLECTION }'));
+	${ ownTermPhp( '$created["term_id"]', FIXTURE_OWNER ) }
 }
-$collection = get_term_by('slug', '${CHILD_COLLECTION}', 'pa_collection');
+$collection = get_term_by('slug', '${ CHILD_COLLECTION }', 'pa_collection');
 
-$parent = term_exists('${PARENT_CATEGORY}', 'product_cat');
+$parent = term_exists('${ PARENT_CATEGORY }', 'product_cat');
 if (!$parent) {
-	$parent = wp_insert_term('${PARENT_NAME}', 'product_cat', array('slug' => '${PARENT_CATEGORY}'));
-	${ownTermPhp('$parent["term_id"]', FIXTURE_OWNER)}
+	$parent = wp_insert_term('${ PARENT_NAME }', 'product_cat', array('slug' => '${ PARENT_CATEGORY }'));
+	${ ownTermPhp( '$parent["term_id"]', FIXTURE_OWNER ) }
 }
 $parent_id = (int) (is_array($parent) ? $parent['term_id'] : $parent);
 
 $child = term_exists('e2e-filter-child', 'product_cat');
 if (!$child) {
 	$child = wp_insert_term('E2E Filter Child', 'product_cat', array('slug' => 'e2e-filter-child', 'parent' => $parent_id));
-	${ownTermPhp('$child["term_id"]', FIXTURE_OWNER)}
+	${ ownTermPhp( '$child["term_id"]', FIXTURE_OWNER ) }
 }
 $child_id = (int) (is_array($child) ? $child['term_id'] : $child);
 
@@ -84,7 +84,7 @@ if (!wc_get_product_id_by_sku('e2e-filter-child-product')) {
 	$product->set_category_ids(array($child_id));
 	$product->set_attributes(array($attribute));
 	$id = $product->save();
-	${ownPostPhp('$id', FIXTURE_OWNER)}
+	${ ownPostPhp( '$id', FIXTURE_OWNER ) }
 	wp_set_object_terms($id, array($collection->slug), 'pa_collection');
 
 	// Facets read WooCommerce's attribute lookup table; write its rows now
@@ -97,23 +97,23 @@ if (!wc_get_product_id_by_sku('e2e-filter-child-product')) {
 
 echo wp_json_encode(array(
 	'parentUrl' => get_term_link($parent_id, 'product_cat'),
-	'audienceUrl' => \\Aggressive_Apparel\\WooCommerce\\Audience_Landing_Pages::url('${CHILD_COLLECTION}'),
-	'audienceCategoryUrl' => \\Aggressive_Apparel\\WooCommerce\\Audience_Landing_Pages::url('${CHILD_COLLECTION}', get_term($parent_id, 'product_cat')),
+	'audienceUrl' => \\Aggressive_Apparel\\WooCommerce\\Audience_Landing_Pages::url('${ CHILD_COLLECTION }'),
+	'audienceCategoryUrl' => \\Aggressive_Apparel\\WooCommerce\\Audience_Landing_Pages::url('${ CHILD_COLLECTION }', get_term($parent_id, 'product_cat')),
 ));`,
-  ]);
+	] );
 
-  return JSON.parse(urls) as CategoryFilterFixtures;
+	return JSON.parse( urls ) as CategoryFilterFixtures;
 }
 
 /** Remove the product and terms ensureCategoryFilterFixtures() created. */
 export function deleteCategoryFilterFixtures(): void {
-  wpCli([
-    'eval',
-    `foreach (get_posts(array('post_type' => 'product', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '${FIXTURE_OWNER_META}', 'meta_value' => '${FIXTURE_OWNER}')) as $id) {
+	wpCli( [
+		'eval',
+		`foreach (get_posts(array('post_type' => 'product', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '${ FIXTURE_OWNER_META }', 'meta_value' => '${ FIXTURE_OWNER }')) as $id) {
 	wc_get_product($id)?->delete(true);
 }
-foreach (get_terms(array('taxonomy' => array('product_cat', 'pa_collection'), 'hide_empty' => false, 'meta_key' => '${FIXTURE_OWNER_META}', 'meta_value' => '${FIXTURE_OWNER}')) as $term) {
+foreach (get_terms(array('taxonomy' => array('product_cat', 'pa_collection'), 'hide_empty' => false, 'meta_key' => '${ FIXTURE_OWNER_META }', 'meta_value' => '${ FIXTURE_OWNER }')) as $term) {
 	wp_delete_term($term->term_id, $term->taxonomy);
 }`,
-  ]);
+	] );
 }

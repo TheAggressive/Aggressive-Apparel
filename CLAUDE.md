@@ -63,15 +63,35 @@ the cap:
 
 ### PHP
 
-WPCS 3.1, `declare(strict_types=1);`, PHPStan level 8 with **no baseline** (zero
+WPCS 3.4 (plus PHPCompatibility, strict class file names) for `includes/`
+*and* `tests/` — tests are classes in `class-test-*.php` files, classmap-loaded.
+`declare(strict_types=1);`, PHPStan level 8 with **no baseline** (zero
 suppressed findings). PSR-4 under `Aggressive_Apparel\`, directory-matched;
 `Theme_Support` → `class-theme-support.php`. New classes autoload unregistered.
 
+- **No mutable static caches.** Per-request memoisation goes through
+  `Core\Request_Cache` (a non-persistent `wp_cache` group: in-process, flushed
+  between tests, invalidated with `forget()` or a generation key). `static`
+  properties are only for process-lifetime facts that mirror hook state
+  (prefer checking `has_action()`), and registries. Services are owned by the
+  container (no class-level singletons), and production code has no
+  `*_for_tests` hooks — tests use `wp_cache_flush()` or real public APIs.
+  Stateless helpers may stay `static`.
+
 ### JavaScript / TypeScript / CSS
 
-TypeScript for all new code; React/JSX for editor components; ESLint (WordPress
-plugin) + Prettier. Native CSS (no framework) built by PostCSS (`postcss-import`)
-+ Lightning CSS, Stylelint, BEM-like custom classes.
+TypeScript for all new code; React/JSX for editor components. Native CSS (no
+framework) built by PostCSS (`postcss-import`) + Lightning CSS. BEM-like custom
+classes.
+
+**Formatting is the WordPress standard, owned by one tool per language:**
+`wp-prettier` (installed as `prettier`) with `@wordpress/prettier-config`
+formats JS/TS/CSS/JSON — tabs, spaces inside parens — and WPCS/phpcbf owns PHP.
+ESLint and Stylelint check correctness only, never layout, so nothing fights
+the formatter (`format:fix` is idempotent). `.editorconfig` matches, and
+editors must use the project's local Prettier (the default for the VS Code
+extension), so format-on-save writes exactly what CI checks. Never add style
+rules to ESLint/Stylelint or a global Prettier config.
 
 - **Native CSS nesting only.** Lightning CSS flattens it at build time. No
   Sass-style concatenation (`&__el`, `&--mod`) — native nesting can't express
@@ -85,6 +105,8 @@ plugin) + Prettier. Native CSS (no framework) built by PostCSS (`postcss-import`
   class/attribute from the owning JS instead;
   `bin/check-design-system-css.sh` fails the build on violations.
   Component-scoped `:has()` subjects are fine.
+- **Visually hidden text uses WordPress's `screen-reader-text` class** (core
+  ships it on the front end and in wp-admin). Don't hand-roll a copy.
 - **Per-frame text updates must mutate a `Text` node's `.data`**, never assign
   `textContent` (which replaces the node — a childList mutation).
 - **Layer order is `aa-reset` first, `aa-forms` last** (declared in

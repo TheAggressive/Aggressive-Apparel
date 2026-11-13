@@ -1,12 +1,12 @@
 packages: []
 
 allowBuilds:
-  '@parcel/watcher': true
-  core-js: false
-  core-js-pure: false
-  fs-ext: false
-  fs-ext-extra-prebuilt: false
-  unrs-resolver: false
+    '@parcel/watcher': true
+    core-js: false
+    core-js-pure: false
+    fs-ext: false
+    fs-ext-extra-prebuilt: false
+    unrs-resolver: false
 
 # Security overrides for transitive devDependencies (GitHub advisories).
 #
@@ -20,69 +20,69 @@ allowBuilds:
 # unscoped brace-expansion `^1` breaks minimatch 9/10, which declare ^2 and ^5
 # and call the named `expand` export that 1.x does not have.
 overrides:
-  # Keep the three incompatible brace-expansion API lines separate.
-  'brace-expansion@1': '1.1.20'
-  '@babel/core@7': '7.29.7'
-  '@babel/runtime@7': '7.29.7'
-  'ajv@8': '8.18.0'
-  'basic-ftp@5': '6.2.1'
-  'body-parser@1': '1.20.9'
-  'fast-xml-parser@5': '5.7.0'
-  'flatted@3': '3.4.2'
-  'follow-redirects@1': '1.16.1'
-  'handlebars@4': '4.7.10'
-  'http-proxy-middleware@2': '2.0.10'
-  immutable: '^5.1.8'
-  'js-yaml@<4': '^3.15.2'
-  'js-yaml@>=4': '^4.3.2'
-  'lodash@4': '4.18.1'
-  'lodash-es@4': '4.18.1'
-  'minimatch@3': '3.1.4'
-  'picomatch@2': '2.3.2'
-  'picomatch@4': '4.0.4'
-  'qs@6': '6.15.2'
-  # wp-env's legacy imports are adapted by patchedDependencies below.
-  'simple-git@3': '4.0.1'
-  svgo: '^3.3.5'
-  'websocket-driver@0.7': '0.7.5'
-  'ws@7': '7.5.11'
-  'ws@8': '8.21.0'
+    # Keep the three incompatible brace-expansion API lines separate.
+    'brace-expansion@1': '1.1.20'
+    '@babel/core@7': '7.29.7'
+    '@babel/runtime@7': '7.29.7'
+    'ajv@8': '8.18.0'
+    'basic-ftp@5': '6.2.1'
+    'body-parser@1': '1.20.9'
+    'fast-xml-parser@5': '5.7.0'
+    'flatted@3': '3.4.2'
+    'follow-redirects@1': '1.16.1'
+    'handlebars@4': '4.7.10'
+    'http-proxy-middleware@2': '2.0.10'
+    immutable: '^5.1.8'
+    'js-yaml@<4': '^3.15.2'
+    'js-yaml@>=4': '^4.3.2'
+    'lodash@4': '4.18.1'
+    'lodash-es@4': '4.18.1'
+    'minimatch@3': '3.1.4'
+    'picomatch@2': '2.3.2'
+    'picomatch@4': '4.0.4'
+    'qs@6': '6.15.2'
+    # wp-env's legacy imports are adapted by patchedDependencies below.
+    'simple-git@3': '4.0.1'
+    svgo: '^3.3.5'
+    'websocket-driver@0.7': '0.7.5'
+    'ws@7': '7.5.11'
+    'ws@8': '8.21.0'
 
-  # Moved from package.json's `pnpm.overrides`, where it had never applied —
-  # lighthouse was resolving to 12.x despite the 13.4.0 pin. Not used by any
-  # ci:* lane, so it only affects a manual Lighthouse run.
-  '@lhci/cli>lighthouse': '13.4.0'
+    # Moved from package.json's `pnpm.overrides`, where it had never applied —
+    # lighthouse was resolving to 12.x despite the 13.4.0 pin. Not used by any
+    # ci:* lane, so it only affects a manual Lighthouse run.
+    '@lhci/cli>lighthouse': '13.4.0'
 
-  # Patched lines required by Lighthouse/WordPress tooling and semantic-release.
-  # Keep each override within the major requested by its consumers.
-  'ip-address@10': '10.3.1'
-  'undici@6': '6.29.1'
-  'undici@7': '7.30.1'
+    # Patched lines required by Lighthouse/WordPress tooling and semantic-release.
+    # Keep each override within the major requested by its consumers.
+    'ip-address@10': '10.3.1'
+    'undici@6': '6.29.1'
+    'undici@7': '7.30.1'
 
-  # These two cross majors, which is safe only because neither code path runs
-  # here: linkify-it arrives via markdownlint (markdown is linted with
-  # Prettier) and webpack-dev-server via `serve` (builds use wp-scripts build
-  # and watch). The build and test lanes verify nothing else depended on them.
-  linkify-it: '^5.0.2'
-  webpack-dev-server: '^5.2.6'
+    # These two cross majors, which is safe only because neither code path runs
+    # here: linkify-it arrives via markdownlint (markdown is linted with
+    # Prettier) and webpack-dev-server via `serve` (builds use wp-scripts build
+    # and watch). The build and test lanes verify nothing else depended on them.
+    linkify-it: '^5.0.2'
+    webpack-dev-server: '^5.2.6'
 
-  # Security fixes in development/build tooling. Major upgrades below retain
-  # CommonJS entry points; validate them with qa:fast and toolchain smoke checks.
-  'serialize-javascript': '7.0.3'
-  tmp: '0.2.7'
-  'adm-zip': '0.6.1'
-  'fast-uri@3': '3.1.7'
-  'brace-expansion@2': '2.1.6'
-  'brace-expansion@5': '5.0.11'
-  'source-map-js@1': '1.2.2'
-  'proxy-addr@2': '2.0.8'
-  'compression@1': '1.8.2'
-  'shell-quote@1': '1.11.0'
-  markdown-it: '14.3.3'
-  'launch-editor@2': '2.14.2'
-  'seroval@1': '1.6.8'
-  'eslint-plugin-react-hooks>zod': '4.6.6'
-  '@simple-git/argv-parser@2': '2.0.1'
+    # Security fixes in development/build tooling. Major upgrades below retain
+    # CommonJS entry points; validate them with qa:fast and toolchain smoke checks.
+    'serialize-javascript': '7.0.3'
+    tmp: '0.2.7'
+    'adm-zip': '0.6.1'
+    'fast-uri@3': '3.1.7'
+    'brace-expansion@2': '2.1.6'
+    'brace-expansion@5': '5.0.11'
+    'source-map-js@1': '1.2.2'
+    'proxy-addr@2': '2.0.8'
+    'compression@1': '1.8.2'
+    'shell-quote@1': '1.11.0'
+    markdown-it: '14.3.3'
+    'launch-editor@2': '2.14.2'
+    'seroval@1': '1.6.8'
+    'eslint-plugin-react-hooks>zod': '4.6.6'
+    '@simple-git/argv-parser@2': '2.0.1'
 
 patchedDependencies:
-  '@wordpress/env@10.39.0': patches/@wordpress__env@10.39.0.patch
+    '@wordpress/env@10.39.0': patches/@wordpress__env@10.39.0.patch

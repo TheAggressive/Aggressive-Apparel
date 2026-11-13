@@ -1,0 +1,245 @@
+/**
+ * Form Controls — WooCommerce bridges
+ *
+ * Unlayered: WooCommerce and select2 ship unlayered CSS, which only
+ * unlayered rules can beat.
+ *
+ * Partial of components/forms.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ------------------------------------------------------------------------
+ * WooCommerce Blocks — checkout/cart fields are owned by checkout.css (loaded
+ * on those pages); these only cover chrome that appears elsewhere too.
+ * ---------------------------------------------------------------------- */
+
+/* NOTE: do NOT recolour .wc-block-components-text-input label here — its
+ * colour comes from checkout.css / blocks.css alongside the floating-label
+ * treatment. */
+.wc-block-components-checkout-step__title {
+	color: var(--aa-color-foreground-muted);
+}
+
+.wc-block-components-validation-error {
+	color: var(--aa-field-bar-invalid);
+}
+
+/* ------------------------------------------------------------------------
+ * WooCommerce classic forms — My Account, login/register, lost password,
+ * reviews. WooCommerce's own field CSS is unlayered (and draws borders from
+ * --wc-form-*), so the shared field look is restated here.
+ * `:is(input.input-text, textarea, select)` lifts all three to (0,3,2), above
+ * WooCommerce's `.form-row .input-text` / `.form-row select` rules.
+ * WooCommerce's invalid/validated rules set `border-color`, which now lands on
+ * the left bar only.
+ * ---------------------------------------------------------------------- */
+.woocommerce form .form-row :is(input.input-text, textarea, select),
+.woocommerce-input-wrapper
+	input:not([type="checkbox"], [type="radio"], [type="hidden"]),
+.woocommerce select:not([multiple], [size], [class*="wc-block"]) {
+	box-sizing: border-box;
+	min-height: var(--aa-field-height);
+	padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
+	border: 0 solid transparent;
+	border-left-width: var(--aa-field-bar-width);
+	border-radius: var(--aa-field-radius);
+	background-color: var(--aa-field-bg);
+	color: var(--aa-field-text);
+	font-family: var(--aa-field-font-family);
+	font-size: var(--aa-field-font-size);
+	line-height: var(--aa-field-line-height);
+}
+
+.woocommerce form .form-row select:not([multiple], [size]),
+.woocommerce select:not([multiple], [size], [class*="wc-block"]) {
+	appearance: none; /* the layered baseline doesn't reach wc-block wrappers (catalog sorting) */
+	padding-right: 2.5rem;
+	background-image: var(--aa-field-chevron);
+	background-repeat: no-repeat;
+	background-position: right 1rem center;
+	background-size: 0.75rem;
+}
+
+/* Room for WooCommerce's show-password toggle (redrawn in _account-forms.css). */
+.woocommerce form .form-row .password-input input {
+	padding-inline-end: 2.75rem;
+}
+
+.woocommerce form .form-row :is(input.input-text, textarea, select):focus,
+.woocommerce-input-wrapper input:focus {
+	outline: 2px solid transparent;
+	border-left-color: var(--aa-field-bar-focus);
+}
+
+.woocommerce
+	form
+	.form-row.woocommerce-invalid
+	:is(input.input-text, textarea, select) {
+	border-left-color: var(--aa-field-bar-invalid);
+}
+
+.woocommerce
+	form
+	.form-row.woocommerce-validated
+	:is(input.input-text, textarea, select):not(:focus) {
+	border-left-color: var(--aa-field-bar-valid);
+}
+
+.woocommerce select:not([class*="wc-block"]) option {
+	background-color: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground);
+}
+
+/* Catalog sort is toolbar chrome, not a form field — it matches the filter
+ * trigger + grid/list toggle (full hairline border, compact height). */
+.woocommerce-ordering select.orderby {
+	border: 1px solid var(--aa-color-border-default);
+	background-color: var(--aa-color-surface);
+}
+
+.woocommerce-ordering select.orderby:focus {
+	border-color: var(--aa-color-foreground);
+}
+
+.woocommerce-ordering select.orderby:focus-visible {
+	outline: 2px solid var(--aa-color-foreground);
+	outline-offset: 2px;
+}
+
+/* Catalog toolbar — match filter trigger + grid/list toggle chrome. */
+.wc-block-catalog-sorting {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-block: 0 var(--wp--preset--spacing--4);
+}
+
+.wc-block-catalog-sorting .woocommerce-ordering {
+	display: inline-flex;
+	margin: 0;
+}
+
+.wc-block-catalog-sorting select.orderby {
+	width: auto;
+	min-width: 11rem;
+	max-width: min(100%, 20rem);
+	height: 2.75rem;
+	min-height: 2.75rem;
+	padding: 0.5rem 2.25rem 0.5rem 1rem;
+	border-radius: 0.375rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	line-height: 1.2;
+	background-position: right 0.75rem center;
+}
+
+/* Classic WooCommerce labels — the shared field-label type (WC's label CSS is
+ * unlayered and would beat the native baseline). Checkbox labels stay
+ * sentence case. My Account content restyles its labels in _account-forms.css. */
+.woocommerce
+	form
+	.form-row
+	label:not(
+		.checkbox,
+		.woocommerce-form__label-for-checkbox,
+		.screen-reader-text
+	),
+.woocommerce-form-row
+	label:not(
+		.checkbox,
+		.woocommerce-form__label-for-checkbox,
+		.screen-reader-text
+	) {
+	color: var(--aa-field-label-color);
+	font-size: var(--aa-field-label-size);
+	font-weight: var(--aa-field-label-weight);
+	letter-spacing: var(--aa-field-label-tracking);
+	line-height: 1.3;
+	text-transform: var(--aa-field-label-transform);
+}
+
+.woocommerce form :is(label.checkbox, .woocommerce-form__label-for-checkbox),
+.woocommerce-EditAccountForm label {
+	color: var(--aa-color-foreground);
+}
+
+/* WooCommerce classic country/state dropdowns render as select2, not a native
+ * <select> — give the select2 box the same field look. */
+.woocommerce .select2-container--default .select2-selection--single,
+.woocommerce .select2-container--default .select2-selection--multiple {
+	min-height: var(--aa-field-height);
+	border: 0 solid transparent;
+	border-left-width: var(--aa-field-bar-width);
+	border-radius: var(--aa-field-radius);
+	background-color: var(--aa-field-bg);
+	transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.woocommerce
+	.select2-container--default:is(
+		.select2-container--focus,
+		.select2-container--open
+	)
+	:is(.select2-selection--single, .select2-selection--multiple) {
+	border-left-color: var(--aa-field-bar-focus);
+}
+
+.woocommerce
+	.select2-container--default
+	.select2-selection--single
+	.select2-selection__rendered {
+	padding-inline: calc(
+			var(--aa-field-padding-inline) - var(--aa-field-bar-width)
+		)
+		2.25rem;
+	line-height: var(--aa-field-height);
+	color: var(--aa-field-text);
+	font-size: var(--aa-field-font-size);
+}
+
+.woocommerce
+	.select2-container--default
+	.select2-selection--single
+	.select2-selection__arrow {
+	height: var(--aa-field-height);
+	right: 0.5rem;
+}
+
+/* The line-height above already centres the text in the input height;
+ * woocommerce-blocktheme.css stacks 0.9rem of vertical padding on top,
+ * inflating classic selects (address forms) to ~80px. */
+.woocommerce-page
+	form
+	.form-row
+	.select2-container.select2-container--default
+	.select2-selection--single
+	.select2-selection__rendered {
+	padding-block: 0;
+}
+
+/* select2 placeholders are real text (unlike ::placeholder), so they must
+ * meet contrast; select2's own greys do not on these surfaces. */
+.woocommerce
+	.select2-container--default
+	.select2-selection--single
+	.select2-selection__placeholder {
+	color: color-mix(in oklch, var(--aa-color-foreground) 65%, transparent);
+}
+
+.select2-dropdown {
+	overflow: hidden;
+	border: 1.5px solid var(--aa-color-border-strong);
+	border-radius: var(--aa-field-radius);
+	background: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground);
+}
+
+.select2-container--default
+	.select2-results__option--highlighted[aria-selected] {
+	background: var(--aa-color-accent);
+	color: var(--aa-color-surface);
+}

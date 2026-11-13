@@ -31,27 +31,6 @@ class Brand_Icons {
 	private const EDITOR_THUMBNAILS_PATH = 'editor-thumbnails.php';
 
 	/**
-	 * Generated icon manifest cache.
-	 *
-	 * @var array<string, string>|null
-	 */
-	private static ?array $manifest_cache = null;
-
-	/**
-	 * Generated editor thumbnail catalog cache.
-	 *
-	 * @var array{hash: string, size: int, thumbnails: array<string, string>}|null
-	 */
-	private static ?array $editor_thumbnails_cache = null;
-
-	/**
-	 * Definitions loaded during the current request.
-	 *
-	 * @var array<string, array<string, mixed>|null>
-	 */
-	private static array $definition_cache = array();
-
-	/**
 	 * Register the lazy provider with the shared icon library.
 	 */
 	public static function init(): void {
@@ -69,14 +48,21 @@ class Brand_Icons {
 	 * @return array<string, mixed>|null
 	 */
 	public static function get_definition( string $slug ): ?array {
-		if ( array_key_exists( $slug, self::$definition_cache ) ) {
-			return self::$definition_cache[ $slug ];
-		}
+		return Request_Cache::remember( 'brand-icons:definition:' . $slug, static fn(): ?array => self::load_definition( $slug ) );
+	}
 
+	/**
+	 * Read one definition from build/icons. Fires
+	 * `aggressive_apparel_brand_icon_loaded` when a file is actually read, so
+	 * lazy loading (only the icons a page renders) is observable.
+	 *
+	 * @param string $slug Icon slug.
+	 * @return array<string, mixed>|null
+	 */
+	private static function load_definition( string $slug ): ?array {
 		$manifest = self::manifest();
 
 		if ( ! isset( $manifest[ $slug ] ) ) {
-			self::$definition_cache[ $slug ] = null;
 			return null;
 		}
 
@@ -85,27 +71,29 @@ class Brand_Icons {
 
 		// The generated manifest must never be able to escape build/icons.
 		if ( $expected_path !== $relative_path ) {
-			self::$definition_cache[ $slug ] = null;
 			return null;
 		}
 
 		$definition_path = self::icons_directory() . '/' . $relative_path;
 
 		if ( ! is_readable( $definition_path ) ) {
-			self::$definition_cache[ $slug ] = null;
 			return null;
 		}
 
 		$definition = require $definition_path;
 
 		if ( ! is_array( $definition ) ) {
-			self::$definition_cache[ $slug ] = null;
 			return null;
 		}
 
-		self::$definition_cache[ $slug ] = $definition;
+		/**
+		 * Fires when a brand icon definition is read from disk.
+		 *
+		 * @param string $slug Icon slug.
+		 */
+		do_action( 'aggressive_apparel_brand_icon_loaded', $slug );
 
-		return self::$definition_cache[ $slug ];
+		return $definition;
 	}
 
 	/**
@@ -126,10 +114,15 @@ class Brand_Icons {
 	 * @return array{hash: string, size: int, thumbnails: array<string, string>}
 	 */
 	public static function editor_thumbnail_catalog(): array {
-		if ( null !== self::$editor_thumbnails_cache ) {
-			return self::$editor_thumbnails_cache;
-		}
+		return Request_Cache::remember( 'brand-icons:editor-thumbnails', static fn(): array => self::load_editor_thumbnail_catalog() );
+	}
 
+	/**
+	 * Read the generated editor thumbnail catalog.
+	 *
+	 * @return array{hash: string, size: int, thumbnails: array<string, string>}
+	 */
+	private static function load_editor_thumbnail_catalog(): array {
 		$empty = array(
 			'hash'       => '',
 			'size'       => 24,
@@ -139,15 +132,13 @@ class Brand_Icons {
 		$catalog_path = self::icons_directory() . '/' . self::EDITOR_THUMBNAILS_PATH;
 
 		if ( ! is_readable( $catalog_path ) ) {
-			self::$editor_thumbnails_cache = $empty;
-			return self::$editor_thumbnails_cache;
+			return $empty;
 		}
 
 		$catalog = require $catalog_path;
 
 		if ( ! is_array( $catalog ) ) {
-			self::$editor_thumbnails_cache = $empty;
-			return self::$editor_thumbnails_cache;
+			return $empty;
 		}
 
 		$hash = isset( $catalog['hash'] ) && is_string( $catalog['hash'] )
@@ -174,13 +165,11 @@ class Brand_Icons {
 			$thumbnails[ $slug ] = $svg;
 		}
 
-		self::$editor_thumbnails_cache = array(
+		return array(
 			'hash'       => $hash,
 			'size'       => $size > 0 ? $size : 24,
 			'thumbnails' => $thumbnails,
 		);
-
-		return self::$editor_thumbnails_cache;
 	}
 
 	/**
@@ -210,22 +199,25 @@ class Brand_Icons {
 	 * @return array<string, string>
 	 */
 	private static function manifest(): array {
-		if ( null !== self::$manifest_cache ) {
-			return self::$manifest_cache;
-		}
+		return Request_Cache::remember( 'brand-icons:manifest', static fn(): array => self::load_manifest() );
+	}
 
+	/**
+	 * Read and validate build/icons/manifest.php.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function load_manifest(): array {
 		$manifest_path = dirname( __DIR__, 2 ) . '/' . self::MANIFEST_PATH;
 
 		if ( ! is_readable( $manifest_path ) ) {
-			self::$manifest_cache = array();
-			return self::$manifest_cache;
+			return array();
 		}
 
 		$manifest = require $manifest_path;
 
 		if ( ! is_array( $manifest ) ) {
-			self::$manifest_cache = array();
-			return self::$manifest_cache;
+			return array();
 		}
 
 		$validated = array();
@@ -243,9 +235,7 @@ class Brand_Icons {
 			$validated[ $slug ] = $relative_path;
 		}
 
-		self::$manifest_cache = $validated;
-
-		return self::$manifest_cache;
+		return $validated;
 	}
 
 	/**
@@ -253,31 +243,5 @@ class Brand_Icons {
 	 */
 	private static function icons_directory(): string {
 		return dirname( __DIR__, 2 ) . '/build/icons';
-	}
-
-	/**
-	 * Reset runtime caches for unit tests.
-	 *
-	 * @internal
-	 */
-	public static function flush_cache_for_tests(): void {
-		self::$manifest_cache          = null;
-		self::$editor_thumbnails_cache = null;
-		self::$definition_cache        = array();
-	}
-
-	/**
-	 * Report lazily loaded definitions for unit tests.
-	 *
-	 * @internal
-	 * @return array<int, string>
-	 */
-	public static function loaded_slugs_for_tests(): array {
-		return array_keys(
-			array_filter(
-				self::$definition_cache,
-				static fn ( ?array $definition ): bool => null !== $definition
-			)
-		);
 	}
 }

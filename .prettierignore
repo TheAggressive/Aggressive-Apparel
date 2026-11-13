@@ -1,5 +1,5 @@
-# CSS files are formatted by stylelint instead of Prettier
-src/**/*.css
+# Theme header; its Version line is rewritten by bin/release/sync-version.sh.
+/style.css
 
 # Build outputs
 build/
@@ -28,6 +28,9 @@ tests/e2e/.auth/
 test-results/
 playwright-report/
 .lighthouseci/
+
+# Playwright-written snapshots (updated with --update-snapshots).
+tests/e2e/*-snapshots/
 
 # Generated files
 *.min.css

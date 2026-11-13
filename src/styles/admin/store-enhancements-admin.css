@@ -81,7 +81,7 @@
 }
 
 .aa-features-wrap .form-table tr.aa-features-sub-field th::before {
-	content: '';
+	content: "";
 	display: inline-block;
 	width: 0.5rem;
 	height: 0.5rem;
@@ -98,7 +98,7 @@
 	max-width: 42rem;
 }
 
-.aa-features-toggle input[type='checkbox'] {
+.aa-features-toggle input[type="checkbox"] {
 	margin: 0.2em 0 0;
 	flex-shrink: 0;
 }

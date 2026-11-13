@@ -47,17 +47,23 @@ main.wp-block-group {
  * `mix-blend-mode: normal` and `isolation: isolate` on the group
  * prevent alpha bleed between old/new layers. */
 @keyframes aa-vt-wipe-out {
+	from {
+		clip-path: inset(0 0 0 0);
+	}
 
-	from { clip-path: inset(0 0 0 0); }
-
-	to { clip-path: inset(0 0 0 100%); }
+	to {
+		clip-path: inset(0 0 0 100%);
+	}
 }
 
 @keyframes aa-vt-wipe-in {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
 
-	from { clip-path: inset(0 100% 0 0); }
-
-	to { clip-path: inset(0 0 0 0); }
+	to {
+		clip-path: inset(0 0 0 0);
+	}
 }
 
 ::view-transition-old(main-content) {
@@ -97,9 +103,7 @@ main.wp-block-group {
  * direct page loads and refreshes render normally. */
 
 @supports (view-transition-name: none) {
-
 	@keyframes aa-vt-stagger-in {
-
 		from {
 			opacity: 0;
 			transform: translateY(16px);
@@ -115,27 +119,45 @@ main.wp-block-group {
 		animation: aa-vt-stagger-in 400ms cubic-bezier(0, 0, 0.2, 1) both;
 	}
 
-	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(1) {
+	.vt-navigated
+		body.single-product
+		.wp-block-column:last-child
+		> :nth-child(1) {
 		animation-delay: 60ms;
 	}
 
-	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(2) {
+	.vt-navigated
+		body.single-product
+		.wp-block-column:last-child
+		> :nth-child(2) {
 		animation-delay: 120ms;
 	}
 
-	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(3) {
+	.vt-navigated
+		body.single-product
+		.wp-block-column:last-child
+		> :nth-child(3) {
 		animation-delay: 180ms;
 	}
 
-	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(4) {
+	.vt-navigated
+		body.single-product
+		.wp-block-column:last-child
+		> :nth-child(4) {
 		animation-delay: 240ms;
 	}
 
-	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(5) {
+	.vt-navigated
+		body.single-product
+		.wp-block-column:last-child
+		> :nth-child(5) {
 		animation-delay: 300ms;
 	}
 
-	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(n + 6) {
+	.vt-navigated
+		body.single-product
+		.wp-block-column:last-child
+		> :nth-child(n + 6) {
 		animation-delay: 360ms;
 	}
 }
@@ -147,7 +169,7 @@ main.wp-block-group {
  * to <body> after 150ms, avoiding flashes during fast navigations.
  * view-transition-name:none prevents morph artifacts. */
 body::after {
-	content: '';
+	content: "";
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -163,7 +185,6 @@ body::after {
 }
 
 @keyframes aa-progress-bar {
-
 	0% {
 		transform: scaleX(0);
 		opacity: 1;
@@ -201,7 +222,6 @@ body.woocommerce-cart main.wp-block-group {
 /* ── Reduced Motion ───────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-
 	@view-transition {
 		navigation: none;
 	}

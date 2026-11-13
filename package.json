@@ -99,7 +99,7 @@
 		"postcss": "^8.5.26",
 		"postcss-import": "^17.0.1",
 		"postcss-lightningcss": "^1.1.1",
-		"postcss-selector-parser": "^7.1.4",
+		"postcss-selector-parser": "^7.1.6",
 		"prettier": "npm:wp-prettier@^3.9.6",
 		"react": "^19.2.8",
 		"semantic-release": "^25.0.9",

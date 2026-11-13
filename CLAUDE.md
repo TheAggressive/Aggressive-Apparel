@@ -58,8 +58,10 @@ the cap:
   merges multiple `store()` calls by namespace. Sub-files live in
   `src/interactivity/<name>/`; the module glob is `src/interactivity/*.ts`
   (direct children only), so sub-files bundle into the entry, not new modules.
-- **PHP classes** → extract collaborators or traits (PSR-4, one class/trait per
-  `class-*.php` / `trait-*.php` file).
+- **PHP classes** → extract collaborators or traits, one per file. In
+  `includes/` both classes and traits go in `class-*.php` — the theme
+  autoloader loads nothing else. (`tests/` is classmap-loaded and uses
+  `trait-*.php` for traits.)
 
 ### PHP
 
@@ -69,14 +71,11 @@ WPCS 3.4 (plus PHPCompatibility, strict class file names) for `includes/`
 suppressed findings). PSR-4 under `Aggressive_Apparel\`, directory-matched;
 `Theme_Support` → `class-theme-support.php`. New classes autoload unregistered.
 
-- **No mutable static caches.** Per-request memoisation goes through
-  `Core\Request_Cache` (a non-persistent `wp_cache` group: in-process, flushed
-  between tests, invalidated with `forget()` or a generation key). `static`
-  properties are only for process-lifetime facts that mirror hook state
-  (prefer checking `has_action()`), and registries. Services are owned by the
-  container (no class-level singletons), and production code has no
-  `*_for_tests` hooks — tests use `wp_cache_flush()` or real public APIs.
-  Stateless helpers may stay `static`.
+- **No mutable static caches.** Memoise per request with `Core\Request_Cache`
+  (non-persistent `wp_cache` group; invalidate with `forget()` or a generation
+  key). `static` state is only for registries and hook-registration guards
+  (prefer `has_action()`). No class-level singletons (the container owns
+  services) and no `*_for_tests` hooks — tests use `wp_cache_flush()`.
 
 ### JavaScript / TypeScript / CSS
 
@@ -84,14 +83,11 @@ TypeScript for all new code; React/JSX for editor components. Native CSS (no
 framework) built by PostCSS (`postcss-import`) + Lightning CSS. BEM-like custom
 classes.
 
-**Formatting is the WordPress standard, owned by one tool per language:**
-`wp-prettier` (installed as `prettier`) with `@wordpress/prettier-config`
-formats JS/TS/CSS/JSON — tabs, spaces inside parens — and WPCS/phpcbf owns PHP.
-ESLint and Stylelint check correctness only, never layout, so nothing fights
-the formatter (`format:fix` is idempotent). `.editorconfig` matches, and
-editors must use the project's local Prettier (the default for the VS Code
-extension), so format-on-save writes exactly what CI checks. Never add style
-rules to ESLint/Stylelint or a global Prettier config.
+**Formatting is the WordPress standard, one tool per language:** `wp-prettier`
+(installed as `prettier`) + `@wordpress/prettier-config` for JS/TS/CSS/JSON,
+WPCS/phpcbf for PHP. ESLint and Stylelint check correctness only — never add
+layout rules to them. `.editorconfig` matches; editors use the local Prettier,
+so format-on-save writes what CI checks.
 
 - **Native CSS nesting only.** Lightning CSS flattens it at build time. No
   Sass-style concatenation (`&__el`, `&--mod`) — native nesting can't express
@@ -124,14 +120,33 @@ only what the editor can't reach (raw inputs, WC-encapsulated fields, select2,
 autofill); keep it low priority (`@layer` + `:where()`); never use `!important`
 or unlayered/high-specificity to beat editor/theme.json output. WC overrides may
 be unlayered only to beat WooCommerce's own unlayered CSS, and set only
-structural props (use `color: inherit` so editor colors win). The one
-deliberate `!important` is the reset's `[hidden]` rule — state, not styling:
-`data-wp-bind--hidden` must hide flex/grid components.
+structural props (use `color: inherit` so editor colors win).
+
+`!important` is allowed only to beat a vendor `!important`, to survive a
+same-specificity load-order race with vendor CSS (WooCommerce bundles print in
+varying order), or for the reset's `[hidden]` rule (state, not styling). Add a
+comment naming what it beats; if specificity or a layer can win instead, use
+that.
 
 theme.json `settings` is the single source of truth; `src/styles/base/tokens.css`
 (`--aa-*`) is a consumer/alias layer, not the source.
 Details: [`docs/design-tokens.md`](docs/design-tokens.md),
 [`docs/design-system.md`](docs/design-system.md).
+
+## Testing
+
+`pnpm test` (JS + tool + PHP), `pnpm test:e2e` (Studio). What the suites
+guarantee: [`docs/architecture.md`](docs/architecture.md#what-the-suites-guarantee).
+
+- **No skipped or assertion-free tests** — every suite fails on them. Missing
+  prerequisites (WooCommerce, the build) fail the bootstrap, not the test.
+- **Assert behaviour, not source text.** CSS contracts go in
+  `src/styles/__tests__/css-contracts.test.ts` (compiled output: selector,
+  value, `!important`, layer) — never grep a stylesheet.
+- **No fixed sleeps in e2e** — wait on a condition (attribute, focus,
+  `CSSTransition.finished`, `expect.poll`).
+- `tests/e2e/component-styles.spec.ts` snapshots component paint: after an
+  intended change, review the diff and re-record with `--update-snapshots`.
 
 ## i18n
 
@@ -229,7 +244,6 @@ making it runnable locally is a build failure, by design.** Detail:
 | theme.json tokens & override contract | [`docs/design-tokens.md`](docs/design-tokens.md) |
 | Full design system | [`docs/design-system.md`](docs/design-system.md) |
 | Versioning & release · block placement | [`docs/versioning.md`](docs/versioning.md) · [`docs/block-placement.md`](docs/block-placement.md) |
-| Pre-trim CLAUDE.md, verbatim | [`CLAUDE.archive.md`](CLAUDE.archive.md) |
 
 Entry points: [functions.php](functions.php) (bootstrap) ·
 [theme.json](theme.json) (block config) · [style.css](style.css) (version source

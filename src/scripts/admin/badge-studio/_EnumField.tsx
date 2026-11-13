@@ -16,10 +16,10 @@ import { SelectControl } from '@wordpress/components';
 export type EnumOption = { label: string; value: string };
 
 type Props = {
-  label: string;
-  value: string;
-  options: EnumOption[];
-  onChange: (value: string) => void;
+	label: string;
+	value: string;
+	options: EnumOption[];
+	onChange: ( value: string ) => void;
 };
 
 /**
@@ -27,13 +27,18 @@ type Props = {
  *
  * @param props Component props.
  */
-export default function EnumField({ label, value, options, onChange }: Props) {
-  return (
-    <SelectControl
-      label={label}
-      value={value}
-      options={options}
-      onChange={onChange}
-    />
-  );
+export default function EnumField( {
+	label,
+	value,
+	options,
+	onChange,
+}: Props ) {
+	return (
+		<SelectControl
+			label={ label }
+			value={ value }
+			options={ options }
+			onChange={ onChange }
+		/>
+	);
 }

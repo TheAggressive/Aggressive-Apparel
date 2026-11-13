@@ -15,19 +15,19 @@ import './editor.css';
 
 // Supports before alignment moved to native `typography.textAlign`.
 const { typography: _typography, ...SUPPORTS_BEFORE_TEXT_ALIGN } =
-  metadata.supports;
+	metadata.supports;
 
-registerThemeBlock<IconBlockAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  deprecated: [
-    legacyTextAlignDeprecation({
-      attributes: {
-        ...metadata.attributes,
-        textAlign: { type: 'string', default: '' },
-      },
-      supports: SUPPORTS_BEFORE_TEXT_ALIGN,
-      keys: ['textAlign'],
-    }),
-  ],
-});
+registerThemeBlock< IconBlockAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	deprecated: [
+		legacyTextAlignDeprecation( {
+			attributes: {
+				...metadata.attributes,
+				textAlign: { type: 'string', default: '' },
+			},
+			supports: SUPPORTS_BEFORE_TEXT_ALIGN,
+			keys: [ 'textAlign' ],
+		} ),
+	],
+} );

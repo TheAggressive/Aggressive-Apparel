@@ -36,151 +36,167 @@ const CONTENT = `
 <!-- /wp:aggressive-apparel/navigation-panel -->
 `;
 
-test.describe('navigation enterprise interaction contract', () => {
-  let pageId = '';
-  let permalink = '';
+test.describe( 'navigation enterprise interaction contract', () => {
+	let pageId = '';
+	let permalink = '';
 
-  test.beforeAll(() => {
-    pageId = wpCli([
-      'post',
-      'create',
-      '--post_type=page',
-      '--post_status=publish',
-      '--post_title=Navigation E2E Fixture',
-      `--post_content=${CONTENT}`,
-      '--porcelain',
-    ]);
-    permalink = wpCli(['post', 'url', pageId]);
-  });
+	test.beforeAll( () => {
+		pageId = wpCli( [
+			'post',
+			'create',
+			'--post_type=page',
+			'--post_status=publish',
+			'--post_title=Navigation E2E Fixture',
+			`--post_content=${ CONTENT }`,
+			'--porcelain',
+		] );
+		permalink = wpCli( [ 'post', 'url', pageId ] );
+	} );
 
-  test.afterAll(() => {
-    if (pageId) {
-      wpCli(['post', 'delete', pageId, '--force']);
-    }
-  });
+	test.afterAll( () => {
+		if ( pageId ) {
+			wpCli( [ 'post', 'delete', pageId, '--force' ] );
+		}
+	} );
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto(permalink);
-  });
+	test.beforeEach( async ( { page } ) => {
+		await page.goto( permalink );
+	} );
 
-  test('renders unique navigation IDs and valid rich mega-menu markup', async ({
-    page,
-  }) => {
-    const navIds = await page
-      .locator('nav.e2e-duplicate-nav')
-      .evaluateAll(navs => navs.map(nav => nav.id));
+	test( 'renders unique navigation IDs and valid rich mega-menu markup', async ( {
+		page,
+	} ) => {
+		const navIds = await page
+			.locator( 'nav.e2e-duplicate-nav' )
+			.evaluateAll( ( navs ) => navs.map( ( nav ) => nav.id ) );
 
-    expect(navIds).toEqual(['e2e-duplicate-nav', 'e2e-duplicate-nav-2']);
-    expect(new Set(navIds).size).toBe(navIds.length);
+		expect( navIds ).toEqual( [
+			'e2e-duplicate-nav',
+			'e2e-duplicate-nav-2',
+		] );
+		expect( new Set( navIds ).size ).toBe( navIds.length );
 
-    const mega = page.locator('.wp-block-aggressive-apparel-nav-submenu--mega');
-    const trigger = mega.locator(
-      '.wp-block-aggressive-apparel-nav-submenu__trigger [aria-controls]'
-    );
-    const panel = mega.locator(
-      '.wp-block-aggressive-apparel-nav-submenu__panel'
-    );
+		const mega = page.locator(
+			'.wp-block-aggressive-apparel-nav-submenu--mega'
+		);
+		const trigger = mega.locator(
+			'.wp-block-aggressive-apparel-nav-submenu__trigger [aria-controls]'
+		);
+		const panel = mega.locator(
+			'.wp-block-aggressive-apparel-nav-submenu__panel'
+		);
 
-    await expect(trigger).not.toHaveAttribute('aria-haspopup', 'menu');
-    await expect(panel).toHaveAttribute('role', 'region');
-    await expect(
-      panel.locator('.wp-block-aggressive-apparel-nav-submenu__panel-inner')
-    ).toHaveJSProperty('tagName', 'DIV');
-    expect(
-      await panel
-        .locator('.wp-block-aggressive-apparel-nav-submenu__panel-inner')
-        .innerHTML()
-    ).toContain('Explore');
-    await expect(
-      panel.locator(
-        '.wp-block-aggressive-apparel-nav-submenu__panel-inner > .wp-block-aggressive-apparel-nav-link'
-      )
-    ).toHaveJSProperty('tagName', 'DIV');
-    await expect(
-      panel.locator(
-        '.wp-block-aggressive-apparel-nav-submenu__panel-inner > li'
-      )
-    ).toHaveCount(0);
-    await expect(
-      panel.locator('a.wp-block-aggressive-apparel-nav-submenu__view-all', {
-        hasText: 'View all in Discover',
-      })
-    ).toHaveAttribute('href', /\/about\/$/);
-  });
+		await expect( trigger ).not.toHaveAttribute( 'aria-haspopup', 'menu' );
+		await expect( panel ).toHaveAttribute( 'role', 'region' );
+		await expect(
+			panel.locator(
+				'.wp-block-aggressive-apparel-nav-submenu__panel-inner'
+			)
+		).toHaveJSProperty( 'tagName', 'DIV' );
+		expect(
+			await panel
+				.locator(
+					'.wp-block-aggressive-apparel-nav-submenu__panel-inner'
+				)
+				.innerHTML()
+		).toContain( 'Explore' );
+		await expect(
+			panel.locator(
+				'.wp-block-aggressive-apparel-nav-submenu__panel-inner > .wp-block-aggressive-apparel-nav-link'
+			)
+		).toHaveJSProperty( 'tagName', 'DIV' );
+		await expect(
+			panel.locator(
+				'.wp-block-aggressive-apparel-nav-submenu__panel-inner > li'
+			)
+		).toHaveCount( 0 );
+		await expect(
+			panel.locator(
+				'a.wp-block-aggressive-apparel-nav-submenu__view-all',
+				{
+					hasText: 'View all in Discover',
+				}
+			)
+		).toHaveAttribute( 'href', /\/about\/$/ );
+	} );
 
-  test('keeps parent URLs reachable and restores focus after Escape', async ({
-    page,
-  }) => {
-    const nav = page.locator('nav.e2e-duplicate-nav').first();
-    const submenu = nav.locator(
-      '.wp-block-aggressive-apparel-nav-submenu--dropdown'
-    );
-    const trigger = submenu.locator(
-      '.wp-block-aggressive-apparel-nav-submenu__trigger [aria-controls]'
-    );
+	test( 'keeps parent URLs reachable and restores focus after Escape', async ( {
+		page,
+	} ) => {
+		const nav = page.locator( 'nav.e2e-duplicate-nav' ).first();
+		const submenu = nav.locator(
+			'.wp-block-aggressive-apparel-nav-submenu--dropdown'
+		);
+		const trigger = submenu.locator(
+			'.wp-block-aggressive-apparel-nav-submenu__trigger [aria-controls]'
+		);
 
-    await trigger.click();
-    await expect(submenu).toHaveClass(/is-open/);
+		await trigger.click();
+		await expect( submenu ).toHaveClass( /is-open/ );
 
-    const parentLink = submenu.getByRole('menuitem', {
-      name: 'View all in Shop',
-    });
-    await expect(parentLink).toBeVisible();
-    await expect(parentLink).toHaveAttribute('href', /\/shop\/$/);
-    await parentLink.focus();
-    await page.keyboard.press('Escape');
+		const parentLink = submenu.getByRole( 'menuitem', {
+			name: 'View all in Shop',
+		} );
+		await expect( parentLink ).toBeVisible();
+		await expect( parentLink ).toHaveAttribute( 'href', /\/shop\/$/ );
+		await parentLink.focus();
+		await page.keyboard.press( 'Escape' );
 
-    await expect(submenu).not.toHaveClass(/is-open/);
-    await expect(trigger).toBeFocused();
-  });
+		await expect( submenu ).not.toHaveClass( /is-open/ );
+		await expect( trigger ).toBeFocused();
+	} );
 
-  test('keeps rich panel blocks outside menu semantics but inside the dialog', async ({
-    page,
-  }) => {
-    const trigger = page.getByRole('button', { name: 'Fixture menu' });
-    const panel = page.getByRole('dialog', { name: 'Navigation menu' });
+	test( 'keeps rich panel blocks outside menu semantics but inside the dialog', async ( {
+		page,
+	} ) => {
+		const trigger = page.getByRole( 'button', { name: 'Fixture menu' } );
+		const panel = page.getByRole( 'dialog', { name: 'Navigation menu' } );
 
-    await trigger.click();
-    await expect(panel).toBeVisible();
+		await trigger.click();
+		await expect( panel ).toBeVisible();
 
-    const body = panel.locator('.aa-nav__panel-body');
-    const sections = body.locator(':scope > .aa-nav__panel-section');
-    const menu = body.locator(':scope > .aa-nav__panel-menu');
-    const account = sections.getByRole('link', { name: 'Account' });
+		const body = panel.locator( '.aa-nav__panel-body' );
+		const sections = body.locator( ':scope > .aa-nav__panel-section' );
+		const menu = body.locator( ':scope > .aa-nav__panel-menu' );
+		const account = sections.getByRole( 'link', { name: 'Account' } );
 
-    await expect(sections).toHaveCount(2);
-    await expect(account).toBeVisible();
-    await expect(menu.getByRole('link', { name: 'Account' })).toHaveCount(0);
-    await expect(menu.locator(':scope > *:not(li)')).toHaveCount(0);
-    await expect(panel.getByText('Panel header')).toBeVisible();
-    await expect(panel.getByText('Panel footer')).toBeVisible();
-  });
+		await expect( sections ).toHaveCount( 2 );
+		await expect( account ).toBeVisible();
+		await expect(
+			menu.getByRole( 'link', { name: 'Account' } )
+		).toHaveCount( 0 );
+		await expect( menu.locator( ':scope > *:not(li)' ) ).toHaveCount( 0 );
+		await expect( panel.getByText( 'Panel header' ) ).toBeVisible();
+		await expect( panel.getByText( 'Panel footer' ) ).toBeVisible();
+	} );
 
-  test('renders panel blocks in editor order and arrows across split menus', async ({
-    page,
-  }) => {
-    await page.getByRole('button', { name: 'Fixture menu' }).click();
-    const panel = page.getByRole('dialog', { name: 'Navigation menu' });
-    await expect(panel).toBeVisible();
+	test( 'renders panel blocks in editor order and arrows across split menus', async ( {
+		page,
+	} ) => {
+		await page.getByRole( 'button', { name: 'Fixture menu' } ).click();
+		const panel = page.getByRole( 'dialog', { name: 'Navigation menu' } );
+		await expect( panel ).toBeVisible();
 
-    const sections = await panel
-      .locator('.aa-nav__panel-body > *')
-      .evaluateAll(nodes =>
-        nodes.map(node =>
-          node.classList.contains('aa-nav__panel-menu') ? 'menu' : 'content'
-        )
-      );
-    expect(sections).toEqual(['content', 'menu', 'content', 'menu']);
-    await expect(panel.locator('.aa-nav__panel-section').nth(1)).toHaveText(
-      'Panel between'
-    );
+		const sections = await panel
+			.locator( '.aa-nav__panel-body > *' )
+			.evaluateAll( ( nodes ) =>
+				nodes.map( ( node ) =>
+					node.classList.contains( 'aa-nav__panel-menu' )
+						? 'menu'
+						: 'content'
+				)
+			);
+		expect( sections ).toEqual( [ 'content', 'menu', 'content', 'menu' ] );
+		await expect(
+			panel.locator( '.aa-nav__panel-section' ).nth( 1 )
+		).toHaveText( 'Panel between' );
 
-    await panel
-      .getByRole('menuitem', { name: 'Panel shop', exact: true })
-      .focus();
-    await page.keyboard.press('ArrowDown');
-    await expect(
-      panel.getByRole('menuitem', { name: 'Panel contact' })
-    ).toBeFocused();
-  });
-});
+		await panel
+			.getByRole( 'menuitem', { name: 'Panel shop', exact: true } )
+			.focus();
+		await page.keyboard.press( 'ArrowDown' );
+		await expect(
+			panel.getByRole( 'menuitem', { name: 'Panel contact' } )
+		).toBeFocused();
+	} );
+} );

@@ -15,47 +15,47 @@ import type { Category } from './_types';
 import CategoryPicker from './_CategoryPicker';
 
 type Props = {
-  categories: Category[];
-  selected: number[];
-  onCategories: (selected: number[]) => void;
-  isDefault: boolean;
-  onDefault: (isDefault: boolean) => void;
-  children?: ReactNode;
+	categories: Category[];
+	selected: number[];
+	onCategories: ( selected: number[] ) => void;
+	isDefault: boolean;
+	onDefault: ( isDefault: boolean ) => void;
+	children?: ReactNode;
 };
 
-export default function WhereItApplies({
-  categories,
-  selected,
-  onCategories,
-  isDefault,
-  onDefault,
-  children,
-}: Props) {
-  return (
-    <>
-      <p className='aa-ps-help'>
-        {__(
-          'Products in these categories use this guide, unless they pick another on their Size & specs tab.',
-          'aggressive-apparel'
-        )}
-      </p>
-      <CategoryPicker
-        categories={categories}
-        selected={selected}
-        onChange={onCategories}
-        label={__('Categories', 'aggressive-apparel')}
-      />
-      {children}
-      <ToggleControl
-        label={__('Store-wide default', 'aggressive-apparel')}
-        help={__(
-          'Used for products with no guide of their own or from their category.',
-          'aggressive-apparel'
-        )}
-        checked={isDefault}
-        onChange={onDefault}
-        __nextHasNoMarginBottom
-      />
-    </>
-  );
+export default function WhereItApplies( {
+	categories,
+	selected,
+	onCategories,
+	isDefault,
+	onDefault,
+	children,
+}: Props ) {
+	return (
+		<>
+			<p className="aa-ps-help">
+				{ __(
+					'Products in these categories use this guide, unless they pick another on their Size & specs tab.',
+					'aggressive-apparel'
+				) }
+			</p>
+			<CategoryPicker
+				categories={ categories }
+				selected={ selected }
+				onChange={ onCategories }
+				label={ __( 'Categories', 'aggressive-apparel' ) }
+			/>
+			{ children }
+			<ToggleControl
+				label={ __( 'Store-wide default', 'aggressive-apparel' ) }
+				help={ __(
+					'Used for products with no guide of their own or from their category.',
+					'aggressive-apparel'
+				) }
+				checked={ isDefault }
+				onChange={ onDefault }
+				__nextHasNoMarginBottom
+			/>
+		</>
+	);
 }

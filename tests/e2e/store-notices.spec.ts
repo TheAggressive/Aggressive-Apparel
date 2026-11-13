@@ -18,225 +18,234 @@ import { openPageEditor, publishAndGetUrl, deletePage } from './helpers';
 
 /** Insert a store-notices block (bridge on) into a fresh page and publish it. */
 async function insertNoticesPage(
-  page: Page,
-  attrs: Record<string, unknown>
-): Promise<{ id: number; url: string }> {
-  await openPageEditor(page);
+	page: Page,
+	attrs: Record< string, unknown >
+): Promise< { id: number; url: string } > {
+	await openPageEditor( page );
 
-  await page.evaluate(blockAttrs => {
-    const { createBlock } = window.wp.blocks;
-    const { insertBlocks } = window.wp.data.dispatch('core/block-editor');
-    return insertBlocks(
-      createBlock('aggressive-apparel/store-notices', blockAttrs)
-    );
-  }, attrs);
+	await page.evaluate( ( blockAttrs ) => {
+		const { createBlock } = window.wp.blocks;
+		const { insertBlocks } = window.wp.data.dispatch( 'core/block-editor' );
+		return insertBlocks(
+			createBlock( 'aggressive-apparel/store-notices', blockAttrs )
+		);
+	}, attrs );
 
-  return publishAndGetUrl(page);
+	return publishAndGetUrl( page );
 }
 
 /** Inject a WooCommerce block-style notice banner into the page body. */
 async function injectWooBanner(
-  page: Page,
-  variant: 'is-error' | 'is-success' | 'is-info',
-  contentHtml: string
-): Promise<void> {
-  await page.evaluate(
-    ({ variant: v, contentHtml: html }) => {
-      const banner = document.createElement('div');
-      banner.className = `wc-block-components-notice-banner ${v}`;
-      banner.setAttribute('data-test-origin', 'woo');
-      const content = document.createElement('div');
-      content.className = 'wc-block-components-notice-banner__content';
-      content.innerHTML = html;
-      banner.appendChild(content);
-      document.body.appendChild(banner);
-    },
-    { variant, contentHtml }
-  );
+	page: Page,
+	variant: 'is-error' | 'is-success' | 'is-info',
+	contentHtml: string
+): Promise< void > {
+	await page.evaluate(
+		( { variant: v, contentHtml: html } ) => {
+			const banner = document.createElement( 'div' );
+			banner.className = `wc-block-components-notice-banner ${ v }`;
+			banner.setAttribute( 'data-test-origin', 'woo' );
+			const content = document.createElement( 'div' );
+			content.className = 'wc-block-components-notice-banner__content';
+			content.innerHTML = html;
+			banner.appendChild( content );
+			document.body.appendChild( banner );
+		},
+		{ variant, contentHtml }
+	);
 }
 
-test.describe('store-notices toasts', () => {
-  test('bridges a Woo notice, preserves a safe link, and hides the original', async ({
-    page,
-  }) => {
-    const { id, url } = await insertNoticesPage(page, {
-      captureBlockNotices: true,
-      position: 'top-right',
-      errorDuration: 0,
-    });
+test.describe( 'store-notices toasts', () => {
+	test( 'bridges a Woo notice, preserves a safe link, and hides the original', async ( {
+		page,
+	} ) => {
+		const { id, url } = await insertNoticesPage( page, {
+			captureBlockNotices: true,
+			position: 'top-right',
+			errorDuration: 0,
+		} );
 
-    try {
-      await page.goto(url);
-      // The bridge marks itself once it is capturing WooCommerce notices.
-      await expect(
-        page.locator('.aa-notices[data-aa-bridge="ready"]')
-      ).toBeAttached();
+		try {
+			await page.goto( url );
+			// The bridge marks itself once it is capturing WooCommerce notices.
+			await expect(
+				page.locator( '.aa-notices[data-aa-bridge="ready"]' )
+			).toBeAttached();
 
-      // Use an ABSOLUTE same-origin URL, matching how WooCommerce actually
-      // builds notice links (wc_get_cart_url() is absolute, not relative).
-      const cartUrl = new URL('/cart/', page.url()).href;
-      await injectWooBanner(
-        page,
-        'is-error',
-        `Coupon invalid. <a href="${cartUrl}">View cart</a>`
-      );
+			// Use an ABSOLUTE same-origin URL, matching how WooCommerce actually
+			// builds notice links (wc_get_cart_url() is absolute, not relative).
+			const cartUrl = new URL( '/cart/', page.url() ).href;
+			await injectWooBanner(
+				page,
+				'is-error',
+				`Coupon invalid. <a href="${ cartUrl }">View cart</a>`
+			);
 
-      const toast = page.locator('.aa-notices__toast--error');
-      await expect(toast).toBeVisible();
-      await expect(toast).toContainText('Coupon invalid.');
+			const toast = page.locator( '.aa-notices__toast--error' );
+			await expect( toast ).toBeVisible();
+			await expect( toast ).toContainText( 'Coupon invalid.' );
 
-      // The same-origin action link is preserved and hardened.
-      const link = toast.locator('a');
-      await expect(link).toHaveAttribute('href', cartUrl);
-      await expect(link).toHaveAttribute('rel', /noopener/);
+			// The same-origin action link is preserved and hardened.
+			const link = toast.locator( 'a' );
+			await expect( link ).toHaveAttribute( 'href', cartUrl );
+			await expect( link ).toHaveAttribute( 'rel', /noopener/ );
 
-      // Errors are announced via the assertive live region (plain text).
-      await expect(
-        page.locator('.aa-notices [data-aa-live="assertive"]')
-      ).toContainText('Coupon invalid.');
+			// Errors are announced via the assertive live region (plain text).
+			await expect(
+				page.locator( '.aa-notices [data-aa-live="assertive"]' )
+			).toContainText( 'Coupon invalid.' );
 
-      // WooCommerce's own banner is hidden in favour of the toast.
-      await expect(
-        page.locator(
-          '.wc-block-components-notice-banner[data-test-origin="woo"]'
-        )
-      ).toBeHidden();
-    } finally {
-      await deletePage(page, id);
-    }
-  });
+			// WooCommerce's own banner is hidden in favour of the toast.
+			await expect(
+				page.locator(
+					'.wc-block-components-notice-banner[data-test-origin="woo"]'
+				)
+			).toBeHidden();
+		} finally {
+			await deletePage( page, id );
+		}
+	} );
 
-  test('neutralises an injected XSS payload while keeping the text', async ({
-    page,
-  }) => {
-    const { id, url } = await insertNoticesPage(page, {
-      captureBlockNotices: true,
-      position: 'top-right',
-      errorDuration: 0,
-    });
+	test( 'neutralises an injected XSS payload while keeping the text', async ( {
+		page,
+	} ) => {
+		const { id, url } = await insertNoticesPage( page, {
+			captureBlockNotices: true,
+			position: 'top-right',
+			errorDuration: 0,
+		} );
 
-    try {
-      await page.goto(url);
-      await expect(
-        page.locator('.aa-notices[data-aa-bridge="ready"]')
-      ).toBeAttached();
+		try {
+			await page.goto( url );
+			await expect(
+				page.locator( '.aa-notices[data-aa-bridge="ready"]' )
+			).toBeAttached();
 
-      await injectWooBanner(
-        page,
-        'is-error',
-        'Bad <a href="javascript:void(window.__xss=1)" ' +
-          'onclick="window.__xss=1">click</a>' +
-          '<img src="x" data-xss-probe>'
-      );
+			await injectWooBanner(
+				page,
+				'is-error',
+				'Bad <a href="javascript:void(window.__xss=1)" ' +
+					'onclick="window.__xss=1">click</a>' +
+					'<img src="x" data-xss-probe>'
+			);
 
-      const toast = page.locator('.aa-notices__toast--error');
-      await expect(toast).toBeVisible();
-      await expect(toast).toContainText('click');
+			const toast = page.locator( '.aa-notices__toast--error' );
+			await expect( toast ).toBeVisible();
+			await expect( toast ).toContainText( 'click' );
 
-      // The source banner remains inert because nothing activates its link.
-      // Clicking the copied toast link proves both javascript: and onclick were
-      // removed at the sanitizer boundary instead of racing an original
-      // <img onerror> against the MutationObserver.
-      await expect(toast.locator('img[data-xss-probe]')).toHaveCount(0);
-      const link = toast.locator('a');
-      await link.click();
-      const xssFired = await page.evaluate(
-        () => (window as Window & { __xss?: unknown }).__xss
-      );
-      expect(xssFired).toBeUndefined();
-      const href = await link.getAttribute('href');
-      expect(href === null || !/javascript:/i.test(href)).toBe(true);
-    } finally {
-      await deletePage(page, id);
-    }
-  });
+			// The source banner remains inert because nothing activates its link.
+			// Clicking the copied toast link proves both javascript: and onclick were
+			// removed at the sanitizer boundary instead of racing an original
+			// <img onerror> against the MutationObserver.
+			await expect( toast.locator( 'img[data-xss-probe]' ) ).toHaveCount(
+				0
+			);
+			const link = toast.locator( 'a' );
+			await link.click();
+			const xssFired = await page.evaluate(
+				() => ( window as Window & { __xss?: unknown } ).__xss
+			);
+			expect( xssFired ).toBeUndefined();
+			const href = await link.getAttribute( 'href' );
+			expect( href === null || ! /javascript:/i.test( href ) ).toBe(
+				true
+			);
+		} finally {
+			await deletePage( page, id );
+		}
+	} );
 
-  test('dismiss button removes the toast', async ({ page }) => {
-    const { id, url } = await insertNoticesPage(page, {
-      captureBlockNotices: true,
-      position: 'top-right',
-      errorDuration: 0,
-    });
+	test( 'dismiss button removes the toast', async ( { page } ) => {
+		const { id, url } = await insertNoticesPage( page, {
+			captureBlockNotices: true,
+			position: 'top-right',
+			errorDuration: 0,
+		} );
 
-    try {
-      await page.goto(url);
-      await expect(
-        page.locator('.aa-notices[data-aa-bridge="ready"]')
-      ).toBeAttached();
+		try {
+			await page.goto( url );
+			await expect(
+				page.locator( '.aa-notices[data-aa-bridge="ready"]' )
+			).toBeAttached();
 
-      await injectWooBanner(page, 'is-success', 'Product added to your cart.');
+			await injectWooBanner(
+				page,
+				'is-success',
+				'Product added to your cart.'
+			);
 
-      const toast = page.locator('.aa-notices__toast--success');
-      await expect(toast).toBeVisible();
+			const toast = page.locator( '.aa-notices__toast--success' );
+			await expect( toast ).toBeVisible();
 
-      await toast.getByRole('button').click();
-      await expect(toast).toHaveCount(0);
-    } finally {
-      await deletePage(page, id);
-    }
-  });
+			await toast.getByRole( 'button' ).click();
+			await expect( toast ).toHaveCount( 0 );
+		} finally {
+			await deletePage( page, id );
+		}
+	} );
 
-  test('a notice on the shop becomes a toast without moving the grid', async ({
-    page,
-  }) => {
-    await page.goto('/shop/');
-    // Product Collection's own notices region, which WooCommerce fills
-    // client-side (an add-to-cart error, say).
-    const region = page
-      .locator(
-        '[data-wp-interactive="woocommerce/store-notices"].wc-block-components-notices'
-      )
-      .filter({ hasNot: page.locator('form') })
-      .first();
-    const grid = page.locator('.wc-block-product-template').first();
-    const before = await grid.boundingBox();
+	test( 'a notice on the shop becomes a toast without moving the grid', async ( {
+		page,
+	} ) => {
+		await page.goto( '/shop/' );
+		// Product Collection's own notices region, which WooCommerce fills
+		// client-side (an add-to-cart error, say).
+		const region = page
+			.locator(
+				'[data-wp-interactive="woocommerce/store-notices"].wc-block-components-notices'
+			)
+			.filter( { hasNot: page.locator( 'form' ) } )
+			.first();
+		const grid = page.locator( '.wc-block-product-template' ).first();
+		const before = await grid.boundingBox();
 
-    await region.evaluate(element => {
-      const banner = document.createElement('div');
-      banner.className = 'wc-block-components-notice-banner is-error';
-      banner.innerHTML =
-        '<div class="wc-block-components-notice-banner__content">Shop overlay check.</div>';
-      element.append(banner);
-    });
+		await region.evaluate( ( element ) => {
+			const banner = document.createElement( 'div' );
+			banner.className = 'wc-block-components-notice-banner is-error';
+			banner.innerHTML =
+				'<div class="wc-block-components-notice-banner__content">Shop overlay check.</div>';
+			element.append( banner );
+		} );
 
-    await expect(
-      page.locator('.aa-notices__message', {
-        hasText: 'Shop overlay check.',
-      })
-    ).toBeVisible();
-    await expect(region).toBeHidden();
-    expect((await grid.boundingBox())?.y).toBe(before?.y);
-  });
+		await expect(
+			page.locator( '.aa-notices__message', {
+				hasText: 'Shop overlay check.',
+			} )
+		).toBeVisible();
+		await expect( region ).toBeHidden();
+		expect( ( await grid.boundingBox() )?.y ).toBe( before?.y );
+	} );
 
-  test('captures a notice whose text WooCommerce fills in after insertion', async ({
-    page,
-  }) => {
-    await page.goto('/shop/');
-    const region = page
-      .locator(
-        '[data-wp-interactive="woocommerce/store-notices"].wc-block-components-notices'
-      )
-      .filter({ hasNot: page.locator('form') })
-      .first();
+	test( 'captures a notice whose text WooCommerce fills in after insertion', async ( {
+		page,
+	} ) => {
+		await page.goto( '/shop/' );
+		const region = page
+			.locator(
+				'[data-wp-interactive="woocommerce/store-notices"].wc-block-components-notices'
+			)
+			.filter( { hasNot: page.locator( 'form' ) } )
+			.first();
 
-    // WooCommerce's interactive notices: the banner first, its text from a
-    // data-wp-init callback a moment later.
-    await region.evaluate(element => {
-      const banner = document.createElement('div');
-      banner.className = 'wc-block-components-notice-banner is-error';
-      banner.innerHTML =
-        '<div class="wc-block-components-notice-banner__content"><span></span></div>';
-      element.append(banner);
-      setTimeout(() => {
-        banner.querySelector('span')!.textContent = 'Filled in later.';
-      }, 300);
-    });
+		// WooCommerce's interactive notices: the banner first, its text from a
+		// data-wp-init callback a moment later.
+		await region.evaluate( ( element ) => {
+			const banner = document.createElement( 'div' );
+			banner.className = 'wc-block-components-notice-banner is-error';
+			banner.innerHTML =
+				'<div class="wc-block-components-notice-banner__content"><span></span></div>';
+			element.append( banner );
+			setTimeout( () => {
+				banner.querySelector( 'span' )!.textContent =
+					'Filled in later.';
+			}, 300 );
+		} );
 
-    await expect(
-      page.locator('.aa-notices__message', {
-        hasText: 'Filled in later.',
-      })
-    ).toBeVisible();
-    await expect(region).toBeHidden();
-  });
-});
+		await expect(
+			page.locator( '.aa-notices__message', {
+				hasText: 'Filled in later.',
+			} )
+		).toBeVisible();
+		await expect( region ).toBeHidden();
+	} );
+} );

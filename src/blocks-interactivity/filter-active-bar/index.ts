@@ -12,7 +12,7 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './editor.css';
 import './style.css';
 
-registerThemeBlock(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-});
+registerThemeBlock( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+} );

@@ -1,83 +1,83 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/dark-mode-toggle",
-  "version": "1.1.0",
-  "title": "Dark Mode Toggle",
-  "category": "aggressive-apparel",
-  "description": "A modern sun/moon control for switching between light and dark themes.",
-  "keywords": ["dark", "light", "theme", "night", "color scheme"],
-  "example": {
-    "attributes": {
-      "showLabel": true
-    }
-  },
-  "supports": {
-    "spacing": {
-      "margin": true,
-      "padding": true
-    },
-    "typography": {
-      "fontSize": true,
-      "lineHeight": true,
-      "textAlign": true
-    },
-    "color": {
-      "text": true,
-      "background": true,
-      "gradients": true
-    },
-    "html": false,
-    "reusable": false
-  },
-  "attributes": {
-    "label": {
-      "type": "string",
-      "default": ""
-    },
-    "labelDark": {
-      "type": "string",
-      "default": ""
-    },
-    "showLabel": {
-      "type": "boolean",
-      "default": false
-    },
-    "size": {
-      "type": "string",
-      "default": "medium",
-      "enum": ["small", "medium", "large"]
-    },
-    "iconStyle": {
-      "type": "string",
-      "default": "solid",
-      "enum": ["solid", "outline"]
-    },
-    "iconStrokeWidth": {
-      "type": "number",
-      "default": 1.75
-    },
-    "iconColor": {
-      "type": "string",
-      "default": ""
-    },
-    "iconHoverColor": {
-      "type": "string",
-      "default": ""
-    },
-    "toggleBackgroundColor": {
-      "type": "string",
-      "default": ""
-    },
-    "toggleBackgroundHoverColor": {
-      "type": "string",
-      "default": ""
-    }
-  },
-  "textdomain": "aggressive-apparel",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css",
-  "style": "file:./style-index.css",
-  "render": "file:./render.php",
-  "viewScript": "file:./view.js"
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/dark-mode-toggle",
+	"version": "1.1.0",
+	"title": "Dark Mode Toggle",
+	"category": "aggressive-apparel",
+	"description": "A modern sun/moon control for switching between light and dark themes.",
+	"keywords": [ "dark", "light", "theme", "night", "color scheme" ],
+	"example": {
+		"attributes": {
+			"showLabel": true
+		}
+	},
+	"supports": {
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"textAlign": true
+		},
+		"color": {
+			"text": true,
+			"background": true,
+			"gradients": true
+		},
+		"html": false,
+		"reusable": false
+	},
+	"attributes": {
+		"label": {
+			"type": "string",
+			"default": ""
+		},
+		"labelDark": {
+			"type": "string",
+			"default": ""
+		},
+		"showLabel": {
+			"type": "boolean",
+			"default": false
+		},
+		"size": {
+			"type": "string",
+			"default": "medium",
+			"enum": [ "small", "medium", "large" ]
+		},
+		"iconStyle": {
+			"type": "string",
+			"default": "solid",
+			"enum": [ "solid", "outline" ]
+		},
+		"iconStrokeWidth": {
+			"type": "number",
+			"default": 1.75
+		},
+		"iconColor": {
+			"type": "string",
+			"default": ""
+		},
+		"iconHoverColor": {
+			"type": "string",
+			"default": ""
+		},
+		"toggleBackgroundColor": {
+			"type": "string",
+			"default": ""
+		},
+		"toggleBackgroundHoverColor": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"textdomain": "aggressive-apparel",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScript": "file:./view.js"
 }

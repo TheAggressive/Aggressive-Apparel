@@ -1,56 +1,56 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/wishlist",
-  "version": "2.0.0",
-  "title": "Wishlist",
-  "category": "aggressive-apparel",
-  "description": "Displays the visitor's saved wishlist items. Customize the card layout using the inner blocks.",
-  "keywords": ["wishlist", "favorites", "saved products"],
-  "example": {},
-  "supports": {
-    "requiresPlugins": ["woocommerce"],
-    "interactivity": true,
-    "html": false,
-    "color": {
-      "background": true,
-      "text": true
-    },
-    "spacing": {
-      "margin": true,
-      "padding": true,
-      "blockGap": true
-    },
-    "typography": {
-      "fontSize": true,
-      "lineHeight": true
-    }
-  },
-  "textdomain": "aggressive-apparel",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css",
-  "style": "file:./style-index.css",
-  "render": "file:./render.php",
-  "attributes": {
-    "columns": {
-      "type": "number",
-      "default": 4
-    },
-    "mobileColumns": {
-      "type": "number",
-      "default": 2
-    },
-    "showCount": {
-      "type": "boolean",
-      "default": true
-    },
-    "emptyMessage": {
-      "type": "string",
-      "default": "Your wishlist is empty."
-    },
-    "showHeader": {
-      "type": "boolean",
-      "default": true
-    }
-  }
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/wishlist",
+	"version": "2.0.0",
+	"title": "Wishlist",
+	"category": "aggressive-apparel",
+	"description": "Displays the visitor's saved wishlist items. Customize the card layout using the inner blocks.",
+	"keywords": [ "wishlist", "favorites", "saved products" ],
+	"example": {},
+	"supports": {
+		"requiresPlugins": [ "woocommerce" ],
+		"interactivity": true,
+		"html": false,
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"blockGap": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		}
+	},
+	"textdomain": "aggressive-apparel",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"attributes": {
+		"columns": {
+			"type": "number",
+			"default": 4
+		},
+		"mobileColumns": {
+			"type": "number",
+			"default": 2
+		},
+		"showCount": {
+			"type": "boolean",
+			"default": true
+		},
+		"emptyMessage": {
+			"type": "string",
+			"default": "Your wishlist is empty."
+		},
+		"showHeader": {
+			"type": "boolean",
+			"default": true
+		}
+	}
 }

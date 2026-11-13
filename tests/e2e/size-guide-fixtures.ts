@@ -18,9 +18,9 @@ const FIXTURE_OWNER_META = '_aa_e2e_fixture_owner';
 const FIXTURE_OWNER = 'size-guide';
 
 export interface SizeGuideFixture {
-  productId: number;
-  guideId: number;
-  permalink: string;
+	productId: number;
+	guideId: number;
+	permalink: string;
 }
 
 const BEGIN_TRANSACTION_PHP = `
@@ -29,8 +29,8 @@ if (!function_exists('wc_get_product')) {
   return;
 }
 
-$feature_key = '${FEATURE_OPTION}';
-$backup_key = '${FEATURE_BACKUP_OPTION}';
+$feature_key = '${ FEATURE_OPTION }';
+$backup_key = '${ FEATURE_BACKUP_OPTION }';
 
 // Recover the original option after an interrupted prior run. At this point
 // WordPress has already booted with the leaked enabled value, so the fixture
@@ -50,8 +50,8 @@ $stale_product_ids = get_posts(
     'post_type'      => 'product',
     'post_status'    => 'any',
     'fields'         => 'ids',
-    'meta_key'       => '${FIXTURE_OWNER_META}',
-    'meta_value'     => '${FIXTURE_OWNER}',
+    'meta_key'       => '${ FIXTURE_OWNER_META }',
+    'meta_value'     => '${ FIXTURE_OWNER }',
     'posts_per_page' => 10,
     'no_found_rows'  => true,
   )
@@ -69,8 +69,8 @@ if (post_type_exists('aa_size_guide')) {
       'post_type'      => 'aa_size_guide',
       'post_status'    => 'any',
       'fields'         => 'ids',
-      'meta_key'       => '${FIXTURE_OWNER_META}',
-      'meta_value'     => '${FIXTURE_OWNER}',
+      'meta_key'       => '${ FIXTURE_OWNER_META }',
+      'meta_value'     => '${ FIXTURE_OWNER }',
       'posts_per_page' => 10,
       'no_found_rows'  => true,
     )
@@ -129,7 +129,7 @@ if (!post_type_exists('aa_size_guide')) {
 // beside the Size options.
 $product = new WC_Product_Variable();
 $product->set_name('E2E Size Guide Product');
-$product->set_sku('${FIXTURE_SKU}');
+$product->set_sku('${ FIXTURE_SKU }');
 $product->set_status('publish');
 $product->set_catalog_visibility('visible');
 $product->set_short_description('<p>Size Guide browser fixture.</p>');
@@ -153,7 +153,7 @@ foreach (array('Small', 'Medium', 'Large') as $size) {
   $variation->save();
 }
 WC_Product_Variable::sync($product_id);
-if (false === update_post_meta($product_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}')) {
+if (false === update_post_meta($product_id, '${ FIXTURE_OWNER_META }', '${ FIXTURE_OWNER }')) {
   echo wp_json_encode(array('error' => 'Could not mark the fixture product as test-owned.'));
   return;
 }
@@ -170,7 +170,7 @@ if (is_wp_error($guide_id) || $guide_id <= 0) {
   echo wp_json_encode(array('error' => 'Could not create the fixture guide.'));
   return;
 }
-if (false === update_post_meta($guide_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}')) {
+if (false === update_post_meta($guide_id, '${ FIXTURE_OWNER_META }', '${ FIXTURE_OWNER }')) {
   echo wp_json_encode(array('error' => 'Could not mark the fixture guide as test-owned.'));
   return;
 }
@@ -213,7 +213,7 @@ $product = new WC_Product_Variable();
 $product->set_name('E2E Chart Product');
 // The Product Specs block (compact) shows Fit and the picked size's line.
 $product->set_description('<!-- wp:aggressive-apparel/product-specs {"layout":"compact","scales":["fit"]} /-->');
-$product->set_sku('${FIXTURE_SKU}-chart');
+$product->set_sku('${ FIXTURE_SKU }-chart');
 $product->set_status('publish');
 $product->set_catalog_visibility('visible');
 $attribute = new WC_Product_Attribute();
@@ -227,7 +227,7 @@ if ($product_id <= 0) {
   echo wp_json_encode(array('error' => 'Could not create the fixture product.'));
   return;
 }
-update_post_meta($product_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}');
+update_post_meta($product_id, '${ FIXTURE_OWNER_META }', '${ FIXTURE_OWNER }');
 // Fit is a product attribute, written the way the specs editor does.
 \\Aggressive_Apparel\\WooCommerce\\Product_Specs_Product_Writer::save(wc_get_product($product_id), array('fit' => '2'));
 
@@ -253,7 +253,7 @@ if (is_wp_error($guide_id) || $guide_id <= 0) {
   echo wp_json_encode(array('error' => 'Could not create the fixture guide.'));
   return;
 }
-update_post_meta($guide_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}');
+update_post_meta($guide_id, '${ FIXTURE_OWNER_META }', '${ FIXTURE_OWNER }');
 update_post_meta(
   $guide_id,
   '_aa_size_chart',
@@ -284,8 +284,8 @@ $product_ids = get_posts(
     'post_type'      => 'product',
     'post_status'    => 'any',
     'fields'         => 'ids',
-    'meta_key'       => '${FIXTURE_OWNER_META}',
-    'meta_value'     => '${FIXTURE_OWNER}',
+    'meta_key'       => '${ FIXTURE_OWNER_META }',
+    'meta_value'     => '${ FIXTURE_OWNER }',
     'posts_per_page' => 10,
     'no_found_rows'  => true,
   )
@@ -303,8 +303,8 @@ if (post_type_exists('aa_size_guide')) {
       'post_type'      => 'aa_size_guide',
       'post_status'    => 'any',
       'fields'         => 'ids',
-      'meta_key'       => '${FIXTURE_OWNER_META}',
-      'meta_value'     => '${FIXTURE_OWNER}',
+      'meta_key'       => '${ FIXTURE_OWNER_META }',
+      'meta_value'     => '${ FIXTURE_OWNER }',
       'posts_per_page' => 10,
       'no_found_rows'  => true,
     )
@@ -314,100 +314,101 @@ if (post_type_exists('aa_size_guide')) {
   }
 }
 
-$backup = get_option('${FEATURE_BACKUP_OPTION}', null);
+$backup = get_option('${ FEATURE_BACKUP_OPTION }', null);
 if (is_array($backup)) {
   if (!empty($backup['existed'])) {
-    update_option('${FEATURE_OPTION}', $backup['value'], false);
+    update_option('${ FEATURE_OPTION }', $backup['value'], false);
   } else {
-    delete_option('${FEATURE_OPTION}');
+    delete_option('${ FEATURE_OPTION }');
   }
-  delete_option('${FEATURE_BACKUP_OPTION}');
+  delete_option('${ FEATURE_BACKUP_OPTION }');
 }
 
 echo wp_json_encode(array('clean' => true));
 `;
 
-function parseResponse<T extends object>(output: string, label: string): T {
-  try {
-    return JSON.parse(output) as T;
-  } catch {
-    throw new Error(`${label} returned invalid JSON: ${output}`);
-  }
+function parseResponse< T extends object >( output: string, label: string ): T {
+	try {
+		return JSON.parse( output ) as T;
+	} catch {
+		throw new Error( `${ label } returned invalid JSON: ${ output }` );
+	}
 }
 
 function rollbackSizeGuideFixture(): void {
-  const output = wpCli(['eval', ROLLBACK_PHP]);
-  const result = parseResponse<{ clean?: boolean }>(
-    output,
-    'Size Guide fixture cleanup'
-  );
+	const output = wpCli( [ 'eval', ROLLBACK_PHP ] );
+	const result = parseResponse< { clean?: boolean } >(
+		output,
+		'Size Guide fixture cleanup'
+	);
 
-  if (!result.clean) {
-    throw new Error(`Invalid Size Guide cleanup response: ${output}`);
-  }
+	if ( ! result.clean ) {
+		throw new Error( `Invalid Size Guide cleanup response: ${ output }` );
+	}
 }
 
 export function createSizeGuideFixture(
-  kind: SizeGuideFixtureKind = 'legacy'
+	kind: SizeGuideFixtureKind = 'legacy'
 ): SizeGuideFixture {
-  try {
-    const beginOutput = wpCli(['eval', BEGIN_TRANSACTION_PHP]);
-    const beginResult = parseResponse<{
-      ready?: boolean;
-      error?: string;
-    }>(beginOutput, 'Size Guide fixture transaction');
+	try {
+		const beginOutput = wpCli( [ 'eval', BEGIN_TRANSACTION_PHP ] );
+		const beginResult = parseResponse< {
+			ready?: boolean;
+			error?: string;
+		} >( beginOutput, 'Size Guide fixture transaction' );
 
-    if (beginResult.error || !beginResult.ready) {
-      throw new Error(
-        beginResult.error ??
-          `Invalid Size Guide transaction response: ${beginOutput}`
-      );
-    }
+		if ( beginResult.error || ! beginResult.ready ) {
+			throw new Error(
+				beginResult.error ??
+					`Invalid Size Guide transaction response: ${ beginOutput }`
+			);
+		}
 
-    // A fresh WP-CLI request is intentional: production bootstrap now sees
-    // the enabled flag and registers the post type through its normal hooks.
-    const output = wpCli([
-      'eval',
-      kind === 'chart' ? CREATE_CHART_FIXTURE_PHP : CREATE_FIXTURE_PHP,
-    ]);
-    const result = parseResponse<
-      Partial<SizeGuideFixture> & { error?: string }
-    >(output, 'Size Guide fixture setup');
+		// A fresh WP-CLI request is intentional: production bootstrap now sees
+		// the enabled flag and registers the post type through its normal hooks.
+		const output = wpCli( [
+			'eval',
+			kind === 'chart' ? CREATE_CHART_FIXTURE_PHP : CREATE_FIXTURE_PHP,
+		] );
+		const result = parseResponse<
+			Partial< SizeGuideFixture > & { error?: string }
+		>( output, 'Size Guide fixture setup' );
 
-    if (
-      result.error ||
-      !result.productId ||
-      !result.guideId ||
-      !result.permalink
-    ) {
-      throw new Error(
-        result.error ?? `Invalid Size Guide fixture response: ${output}`
-      );
-    }
+		if (
+			result.error ||
+			! result.productId ||
+			! result.guideId ||
+			! result.permalink
+		) {
+			throw new Error(
+				result.error ??
+					`Invalid Size Guide fixture response: ${ output }`
+			);
+		}
 
-    return {
-      productId: Number(result.productId),
-      guideId: Number(result.guideId),
-      permalink: String(result.permalink),
-    };
-  } catch (error) {
-    try {
-      rollbackSizeGuideFixture();
-    } catch (cleanupError) {
-      const setupMessage =
-        error instanceof Error ? error.message : String(error);
-      const cleanupMessage =
-        cleanupError instanceof Error
-          ? cleanupError.message
-          : String(cleanupError);
-      throw new Error(
-        `Size Guide fixture setup failed: ${setupMessage}. Cleanup also failed: ${cleanupMessage}`
-      );
-    }
-    throw error;
-  }
+		return {
+			productId: Number( result.productId ),
+			guideId: Number( result.guideId ),
+			permalink: String( result.permalink ),
+		};
+	} catch ( error ) {
+		try {
+			rollbackSizeGuideFixture();
+		} catch ( cleanupError ) {
+			const setupMessage =
+				error instanceof Error ? error.message : String( error );
+			const cleanupMessage =
+				cleanupError instanceof Error
+					? cleanupError.message
+					: String( cleanupError );
+			throw new Error(
+				`Size Guide fixture setup failed: ${ setupMessage }. Cleanup also failed: ${ cleanupMessage }`
+			);
+		}
+		throw error;
+	}
 }
 
 export function deleteSizeGuideFixture(): void {
-  rollbackSizeGuideFixture();
+	rollbackSizeGuideFixture();
 }

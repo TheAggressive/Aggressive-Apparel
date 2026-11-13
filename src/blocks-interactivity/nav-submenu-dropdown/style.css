@@ -28,7 +28,7 @@
 	   ~8px gap (5px panel offset + indicator height). Without this,
 	   mouseleave fires when moving from trigger to dropdown. */
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		top: 100%;
 		left: 0;

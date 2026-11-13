@@ -30,48 +30,53 @@ const ELEVATED_CLASS = 'aa-gallery-dialog-elevated';
  * dialog's whole subtree above that ancestor's siblings, which is enough to
  * clear the page content and the fixed chrome.
  */
-const POSITIONED = new Set(['relative', 'absolute', 'sticky', 'fixed']);
+const POSITIONED = new Set( [ 'relative', 'absolute', 'sticky', 'fixed' ] );
 
-export function nearestPositionedAncestor(el: Element): HTMLElement | null {
-  let node = el.parentElement;
-  while (node && node !== document.body) {
-    if (POSITIONED.has(getComputedStyle(node).position)) {
-      return node;
-    }
-    node = node.parentElement;
-  }
-  return null;
+export function nearestPositionedAncestor( el: Element ): HTMLElement | null {
+	let node = el.parentElement;
+	while ( node && node !== document.body ) {
+		if ( POSITIONED.has( getComputedStyle( node ).position ) ) {
+			return node;
+		}
+		node = node.parentElement;
+	}
+	return null;
 }
 
-export function syncDialog(dialog: HTMLElement): void {
-  const ancestor = nearestPositionedAncestor(dialog);
-  if (ancestor) {
-    ancestor.classList.toggle(ELEVATED_CLASS, dialog.hasAttribute('open'));
-  }
+export function syncDialog( dialog: HTMLElement ): void {
+	const ancestor = nearestPositionedAncestor( dialog );
+	if ( ancestor ) {
+		ancestor.classList.toggle(
+			ELEVATED_CLASS,
+			dialog.hasAttribute( 'open' )
+		);
+	}
 }
 
-const watched = new WeakSet<HTMLElement>();
+const watched = new WeakSet< HTMLElement >();
 
-function watchDialog(dialog: HTMLElement): void {
-  if (watched.has(dialog)) return;
-  watched.add(dialog);
-  new MutationObserver(() => syncDialog(dialog)).observe(dialog, {
-    attributes: true,
-    attributeFilter: ['open'],
-  });
-  syncDialog(dialog);
+function watchDialog( dialog: HTMLElement ): void {
+	if ( watched.has( dialog ) ) return;
+	watched.add( dialog );
+	new MutationObserver( () => syncDialog( dialog ) ).observe( dialog, {
+		attributes: true,
+		attributeFilter: [ 'open' ],
+	} );
+	syncDialog( dialog );
 }
 
 function boot(): void {
-  // The dialog is server-rendered inside the gallery block, and every product
-  // navigation is a full page load (native MPA View Transitions), so it always
-  // exists by the time this footer script runs — no need to watch the document
-  // for dynamically inserted dialogs.
-  document.querySelectorAll<HTMLElement>(DIALOG_SELECTOR).forEach(watchDialog);
+	// The dialog is server-rendered inside the gallery block, and every product
+	// navigation is a full page load (native MPA View Transitions), so it always
+	// exists by the time this footer script runs — no need to watch the document
+	// for dynamically inserted dialogs.
+	document
+		.querySelectorAll< HTMLElement >( DIALOG_SELECTOR )
+		.forEach( watchDialog );
 }
 
-if (document.readyState !== 'loading') {
-  boot();
+if ( document.readyState !== 'loading' ) {
+	boot();
 } else {
-  document.addEventListener('DOMContentLoaded', boot);
+	document.addEventListener( 'DOMContentLoaded', boot );
 }

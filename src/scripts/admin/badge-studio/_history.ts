@@ -21,33 +21,33 @@ import type { BadgeFieldKey } from './_field-keys';
 export const HISTORY_LIMIT = 40;
 
 export type HistoryState = {
-  present: BadgeFields;
-  past: BadgeFields[];
-  future: BadgeFields[];
+	present: BadgeFields;
+	past: BadgeFields[];
+	future: BadgeFields[];
 };
 
 export type HistoryAction =
-  | { type: 'patch'; patch: Partial<BadgeFields> }
-  | { type: 'undo' }
-  | { type: 'redo' };
+	| { type: 'patch'; patch: Partial< BadgeFields > }
+	| { type: 'undo' }
+	| { type: 'redo' };
 
 /**
  * Seed history from the server-provided field map.
  *
  * @param fields Initial fields.
  */
-export function initHistory(fields: BadgeFields): HistoryState {
-  return { present: { ...fields }, past: [], future: [] };
+export function initHistory( fields: BadgeFields ): HistoryState {
+	return { present: { ...fields }, past: [], future: [] };
 }
 
 /** Whether an undo step is available. */
-export function canUndo(state: HistoryState): boolean {
-  return state.past.length > 0;
+export function canUndo( state: HistoryState ): boolean {
+	return state.past.length > 0;
 }
 
 /** Whether a redo step is available. */
-export function canRedo(state: HistoryState): boolean {
-  return state.future.length > 0;
+export function canRedo( state: HistoryState ): boolean {
+	return state.future.length > 0;
 }
 
 /**
@@ -57,20 +57,20 @@ export function canRedo(state: HistoryState): boolean {
  * @param patch  Partial update.
  */
 function applyPatch(
-  fields: BadgeFields,
-  patch: Partial<BadgeFields>
+	fields: BadgeFields,
+	patch: Partial< BadgeFields >
 ): BadgeFields {
-  const next: BadgeFields = { ...fields };
+	const next: BadgeFields = { ...fields };
 
-  (Object.entries(patch) as [BadgeFieldKey, string | undefined][]).forEach(
-    ([key, value]) => {
-      if (typeof value === 'string') {
-        next[key] = value;
-      }
-    }
-  );
+	(
+		Object.entries( patch ) as [ BadgeFieldKey, string | undefined ][]
+	 ).forEach( ( [ key, value ] ) => {
+		if ( typeof value === 'string' ) {
+			next[ key ] = value;
+		}
+	} );
 
-  return next;
+	return next;
 }
 
 /**
@@ -79,10 +79,10 @@ function applyPatch(
  * @param fields Current fields.
  * @param next   Candidate fields.
  */
-function changed(fields: BadgeFields, next: BadgeFields): boolean {
-  return (Object.keys(next) as BadgeFieldKey[]).some(
-    key => next[key] !== fields[key]
-  );
+function changed( fields: BadgeFields, next: BadgeFields ): boolean {
+	return ( Object.keys( next ) as BadgeFieldKey[] ).some(
+		( key ) => next[ key ] !== fields[ key ]
+	);
 }
 
 /**
@@ -92,58 +92,61 @@ function changed(fields: BadgeFields, next: BadgeFields): boolean {
  * @param action Action to apply.
  */
 export function historyReducer(
-  state: HistoryState,
-  action: HistoryAction
+	state: HistoryState,
+	action: HistoryAction
 ): HistoryState {
-  switch (action.type) {
-    case 'patch': {
-      const next = applyPatch(state.present, action.patch);
+	switch ( action.type ) {
+		case 'patch': {
+			const next = applyPatch( state.present, action.patch );
 
-      // A control re-emitting its current value is not an edit; recording it
-      // would make Undo appear to do nothing.
-      if (!changed(state.present, next)) {
-        return state;
-      }
+			// A control re-emitting its current value is not an edit; recording it
+			// would make Undo appear to do nothing.
+			if ( ! changed( state.present, next ) ) {
+				return state;
+			}
 
-      const past = [...state.past, state.present];
+			const past = [ ...state.past, state.present ];
 
-      return {
-        present: next,
-        past: past.length > HISTORY_LIMIT ? past.slice(-HISTORY_LIMIT) : past,
-        // A fresh edit invalidates anything that was undone.
-        future: [],
-      };
-    }
+			return {
+				present: next,
+				past:
+					past.length > HISTORY_LIMIT
+						? past.slice( -HISTORY_LIMIT )
+						: past,
+				// A fresh edit invalidates anything that was undone.
+				future: [],
+			};
+		}
 
-    case 'undo': {
-      if (!canUndo(state)) {
-        return state;
-      }
+		case 'undo': {
+			if ( ! canUndo( state ) ) {
+				return state;
+			}
 
-      const previous = state.past[state.past.length - 1];
+			const previous = state.past[ state.past.length - 1 ];
 
-      return {
-        present: previous,
-        past: state.past.slice(0, -1),
-        future: [state.present, ...state.future],
-      };
-    }
+			return {
+				present: previous,
+				past: state.past.slice( 0, -1 ),
+				future: [ state.present, ...state.future ],
+			};
+		}
 
-    case 'redo': {
-      if (!canRedo(state)) {
-        return state;
-      }
+		case 'redo': {
+			if ( ! canRedo( state ) ) {
+				return state;
+			}
 
-      const [next, ...rest] = state.future;
+			const [ next, ...rest ] = state.future;
 
-      return {
-        present: next,
-        past: [...state.past, state.present],
-        future: rest,
-      };
-    }
+			return {
+				present: next,
+				past: [ ...state.past, state.present ],
+				future: rest,
+			};
+		}
 
-    default:
-      return state;
-  }
+		default:
+			return state;
+	}
 }

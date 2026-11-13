@@ -11,544 +11,562 @@ import { store, getContext, getElement } from '@wordpress/interactivity';
 import type { LookbookHotspot, LookbookI18n, StoreApiProduct } from './types';
 import { fetchProduct } from './product';
 import {
-  attachViewportListeners,
-  clearPopover,
-  renderLoading,
-  renderMessage,
-  renderProduct,
-  schedulePopoverPlacement,
+	attachViewportListeners,
+	clearPopover,
+	renderLoading,
+	renderMessage,
+	renderProduct,
+	schedulePopoverPlacement,
 } from './popover';
 
 interface LookbookContext {
-  activeHotspot: number;
-  restBase: string;
-  openOnHover: boolean;
-  hotspots: LookbookHotspot[];
-  i18n?: Partial<LookbookI18n>;
+	activeHotspot: number;
+	restBase: string;
+	openOnHover: boolean;
+	hotspots: LookbookHotspot[];
+	i18n?: Partial< LookbookI18n >;
 }
 
 const DEFAULT_I18N: LookbookI18n = {
-  loading: 'Loading product.',
-  noProduct: 'No product selected.',
-  loadError: 'Product could not be loaded.',
-  viewProduct: 'View product',
-  viewProductName: 'View product: %s',
+	loading: 'Loading product.',
+	noProduct: 'No product selected.',
+	loadError: 'Product could not be loaded.',
+	viewProduct: 'View product',
+	viewProductName: 'View product: %s',
 };
 
-function getI18n(ctx: LookbookContext): LookbookI18n {
-  return { ...DEFAULT_I18N, ...ctx.i18n };
+function getI18n( ctx: LookbookContext ): LookbookI18n {
+	return { ...DEFAULT_I18N, ...ctx.i18n };
 }
 
 const HOVER_OPEN_DELAY_MS = 100;
 const HOVER_CLOSE_DELAY_MS = 120;
-const hoverOpenTimers = new WeakMap<HTMLElement, number>();
-const hoverCloseTimers = new WeakMap<HTMLElement, number>();
+const hoverOpenTimers = new WeakMap< HTMLElement, number >();
+const hoverCloseTimers = new WeakMap< HTMLElement, number >();
 // Roots whose next card render should receive focus: the popover sits after
 // every hotspot in the tab order (in hover mode focus can't even cross the
 // gap — blur closes it), so keyboard activation must move focus into the card.
-const pendingKeyboardFocus = new WeakSet<HTMLElement>();
+const pendingKeyboardFocus = new WeakSet< HTMLElement >();
 // Swallows the one focus-triggered reopen when Escape returns focus to the
 // owning hotspot — in hover mode the hotspot opens on focus, which would
 // otherwise reopen the popover the Escape just closed.
-const suppressFocusOpen = new WeakSet<HTMLElement>();
+const suppressFocusOpen = new WeakSet< HTMLElement >();
 
 /**
  * Move focus into the popover's card. When the card is still loading (or not
  * rendered yet), arm pending focus so the upcoming render claims it instead.
  */
-function focusPopoverCard(root: HTMLElement): void {
-  const card = root.querySelector<HTMLElement>(
-    '.aggressive-apparel-lookbook__popover-content .aggressive-apparel-lookbook__product-card'
-  );
+function focusPopoverCard( root: HTMLElement ): void {
+	const card = root.querySelector< HTMLElement >(
+		'.aggressive-apparel-lookbook__popover-content .aggressive-apparel-lookbook__product-card'
+	);
 
-  if (
-    !card ||
-    card.classList.contains(
-      'aggressive-apparel-lookbook__product-card--loading'
-    )
-  ) {
-    pendingKeyboardFocus.add(root);
-    return;
-  }
+	if (
+		! card ||
+		card.classList.contains(
+			'aggressive-apparel-lookbook__product-card--loading'
+		)
+	) {
+		pendingKeyboardFocus.add( root );
+		return;
+	}
 
-  if (!(card instanceof HTMLAnchorElement)) {
-    card.tabIndex = -1;
-  }
+	if ( ! ( card instanceof HTMLAnchorElement ) ) {
+		card.tabIndex = -1;
+	}
 
-  card.focus({ preventScroll: true });
+	card.focus( { preventScroll: true } );
 }
 
-function getHotspotButtons(root: HTMLElement): HTMLElement[] {
-  return Array.from(
-    root.querySelectorAll<HTMLElement>('.aggressive-apparel-lookbook__hotspot')
-  );
+function getHotspotButtons( root: HTMLElement ): HTMLElement[] {
+	return Array.from(
+		root.querySelectorAll< HTMLElement >(
+			'.aggressive-apparel-lookbook__hotspot'
+		)
+	);
 }
 
 function getAdjacentHotspotFromPopover(
-  root: HTMLElement,
-  activeIndex: number,
-  reverse = false
+	root: HTMLElement,
+	activeIndex: number,
+	reverse = false
 ): HTMLElement | null {
-  const buttons = getHotspotButtons(root);
-  const activeButtonIndex = buttons.findIndex(
-    button =>
-      parseInt(button.dataset.aaHotspotIndex ?? '-1', 10) === activeIndex
-  );
+	const buttons = getHotspotButtons( root );
+	const activeButtonIndex = buttons.findIndex(
+		( button ) =>
+			parseInt( button.dataset.aaHotspotIndex ?? '-1', 10 ) ===
+			activeIndex
+	);
 
-  if (activeButtonIndex < 0) {
-    return null;
-  }
+	if ( activeButtonIndex < 0 ) {
+		return null;
+	}
 
-  return (
-    (reverse ? buttons[activeButtonIndex] : buttons[activeButtonIndex + 1]) ??
-    null
-  );
+	return (
+		( reverse
+			? buttons[ activeButtonIndex ]
+			: buttons[ activeButtonIndex + 1 ] ) ?? null
+	);
 }
 
 function focusAdjacentHotspotFromPopover(
-  root: HTMLElement,
-  activeIndex: number,
-  reverse = false
+	root: HTMLElement,
+	activeIndex: number,
+	reverse = false
 ): boolean {
-  const target = getAdjacentHotspotFromPopover(root, activeIndex, reverse);
+	const target = getAdjacentHotspotFromPopover( root, activeIndex, reverse );
 
-  if (!target) {
-    return false;
-  }
+	if ( ! target ) {
+		return false;
+	}
 
-  target.focus({ preventScroll: true });
-  return true;
+	target.focus( { preventScroll: true } );
+	return true;
 }
 
 function moveFocusFromPopoverCard(
-  root: HTMLElement,
-  ctx: LookbookContext,
-  reverse = false
+	root: HTMLElement,
+	ctx: LookbookContext,
+	reverse = false
 ): boolean {
-  const activeIndex = ctx.activeHotspot;
-  const target = getAdjacentHotspotFromPopover(root, activeIndex, reverse);
+	const activeIndex = ctx.activeHotspot;
+	const target = getAdjacentHotspotFromPopover( root, activeIndex, reverse );
 
-  if (!target) {
-    return false;
-  }
+	if ( ! target ) {
+		return false;
+	}
 
-  if (!reverse) {
-    closeActiveHotspot(root, ctx);
-  }
+	if ( ! reverse ) {
+		closeActiveHotspot( root, ctx );
+	}
 
-  target.focus({ preventScroll: true });
-  return true;
+	target.focus( { preventScroll: true } );
+	return true;
 }
 
 export const __testing = {
-  focusAdjacentHotspotFromPopover,
-  focusPopoverCard,
+	focusAdjacentHotspotFromPopover,
+	focusPopoverCard,
 };
 
 export function supportsHoverInteraction(): boolean {
-  return (
-    window.matchMedia?.('(hover: hover) and (pointer: fine)').matches ?? false
-  );
+	return (
+		window.matchMedia?.( '(hover: hover) and (pointer: fine)' ).matches ??
+		false
+	);
 }
 
-function isPointerHoverEvent(event?: Event): boolean {
-  return event?.type === 'mouseenter' || event?.type === 'mouseleave';
+function isPointerHoverEvent( event?: Event ): boolean {
+	return event?.type === 'mouseenter' || event?.type === 'mouseleave';
 }
 
-function shouldUseHoverBehavior(event?: Event): boolean {
-  return !isPointerHoverEvent(event) || supportsHoverInteraction();
+function shouldUseHoverBehavior( event?: Event ): boolean {
+	return ! isPointerHoverEvent( event ) || supportsHoverInteraction();
 }
 
-function getRootFromElement(element: Element | null): HTMLElement | null {
-  return element?.closest<HTMLElement>('.aggressive-apparel-lookbook') ?? null;
+function getRootFromElement( element: Element | null ): HTMLElement | null {
+	return (
+		element?.closest< HTMLElement >( '.aggressive-apparel-lookbook' ) ??
+		null
+	);
 }
 
-function getRootFromEvent(event?: Event): HTMLElement | null {
-  return getRootFromElement((event?.target as Element | null) ?? null);
+function getRootFromEvent( event?: Event ): HTMLElement | null {
+	return getRootFromElement( ( event?.target as Element | null ) ?? null );
 }
 
-function getHotspotIndex(event?: Event): number {
-  const trigger = (event?.target as Element | null)?.closest<HTMLElement>(
-    '[data-aa-hotspot-index]'
-  );
-  const index = parseInt(trigger?.dataset.aaHotspotIndex ?? '-1', 10);
+function getHotspotIndex( event?: Event ): number {
+	const trigger = ( event?.target as Element | null )?.closest< HTMLElement >(
+		'[data-aa-hotspot-index]'
+	);
+	const index = parseInt( trigger?.dataset.aaHotspotIndex ?? '-1', 10 );
 
-  return Number.isFinite(index) ? index : -1;
+	return Number.isFinite( index ) ? index : -1;
 }
 
-function syncHotspotClasses(root: HTMLElement, activeIndex: number): void {
-  root
-    .querySelectorAll<HTMLElement>('.aggressive-apparel-lookbook__hotspot')
-    .forEach(button => {
-      const index = parseInt(button.dataset.aaHotspotIndex ?? '-1', 10);
-      button.classList.toggle('is-active', index === activeIndex);
-      button.setAttribute('aria-expanded', String(index === activeIndex));
-    });
+function syncHotspotClasses( root: HTMLElement, activeIndex: number ): void {
+	root.querySelectorAll< HTMLElement >(
+		'.aggressive-apparel-lookbook__hotspot'
+	).forEach( ( button ) => {
+		const index = parseInt( button.dataset.aaHotspotIndex ?? '-1', 10 );
+		button.classList.toggle( 'is-active', index === activeIndex );
+		button.setAttribute( 'aria-expanded', String( index === activeIndex ) );
+	} );
 }
 
-function syncPopoverShell(root: HTMLElement, ctx: LookbookContext): void {
-  const popover = root.querySelector<HTMLElement>(
-    '.aggressive-apparel-lookbook__popover'
-  );
+function syncPopoverShell( root: HTMLElement, ctx: LookbookContext ): void {
+	const popover = root.querySelector< HTMLElement >(
+		'.aggressive-apparel-lookbook__popover'
+	);
 
-  if (!popover) {
-    return;
-  }
+	if ( ! popover ) {
+		return;
+	}
 
-  popover.hidden = ctx.activeHotspot < 0;
+	popover.hidden = ctx.activeHotspot < 0;
 
-  if (ctx.activeHotspot < 0) {
-    return;
-  }
+	if ( ctx.activeHotspot < 0 ) {
+		return;
+	}
 
-  const hotspot = ctx.hotspots[ctx.activeHotspot];
-  popover.style.left = hotspot ? `${hotspot.x}%` : '0%';
-  popover.style.top = hotspot ? `${hotspot.y}%` : '0%';
-  schedulePopoverPlacement(popover);
+	const hotspot = ctx.hotspots[ ctx.activeHotspot ];
+	popover.style.left = hotspot ? `${ hotspot.x }%` : '0%';
+	popover.style.top = hotspot ? `${ hotspot.y }%` : '0%';
+	schedulePopoverPlacement( popover );
 }
 
-function syncLookbookDOM(root: HTMLElement, ctx: LookbookContext): void {
-  syncHotspotClasses(root, ctx.activeHotspot);
-  syncPopoverShell(root, ctx);
+function syncLookbookDOM( root: HTMLElement, ctx: LookbookContext ): void {
+	syncHotspotClasses( root, ctx.activeHotspot );
+	syncPopoverShell( root, ctx );
 }
 
-function clearHoverOpenTimer(root: HTMLElement): void {
-  const timer = hoverOpenTimers.get(root);
+function clearHoverOpenTimer( root: HTMLElement ): void {
+	const timer = hoverOpenTimers.get( root );
 
-  if (timer) {
-    window.clearTimeout(timer);
-    hoverOpenTimers.delete(root);
-  }
+	if ( timer ) {
+		window.clearTimeout( timer );
+		hoverOpenTimers.delete( root );
+	}
 }
 
 function scheduleHoverOpen(
-  event: Event | undefined,
-  ctx: LookbookContext
+	event: Event | undefined,
+	ctx: LookbookContext
 ): void {
-  const root = getRootFromEvent(event);
+	const root = getRootFromEvent( event );
 
-  if (!root) {
-    return;
-  }
+	if ( ! root ) {
+		return;
+	}
 
-  clearHoverOpenTimer(root);
+	clearHoverOpenTimer( root );
 
-  hoverOpenTimers.set(
-    root,
-    window.setTimeout(() => {
-      hoverOpenTimers.delete(root);
-      activateHotspot(event, ctx);
-    }, HOVER_OPEN_DELAY_MS)
-  );
+	hoverOpenTimers.set(
+		root,
+		window.setTimeout( () => {
+			hoverOpenTimers.delete( root );
+			activateHotspot( event, ctx );
+		}, HOVER_OPEN_DELAY_MS )
+	);
 }
 
-function clearHoverCloseTimer(root: HTMLElement): void {
-  const timer = hoverCloseTimers.get(root);
+function clearHoverCloseTimer( root: HTMLElement ): void {
+	const timer = hoverCloseTimers.get( root );
 
-  if (timer) {
-    window.clearTimeout(timer);
-    hoverCloseTimers.delete(root);
-  }
+	if ( timer ) {
+		window.clearTimeout( timer );
+		hoverCloseTimers.delete( root );
+	}
 }
 
-function scheduleHoverClose(root: HTMLElement, ctx: LookbookContext): void {
-  clearHoverCloseTimer(root);
+function scheduleHoverClose( root: HTMLElement, ctx: LookbookContext ): void {
+	clearHoverCloseTimer( root );
 
-  hoverCloseTimers.set(
-    root,
-    window.setTimeout(() => {
-      hoverCloseTimers.delete(root);
+	hoverCloseTimers.set(
+		root,
+		window.setTimeout( () => {
+			hoverCloseTimers.delete( root );
 
-      if (ctx.openOnHover && ctx.activeHotspot >= 0) {
-        closeActiveHotspot(root, ctx);
-      }
-    }, HOVER_CLOSE_DELAY_MS)
-  );
+			if ( ctx.openOnHover && ctx.activeHotspot >= 0 ) {
+				closeActiveHotspot( root, ctx );
+			}
+		}, HOVER_CLOSE_DELAY_MS )
+	);
 }
 
-function closeActiveHotspot(root: HTMLElement, ctx: LookbookContext): void {
-  clearHoverOpenTimer(root);
-  clearHoverCloseTimer(root);
-  pendingKeyboardFocus.delete(root);
-  ctx.activeHotspot = -1;
-  clearPopover(root);
-  syncLookbookDOM(root, ctx);
+function closeActiveHotspot( root: HTMLElement, ctx: LookbookContext ): void {
+	clearHoverOpenTimer( root );
+	clearHoverCloseTimer( root );
+	pendingKeyboardFocus.delete( root );
+	ctx.activeHotspot = -1;
+	clearPopover( root );
+	syncLookbookDOM( root, ctx );
 }
 
 function activateHotspot(
-  event: Event | undefined,
-  ctx: LookbookContext,
-  shouldToggle = false,
-  viaKeyboard = false
+	event: Event | undefined,
+	ctx: LookbookContext,
+	shouldToggle = false,
+	viaKeyboard = false
 ): void {
-  const root = getRootFromEvent(event);
-  const index = getHotspotIndex(event);
+	const root = getRootFromEvent( event );
+	const index = getHotspotIndex( event );
 
-  if (!root || index < 0) {
-    return;
-  }
+	if ( ! root || index < 0 ) {
+		return;
+	}
 
-  clearHoverOpenTimer(root);
-  clearHoverCloseTimer(root);
+	clearHoverOpenTimer( root );
+	clearHoverCloseTimer( root );
 
-  if (ctx.activeHotspot === index) {
-    if (shouldToggle) {
-      closeActiveHotspot(root, ctx);
-    }
+	if ( ctx.activeHotspot === index ) {
+		if ( shouldToggle ) {
+			closeActiveHotspot( root, ctx );
+		}
 
-    return;
-  }
+		return;
+	}
 
-  // Keyboard activation moves focus into the card once it renders; any
-  // other activation (hover, pointer click) must never steal focus.
-  if (viaKeyboard) {
-    pendingKeyboardFocus.add(root);
-  } else {
-    pendingKeyboardFocus.delete(root);
-  }
+	// Keyboard activation moves focus into the card once it renders; any
+	// other activation (hover, pointer click) must never steal focus.
+	if ( viaKeyboard ) {
+		pendingKeyboardFocus.add( root );
+	} else {
+		pendingKeyboardFocus.delete( root );
+	}
 
-  ctx.activeHotspot = index;
-  clearPopover(root);
-  syncLookbookDOM(root, ctx);
+	ctx.activeHotspot = index;
+	clearPopover( root );
+	syncLookbookDOM( root, ctx );
 
-  const consumeFocus = (): boolean => pendingKeyboardFocus.delete(root);
+	const consumeFocus = (): boolean => pendingKeyboardFocus.delete( root );
 
-  const i18n = getI18n(ctx);
-  const hotspot = ctx.hotspots[index];
-  if (!hotspot || !hotspot.productId) {
-    renderMessage(root, i18n.noProduct, consumeFocus());
-    return;
-  }
+	const i18n = getI18n( ctx );
+	const hotspot = ctx.hotspots[ index ];
+	if ( ! hotspot || ! hotspot.productId ) {
+		renderMessage( root, i18n.noProduct, consumeFocus() );
+		return;
+	}
 
-  renderLoading(root, i18n.loading);
+	renderLoading( root, i18n.loading );
 
-  fetchProduct(hotspot.productId, ctx.restBase)
-    .then((data: StoreApiProduct) => {
-      if (ctx.activeHotspot === index) {
-        renderProduct(root, data, i18n, consumeFocus());
-      }
-    })
-    .catch(() => {
-      if (ctx.activeHotspot === index) {
-        renderMessage(root, i18n.loadError, consumeFocus());
-      }
-    });
+	fetchProduct( hotspot.productId, ctx.restBase )
+		.then( ( data: StoreApiProduct ) => {
+			if ( ctx.activeHotspot === index ) {
+				renderProduct( root, data, i18n, consumeFocus() );
+			}
+		} )
+		.catch( () => {
+			if ( ctx.activeHotspot === index ) {
+				renderMessage( root, i18n.loadError, consumeFocus() );
+			}
+		} );
 }
 
-store('aggressive-apparel/lookbook', {
-  actions: {
-    openHotspot(event?: Event): void {
-      if (!shouldUseHoverBehavior(event)) {
-        return;
-      }
+store( 'aggressive-apparel/lookbook', {
+	actions: {
+		openHotspot( event?: Event ): void {
+			if ( ! shouldUseHoverBehavior( event ) ) {
+				return;
+			}
 
-      const ctx = getContext<LookbookContext>();
+			const ctx = getContext< LookbookContext >();
 
-      // Hover gets a short intent delay so sweeping the cursor across
-      // several hotspots doesn't open (and fetch) each one; keyboard
-      // focus opens immediately.
-      if (isPointerHoverEvent(event)) {
-        scheduleHoverOpen(event, ctx);
-        return;
-      }
+			// Hover gets a short intent delay so sweeping the cursor across
+			// several hotspots doesn't open (and fetch) each one; keyboard
+			// focus opens immediately.
+			if ( isPointerHoverEvent( event ) ) {
+				scheduleHoverOpen( event, ctx );
+				return;
+			}
 
-      // Escape restored focus here — consume the one-shot suppression so the
-      // popover it just closed doesn't spring back open.
-      const root = getRootFromEvent(event);
-      if (root && suppressFocusOpen.has(root)) {
-        suppressFocusOpen.delete(root);
-        return;
-      }
+			// Escape restored focus here — consume the one-shot suppression so the
+			// popover it just closed doesn't spring back open.
+			const root = getRootFromEvent( event );
+			if ( root && suppressFocusOpen.has( root ) ) {
+				suppressFocusOpen.delete( root );
+				return;
+			}
 
-      activateHotspot(event, ctx);
-    },
+			activateHotspot( event, ctx );
+		},
 
-    // Pointer/touch activation. Keyboard (Enter/Space) is handled entirely by
-    // onHotspotKeydown, which calls preventDefault() to stop the synthesized
-    // click — so any click that still arrives is a genuine pointer click.
-    // A detail-0 click (programmatic / keyboard-synthesized) is ignored
-    // defensively so it can never toggle the popover back closed.
-    toggleHotspot(event?: MouseEvent): void {
-      if (!event || event.detail === 0) {
-        return;
-      }
+		// Pointer/touch activation. Keyboard (Enter/Space) is handled entirely by
+		// onHotspotKeydown, which calls preventDefault() to stop the synthesized
+		// click — so any click that still arrives is a genuine pointer click.
+		// A detail-0 click (programmatic / keyboard-synthesized) is ignored
+		// defensively so it can never toggle the popover back closed.
+		toggleHotspot( event?: MouseEvent ): void {
+			if ( ! event || event.detail === 0 ) {
+				return;
+			}
 
-      const ctx = getContext<LookbookContext>();
-      const shouldToggle = !ctx.openOnHover || supportsHoverInteraction();
-      activateHotspot(event, ctx, shouldToggle);
-    },
+			const ctx = getContext< LookbookContext >();
+			const shouldToggle =
+				! ctx.openOnHover || supportsHoverInteraction();
+			activateHotspot( event, ctx, shouldToggle );
+		},
 
-    // Deterministic keyboard activation: a keydown is unambiguously keyboard
-    // (no browser-dependent click.detail / :focus-visible sniffing), fires
-    // before the synthesized click, and preventDefault() suppresses that
-    // click so it can't fall through to the toggle-close path.
-    onHotspotKeydown(event?: KeyboardEvent): void {
-      const key = event?.key;
-      if (
-        key !== 'Enter' &&
-        key !== ' ' &&
-        key !== 'Spacebar' &&
-        key !== 'Tab'
-      ) {
-        return;
-      }
+		// Deterministic keyboard activation: a keydown is unambiguously keyboard
+		// (no browser-dependent click.detail / :focus-visible sniffing), fires
+		// before the synthesized click, and preventDefault() suppresses that
+		// click so it can't fall through to the toggle-close path.
+		onHotspotKeydown( event?: KeyboardEvent ): void {
+			const key = event?.key;
+			if (
+				key !== 'Enter' &&
+				key !== ' ' &&
+				key !== 'Spacebar' &&
+				key !== 'Tab'
+			) {
+				return;
+			}
 
-      const ctx = getContext<LookbookContext>();
-      const root = getRootFromEvent(event);
-      const index = getHotspotIndex(event);
+			const ctx = getContext< LookbookContext >();
+			const root = getRootFromEvent( event );
+			const index = getHotspotIndex( event );
 
-      if (!root || index < 0) {
-        return;
-      }
+			if ( ! root || index < 0 ) {
+				return;
+			}
 
-      if (key === 'Tab') {
-        if (event && !event.shiftKey && ctx.activeHotspot === index) {
-          event.preventDefault();
-          focusPopoverCard(root);
-        }
+			if ( key === 'Tab' ) {
+				if (
+					event &&
+					! event.shiftKey &&
+					ctx.activeHotspot === index
+				) {
+					event.preventDefault();
+					focusPopoverCard( root );
+				}
 
-        return;
-      }
+				return;
+			}
 
-      event?.preventDefault();
+			event?.preventDefault();
 
-      // Hover mode opens on focus, so by the time Enter is pressed the popover
-      // for this hotspot is already open — just move focus into the card.
-      if (ctx.activeHotspot === index) {
-        focusPopoverCard(root);
-        return;
-      }
+			// Hover mode opens on focus, so by the time Enter is pressed the popover
+			// for this hotspot is already open — just move focus into the card.
+			if ( ctx.activeHotspot === index ) {
+				focusPopoverCard( root );
+				return;
+			}
 
-      // Click mode (or not-yet-open): open and arm pending focus so the card
-      // receives focus the moment it renders.
-      activateHotspot(event, ctx, false, true);
-    },
+			// Click mode (or not-yet-open): open and arm pending focus so the card
+			// receives focus the moment it renders.
+			activateHotspot( event, ctx, false, true );
+		},
 
-    onPopoverKeydown(event?: KeyboardEvent): void {
-      if (event?.key !== 'Tab') {
-        return;
-      }
+		onPopoverKeydown( event?: KeyboardEvent ): void {
+			if ( event?.key !== 'Tab' ) {
+				return;
+			}
 
-      const root = getRootFromEvent(event);
-      const ctx = getContext<LookbookContext>();
-      const target = event.target as Element | null;
-      const isFromProductCard = target?.closest(
-        '.aggressive-apparel-lookbook__product-card'
-      );
+			const root = getRootFromEvent( event );
+			const ctx = getContext< LookbookContext >();
+			const target = event.target as Element | null;
+			const isFromProductCard = target?.closest(
+				'.aggressive-apparel-lookbook__product-card'
+			);
 
-      if (!root || ctx.activeHotspot < 0 || !isFromProductCard) {
-        return;
-      }
+			if ( ! root || ctx.activeHotspot < 0 || ! isFromProductCard ) {
+				return;
+			}
 
-      const movedFocus = moveFocusFromPopoverCard(root, ctx, event.shiftKey);
+			const movedFocus = moveFocusFromPopoverCard(
+				root,
+				ctx,
+				event.shiftKey
+			);
 
-      if (!movedFocus) {
-        return;
-      }
+			if ( ! movedFocus ) {
+				return;
+			}
 
-      event.preventDefault();
-    },
+			event.preventDefault();
+		},
 
-    closeHotspot(event?: Event): void {
-      if (!shouldUseHoverBehavior(event)) {
-        return;
-      }
+		closeHotspot( event?: Event ): void {
+			if ( ! shouldUseHoverBehavior( event ) ) {
+				return;
+			}
 
-      const ctx = getContext<LookbookContext>();
-      const root = getRootFromEvent(event);
+			const ctx = getContext< LookbookContext >();
+			const root = getRootFromEvent( event );
 
-      if (root && ctx.openOnHover) {
-        closeActiveHotspot(root, ctx);
-      }
-    },
+			if ( root && ctx.openOnHover ) {
+				closeActiveHotspot( root, ctx );
+			}
+		},
 
-    cancelHoverClose(event?: Event): void {
-      const root = getRootFromEvent(event);
+		cancelHoverClose( event?: Event ): void {
+			const root = getRootFromEvent( event );
 
-      if (root) {
-        clearHoverCloseTimer(root);
-      }
-    },
+			if ( root ) {
+				clearHoverCloseTimer( root );
+			}
+		},
 
-    scheduleHoverClose(event?: Event): void {
-      if (!shouldUseHoverBehavior(event)) {
-        return;
-      }
+		scheduleHoverClose( event?: Event ): void {
+			if ( ! shouldUseHoverBehavior( event ) ) {
+				return;
+			}
 
-      const ctx = getContext<LookbookContext>();
-      const root = getRootFromEvent(event);
+			const ctx = getContext< LookbookContext >();
+			const root = getRootFromEvent( event );
 
-      if (root && ctx.openOnHover) {
-        clearHoverOpenTimer(root);
-        scheduleHoverClose(root, ctx);
-      }
-    },
+			if ( root && ctx.openOnHover ) {
+				clearHoverOpenTimer( root );
+				scheduleHoverClose( root, ctx );
+			}
+		},
 
-    onDocumentKeydown(event?: Event): void {
-      if ((event as KeyboardEvent | undefined)?.key !== 'Escape') {
-        return;
-      }
+		onDocumentKeydown( event?: Event ): void {
+			if ( ( event as KeyboardEvent | undefined )?.key !== 'Escape' ) {
+				return;
+			}
 
-      const ctx = getContext<LookbookContext>();
+			const ctx = getContext< LookbookContext >();
 
-      if (ctx.activeHotspot < 0) {
-        return;
-      }
+			if ( ctx.activeHotspot < 0 ) {
+				return;
+			}
 
-      const root = getRootFromElement(getElement().ref);
+			const root = getRootFromElement( getElement().ref );
 
-      if (!root) {
-        return;
-      }
+			if ( ! root ) {
+				return;
+			}
 
-      const activeIndex = ctx.activeHotspot;
-      const hadFocusInside = root.contains(document.activeElement);
-      closeActiveHotspot(root, ctx);
+			const activeIndex = ctx.activeHotspot;
+			const hadFocusInside = root.contains( document.activeElement );
+			closeActiveHotspot( root, ctx );
 
-      if (hadFocusInside) {
-        // Arm the guard before refocusing: in hover mode .focus() below
-        // synchronously fires openHotspot, which consumes it and bails.
-        suppressFocusOpen.add(root);
-        root
-          .querySelector<HTMLElement>(
-            `[data-aa-hotspot-index="${activeIndex}"]`
-          )
-          ?.focus({ preventScroll: true });
-        // Click mode has no focus-open handler to consume it — clear so a
-        // later genuine focus isn't swallowed.
-        suppressFocusOpen.delete(root);
-      }
-    },
+			if ( hadFocusInside ) {
+				// Arm the guard before refocusing: in hover mode .focus() below
+				// synchronously fires openHotspot, which consumes it and bails.
+				suppressFocusOpen.add( root );
+				root.querySelector< HTMLElement >(
+					`[data-aa-hotspot-index="${ activeIndex }"]`
+				)?.focus( { preventScroll: true } );
+				// Click mode has no focus-open handler to consume it — clear so a
+				// later genuine focus isn't swallowed.
+				suppressFocusOpen.delete( root );
+			}
+		},
 
-    onDocumentClick(event?: Event): void {
-      const ctx = getContext<LookbookContext>();
+		onDocumentClick( event?: Event ): void {
+			const ctx = getContext< LookbookContext >();
 
-      if (ctx.activeHotspot < 0) {
-        return;
-      }
+			if ( ctx.activeHotspot < 0 ) {
+				return;
+			}
 
-      const root = getRootFromElement(getElement().ref);
-      const target = event?.target;
+			const root = getRootFromElement( getElement().ref );
+			const target = event?.target;
 
-      if (!root || (target instanceof Node && root.contains(target))) {
-        return;
-      }
+			if (
+				! root ||
+				( target instanceof Node && root.contains( target ) )
+			) {
+				return;
+			}
 
-      closeActiveHotspot(root, ctx);
-    },
-  },
+			closeActiveHotspot( root, ctx );
+		},
+	},
 
-  callbacks: {
-    init(): void {
-      attachViewportListeners();
+	callbacks: {
+		init(): void {
+			attachViewportListeners();
 
-      const element = getElement();
-      const root = getRootFromElement(element.ref);
-      const ctx = getContext<LookbookContext>();
+			const element = getElement();
+			const root = getRootFromElement( element.ref );
+			const ctx = getContext< LookbookContext >();
 
-      if (root) {
-        syncLookbookDOM(root, ctx);
-      }
-    },
-  },
-});
+			if ( root ) {
+				syncLookbookDOM( root, ctx );
+			}
+		},
+	},
+} );

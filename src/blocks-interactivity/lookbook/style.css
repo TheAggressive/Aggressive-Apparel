@@ -56,7 +56,8 @@
 	font-weight: 700;
 	box-shadow: var(--aa-shadow-sm);
 	transition: transform var(--aa-duration-fast) var(--aa-ease-default);
-	animation: aggressive-apparel-hotspot-pulse 2s var(--aa-ease-default) infinite;
+	animation: aggressive-apparel-hotspot-pulse 2s var(--aa-ease-default)
+		infinite;
 }
 
 .aggressive-apparel-lookbook__hotspot:hover
@@ -94,8 +95,8 @@
 		calc(-100% - 1.5rem)
 	);
 	pointer-events: auto;
-	animation: aggressive-apparel-lookbook-popover-in 160ms var(--aa-ease-default)
-		both;
+	animation: aggressive-apparel-lookbook-popover-in 160ms
+		var(--aa-ease-default) both;
 
 	&[hidden] {
 		display: none;

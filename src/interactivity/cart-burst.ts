@@ -10,35 +10,35 @@
 
 const CART_SELECTOR = '.wc-block-mini-cart__button, .wc-block-cart-link';
 const IMG_SELECTOR =
-  '.wc-block-product-template article .wp-block-post-featured-image img, .products li.product .woocommerce-product-gallery__image img';
+	'.wc-block-product-template article .wp-block-post-featured-image img, .products li.product .woocommerce-product-gallery__image img';
 
 interface AddedToCartEvent extends Event {
-  detail?: {
-    product?: {
-      id?: number;
-    };
-  };
+	detail?: {
+		product?: {
+			id?: number;
+		};
+	};
 }
 
 /**
  * Find the product image closest to the event source.
  * Falls back to the first product image on page.
  */
-function findSourceImage(e: AddedToCartEvent): HTMLImageElement | null {
-  const target = e.target as HTMLElement | null;
-  if (target) {
-    const card = target.closest('article, li.product');
-    if (card) {
-      const img = card.querySelector<HTMLImageElement>('img');
-      if (img) return img;
-    }
-  }
-  return document.querySelector<HTMLImageElement>(IMG_SELECTOR);
+function findSourceImage( e: AddedToCartEvent ): HTMLImageElement | null {
+	const target = e.target as HTMLElement | null;
+	if ( target ) {
+		const card = target.closest( 'article, li.product' );
+		if ( card ) {
+			const img = card.querySelector< HTMLImageElement >( 'img' );
+			if ( img ) return img;
+		}
+	}
+	return document.querySelector< HTMLImageElement >( IMG_SELECTOR );
 }
 
 /** Find the mini-cart button to fly towards. */
 function findCartButton(): HTMLElement | null {
-  return document.querySelector<HTMLElement>(CART_SELECTOR);
+	return document.querySelector< HTMLElement >( CART_SELECTOR );
 }
 
 /**
@@ -46,11 +46,11 @@ function findCartButton(): HTMLElement | null {
  */
 let styleInjected = false;
 function ensureStyles(): void {
-  if (styleInjected) return;
-  styleInjected = true;
+	if ( styleInjected ) return;
+	styleInjected = true;
 
-  const style = document.createElement('style');
-  style.textContent = `
+	const style = document.createElement( 'style' );
+	style.textContent = `
 @keyframes aa-cart-burst-fly {
   0%   { offset-distance: 0%;   opacity: 1; scale: 1; }
   80%  { opacity: 1; }
@@ -71,57 +71,57 @@ function ensureStyles(): void {
   .aa-cart-burst { display: none; }
 }
 `;
-  document.head.append(style);
+	document.head.append( style );
 }
 
 /**
  * Play the burst animation from sourceRect to targetRect.
  */
-function playBurst(img: HTMLImageElement, cartBtn: HTMLElement): void {
-  ensureStyles();
+function playBurst( img: HTMLImageElement, cartBtn: HTMLElement ): void {
+	ensureStyles();
 
-  const srcRect = img.getBoundingClientRect();
-  const dstRect = cartBtn.getBoundingClientRect();
+	const srcRect = img.getBoundingClientRect();
+	const dstRect = cartBtn.getBoundingClientRect();
 
-  // Clone the image as a fixed-positioned thumbnail
-  const clone = img.cloneNode(true) as HTMLImageElement;
-  clone.className = 'aa-cart-burst';
-  const SIZE = 56;
-  clone.style.cssText += `
-    width: ${SIZE}px;
-    height: ${SIZE}px;
+	// Clone the image as a fixed-positioned thumbnail
+	const clone = img.cloneNode( true ) as HTMLImageElement;
+	clone.className = 'aa-cart-burst';
+	const SIZE = 56;
+	clone.style.cssText += `
+    width: ${ SIZE }px;
+    height: ${ SIZE }px;
     object-fit: cover;
-    transform: translate(${srcRect.left + srcRect.width / 2 - SIZE / 2}px, ${srcRect.top + srcRect.height / 2 - SIZE / 2}px);
+    transform: translate(${ srcRect.left + srcRect.width / 2 - SIZE / 2 }px, ${ srcRect.top + srcRect.height / 2 - SIZE / 2 }px);
   `;
 
-  // Build a cubic arc path: start → control point above midpoint → end
-  const sx = srcRect.left + srcRect.width / 2;
-  const sy = srcRect.top + srcRect.height / 2;
-  const ex = dstRect.left + dstRect.width / 2;
-  const ey = dstRect.top + dstRect.height / 2;
-  // Control point sits above the midpoint for a graceful arc
-  const cx = (sx + ex) / 2;
-  const cy = Math.min(sy, ey) - Math.abs(ex - sx) * 0.5;
+	// Build a cubic arc path: start → control point above midpoint → end
+	const sx = srcRect.left + srcRect.width / 2;
+	const sy = srcRect.top + srcRect.height / 2;
+	const ex = dstRect.left + dstRect.width / 2;
+	const ey = dstRect.top + dstRect.height / 2;
+	// Control point sits above the midpoint for a graceful arc
+	const cx = ( sx + ex ) / 2;
+	const cy = Math.min( sy, ey ) - Math.abs( ex - sx ) * 0.5;
 
-  clone.style.offsetPath = `path('M ${sx} ${sy} Q ${cx} ${cy} ${ex} ${ey}')`;
-  clone.style.offsetAnchor = 'center center';
-  clone.style.transform = 'none';
+	clone.style.offsetPath = `path('M ${ sx } ${ sy } Q ${ cx } ${ cy } ${ ex } ${ ey }')`;
+	clone.style.offsetAnchor = 'center center';
+	clone.style.transform = 'none';
 
-  clone.setAttribute('aria-hidden', 'true');
-  document.body.append(clone);
-  clone.addEventListener('animationend', () => clone.remove(), {
-    once: true,
-  });
+	clone.setAttribute( 'aria-hidden', 'true' );
+	document.body.append( clone );
+	clone.addEventListener( 'animationend', () => clone.remove(), {
+		once: true,
+	} );
 }
 
-function handleAddedToCart(e: Event): void {
-  const addedEvent = e as AddedToCartEvent;
-  const img = findSourceImage(addedEvent);
-  const cartBtn = findCartButton();
-  if (!img || !cartBtn) return;
-  playBurst(img, cartBtn);
+function handleAddedToCart( e: Event ): void {
+	const addedEvent = e as AddedToCartEvent;
+	const img = findSourceImage( addedEvent );
+	const cartBtn = findCartButton();
+	if ( ! img || ! cartBtn ) return;
+	playBurst( img, cartBtn );
 }
 
-document.addEventListener('wc-blocks_added_to_cart', handleAddedToCart);
+document.addEventListener( 'wc-blocks_added_to_cart', handleAddedToCart );
 // WooCommerce classic also fires this
-document.addEventListener('added_to_cart', handleAddedToCart);
+document.addEventListener( 'added_to_cart', handleAddedToCart );

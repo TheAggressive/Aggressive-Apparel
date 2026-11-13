@@ -35,27 +35,30 @@ select:user-invalid {
 	border-left-color: var(--aa-field-bar-invalid);
 }
 
-select[aria-invalid='true'] {
+select[aria-invalid="true"] {
 	border-left-color: var(--aa-field-bar-invalid);
 }
 
 /* Multi-row selects: symmetric padding (no chevron) and a selected-option fill
  * that survives blur (a plain background-color is ignored for :checked). */
-select:is([multiple], [size]:not([size='1'])) {
+select:is([multiple], [size]:not([size="1"])) {
 	min-height: calc(var(--aa-field-height) * 2);
 	padding: 0.5rem;
 }
 
-select:is([multiple], [size]:not([size='1'])) option {
+select:is([multiple], [size]:not([size="1"])) option {
 	padding: 0.375rem 0.5rem;
 	border-radius: var(--aa-radius-sm);
 	background-color: transparent;
 	color: inherit;
 }
 
-select:is([multiple], [size]:not([size='1'])) option:checked {
+select:is([multiple], [size]:not([size="1"])) option:checked {
 	background: var(--aa-color-accent-fill)
-		linear-gradient(var(--aa-color-accent-fill), var(--aa-color-accent-fill));
+		linear-gradient(
+			var(--aa-color-accent-fill),
+			var(--aa-color-accent-fill)
+		);
 	color: var(--aa-color-white);
 }
 
@@ -84,10 +87,10 @@ select:is([multiple], [size]:not([size='1'])) option:checked {
 .wp-block-post-comments-form
 	:is(
 		input:not(
-			[type='submit'],
-			[type='checkbox'],
-			[type='radio'],
-			[type='hidden']
+			[type="submit"],
+			[type="checkbox"],
+			[type="radio"],
+			[type="hidden"]
 		),
 		textarea
 	) {
@@ -101,10 +104,10 @@ select:is([multiple], [size]:not([size='1'])) option:checked {
 .wp-block-post-comments-form
 	:is(
 		input:not(
-			[type='submit'],
-			[type='checkbox'],
-			[type='radio'],
-			[type='hidden']
+			[type="submit"],
+			[type="checkbox"],
+			[type="radio"],
+			[type="hidden"]
 		),
 		textarea
 	):focus {
@@ -114,10 +117,10 @@ select:is([multiple], [size]:not([size='1'])) option:checked {
 .wp-block-post-comments-form
 	:is(
 		input:not(
-			[type='submit'],
-			[type='checkbox'],
-			[type='radio'],
-			[type='hidden']
+			[type="submit"],
+			[type="checkbox"],
+			[type="radio"],
+			[type="hidden"]
 		),
 		textarea
 	):user-invalid {

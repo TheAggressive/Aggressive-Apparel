@@ -15,31 +15,31 @@ const LABEL_LINK = '.aa-size-label__link';
 const PENDING = 'is-pending';
 
 /** Open the size guide; false when the page has none. */
-export function openSizeGuide(from: HTMLElement | null): boolean {
-  const trigger = document.querySelector<HTMLElement>(TRIGGER);
-  if (!trigger) {
-    return false;
-  }
-  // The guide returns focus to whatever was focused when it opened; Safari
-  // doesn't focus buttons on click, so make that the control used.
-  from?.focus({ preventScroll: true });
-  trigger.click();
-  return true;
+export function openSizeGuide( from: HTMLElement | null ): boolean {
+	const trigger = document.querySelector< HTMLElement >( TRIGGER );
+	if ( ! trigger ) {
+		return false;
+	}
+	// The guide returns focus to whatever was focused when it opened; Safari
+	// doesn't focus buttons on click, so make that the control used.
+	from?.focus( { preventScroll: true } );
+	trigger.click();
+	return true;
 }
 
 /** Reveal the size label links and handle their clicks (one listener). */
 export function initLabelLinks(): void {
-  const links = document.querySelectorAll<HTMLElement>(LABEL_LINK);
-  if (links.length === 0 || !document.querySelector(TRIGGER)) {
-    return;
-  }
-  links.forEach(link => link.classList.remove(PENDING));
-  document.addEventListener('click', event => {
-    const link = (event.target as Element | null)?.closest<HTMLElement>(
-      LABEL_LINK
-    );
-    if (link) {
-      openSizeGuide(link);
-    }
-  });
+	const links = document.querySelectorAll< HTMLElement >( LABEL_LINK );
+	if ( links.length === 0 || ! document.querySelector( TRIGGER ) ) {
+		return;
+	}
+	links.forEach( ( link ) => link.classList.remove( PENDING ) );
+	document.addEventListener( 'click', ( event ) => {
+		const link = ( event.target as Element | null )?.closest< HTMLElement >(
+			LABEL_LINK
+		);
+		if ( link ) {
+			openSizeGuide( link );
+		}
+	} );
 }

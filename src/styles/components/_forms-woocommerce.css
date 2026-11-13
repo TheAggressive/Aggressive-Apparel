@@ -36,8 +36,8 @@
  * ---------------------------------------------------------------------- */
 .woocommerce form .form-row :is(input.input-text, textarea, select),
 .woocommerce-input-wrapper
-	input:not([type='checkbox'], [type='radio'], [type='hidden']),
-.woocommerce select:not([multiple], [size], [class*='wc-block']) {
+	input:not([type="checkbox"], [type="radio"], [type="hidden"]),
+.woocommerce select:not([multiple], [size], [class*="wc-block"]) {
 	box-sizing: border-box;
 	min-height: var(--aa-field-height);
 	padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
@@ -52,7 +52,7 @@
 }
 
 .woocommerce form .form-row select:not([multiple], [size]),
-.woocommerce select:not([multiple], [size], [class*='wc-block']) {
+.woocommerce select:not([multiple], [size], [class*="wc-block"]) {
 	appearance: none; /* the layered baseline doesn't reach wc-block wrappers (catalog sorting) */
 	padding-right: 2.5rem;
 	background-image: var(--aa-field-chevron);
@@ -86,7 +86,7 @@
 	border-left-color: var(--aa-field-bar-valid);
 }
 
-.woocommerce select:not([class*='wc-block']) option {
+.woocommerce select:not([class*="wc-block"]) option {
 	background-color: var(--aa-color-surface-elevated);
 	color: var(--aa-color-foreground);
 }

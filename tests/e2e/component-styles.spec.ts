@@ -44,107 +44,115 @@ const MARKUP = `
 <!-- /wp:html -->
 `;
 
-const ELEMENTS: Record<string, string> = {
-  'heading 1': '#vc-h1',
-  'heading 2': '#vc-h2',
-  paragraph: '#vc-p',
-  link: '#vc-link',
-  code: '#vc-code',
-  quote: '#vc-quote',
-  'core button': '#vc-button',
-  'core button (outline)': '#vc-button-outline',
-  'search input': '.wp-block-search__input',
-  'search button': '.wp-block-search__button',
-  'text input': '#vc-text',
-  select: '#vc-select',
-  textarea: '#vc-textarea',
-  checkbox: '#vc-checkbox',
-  'submit input': '#vc-submit',
-  'theme button (primary)': '#vc-aa-primary',
-  'theme button (outline)': '#vc-aa-outline',
-  'icon button': '#vc-icon',
-  'choice pill': '#vc-pill',
-  'choice pill (selected)': '#vc-pill-selected',
+const ELEMENTS: Record< string, string > = {
+	'heading 1': '#vc-h1',
+	'heading 2': '#vc-h2',
+	paragraph: '#vc-p',
+	link: '#vc-link',
+	code: '#vc-code',
+	quote: '#vc-quote',
+	'core button': '#vc-button',
+	'core button (outline)': '#vc-button-outline',
+	'search input': '.wp-block-search__input',
+	'search button': '.wp-block-search__button',
+	'text input': '#vc-text',
+	select: '#vc-select',
+	textarea: '#vc-textarea',
+	checkbox: '#vc-checkbox',
+	'submit input': '#vc-submit',
+	'theme button (primary)': '#vc-aa-primary',
+	'theme button (outline)': '#vc-aa-outline',
+	'icon button': '#vc-icon',
+	'choice pill': '#vc-pill',
+	'choice pill (selected)': '#vc-pill-selected',
 };
 
 const PROPERTIES = [
-  'color',
-  'background-color',
-  'border-top-width',
-  'border-top-style',
-  'border-top-color',
-  'border-left-width',
-  'border-left-color',
-  'border-top-left-radius',
-  'padding-top',
-  'padding-left',
-  'font-family',
-  'font-size',
-  'font-weight',
-  'letter-spacing',
-  'text-transform',
-  'text-decoration-line',
-  'min-height',
-  'box-shadow',
-  'appearance',
+	'color',
+	'background-color',
+	'border-top-width',
+	'border-top-style',
+	'border-top-color',
+	'border-left-width',
+	'border-left-color',
+	'border-top-left-radius',
+	'padding-top',
+	'padding-left',
+	'font-family',
+	'font-size',
+	'font-weight',
+	'letter-spacing',
+	'text-transform',
+	'text-decoration-line',
+	'min-height',
+	'box-shadow',
+	'appearance',
 ];
 
 let pageId = 0;
 let pagePath = '';
 
-test.use({ storageState: { cookies: [], origins: [] } });
+test.use( { storageState: { cookies: [], origins: [] } } );
 
-test.beforeAll(() => {
-  const out = wpCli([
-    'eval',
-    `$id = wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'E2E Component Styles', 'post_content' => ${JSON.stringify(MARKUP)}));
-${ownPostPhp('$id', OWNER)}
+test.beforeAll( () => {
+	const out = wpCli( [
+		'eval',
+		`$id = wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'E2E Component Styles', 'post_content' => ${ JSON.stringify( MARKUP ) }));
+${ ownPostPhp( '$id', OWNER ) }
 echo $id . '|' . get_permalink($id);`,
-  ]);
-  const [id, url] = out.trim().split('|');
-  pageId = Number.parseInt(id, 10);
-  if (!pageId || !url) {
-    throw new Error(`Failed to create the component-styles fixture: ${out}`);
-  }
-  pagePath = new URL(url).pathname;
-});
+	] );
+	const [ id, url ] = out.trim().split( '|' );
+	pageId = Number.parseInt( id, 10 );
+	if ( ! pageId || ! url ) {
+		throw new Error(
+			`Failed to create the component-styles fixture: ${ out }`
+		);
+	}
+	pagePath = new URL( url ).pathname;
+} );
 
-test.afterAll(() => {
-  if (pageId) {
-    wpCli(['post', 'delete', String(pageId), '--force']);
-  }
-});
+test.afterAll( () => {
+	if ( pageId ) {
+		wpCli( [ 'post', 'delete', String( pageId ), '--force' ] );
+	}
+} );
 
-for (const scheme of ['light', 'dark'] as const) {
-  test(`theme components keep their ${scheme}-mode paint`, async ({ page }) => {
-    await page.emulateMedia({
-      colorScheme: scheme,
-      reducedMotion: 'reduce',
-    });
-    await page.setViewportSize({ width: 1200, height: 900 });
-    await page.goto(pagePath, { waitUntil: 'networkidle' });
+for ( const scheme of [ 'light', 'dark' ] as const ) {
+	test( `theme components keep their ${ scheme }-mode paint`, async ( {
+		page,
+	} ) => {
+		await page.emulateMedia( {
+			colorScheme: scheme,
+			reducedMotion: 'reduce',
+		} );
+		await page.setViewportSize( { width: 1200, height: 900 } );
+		await page.goto( pagePath, { waitUntil: 'networkidle' } );
 
-    const styles = await page.evaluate(
-      ({ elements, properties }) => {
-        const out: Record<string, Record<string, string> | string> = {};
-        for (const [name, selector] of Object.entries(elements)) {
-          const el = document.querySelector(selector);
-          if (!el) {
-            out[name] = 'missing';
-            continue;
-          }
-          const computed = getComputedStyle(el);
-          out[name] = Object.fromEntries(
-            properties.map(p => [p, computed.getPropertyValue(p)])
-          );
-        }
-        return out;
-      },
-      { elements: ELEMENTS, properties: PROPERTIES }
-    );
+		const styles = await page.evaluate(
+			( { elements, properties } ) => {
+				const out: Record< string, Record< string, string > | string > =
+					{};
+				for ( const [ name, selector ] of Object.entries( elements ) ) {
+					const el = document.querySelector( selector );
+					if ( ! el ) {
+						out[ name ] = 'missing';
+						continue;
+					}
+					const computed = getComputedStyle( el );
+					out[ name ] = Object.fromEntries(
+						properties.map( ( p ) => [
+							p,
+							computed.getPropertyValue( p ),
+						] )
+					);
+				}
+				return out;
+			},
+			{ elements: ELEMENTS, properties: PROPERTIES }
+		);
 
-    expect(JSON.stringify(styles, null, 2)).toMatchSnapshot(
-      `component-styles-${scheme}.json`
-    );
-  });
+		expect( JSON.stringify( styles, null, 2 ) ).toMatchSnapshot(
+			`component-styles-${ scheme }.json`
+		);
+	} );
 }

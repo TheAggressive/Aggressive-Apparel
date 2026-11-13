@@ -8,23 +8,23 @@
  */
 
 import {
-  ALL_BODY_CLASSES,
-  BODY_CLASSES,
-  FOCUSABLE_SELECTOR,
-  TRANSITION_DURATION_MS,
-  getAnnouncerId,
-  getTriggerId,
-  type BodyClassKey,
+	ALL_BODY_CLASSES,
+	BODY_CLASSES,
+	FOCUSABLE_SELECTOR,
+	TRANSITION_DURATION_MS,
+	getAnnouncerId,
+	getTriggerId,
+	type BodyClassKey,
 } from './constants';
 
 import {
-  logError,
-  logWarning,
-  prefersReducedMotion,
-  safeGetElementById,
-  safeQuerySelector,
-  safeQuerySelectorAll,
-  watchMaxWidth,
+	logError,
+	logWarning,
+	prefersReducedMotion,
+	safeGetElementById,
+	safeQuerySelector,
+	safeQuerySelectorAll,
+	watchMaxWidth,
 } from '../nav-shared/dom';
 
 import { isWithinOverlayThatYieldsNavFocus } from '../nav-shared/overlay-coordination';
@@ -32,20 +32,20 @@ import { isWithinOverlayThatYieldsNavFocus } from '../nav-shared/overlay-coordin
 // Re-export the shared DOM/logging helpers so existing `from './utils'` imports
 // across this subsystem keep resolving unchanged.
 export {
-  logError,
-  logWarning,
-  prefersReducedMotion,
-  safeGetElementById,
-  safeQuerySelector,
-  safeQuerySelectorAll,
-  watchMaxWidth,
+	logError,
+	logWarning,
+	prefersReducedMotion,
+	safeGetElementById,
+	safeQuerySelector,
+	safeQuerySelectorAll,
+	watchMaxWidth,
 };
 
 /**
  * Get the effective transition duration respecting reduced motion preference.
  */
 export function getTransitionDuration(): number {
-  return prefersReducedMotion() ? 0 : TRANSITION_DURATION_MS;
+	return prefersReducedMotion() ? 0 : TRANSITION_DURATION_MS;
 }
 
 // ============================================================================
@@ -55,8 +55,8 @@ export function getTransitionDuration(): number {
 /**
  * Validate a panel slug.
  */
-export function isValidPanelSlug(slug: unknown): slug is string {
-  return typeof slug === 'string' && slug.length > 0;
+export function isValidPanelSlug( slug: unknown ): slug is string {
+	return typeof slug === 'string' && slug.length > 0;
 }
 
 // ============================================================================
@@ -67,26 +67,26 @@ export function isValidPanelSlug(slug: unknown): slug is string {
  * Remove all navigation body classes.
  */
 export function removeAllBodyClasses(): void {
-  document.body.classList.remove(...ALL_BODY_CLASSES);
+	document.body.classList.remove( ...ALL_BODY_CLASSES );
 }
 
 /**
  * Add the appropriate body class for push/reveal animations.
  */
-export function addBodyClass(animationStyle: string, position: string): void {
-  const key =
-    `${animationStyle}${position.charAt(0).toUpperCase()}${position.slice(1)}` as BodyClassKey;
-  const className = BODY_CLASSES[key];
-  if (className) {
-    document.body.classList.add(className);
-  }
+export function addBodyClass( animationStyle: string, position: string ): void {
+	const key =
+		`${ animationStyle }${ position.charAt( 0 ).toUpperCase() }${ position.slice( 1 ) }` as BodyClassKey;
+	const className = BODY_CLASSES[ key ];
+	if ( className ) {
+		document.body.classList.add( className );
+	}
 }
 
 /**
  * Set body overflow to prevent scrolling.
  */
-export function setBodyOverflow(hidden: boolean): void {
-  document.body.style.overflow = hidden ? 'hidden' : '';
+export function setBodyOverflow( hidden: boolean ): void {
+	document.body.style.overflow = hidden ? 'hidden' : '';
 }
 
 // ============================================================================
@@ -96,36 +96,39 @@ export function setBodyOverflow(hidden: boolean): void {
 /**
  * Manage panel visibility with animation support.
  */
-export function setPanelVisibility(panel: HTMLElement, isOpen: boolean): void {
-  if (isOpen) {
-    panel.style.removeProperty('pointer-events');
-    panel.classList.add('is-open');
-  } else {
-    panel.classList.remove('is-open');
+export function setPanelVisibility(
+	panel: HTMLElement,
+	isOpen: boolean
+): void {
+	if ( isOpen ) {
+		panel.style.removeProperty( 'pointer-events' );
+		panel.classList.add( 'is-open' );
+	} else {
+		panel.classList.remove( 'is-open' );
 
-    const duration = getTransitionDuration();
-    setTimeout(() => {
-      if (!panel.classList.contains('is-open')) {
-        panel.style.pointerEvents = 'none';
-      }
-    }, duration);
-  }
+		const duration = getTransitionDuration();
+		setTimeout( () => {
+			if ( ! panel.classList.contains( 'is-open' ) ) {
+				panel.style.pointerEvents = 'none';
+			}
+		}, duration );
+	}
 }
 
 /**
  * Toggle panel inert so closed dialogs cannot receive focus (a11y + PSI).
  */
-export function setPanelInert(panel: HTMLElement, isInert: boolean): void {
-  if ('inert' in HTMLElement.prototype) {
-    panel.inert = isInert;
-    return;
-  }
+export function setPanelInert( panel: HTMLElement, isInert: boolean ): void {
+	if ( 'inert' in HTMLElement.prototype ) {
+		panel.inert = isInert;
+		return;
+	}
 
-  if (isInert) {
-    panel.setAttribute('inert', '');
-  } else {
-    panel.removeAttribute('inert');
-  }
+	if ( isInert ) {
+		panel.setAttribute( 'inert', '' );
+	} else {
+		panel.removeAttribute( 'inert' );
+	}
 }
 
 // ============================================================================
@@ -135,130 +138,131 @@ export function setPanelInert(panel: HTMLElement, isInert: boolean): void {
 /**
  * Get all focusable elements within a container, excluding inert subtrees.
  */
-export function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  const elements = safeQuerySelectorAll<HTMLElement>(
-    container,
-    FOCUSABLE_SELECTOR
-  );
+export function getFocusableElements( container: HTMLElement ): HTMLElement[] {
+	const elements = safeQuerySelectorAll< HTMLElement >(
+		container,
+		FOCUSABLE_SELECTOR
+	);
 
-  return elements.filter(el => {
-    let parent: HTMLElement | null = el.parentElement;
-    while (parent && parent !== container) {
-      if (parent.inert) {
-        return false;
-      }
-      parent = parent.parentElement;
-    }
-    return true;
-  });
+	return elements.filter( ( el ) => {
+		let parent: HTMLElement | null = el.parentElement;
+		while ( parent && parent !== container ) {
+			if ( parent.inert ) {
+				return false;
+			}
+			parent = parent.parentElement;
+		}
+		return true;
+	} );
 }
 
 /**
  * Setup focus trap within a container element.
  */
-export function setupFocusTrap(container: HTMLElement): () => void {
-  const handleKeydown = (e: KeyboardEvent) => {
-    if (e.key !== 'Tab') {
-      return;
-    }
+export function setupFocusTrap( container: HTMLElement ): () => void {
+	const handleKeydown = ( e: KeyboardEvent ) => {
+		if ( e.key !== 'Tab' ) {
+			return;
+		}
 
-    const active = document.activeElement as HTMLElement | null;
-    if (active && isWithinOverlayThatYieldsNavFocus(active)) {
-      return;
-    }
+		const active = document.activeElement as HTMLElement | null;
+		if ( active && isWithinOverlayThatYieldsNavFocus( active ) ) {
+			return;
+		}
 
-    const focusable = getFocusableElements(container);
+		const focusable = getFocusableElements( container );
 
-    if (focusable.length === 0) {
-      e.preventDefault();
-      return;
-    }
+		if ( focusable.length === 0 ) {
+			e.preventDefault();
+			return;
+		}
 
-    const currentIndex = active ? focusable.indexOf(active) : -1;
+		const currentIndex = active ? focusable.indexOf( active ) : -1;
 
-    let nextIndex: number;
+		let nextIndex: number;
 
-    if (e.shiftKey) {
-      nextIndex = currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1;
-    } else {
-      nextIndex =
-        currentIndex === -1 || currentIndex >= focusable.length - 1
-          ? 0
-          : currentIndex + 1;
-    }
+		if ( e.shiftKey ) {
+			nextIndex =
+				currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1;
+		} else {
+			nextIndex =
+				currentIndex === -1 || currentIndex >= focusable.length - 1
+					? 0
+					: currentIndex + 1;
+		}
 
-    e.preventDefault();
-    focusable[nextIndex].focus({ preventScroll: true });
-  };
+		e.preventDefault();
+		focusable[ nextIndex ].focus( { preventScroll: true } );
+	};
 
-  const handleFocusin = (e: FocusEvent) => {
-    const target = e.target as HTMLElement;
-    if (!container.contains(target)) {
-      if (isWithinOverlayThatYieldsNavFocus(target)) {
-        return;
-      }
+	const handleFocusin = ( e: FocusEvent ) => {
+		const target = e.target as HTMLElement;
+		if ( ! container.contains( target ) ) {
+			if ( isWithinOverlayThatYieldsNavFocus( target ) ) {
+				return;
+			}
 
-      const focusable = getFocusableElements(container);
-      if (focusable.length > 0) {
-        focusable[0].focus({ preventScroll: true });
-      }
-    }
-  };
+			const focusable = getFocusableElements( container );
+			if ( focusable.length > 0 ) {
+				focusable[ 0 ].focus( { preventScroll: true } );
+			}
+		}
+	};
 
-  document.addEventListener('keydown', handleKeydown, true);
-  document.addEventListener('focusin', handleFocusin, true);
+	document.addEventListener( 'keydown', handleKeydown, true );
+	document.addEventListener( 'focusin', handleFocusin, true );
 
-  return () => {
-    document.removeEventListener('keydown', handleKeydown, true);
-    document.removeEventListener('focusin', handleFocusin, true);
-  };
+	return () => {
+		document.removeEventListener( 'keydown', handleKeydown, true );
+		document.removeEventListener( 'focusin', handleFocusin, true );
+	};
 }
 
 /**
  * Restore focus to the trigger button after closing the panel.
  * Falls back to the main content area when the trigger is unavailable.
  */
-export function restoreFocus(panelSlug: string): void {
-  const triggerId = getTriggerId(panelSlug);
-  const trigger = safeGetElementById(triggerId, false);
-  if (trigger) {
-    trigger.focus({ preventScroll: true });
-    return;
-  }
+export function restoreFocus( panelSlug: string ): void {
+	const triggerId = getTriggerId( panelSlug );
+	const trigger = safeGetElementById( triggerId, false );
+	if ( trigger ) {
+		trigger.focus( { preventScroll: true } );
+		return;
+	}
 
-  const main = safeQuerySelector<HTMLElement>(
-    document,
-    'main, [role="main"], .wp-site-blocks',
-    false
-  );
+	const main = safeQuerySelector< HTMLElement >(
+		document,
+		'main, [role="main"], .wp-site-blocks',
+		false
+	);
 
-  if (main) {
-    const hadTabindex = main.hasAttribute('tabindex');
-    if (!hadTabindex) {
-      main.setAttribute('tabindex', '-1');
-    }
-    main.focus({ preventScroll: true });
-    if (!hadTabindex) {
-      main.removeAttribute('tabindex');
-    }
-  }
+	if ( main ) {
+		const hadTabindex = main.hasAttribute( 'tabindex' );
+		if ( ! hadTabindex ) {
+			main.setAttribute( 'tabindex', '-1' );
+		}
+		main.focus( { preventScroll: true } );
+		if ( ! hadTabindex ) {
+			main.removeAttribute( 'tabindex' );
+		}
+	}
 }
 
 /**
  * Move focus to a menu item by index with roving tabindex.
  */
-export function focusMenuItem(items: HTMLElement[], index: number): void {
-  if (items.length === 0) {
-    return;
-  }
+export function focusMenuItem( items: HTMLElement[], index: number ): void {
+	if ( items.length === 0 ) {
+		return;
+	}
 
-  const targetIndex = Math.max(0, Math.min(index, items.length - 1));
+	const targetIndex = Math.max( 0, Math.min( index, items.length - 1 ) );
 
-  items.forEach((item, i) => {
-    item.setAttribute('tabindex', i === targetIndex ? '0' : '-1');
-  });
+	items.forEach( ( item, i ) => {
+		item.setAttribute( 'tabindex', i === targetIndex ? '0' : '-1' );
+	} );
 
-  items[targetIndex].focus({ preventScroll: true });
+	items[ targetIndex ].focus( { preventScroll: true } );
 }
 
 // ============================================================================
@@ -277,97 +281,97 @@ const SWIPE_MAX_VERTICAL_PX = 120;
  *  - left-side panel:  swipe left  (negative X delta) to close
  */
 export function setupSwipeToClose(
-  panel: HTMLElement,
-  onClose: () => void
+	panel: HTMLElement,
+	onClose: () => void
 ): () => void {
-  if (prefersReducedMotion()) {
-    return () => {};
-  }
+	if ( prefersReducedMotion() ) {
+		return () => {};
+	}
 
-  let startX = 0;
-  let startY = 0;
-  let tracking = false;
+	let startX = 0;
+	let startY = 0;
+	let tracking = false;
 
-  const onTouchStart = (e: TouchEvent) => {
-    if (e.touches.length !== 1) return;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    tracking = true;
-  };
+	const onTouchStart = ( e: TouchEvent ) => {
+		if ( e.touches.length !== 1 ) return;
+		startX = e.touches[ 0 ].clientX;
+		startY = e.touches[ 0 ].clientY;
+		tracking = true;
+	};
 
-  const onTouchEnd = (e: TouchEvent) => {
-    if (!tracking) return;
-    tracking = false;
+	const onTouchEnd = ( e: TouchEvent ) => {
+		if ( ! tracking ) return;
+		tracking = false;
 
-    const touch = e.changedTouches[0];
-    if (!touch) return;
+		const touch = e.changedTouches[ 0 ];
+		if ( ! touch ) return;
 
-    const deltaX = touch.clientX - startX;
-    const deltaY = Math.abs(touch.clientY - startY);
+		const deltaX = touch.clientX - startX;
+		const deltaY = Math.abs( touch.clientY - startY );
 
-    if (deltaY > SWIPE_MAX_VERTICAL_PX) return;
+		if ( deltaY > SWIPE_MAX_VERTICAL_PX ) return;
 
-    const position = panel.getAttribute('data-position') ?? 'right';
-    const shouldClose =
-      position === 'right'
-        ? deltaX > SWIPE_THRESHOLD_PX
-        : deltaX < -SWIPE_THRESHOLD_PX;
+		const position = panel.getAttribute( 'data-position' ) ?? 'right';
+		const shouldClose =
+			position === 'right'
+				? deltaX > SWIPE_THRESHOLD_PX
+				: deltaX < -SWIPE_THRESHOLD_PX;
 
-    if (shouldClose) {
-      onClose();
-    }
-  };
+		if ( shouldClose ) {
+			onClose();
+		}
+	};
 
-  const onTouchCancel = () => {
-    tracking = false;
-  };
+	const onTouchCancel = () => {
+		tracking = false;
+	};
 
-  panel.addEventListener('touchstart', onTouchStart, { passive: true });
-  panel.addEventListener('touchend', onTouchEnd, { passive: true });
-  panel.addEventListener('touchcancel', onTouchCancel, { passive: true });
+	panel.addEventListener( 'touchstart', onTouchStart, { passive: true } );
+	panel.addEventListener( 'touchend', onTouchEnd, { passive: true } );
+	panel.addEventListener( 'touchcancel', onTouchCancel, { passive: true } );
 
-  return () => {
-    panel.removeEventListener('touchstart', onTouchStart);
-    panel.removeEventListener('touchend', onTouchEnd);
-    panel.removeEventListener('touchcancel', onTouchCancel);
-  };
+	return () => {
+		panel.removeEventListener( 'touchstart', onTouchStart );
+		panel.removeEventListener( 'touchend', onTouchEnd );
+		panel.removeEventListener( 'touchcancel', onTouchCancel );
+	};
 }
 
 // ============================================================================
 // Announcements
 // ============================================================================
 
-let announcementClearTimeout: ReturnType<typeof setTimeout> | null = null;
+let announcementClearTimeout: ReturnType< typeof setTimeout > | null = null;
 
 /**
  * Announce a message to screen readers via a per-panel live region.
  */
 export function announce(
-  message: string,
-  options: { assertive?: boolean; panelSlug?: string } = {}
+	message: string,
+	options: { assertive?: boolean; panelSlug?: string } = {}
 ): void {
-  const { assertive = false, panelSlug } = options;
-  const id = panelSlug ? getAnnouncerId(panelSlug) : '';
+	const { assertive = false, panelSlug } = options;
+	const id = panelSlug ? getAnnouncerId( panelSlug ) : '';
 
-  const announcer = id ? safeGetElementById(id, false) : null;
-  if (!announcer) {
-    logWarning('announce: Announcer element not found', { id });
-    return;
-  }
+	const announcer = id ? safeGetElementById( id, false ) : null;
+	if ( ! announcer ) {
+		logWarning( 'announce: Announcer element not found', { id } );
+		return;
+	}
 
-  if (announcementClearTimeout) {
-    clearTimeout(announcementClearTimeout);
-  }
+	if ( announcementClearTimeout ) {
+		clearTimeout( announcementClearTimeout );
+	}
 
-  announcer.setAttribute('aria-live', assertive ? 'assertive' : 'polite');
-  announcer.textContent = message;
+	announcer.setAttribute( 'aria-live', assertive ? 'assertive' : 'polite' );
+	announcer.textContent = message;
 
-  announcementClearTimeout = setTimeout(() => {
-    if (announcer) {
-      announcer.textContent = '';
-    }
-    announcementClearTimeout = null;
-  }, 5000);
+	announcementClearTimeout = setTimeout( () => {
+		if ( announcer ) {
+			announcer.textContent = '';
+		}
+		announcementClearTimeout = null;
+	}, 5000 );
 }
 
 // ============================================================================
@@ -378,91 +382,91 @@ export function announce(
  * Update inert state when a mega-content overlay is active.
  */
 export function updateMegaContentInertState(
-  panel: HTMLElement,
-  activeSubmenuId: string | null
+	panel: HTMLElement,
+	activeSubmenuId: string | null
 ): void {
-  if (!('inert' in HTMLElement.prototype)) {
-    return;
-  }
+	if ( ! ( 'inert' in HTMLElement.prototype ) ) {
+		return;
+	}
 
-  const panelHeader = safeQuerySelector<HTMLElement>(
-    panel,
-    '.aa-nav__panel-header',
-    false
-  );
-  const menuItems = safeQuerySelectorAll<HTMLElement>(
-    panel,
-    '.aa-nav__panel-menu > li'
-  );
+	const panelHeader = safeQuerySelector< HTMLElement >(
+		panel,
+		'.aa-nav__panel-header',
+		false
+	);
+	const menuItems = safeQuerySelectorAll< HTMLElement >(
+		panel,
+		'.aa-nav__panel-menu > li'
+	);
 
-  if (!activeSubmenuId) {
-    if (panelHeader) {
-      panelHeader.inert = false;
-    }
-    menuItems.forEach(li => {
-      li.inert = false;
-      const trigger = safeQuerySelector<HTMLElement>(
-        li,
-        ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
-        false
-      );
-      if (trigger) {
-        trigger.inert = false;
-      }
-    });
-    return;
-  }
+	if ( ! activeSubmenuId ) {
+		if ( panelHeader ) {
+			panelHeader.inert = false;
+		}
+		menuItems.forEach( ( li ) => {
+			li.inert = false;
+			const trigger = safeQuerySelector< HTMLElement >(
+				li,
+				':is(.wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
+				false
+			);
+			if ( trigger ) {
+				trigger.inert = false;
+			}
+		} );
+		return;
+	}
 
-  const activePanel = safeGetElementById(activeSubmenuId, false);
-  if (!activePanel) {
-    return;
-  }
-  const activeLi = activePanel.closest(
-    '.aa-nav__panel-menu > li'
-  ) as HTMLElement | null;
-  if (!activeLi) {
-    return;
-  }
+	const activePanel = safeGetElementById( activeSubmenuId, false );
+	if ( ! activePanel ) {
+		return;
+	}
+	const activeLi = activePanel.closest(
+		'.aa-nav__panel-menu > li'
+	) as HTMLElement | null;
+	if ( ! activeLi ) {
+		return;
+	}
 
-  if (panelHeader) {
-    panelHeader.inert = true;
-  }
+	if ( panelHeader ) {
+		panelHeader.inert = true;
+	}
 
-  menuItems.forEach(li => {
-    if (li === activeLi) {
-      const trigger = safeQuerySelector<HTMLElement>(
-        li,
-        ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
-        false
-      );
-      if (trigger) {
-        trigger.inert = true;
-      }
-    } else {
-      li.inert = true;
-    }
-  });
+	menuItems.forEach( ( li ) => {
+		if ( li === activeLi ) {
+			const trigger = safeQuerySelector< HTMLElement >(
+				li,
+				':is(.wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
+				false
+			);
+			if ( trigger ) {
+				trigger.inert = true;
+			}
+		} else {
+			li.inert = true;
+		}
+	} );
 }
 
 /**
  * Move focus into a mega-content overlay panel.
  */
-export function focusMegaContentPanel(submenuId: string): void {
-  const panel = safeGetElementById(submenuId, false);
-  if (!panel) {
-    return;
-  }
+export function focusMegaContentPanel( submenuId: string ): void {
+	const panel = safeGetElementById( submenuId, false );
+	if ( ! panel ) {
+		return;
+	}
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const firstFocusable = safeQuerySelector<HTMLElement>(
-        panel,
-        FOCUSABLE_SELECTOR,
-        false
-      );
-      firstFocusable?.focus({ preventScroll: true });
-    });
-  });
+	requestAnimationFrame( () => {
+		requestAnimationFrame( () => {
+			const firstFocusable = safeQuerySelector< HTMLElement >(
+				panel,
+				FOCUSABLE_SELECTOR,
+				false
+			);
+			firstFocusable?.focus( { preventScroll: true } );
+		} );
+	} );
 }
 
 // ============================================================================
@@ -494,113 +498,115 @@ export function focusMegaContentPanel(submenuId: string): void {
  * the next update.
  */
 export function updateDrilldownInertState(
-  container: HTMLElement,
-  drillStack: string[]
+	container: HTMLElement,
+	drillStack: string[]
 ): void {
-  const supportsInert =
-    typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
+	const supportsInert =
+		typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
 
-  if (!supportsInert) {
-    return;
-  }
+	if ( ! supportsInert ) {
+		return;
+	}
 
-  // Clear anything we previously made inert.
-  container.querySelectorAll<HTMLElement>('[data-aa-inert]').forEach(el => {
-    el.inert = false;
-    el.removeAttribute('data-aa-inert');
-  });
+	// Clear anything we previously made inert.
+	container
+		.querySelectorAll< HTMLElement >( '[data-aa-inert]' )
+		.forEach( ( el ) => {
+			el.inert = false;
+			el.removeAttribute( 'data-aa-inert' );
+		} );
 
-  // Pass 1: inert every closed (not-open) drilldown panel.
-  const openIds = new Set(drillStack);
-  container
-    .querySelectorAll<HTMLElement>(
-      '.wp-block-aggressive-apparel-nav-submenu-drilldown__panel'
-    )
-    .forEach(panel => {
-      if (!openIds.has(panel.id)) {
-        panel.inert = true;
-        panel.setAttribute('data-aa-inert', '');
-      }
-    });
+	// Pass 1: inert every closed (not-open) drilldown panel.
+	const openIds = new Set( drillStack );
+	container
+		.querySelectorAll< HTMLElement >(
+			'.wp-block-aggressive-apparel-nav-submenu-drilldown__panel'
+		)
+		.forEach( ( panel ) => {
+			if ( ! openIds.has( panel.id ) ) {
+				panel.inert = true;
+				panel.setAttribute( 'data-aa-inert', '' );
+			}
+		} );
 
-  if (drillStack.length === 0) {
-    return;
-  }
+	if ( drillStack.length === 0 ) {
+		return;
+	}
 
-  const activeId = drillStack[drillStack.length - 1];
-  const activePanel = activeId ? safeGetElementById(activeId, false) : null;
-  if (!activePanel) {
-    return;
-  }
+	const activeId = drillStack[ drillStack.length - 1 ];
+	const activePanel = activeId ? safeGetElementById( activeId, false ) : null;
+	if ( ! activePanel ) {
+		return;
+	}
 
-  let node: HTMLElement = activePanel;
-  let parent = node.parentElement;
+	let node: HTMLElement = activePanel;
+	let parent = node.parentElement;
 
-  while (parent && container.contains(parent)) {
-    for (const child of Array.from(parent.children)) {
-      if (child !== node) {
-        const el = child as HTMLElement;
-        el.inert = true;
-        el.setAttribute('data-aa-inert', '');
-      }
-    }
+	while ( parent && container.contains( parent ) ) {
+		for ( const child of Array.from( parent.children ) ) {
+			if ( child !== node ) {
+				const el = child as HTMLElement;
+				el.inert = true;
+				el.setAttribute( 'data-aa-inert', '' );
+			}
+		}
 
-    // Stop at the scroll container; the header (close button) lives outside it
-    // and must stay reachable.
-    if (parent.classList.contains('aa-nav__panel-body')) {
-      break;
-    }
+		// Stop at the scroll container; the header (close button) lives outside it
+		// and must stay reachable.
+		if ( parent.classList.contains( 'aa-nav__panel-body' ) ) {
+			break;
+		}
 
-    node = parent;
-    parent = node.parentElement;
-  }
+		node = parent;
+		parent = node.parentElement;
+	}
 }
 
 /**
  * Focus the first focusable item in a drilldown panel.
  */
-export function focusDrilldownPanel(panelId: string): void {
-  const panel = safeGetElementById(panelId, false);
-  if (!panel) {
-    return;
-  }
+export function focusDrilldownPanel( panelId: string ): void {
+	const panel = safeGetElementById( panelId, false );
+	if ( ! panel ) {
+		return;
+	}
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const firstFocusable = safeQuerySelector<HTMLElement>(
-        panel,
-        FOCUSABLE_SELECTOR,
-        false
-      );
-      firstFocusable?.focus({ preventScroll: true });
-    });
-  });
+	requestAnimationFrame( () => {
+		requestAnimationFrame( () => {
+			const firstFocusable = safeQuerySelector< HTMLElement >(
+				panel,
+				FOCUSABLE_SELECTOR,
+				false
+			);
+			firstFocusable?.focus( { preventScroll: true } );
+		} );
+	} );
 }
 
 /**
  * Focus the trigger that opened the current drilldown level when going back.
  */
 export function focusDrilldownTrigger(
-  container: HTMLElement,
-  previousId: string
+	container: HTMLElement,
+	previousId: string
 ): void {
-  // Resolve the panel by id, then its owning drilldown's own trigger. Using
-  // closest() (not :has) is nesting-safe: :has would match every ancestor
-  // drilldown and querySelector would return the outermost one's trigger.
-  const panel = safeGetElementById(previousId, false);
-  const submenu = panel?.closest<HTMLElement>(
-    '.wp-block-aggressive-apparel-nav-submenu-drilldown'
-  );
+	// Resolve the panel by id, then its owning drilldown's own trigger. Using
+	// closest() (not :has) is nesting-safe: :has would match every ancestor
+	// drilldown and querySelector would return the outermost one's trigger.
+	const panel = safeGetElementById( previousId, false );
+	const submenu = panel?.closest< HTMLElement >(
+		'.wp-block-aggressive-apparel-nav-submenu-drilldown'
+	);
 
-  if (!submenu || !container.contains(submenu)) {
-    return;
-  }
+	if ( ! submenu || ! container.contains( submenu ) ) {
+		return;
+	}
 
-  const trigger = submenu.querySelector<HTMLElement>(
-    ':scope > .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger > .wp-block-aggressive-apparel-nav-submenu-drilldown__link'
-  );
+	const trigger = submenu.querySelector< HTMLElement >(
+		':scope > .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger > .wp-block-aggressive-apparel-nav-submenu-drilldown__link'
+	);
 
-  requestAnimationFrame(() => {
-    trigger?.focus({ preventScroll: true });
-  });
+	requestAnimationFrame( () => {
+		trigger?.focus( { preventScroll: true } );
+	} );
 }

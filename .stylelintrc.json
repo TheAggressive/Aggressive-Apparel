@@ -1,121 +1,124 @@
 {
-  "extends": ["stylelint-config-standard"],
-  "rules": {
-    "import-notation": "string",
-    "selector-class-pattern": null,
-    "custom-property-pattern": null,
-    "no-descending-specificity": null,
-    "color-named": "never",
-    "font-family-name-quotes": "always-where-recommended",
-    "font-weight-notation": [
-      "numeric",
-      {
-        "ignore": ["relative"]
-      }
-    ],
-    "function-name-case": [
-      "lower",
-      {
-        "ignoreFunctions": ["/^DXImageTransform.Microsoft.*$/"]
-      }
-    ],
-    "function-url-quotes": "never",
-    "length-zero-no-unit": true,
-    "rule-empty-line-before": [
-      "always",
-      {
-        "except": ["first-nested"],
-        "ignore": ["after-comment"]
-      }
-    ],
-    "selector-attribute-quotes": "always",
-    "selector-id-pattern": [
-      "^([a-z][a-z0-9]*)(-[a-z0-9]+)*$",
-      {
-        "message": "Selector should use lowercase and separate words with hyphens (selector-id-pattern)"
-      }
-    ],
-    "selector-pseudo-element-colon-notation": "double",
-    "selector-type-case": "lower",
-    "value-keyword-case": "lower",
-    "declaration-property-unit-allowed-list": {
-      "line-height": ["px"]
-    },
-    "comment-empty-line-before": [
-      "always",
-      {
-        "except": ["first-nested"],
-        "ignore": ["stylelint-commands"]
-      }
-    ],
-    "at-rule-empty-line-before": [
-      "always",
-      {
-        "except": ["blockless-after-blockless", "first-nested"],
-        "ignore": ["after-comment"]
-      }
-    ],
-    "declaration-block-no-duplicate-properties": [
-      true,
-      {
-        "ignore": ["consecutive-duplicates"]
-      }
-    ]
-  },
-  "overrides": [
-    {
-      "files": ["src/styles/base/tokens.css", "src/styles/admin/**/*.css"],
-      "rules": {
-        "color-no-hex": null
-      }
-    },
-    {
-      "files": [
-        "src/styles/components/field.css",
-        "src/styles/components/layout.css"
-      ],
-      "rules": {
-        "color-no-hex": [
-          true,
-          {
-            "ignore": ["transparent"]
-          }
-        ],
-        "selector-class-pattern": [
-          "^aggressive-apparel-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?$",
-          {
-            "message": "Component classes must follow BEM: aggressive-apparel-block__element--modifier"
-          }
-        ]
-      }
-    },
-    {
-      "files": [
-        "src/styles/components/buttons.css",
-        "src/styles/components/overlay.css",
-        "src/styles/components/panel.css",
-        "src/styles/components/marquee.css",
-        "src/styles/components/block-styles.css"
-      ],
-      "rules": {
-        "color-no-hex": [
-          true,
-          {
-            "ignore": ["transparent"]
-          }
-        ]
-      }
-    },
-    {
-      "files": ["src/styles/woocommerce/**/*.css"],
-      "rules": {
-        "color-no-hex": [
-          true,
-          {
-            "ignore": ["transparent"]
-          }
-        ]
-      }
-    }
-  ]
+	"extends": [ "stylelint-config-standard" ],
+	"rules": {
+		"import-notation": "string",
+		"selector-class-pattern": null,
+		"custom-property-pattern": null,
+		"no-descending-specificity": null,
+		"color-named": "never",
+		"font-family-name-quotes": "always-where-recommended",
+		"font-weight-notation": [
+			"numeric",
+			{
+				"ignore": [ "relative" ]
+			}
+		],
+		"function-name-case": [
+			"lower",
+			{
+				"ignoreFunctions": [ "/^DXImageTransform.Microsoft.*$/" ]
+			}
+		],
+		"function-url-quotes": "never",
+		"length-zero-no-unit": true,
+		"rule-empty-line-before": [
+			"always",
+			{
+				"except": [ "first-nested" ],
+				"ignore": [ "after-comment" ]
+			}
+		],
+		"selector-attribute-quotes": "always",
+		"selector-id-pattern": [
+			"^([a-z][a-z0-9]*)(-[a-z0-9]+)*$",
+			{
+				"message": "Selector should use lowercase and separate words with hyphens (selector-id-pattern)"
+			}
+		],
+		"selector-pseudo-element-colon-notation": "double",
+		"selector-type-case": "lower",
+		"value-keyword-case": "lower",
+		"declaration-property-unit-allowed-list": {
+			"line-height": [ "px" ]
+		},
+		"comment-empty-line-before": [
+			"always",
+			{
+				"except": [ "first-nested" ],
+				"ignore": [ "stylelint-commands" ]
+			}
+		],
+		"at-rule-empty-line-before": [
+			"always",
+			{
+				"except": [ "blockless-after-blockless", "first-nested" ],
+				"ignore": [ "after-comment" ]
+			}
+		],
+		"declaration-block-no-duplicate-properties": [
+			true,
+			{
+				"ignore": [ "consecutive-duplicates" ]
+			}
+		]
+	},
+	"overrides": [
+		{
+			"files": [
+				"src/styles/base/tokens.css",
+				"src/styles/admin/**/*.css"
+			],
+			"rules": {
+				"color-no-hex": null
+			}
+		},
+		{
+			"files": [
+				"src/styles/components/field.css",
+				"src/styles/components/layout.css"
+			],
+			"rules": {
+				"color-no-hex": [
+					true,
+					{
+						"ignore": [ "transparent" ]
+					}
+				],
+				"selector-class-pattern": [
+					"^aggressive-apparel-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?$",
+					{
+						"message": "Component classes must follow BEM: aggressive-apparel-block__element--modifier"
+					}
+				]
+			}
+		},
+		{
+			"files": [
+				"src/styles/components/buttons.css",
+				"src/styles/components/overlay.css",
+				"src/styles/components/panel.css",
+				"src/styles/components/marquee.css",
+				"src/styles/components/block-styles.css"
+			],
+			"rules": {
+				"color-no-hex": [
+					true,
+					{
+						"ignore": [ "transparent" ]
+					}
+				]
+			}
+		},
+		{
+			"files": [ "src/styles/woocommerce/**/*.css" ],
+			"rules": {
+				"color-no-hex": [
+					true,
+					{
+						"ignore": [ "transparent" ]
+					}
+				]
+			}
+		}
+	]
 }

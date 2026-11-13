@@ -13,29 +13,29 @@ import apiFetch from '@wordpress/api-fetch';
 import type { Registry, SpecItem } from './_types';
 
 export type RegistrySave = {
-  items: SpecItem[];
-  hideDimensions: boolean;
-  /** The revision the list started from. */
-  revision: number;
-  /** Keys of the specs this save changed. */
-  changed: string[];
-  /** Keys of the specs this save deleted. */
-  deleted?: string[];
+	items: SpecItem[];
+	hideDimensions: boolean;
+	/** The revision the list started from. */
+	revision: number;
+	/** Keys of the specs this save changed. */
+	changed: string[];
+	/** Keys of the specs this save deleted. */
+	deleted?: string[];
 };
 
 export default function saveRegistry(
-  path: string,
-  save: RegistrySave
-): Promise<Registry> {
-  return apiFetch({
-    path,
-    method: 'POST',
-    data: {
-      items: save.items,
-      hide_dimensions: save.hideDimensions,
-      revision: save.revision,
-      changed: save.changed,
-      deleted: save.deleted ?? [],
-    },
-  }) as Promise<Registry>;
+	path: string,
+	save: RegistrySave
+): Promise< Registry > {
+	return apiFetch( {
+		path,
+		method: 'POST',
+		data: {
+			items: save.items,
+			hide_dimensions: save.hideDimensions,
+			revision: save.revision,
+			changed: save.changed,
+			deleted: save.deleted ?? [],
+		},
+	} ) as Promise< Registry >;
 }

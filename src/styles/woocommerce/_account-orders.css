@@ -44,7 +44,7 @@
 }
 
 .woocommerce-account .woocommerce table.account-orders-table tr::before {
-	content: '';
+	content: "";
 	order: 4;
 	flex-basis: 100%;
 	height: 1px;
@@ -53,7 +53,7 @@
 }
 
 .woocommerce-account .woocommerce table.account-orders-table tr::after {
-	content: '';
+	content: "";
 	order: 8;
 	flex: none;
 	width: 1.25rem;
@@ -125,7 +125,7 @@
 	table.account-orders-table
 	.woocommerce-orders-table__cell-order-number
 	a::after {
-	content: '';
+	content: "";
 	position: absolute;
 	inset: 0;
 	border-radius: inherit;
@@ -177,7 +177,7 @@
 	.woocommerce
 	table.account-orders-table
 	tr
-	> :not([class*='cell-order-']) {
+	> :not([class*="cell-order-"]) {
 	position: relative;
 	z-index: 1;
 	order: 7;
@@ -257,7 +257,8 @@
 	align-items: center;
 	gap: 0.5em;
 	padding: 0.5em 0.85em;
-	border: 1px solid color-mix(in oklch, var(--aa-status-color) 40%, transparent);
+	border: 1px solid
+		color-mix(in oklch, var(--aa-status-color) 40%, transparent);
 	border-radius: var(--aa-radius-full);
 	background-color: color-mix(
 		in oklch,
@@ -275,7 +276,7 @@
 }
 
 .aa-order-status::before {
-	content: '';
+	content: "";
 	width: 0.5em;
 	height: 0.5em;
 	border-radius: 50%;
@@ -324,7 +325,7 @@
 
 /* Dot. */
 .aa-order-progress__step::before {
-	content: '';
+	content: "";
 	box-sizing: border-box;
 	width: var(--aa-progress-dot);
 	height: var(--aa-progress-dot);
@@ -335,10 +336,12 @@
 
 /* Connector to the next step. */
 .aa-order-progress__step:not(:last-child)::after {
-	content: '';
+	content: "";
 	position: absolute;
 	top: calc((var(--aa-progress-dot) - var(--aa-progress-line)) / 2);
-	left: calc(50% + var(--aa-progress-dot) / 2 + var(--wp--preset--spacing--2));
+	left: calc(
+		50% + var(--aa-progress-dot) / 2 + var(--wp--preset--spacing--2)
+	);
 	right: calc(
 		-50% + var(--aa-progress-dot) / 2 + var(--wp--preset--spacing--2)
 	);

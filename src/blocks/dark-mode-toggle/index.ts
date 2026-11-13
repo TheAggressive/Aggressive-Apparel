@@ -15,39 +15,39 @@ import './style.css';
 
 // Block attributes type derived from block.json.
 type DarkModeToggleAttributes = {
-  label: string;
-  labelDark: string;
-  showLabel: boolean;
-  size: 'small' | 'medium' | 'large';
-  iconStyle: 'solid' | 'outline';
-  iconStrokeWidth: number;
-  iconColor: string;
-  iconHoverColor: string;
-  toggleBackgroundColor: string;
-  toggleBackgroundHoverColor: string;
+	label: string;
+	labelDark: string;
+	showLabel: boolean;
+	size: 'small' | 'medium' | 'large';
+	iconStyle: 'solid' | 'outline';
+	iconStrokeWidth: number;
+	iconColor: string;
+	iconHoverColor: string;
+	toggleBackgroundColor: string;
+	toggleBackgroundHoverColor: string;
 };
 
-registerThemeBlock<DarkModeToggleAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  deprecated: [
-    // Before native text alignment: a custom `alignment` attribute plus the
-    // float-style `align` support, which competed with it.
-    legacyTextAlignDeprecation({
-      attributes: {
-        ...metadata.attributes,
-        // No default: an unset `alignment` must not mask a legacy `align`.
-        alignment: {
-          type: 'string',
-          enum: ['left', 'center', 'right'],
-        },
-      },
-      supports: {
-        ...metadata.supports,
-        align: ['left', 'center', 'right'],
-        typography: { fontSize: true, lineHeight: true },
-      },
-      keys: ['alignment', 'align'],
-    }),
-  ],
-});
+registerThemeBlock< DarkModeToggleAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	deprecated: [
+		// Before native text alignment: a custom `alignment` attribute plus the
+		// float-style `align` support, which competed with it.
+		legacyTextAlignDeprecation( {
+			attributes: {
+				...metadata.attributes,
+				// No default: an unset `alignment` must not mask a legacy `align`.
+				alignment: {
+					type: 'string',
+					enum: [ 'left', 'center', 'right' ],
+				},
+			},
+			supports: {
+				...metadata.supports,
+				align: [ 'left', 'center', 'right' ],
+				typography: { fontSize: true, lineHeight: true },
+			},
+			keys: [ 'alignment', 'align' ],
+		} ),
+	],
+} );

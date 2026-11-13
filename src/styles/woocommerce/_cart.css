@@ -105,7 +105,8 @@
 	.wp-block-woocommerce-cart .wc-block-cart__sidebar {
 		position: sticky;
 		top: calc(
-			var(--wp-admin--admin-bar--height, 0px) + var(--wp--preset--spacing--6)
+			var(--wp-admin--admin-bar--height, 0px) +
+				var(--wp--preset--spacing--6)
 		);
 		align-self: flex-start;
 	}

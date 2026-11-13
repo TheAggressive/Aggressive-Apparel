@@ -35,9 +35,9 @@ body.taxonomy-aa_product_badge {
 	 * fallback is wp-admin's own stack so the studio reads as native without it.
 	 */
 	--aa-studio-font:
-		'Manrope', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto,
-		oxygen-sans, ubuntu, cantarell, 'Helvetica Neue', ui-sans-serif, system-ui,
-		sans-serif;
+		"Manrope", -apple-system, blinkmacsystemfont, "Segoe UI", roboto,
+		oxygen-sans, ubuntu, cantarell, "Helvetica Neue", ui-sans-serif,
+		system-ui, sans-serif;
 	--aa-studio-shadow:
 		0 1px 2px rgb(23 23 26 / 4%), 0 12px 32px rgb(23 23 26 / 6%);
 	--aa-studio-shadow-card: 0 24px 48px rgb(0 0 0 / 35%);

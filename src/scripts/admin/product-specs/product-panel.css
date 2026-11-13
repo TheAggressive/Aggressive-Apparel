@@ -39,8 +39,8 @@
 	line-height: 1.5;
 }
 
-.woocommerce_options_panel .aa-ps-product input[type='text'],
-.woocommerce_options_panel .aa-ps-product input[type='number'],
+.woocommerce_options_panel .aa-ps-product input[type="text"],
+.woocommerce_options_panel .aa-ps-product input[type="number"],
 .woocommerce_options_panel .aa-ps-product select {
 	float: none;
 	width: 100%;

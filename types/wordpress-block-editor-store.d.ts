@@ -23,69 +23,72 @@
 
 import type { Block } from '@wordpress/blocks';
 import type {
-  DataRegistry,
-  ReduxStoreConfig,
-  StoreInstance,
+	DataRegistry,
+	ReduxStoreConfig,
+	StoreInstance,
 } from '@wordpress/data';
 
 declare module '@wordpress/block-editor' {
-  /**
-   * Registered signatures for the `core/block-editor` selectors in use.
-   */
-  export interface BlockEditorRegisteredSelectors {
-    getBlock: (state: unknown, clientId: string) => Block | undefined;
-    getBlockAttributes: (
-      state: unknown,
-      clientId: string
-    ) => Record<string, unknown> | null;
-    getBlockCount: (state: unknown, rootClientId?: string) => number;
-    getBlockName: (state: unknown, clientId: string) => string;
-    getBlockOrder: (state: unknown, rootClientId?: string) => string[];
-    getBlockParents: (
-      state: unknown,
-      clientId: string,
-      ascending?: boolean
-    ) => string[];
-    getBlockParentsByBlockName: (
-      state: unknown,
-      clientId: string,
-      blockName: string | string[],
-      ascending?: boolean
-    ) => string[];
-    getBlockRootClientId: (state: unknown, clientId: string) => string | null;
-    getBlocks: (state: unknown, rootClientId?: string) => Block[];
-    getSelectedBlockClientId: (state: unknown) => string | null;
-    hasSelectedInnerBlock: (
-      state: unknown,
-      clientId: string,
-      deep?: boolean
-    ) => boolean;
-    isBlockValid: (state: unknown, clientId: string) => boolean;
-  }
+	/**
+	 * Registered signatures for the `core/block-editor` selectors in use.
+	 */
+	export interface BlockEditorRegisteredSelectors {
+		getBlock: ( state: unknown, clientId: string ) => Block | undefined;
+		getBlockAttributes: (
+			state: unknown,
+			clientId: string
+		) => Record< string, unknown > | null;
+		getBlockCount: ( state: unknown, rootClientId?: string ) => number;
+		getBlockName: ( state: unknown, clientId: string ) => string;
+		getBlockOrder: ( state: unknown, rootClientId?: string ) => string[];
+		getBlockParents: (
+			state: unknown,
+			clientId: string,
+			ascending?: boolean
+		) => string[];
+		getBlockParentsByBlockName: (
+			state: unknown,
+			clientId: string,
+			blockName: string | string[],
+			ascending?: boolean
+		) => string[];
+		getBlockRootClientId: (
+			state: unknown,
+			clientId: string
+		) => string | null;
+		getBlocks: ( state: unknown, rootClientId?: string ) => Block[];
+		getSelectedBlockClientId: ( state: unknown ) => string | null;
+		hasSelectedInnerBlock: (
+			state: unknown,
+			clientId: string,
+			deep?: boolean
+		) => boolean;
+		isBlockValid: ( state: unknown, clientId: string ) => boolean;
+	}
 
-  /**
-   * Action creators dispatched via `useDispatch( blockEditorStore )`.
-   *
-   * Unlike selectors these are declared in their public form; `dispatch()`
-   * only wraps the return value in a promise, it does not drop an argument.
-   */
-  export interface BlockEditorActionCreators {
-    updateBlockAttributes: (
-      clientId: string | string[],
-      attributes: Record<string, unknown>,
-      uniqueByBlock?: boolean
-    ) => void;
-  }
+	/**
+	 * Action creators dispatched via `useDispatch( blockEditorStore )`.
+	 *
+	 * Unlike selectors these are declared in their public form; `dispatch()`
+	 * only wraps the return value in a promise, it does not drop an argument.
+	 */
+	export interface BlockEditorActionCreators {
+		updateBlockAttributes: (
+			clientId: string | string[],
+			attributes: Record< string, unknown >,
+			uniqueByBlock?: boolean
+		) => void;
+	}
 
-  interface BlockEditorStoreDescriptor {
-    instantiate: (
-      registry: DataRegistry
-    ) => StoreInstance<
-      ReduxStoreConfig<
-        unknown,
-        BlockEditorActionCreators,
-        BlockEditorRegisteredSelectors
-      >
-    >;
-  }
+	interface BlockEditorStoreDescriptor {
+		instantiate: (
+			registry: DataRegistry
+		) => StoreInstance<
+			ReduxStoreConfig<
+				unknown,
+				BlockEditorActionCreators,
+				BlockEditorRegisteredSelectors
+			>
+		>;
+	}
 }

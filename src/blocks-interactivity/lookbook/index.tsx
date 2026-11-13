@@ -14,8 +14,8 @@ import type { LookbookAttributes } from './types';
 import './editor.css';
 import './style.css';
 
-registerThemeBlock<LookbookAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  save: Save,
-});
+registerThemeBlock< LookbookAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	save: Save,
+} );

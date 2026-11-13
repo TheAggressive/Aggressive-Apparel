@@ -18,12 +18,12 @@ import { Button, Notice, Spinner, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type {
-  Config,
-  DraftItem,
-  GuideSummary,
-  SpecItem,
-  Suggestion,
-  Tab,
+	Config,
+	DraftItem,
+	GuideSummary,
+	SpecItem,
+	Suggestion,
+	Tab,
 } from './_types';
 import { newItem, slugify, toDraft, toStored } from './_utils';
 import ItemCard from './_ItemCard';
@@ -37,480 +37,533 @@ type SaveError = { message?: string; data?: { errors?: string[] } };
 
 /** Set one cell in a nested edit map. */
 function setEdit(
-  edits: ProductEdits,
-  id: number,
-  key: string,
-  value: string
+	edits: ProductEdits,
+	id: number,
+	key: string,
+	value: string
 ): ProductEdits {
-  return { ...edits, [id]: { ...(edits[id] ?? {}), [key]: value } };
+	return { ...edits, [ id ]: { ...( edits[ id ] ?? {} ), [ key ]: value } };
 }
 
-export default function App({ config }: { config: Config }) {
-  const [tab, setTab] = useState<Tab>(config.tab);
+export default function App( { config }: { config: Config } ) {
+	const [ tab, setTab ] = useState< Tab >( config.tab );
 
-  // Size guides.
-  const [guides, setGuides] = useState<GuideSummary[]>(config.guides);
-  const [guideDirty, setGuideDirty] = useState(false);
+	// Size guides.
+	const [ guides, setGuides ] = useState< GuideSummary[] >( config.guides );
+	const [ guideDirty, setGuideDirty ] = useState( false );
 
-  // Specs.
-  const [items, setItems] = useState<DraftItem[]>(() =>
-    config.registry.items.map(toDraft)
-  );
-  const [savedItems, setSavedItems] = useState<SpecItem[]>(
-    config.registry.items
-  );
-  const [hideDimensions, setHideDimensions] = useState(
-    config.registry.hide_dimensions
-  );
-  const [open, setOpen] = useState<string | null>(null);
-  const [specsDirty, setSpecsDirty] = useState(false);
-  const [specsSaving, setSpecsSaving] = useState(false);
-  const [specsErrors, setSpecsErrors] = useState<string[]>([]);
-  const [specsSaved, setSpecsSaved] = useState(false);
-  // The revision the draft started from, and what it changed since: a save
-  // from an older revision applies only these on top of the current list.
-  const [revision, setRevision] = useState(config.registry.revision);
-  // The latest saved revision and setting, for a guide saving spec edits
-  // (the Specs tab's own draft may be older).
-  const [saved, setSaved] = useState({
-    revision: config.registry.revision,
-    hideDimensions: config.registry.hide_dimensions,
-  });
-  // Global attributes, kept current: a save can create one.
-  const [taxonomies, setTaxonomies] = useState(config.taxonomies);
-  const [changed, setChanged] = useState<string[]>([]);
-  const [deleted, setDeleted] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>(config.suggest);
+	// Specs.
+	const [ items, setItems ] = useState< DraftItem[] >( () =>
+		config.registry.items.map( toDraft )
+	);
+	const [ savedItems, setSavedItems ] = useState< SpecItem[] >(
+		config.registry.items
+	);
+	const [ hideDimensions, setHideDimensions ] = useState(
+		config.registry.hide_dimensions
+	);
+	const [ open, setOpen ] = useState< string | null >( null );
+	const [ specsDirty, setSpecsDirty ] = useState( false );
+	const [ specsSaving, setSpecsSaving ] = useState( false );
+	const [ specsErrors, setSpecsErrors ] = useState< string[] >( [] );
+	const [ specsSaved, setSpecsSaved ] = useState( false );
+	// The revision the draft started from, and what it changed since: a save
+	// from an older revision applies only these on top of the current list.
+	const [ revision, setRevision ] = useState( config.registry.revision );
+	// The latest saved revision and setting, for a guide saving spec edits
+	// (the Specs tab's own draft may be older).
+	const [ saved, setSaved ] = useState( {
+		revision: config.registry.revision,
+		hideDimensions: config.registry.hide_dimensions,
+	} );
+	// Global attributes, kept current: a save can create one.
+	const [ taxonomies, setTaxonomies ] = useState( config.taxonomies );
+	const [ changed, setChanged ] = useState< string[] >( [] );
+	const [ deleted, setDeleted ] = useState< string[] >( [] );
+	const [ suggestions, setSuggestions ] = useState< Suggestion[] >(
+		config.suggest
+	);
 
-  // Products.
-  const [productEdits, setProductEdits] = useState<ProductEdits>({});
-  const productsDirty = Object.keys(productEdits).length > 0;
+	// Products.
+	const [ productEdits, setProductEdits ] = useState< ProductEdits >( {} );
+	const productsDirty = Object.keys( productEdits ).length > 0;
 
-  useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => {
-      if (guideDirty || specsDirty || productsDirty) {
-        event.preventDefault();
-      }
-    };
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [guideDirty, specsDirty, productsDirty]);
+	useEffect( () => {
+		const warn = ( event: BeforeUnloadEvent ) => {
+			if ( guideDirty || specsDirty || productsDirty ) {
+				event.preventDefault();
+			}
+		};
+		window.addEventListener( 'beforeunload', warn );
+		return () => window.removeEventListener( 'beforeunload', warn );
+	}, [ guideDirty, specsDirty, productsDirty ] );
 
-  const selectTab = (next: Tab) => {
-    setTab(next);
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', next);
-    window.history.replaceState(null, '', url.toString());
-  };
+	const selectTab = ( next: Tab ) => {
+		setTab( next );
+		const url = new URL( window.location.href );
+		url.searchParams.set( 'tab', next );
+		window.history.replaceState( null, '', url.toString() );
+	};
 
-  // Arrow keys move between tabs (WAI-ARIA tabs pattern, automatic activation).
-  const onTabKey = (event: KeyboardEvent<HTMLDivElement>) => {
-    const order = tabs.map(item => item.name);
-    const index = order.indexOf(tab);
-    const next =
-      event.key === 'ArrowRight'
-        ? order[(index + 1) % order.length]
-        : event.key === 'ArrowLeft'
-          ? order[(index - 1 + order.length) % order.length]
-          : event.key === 'Home'
-            ? order[0]
-            : event.key === 'End'
-              ? order[order.length - 1]
-              : null;
-    if (next) {
-      event.preventDefault();
-      selectTab(next);
-      document.getElementById(`aa-ps-tab-${next}`)?.focus();
-    }
-  };
+	// Arrow keys move between tabs (WAI-ARIA tabs pattern, automatic activation).
+	const onTabKey = ( event: KeyboardEvent< HTMLDivElement > ) => {
+		const order = tabs.map( ( item ) => item.name );
+		const index = order.indexOf( tab );
+		const next =
+			event.key === 'ArrowRight'
+				? order[ ( index + 1 ) % order.length ]
+				: event.key === 'ArrowLeft'
+					? order[ ( index - 1 + order.length ) % order.length ]
+					: event.key === 'Home'
+						? order[ 0 ]
+						: event.key === 'End'
+							? order[ order.length - 1 ]
+							: null;
+		if ( next ) {
+			event.preventDefault();
+			selectTab( next );
+			document.getElementById( `aa-ps-tab-${ next }` )?.focus();
+		}
+	};
 
-  const touch = (next: DraftItem[]) => {
-    setItems(next);
-    setSpecsDirty(true);
-    setSpecsSaved(false);
-  };
+	const touch = ( next: DraftItem[] ) => {
+		setItems( next );
+		setSpecsDirty( true );
+		setSpecsSaved( false );
+	};
 
-  const markChanged = (uid: string) =>
-    setChanged(previous =>
-      previous.includes(uid) ? previous : [...previous, uid]
-    );
+	const markChanged = ( uid: string ) =>
+		setChanged( ( previous ) =>
+			previous.includes( uid ) ? previous : [ ...previous, uid ]
+		);
 
-  const update = (uid: string, patch: Partial<DraftItem>) => {
-    markChanged(uid);
-    touch(items.map(item => (item.uid === uid ? { ...item, ...patch } : item)));
-  };
+	const update = ( uid: string, patch: Partial< DraftItem > ) => {
+		markChanged( uid );
+		touch(
+			items.map( ( item ) =>
+				item.uid === uid ? { ...item, ...patch } : item
+			)
+		);
+	};
 
-  const remove = (item: DraftItem) => {
-    if (!item.isNew) {
-      setDeleted(previous => [...previous, item.key]);
-    }
-    touch(items.filter(other => other.uid !== item.uid));
-  };
+	const remove = ( item: DraftItem ) => {
+		if ( ! item.isNew ) {
+			setDeleted( ( previous ) => [ ...previous, item.key ] );
+		}
+		touch( items.filter( ( other ) => other.uid !== item.uid ) );
+	};
 
-  // Groups interleave in the saved list, so a card trades places with its
-  // neighbour in its own group, not whatever happens to sit next to it there.
-  const swap = (from: number, to: number) => {
-    const next = [...items];
-    [next[from], next[to]] = [next[to], next[from]];
-    touch(next);
-  };
+	// Groups interleave in the saved list, so a card trades places with its
+	// neighbour in its own group, not whatever happens to sit next to it there.
+	const swap = ( from: number, to: number ) => {
+		const next = [ ...items ];
+		[ next[ from ], next[ to ] ] = [ next[ to ], next[ from ] ];
+		touch( next );
+	};
 
-  const add = (partial: Partial<SpecItem> & Pick<SpecItem, 'type'>) => {
-    const item = newItem(partial, items);
-    markChanged(item.uid);
-    touch([...items, item]);
-    setOpen(item.uid);
-  };
+	const add = ( partial: Partial< SpecItem > & Pick< SpecItem, 'type' > ) => {
+		const item = newItem( partial, items );
+		markChanged( item.uid );
+		touch( [ ...items, item ] );
+		setOpen( item.uid );
+	};
 
-  // Attributes a spec can switch to: its own, and any no other spec uses.
-  const freeTaxonomies = (item: DraftItem): Record<string, string> =>
-    Object.fromEntries(
-      Object.entries(taxonomies).filter(
-        ([taxonomy]) =>
-          taxonomy === item.taxonomy ||
-          !items.some(other => other.taxonomy === taxonomy)
-      )
-    );
+	// Attributes a spec can switch to: its own, and any no other spec uses.
+	const freeTaxonomies = ( item: DraftItem ): Record< string, string > =>
+		Object.fromEntries(
+			Object.entries( taxonomies ).filter(
+				( [ taxonomy ] ) =>
+					taxonomy === item.taxonomy ||
+					! items.some( ( other ) => other.taxonomy === taxonomy )
+			)
+		);
 
-  const fromSuggestion = (suggestion: Suggestion) => {
-    add({
-      type: suggestion.type,
-      name: suggestion.name,
-      key: slugify(suggestion.name),
-      attributes: [suggestion.name],
-      ...(suggestion.type !== 'text' && { steps: suggestion.steps }),
-      ...(suggestion.type === 'number' && {
-        unit: suggestion.unit,
-        thresholds: suggestion.thresholds,
-      }),
-    });
-    setSuggestions(suggestions.filter(other => other.name !== suggestion.name));
-  };
+	const fromSuggestion = ( suggestion: Suggestion ) => {
+		add( {
+			type: suggestion.type,
+			name: suggestion.name,
+			key: slugify( suggestion.name ),
+			attributes: [ suggestion.name ],
+			...( suggestion.type !== 'text' && { steps: suggestion.steps } ),
+			...( suggestion.type === 'number' && {
+				unit: suggestion.unit,
+				thresholds: suggestion.thresholds,
+			} ),
+		} );
+		setSuggestions(
+			suggestions.filter( ( other ) => other.name !== suggestion.name )
+		);
+	};
 
-  const saveSpecs = async () => {
-    setSpecsSaving(true);
-    setSpecsErrors([]);
-    try {
-      const registry = await saveRegistry(config.restPath, {
-        items: items.map(toStored),
-        hideDimensions,
-        revision,
-        changed: items
-          .filter(item => changed.includes(item.uid))
-          .map(item => toStored(item).key),
-        deleted,
-      });
-      setRevision(registry.revision);
-      setSaved({
-        revision: registry.revision,
-        hideDimensions: registry.hide_dimensions,
-      });
-      setTaxonomies(registry.taxonomies ?? taxonomies);
-      setChanged([]);
-      setDeleted([]);
-      setItems(registry.items.map(toDraft));
-      setSavedItems(registry.items);
-      setHideDimensions(registry.hide_dimensions);
-      setSpecsDirty(false);
-      setSpecsSaved(true);
-    } catch (error) {
-      const failure = error as SaveError;
-      setSpecsErrors(
-        failure.data?.errors?.length
-          ? failure.data.errors
-          : [
-              failure.message ??
-                __('Saving failed. Try again.', 'aggressive-apparel'),
-            ]
-      );
-    } finally {
-      setSpecsSaving(false);
-    }
-  };
+	const saveSpecs = async () => {
+		setSpecsSaving( true );
+		setSpecsErrors( [] );
+		try {
+			const registry = await saveRegistry( config.restPath, {
+				items: items.map( toStored ),
+				hideDimensions,
+				revision,
+				changed: items
+					.filter( ( item ) => changed.includes( item.uid ) )
+					.map( ( item ) => toStored( item ).key ),
+				deleted,
+			} );
+			setRevision( registry.revision );
+			setSaved( {
+				revision: registry.revision,
+				hideDimensions: registry.hide_dimensions,
+			} );
+			setTaxonomies( registry.taxonomies ?? taxonomies );
+			setChanged( [] );
+			setDeleted( [] );
+			setItems( registry.items.map( toDraft ) );
+			setSavedItems( registry.items );
+			setHideDimensions( registry.hide_dimensions );
+			setSpecsDirty( false );
+			setSpecsSaved( true );
+		} catch ( error ) {
+			const failure = error as SaveError;
+			setSpecsErrors(
+				failure.data?.errors?.length
+					? failure.data.errors
+					: [
+							failure.message ??
+								__(
+									'Saving failed. Try again.',
+									'aggressive-apparel'
+								),
+						]
+			);
+		} finally {
+			setSpecsSaving( false );
+		}
+	};
 
-  const tabs: { name: Tab; title: string; dirty: boolean }[] = [
-    {
-      name: 'guides',
-      title: __('Size guides', 'aggressive-apparel'),
-      dirty: guideDirty,
-    },
-    {
-      name: 'specs',
-      title: __('Specs', 'aggressive-apparel'),
-      dirty: specsDirty,
-    },
-    {
-      name: 'products',
-      title: __('Products', 'aggressive-apparel'),
-      dirty: productsDirty,
-    },
-  ];
+	const tabs: { name: Tab; title: string; dirty: boolean }[] = [
+		{
+			name: 'guides',
+			title: __( 'Size guides', 'aggressive-apparel' ),
+			dirty: guideDirty,
+		},
+		{
+			name: 'specs',
+			title: __( 'Specs', 'aggressive-apparel' ),
+			dirty: specsDirty,
+		},
+		{
+			name: 'products',
+			title: __( 'Products', 'aggressive-apparel' ),
+			dirty: productsDirty,
+		},
+	];
 
-  // A spec turned off sits in its own group once saved, so a card being
-  // edited doesn't jump away.
-  const isOff = (item: DraftItem): boolean =>
-    !(
-      item.isNew
-        ? item
-        : (savedItems.find(saved => saved.key === item.key) ?? item)
-    ).enabled;
+	// A spec turned off sits in its own group once saved, so a card being
+	// edited doesn't jump away.
+	const isOff = ( item: DraftItem ): boolean =>
+		! (
+			item.isNew
+				? item
+				: ( savedItems.find( ( saved ) => saved.key === item.key ) ??
+					item )
+		).enabled;
 
-  const specsTab = (
-    <div className='aa-ps-tab'>
-      <p className='aa-ps-intro'>
-        {__(
-          'The specs products can show, like Fit or Fabric weight. A product shows a spec when it has a value, from the product, its size guide, or the spec’s default, so a spec that’s on shows nothing where it isn’t used. Turn one off to put it away for later.',
-          'aggressive-apparel'
-        )}
-      </p>
+	const specsTab = (
+		<div className="aa-ps-tab">
+			<p className="aa-ps-intro">
+				{ __(
+					'The specs products can show, like Fit or Fabric weight. A product shows a spec when it has a value, from the product, its size guide, or the spec’s default, so a spec that’s on shows nothing where it isn’t used. Turn one off to put it away for later.',
+					'aggressive-apparel'
+				) }
+			</p>
 
-      <Suggestions
-        suggestions={suggestions}
-        onUse={fromSuggestion}
-        onDismiss={suggestion =>
-          setSuggestions(
-            suggestions.filter(other => other.name !== suggestion.name)
-          )
-        }
-      />
+			<Suggestions
+				suggestions={ suggestions }
+				onUse={ fromSuggestion }
+				onDismiss={ ( suggestion ) =>
+					setSuggestions(
+						suggestions.filter(
+							( other ) => other.name !== suggestion.name
+						)
+					)
+				}
+			/>
 
-      <div className='aa-ps-list'>
-        {items.length === 0 && (
-          <div className='aa-ps-empty'>
-            <p>
-              {__(
-                'No specs yet. Add one from a preset; it takes a click.',
-                'aggressive-apparel'
-              )}
-            </p>
-          </div>
-        )}
-        {[
-          {
-            off: false,
-            title: __('On', 'aggressive-apparel'),
-            help: '',
-          },
-          {
-            off: true,
-            title: __('Off', 'aggressive-apparel'),
-            help: __(
-              'Shown nowhere, with settings and values kept. Turn one on to use it again.',
-              'aggressive-apparel'
-            ),
-          },
-        ].map(group => {
-          const list = items
-            .map((item, index) => ({ item, index }))
-            .filter(({ item }) => isOff(item) === group.off);
-          return (
-            list.length > 0 && (
-              <div key={group.title} className='aa-ps-list__group'>
-                <h3 className='aa-ps-eyebrow'>{group.title}</h3>
-                {group.help && <p className='aa-ps-help'>{group.help}</p>}
-                {list.map(({ item, index }, position) => (
-                  <ItemCard
-                    key={item.uid}
-                    item={item}
-                    index={position}
-                    total={list.length}
-                    categories={config.categories}
-                    attributeNames={config.attributes}
-                    limits={config.limits}
-                    switchable
-                    taxonomies={freeTaxonomies(item)}
-                    saved={savedItems.find(other => other.key === item.key)}
-                    restPath={config.restPath}
-                    weightPresets={config.weightPresets}
-                    open={open === item.uid}
-                    onToggle={() =>
-                      setOpen(open === item.uid ? null : item.uid)
-                    }
-                    onChange={patch => update(item.uid, patch)}
-                    onMove={direction =>
-                      swap(index, list[position + direction].index)
-                    }
-                    onDelete={() => remove(item)}
-                  />
-                ))}
-              </div>
-            )
-          );
-        })}
-      </div>
+			<div className="aa-ps-list">
+				{ items.length === 0 && (
+					<div className="aa-ps-empty">
+						<p>
+							{ __(
+								'No specs yet. Add one from a preset; it takes a click.',
+								'aggressive-apparel'
+							) }
+						</p>
+					</div>
+				) }
+				{ [
+					{
+						off: false,
+						title: __( 'On', 'aggressive-apparel' ),
+						help: '',
+					},
+					{
+						off: true,
+						title: __( 'Off', 'aggressive-apparel' ),
+						help: __(
+							'Shown nowhere, with settings and values kept. Turn one on to use it again.',
+							'aggressive-apparel'
+						),
+					},
+				].map( ( group ) => {
+					const list = items
+						.map( ( item, index ) => ( { item, index } ) )
+						.filter( ( { item } ) => isOff( item ) === group.off );
+					return (
+						list.length > 0 && (
+							<div
+								key={ group.title }
+								className="aa-ps-list__group"
+							>
+								<h3 className="aa-ps-eyebrow">
+									{ group.title }
+								</h3>
+								{ group.help && (
+									<p className="aa-ps-help">{ group.help }</p>
+								) }
+								{ list.map( ( { item, index }, position ) => (
+									<ItemCard
+										key={ item.uid }
+										item={ item }
+										index={ position }
+										total={ list.length }
+										categories={ config.categories }
+										attributeNames={ config.attributes }
+										limits={ config.limits }
+										switchable
+										taxonomies={ freeTaxonomies( item ) }
+										saved={ savedItems.find(
+											( other ) => other.key === item.key
+										) }
+										restPath={ config.restPath }
+										weightPresets={ config.weightPresets }
+										open={ open === item.uid }
+										onToggle={ () =>
+											setOpen(
+												open === item.uid
+													? null
+													: item.uid
+											)
+										}
+										onChange={ ( patch ) =>
+											update( item.uid, patch )
+										}
+										onMove={ ( direction ) =>
+											swap(
+												index,
+												list[ position + direction ]
+													.index
+											)
+										}
+										onDelete={ () => remove( item ) }
+									/>
+								) ) }
+							</div>
+						)
+					);
+				} ) }
+			</div>
 
-      <div className='aa-ps-add'>
-        <AddSpecButton
-          existing={items}
-          disabled={items.length >= config.limits.items}
-          onAdd={add}
-        />
-      </div>
+			<div className="aa-ps-add">
+				<AddSpecButton
+					existing={ items }
+					disabled={ items.length >= config.limits.items }
+					onAdd={ add }
+				/>
+			</div>
 
-      <div className='aa-ps-global'>
-        <ToggleControl
-          label={__(
-            'Hide shipping weight and dimensions from Additional information',
-            'aggressive-apparel'
-          )}
-          help={__(
-            'Those rows show packaging data, not anything about the product itself.',
-            'aggressive-apparel'
-          )}
-          checked={hideDimensions}
-          onChange={value => {
-            setHideDimensions(value);
-            setSpecsDirty(true);
-            setSpecsSaved(false);
-          }}
-        />
-      </div>
+			<div className="aa-ps-global">
+				<ToggleControl
+					label={ __(
+						'Hide shipping weight and dimensions from Additional information',
+						'aggressive-apparel'
+					) }
+					help={ __(
+						'Those rows show packaging data, not anything about the product itself.',
+						'aggressive-apparel'
+					) }
+					checked={ hideDimensions }
+					onChange={ ( value ) => {
+						setHideDimensions( value );
+						setSpecsDirty( true );
+						setSpecsSaved( false );
+					} }
+				/>
+			</div>
 
-      {specsErrors.length > 0 && (
-        <Notice status='error' isDismissible={false}>
-          <p>
-            {__('Nothing was saved. Fix these first:', 'aggressive-apparel')}
-          </p>
-          <ul>
-            {specsErrors.map(message => (
-              <li key={message}>{message}</li>
-            ))}
-          </ul>
-        </Notice>
-      )}
-      {specsSaved && (
-        <Notice status='success' onRemove={() => setSpecsSaved(false)}>
-          {__('Specs saved.', 'aggressive-apparel')}
-        </Notice>
-      )}
+			{ specsErrors.length > 0 && (
+				<Notice status="error" isDismissible={ false }>
+					<p>
+						{ __(
+							'Nothing was saved. Fix these first:',
+							'aggressive-apparel'
+						) }
+					</p>
+					<ul>
+						{ specsErrors.map( ( message ) => (
+							<li key={ message }>{ message }</li>
+						) ) }
+					</ul>
+				</Notice>
+			) }
+			{ specsSaved && (
+				<Notice
+					status="success"
+					onRemove={ () => setSpecsSaved( false ) }
+				>
+					{ __( 'Specs saved.', 'aggressive-apparel' ) }
+				</Notice>
+			) }
 
-      <div className='aa-ps-save'>
-        <Button
-          variant='primary'
-          disabled={!specsDirty || specsSaving}
-          onClick={saveSpecs}
-        >
-          {specsSaving
-            ? __('Saving…', 'aggressive-apparel')
-            : __('Save specs', 'aggressive-apparel')}
-        </Button>
-        {specsSaving && <Spinner />}
-        {specsDirty && !specsSaving && (
-          <span className='aa-ps-help'>
-            {__('Unsaved changes', 'aggressive-apparel')}
-          </span>
-        )}
-      </div>
-    </div>
-  );
+			<div className="aa-ps-save">
+				<Button
+					variant="primary"
+					disabled={ ! specsDirty || specsSaving }
+					onClick={ saveSpecs }
+				>
+					{ specsSaving
+						? __( 'Saving…', 'aggressive-apparel' )
+						: __( 'Save specs', 'aggressive-apparel' ) }
+				</Button>
+				{ specsSaving && <Spinner /> }
+				{ specsDirty && ! specsSaving && (
+					<span className="aa-ps-help">
+						{ __( 'Unsaved changes', 'aggressive-apparel' ) }
+					</span>
+				) }
+			</div>
+		</div>
+	);
 
-  return (
-    <div className='aa-ps'>
-      <div className='aa-ps-tabbar'>
-        <div
-          className='aa-ps-tabs'
-          role='tablist'
-          aria-label={__('Size guides and specs', 'aggressive-apparel')}
-          onKeyDown={onTabKey}
-        >
-          {tabs.map(item => (
-            <button
-              key={item.name}
-              type='button'
-              role='tab'
-              id={`aa-ps-tab-${item.name}`}
-              aria-selected={tab === item.name}
-              aria-controls={`aa-ps-panel-${item.name}`}
-              tabIndex={tab === item.name ? 0 : -1}
-              className={cx(
-                'aa-ps-tabs__tab',
-                tab === item.name && 'is-active'
-              )}
-              onClick={() => selectTab(item.name)}
-            >
-              {item.title}
-              {item.dirty && (
-                <>
-                  <span className='aa-ps-tabs__dot' aria-hidden='true' />
-                  <span className='screen-reader-text'>
-                    {__('(unsaved changes)', 'aggressive-apparel')}
-                  </span>
-                </>
-              )}
-            </button>
-          ))}
-        </div>
-        <Transfer
-          restPath={config.restPath}
-          maxUpload={config.maxUpload}
-          dirty={guideDirty || specsDirty || productsDirty}
-        />
-      </div>
+	return (
+		<div className="aa-ps">
+			<div className="aa-ps-tabbar">
+				<div
+					className="aa-ps-tabs"
+					role="tablist"
+					aria-label={ __(
+						'Size guides and specs',
+						'aggressive-apparel'
+					) }
+					onKeyDown={ onTabKey }
+				>
+					{ tabs.map( ( item ) => (
+						<button
+							key={ item.name }
+							type="button"
+							role="tab"
+							id={ `aa-ps-tab-${ item.name }` }
+							aria-selected={ tab === item.name }
+							aria-controls={ `aa-ps-panel-${ item.name }` }
+							tabIndex={ tab === item.name ? 0 : -1 }
+							className={ cx(
+								'aa-ps-tabs__tab',
+								tab === item.name && 'is-active'
+							) }
+							onClick={ () => selectTab( item.name ) }
+						>
+							{ item.title }
+							{ item.dirty && (
+								<>
+									<span
+										className="aa-ps-tabs__dot"
+										aria-hidden="true"
+									/>
+									<span className="screen-reader-text">
+										{ __(
+											'(unsaved changes)',
+											'aggressive-apparel'
+										) }
+									</span>
+								</>
+							) }
+						</button>
+					) ) }
+				</div>
+				<Transfer
+					restPath={ config.restPath }
+					maxUpload={ config.maxUpload }
+					dirty={ guideDirty || specsDirty || productsDirty }
+				/>
+			</div>
 
-      <div
-        role='tabpanel'
-        id={`aa-ps-panel-${tab}`}
-        aria-labelledby={`aa-ps-tab-${tab}`}
-        className='aa-ps-panel'
-      >
-        {/* Products reads the saved specs, not the draft. */}
-        {specsDirty && tab === 'products' && (
-          <Notice
-            status='warning'
-            isDismissible={false}
-            actions={[
-              {
-                label: __('Go to Specs', 'aggressive-apparel'),
-                onClick: () => selectTab('specs'),
-              },
-            ]}
-          >
-            {__(
-              'Your spec changes aren’t saved yet, so they don’t show here. Save them on the Specs tab first.',
-              'aggressive-apparel'
-            )}
-          </Notice>
-        )}
-        <div hidden={tab !== 'guides'}>
-          <GuidesTab
-            config={config}
-            onManageSpecs={() => selectTab('specs')}
-            registry={saved}
-            items={savedItems}
-            taxonomies={taxonomies}
-            onRegistry={registry => {
-              setSavedItems(registry.items);
-              setSaved({
-                revision: registry.revision,
-                hideDimensions: registry.hide_dimensions,
-              });
-              setTaxonomies(registry.taxonomies ?? taxonomies);
-              // An untouched Specs tab follows. A dirty one keeps its draft
-              // and older revision, so its save merges onto this one.
-              if (!specsDirty) {
-                setItems(registry.items.map(toDraft));
-                setRevision(registry.revision);
-              }
-            }}
-            guides={guides}
-            onGuides={setGuides}
-            onDirty={setGuideDirty}
-          />
-        </div>
-        {tab === 'specs' && specsTab}
-        {tab === 'products' && (
-          <ProductsTab
-            config={config}
-            items={savedItems}
-            edits={productEdits}
-            onEdit={(id, key, value) =>
-              // Functional update: bulk apply calls this once per product.
-              setProductEdits(previous => setEdit(previous, id, key, value))
-            }
-            onSaved={() => setProductEdits({})}
-          />
-        )}
-      </div>
-    </div>
-  );
+			<div
+				role="tabpanel"
+				id={ `aa-ps-panel-${ tab }` }
+				aria-labelledby={ `aa-ps-tab-${ tab }` }
+				className="aa-ps-panel"
+			>
+				{ /* Products reads the saved specs, not the draft. */ }
+				{ specsDirty && tab === 'products' && (
+					<Notice
+						status="warning"
+						isDismissible={ false }
+						actions={ [
+							{
+								label: __(
+									'Go to Specs',
+									'aggressive-apparel'
+								),
+								onClick: () => selectTab( 'specs' ),
+							},
+						] }
+					>
+						{ __(
+							'Your spec changes aren’t saved yet, so they don’t show here. Save them on the Specs tab first.',
+							'aggressive-apparel'
+						) }
+					</Notice>
+				) }
+				<div hidden={ tab !== 'guides' }>
+					<GuidesTab
+						config={ config }
+						onManageSpecs={ () => selectTab( 'specs' ) }
+						registry={ saved }
+						items={ savedItems }
+						taxonomies={ taxonomies }
+						onRegistry={ ( registry ) => {
+							setSavedItems( registry.items );
+							setSaved( {
+								revision: registry.revision,
+								hideDimensions: registry.hide_dimensions,
+							} );
+							setTaxonomies( registry.taxonomies ?? taxonomies );
+							// An untouched Specs tab follows. A dirty one keeps its draft
+							// and older revision, so its save merges onto this one.
+							if ( ! specsDirty ) {
+								setItems( registry.items.map( toDraft ) );
+								setRevision( registry.revision );
+							}
+						} }
+						guides={ guides }
+						onGuides={ setGuides }
+						onDirty={ setGuideDirty }
+					/>
+				</div>
+				{ tab === 'specs' && specsTab }
+				{ tab === 'products' && (
+					<ProductsTab
+						config={ config }
+						items={ savedItems }
+						edits={ productEdits }
+						onEdit={ ( id, key, value ) =>
+							// Functional update: bulk apply calls this once per product.
+							setProductEdits( ( previous ) =>
+								setEdit( previous, id, key, value )
+							)
+						}
+						onSaved={ () => setProductEdits( {} ) }
+					/>
+				) }
+			</div>
+		</div>
+	);
 }

@@ -164,7 +164,11 @@
 		@keyframes aa-nav-focus-glow {
 			from {
 				box-shadow: 0 0 0 0
-					color-mix(in srgb, var(--aa-nav-focus-color) 50%, transparent);
+					color-mix(
+						in srgb,
+						var(--aa-nav-focus-color) 50%,
+						transparent
+					);
 			}
 
 			to {

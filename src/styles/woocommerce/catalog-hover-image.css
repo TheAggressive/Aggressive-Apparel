@@ -70,7 +70,8 @@
 		transition: opacity 350ms ease-in-out;
 	}
 
-	.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--fade {
+	.wp-block-post-featured-image:is(:hover, :focus-within)
+		.aa-hover-img--fade {
 		opacity: 1;
 	}
 
@@ -176,7 +177,7 @@
 
 	/* Perspective needed for both entrance and exit flip — combined selector. */
 	.wp-block-post-featured-image:has(.aa-hover-img--flip-h),
-	.wp-block-post-featured-image:has([data-aa-exit='flip-h']) {
+	.wp-block-post-featured-image:has([data-aa-exit="flip-h"]) {
 		perspective: 800px;
 	}
 
@@ -194,7 +195,7 @@
 
 	/* Perspective needed for both entrance and exit flip — combined selector. */
 	.wp-block-post-featured-image:has(.aa-hover-img--flip-v),
-	.wp-block-post-featured-image:has([data-aa-exit='flip-v']) {
+	.wp-block-post-featured-image:has([data-aa-exit="flip-v"]) {
 		perspective: 800px;
 	}
 
@@ -295,12 +296,12 @@
 	/* handled by the base opacity rule above; no transform/filter needed.        */
 
 	/* 2. Exit: Slide Right */
-	.wp-block-post-featured-image:has([data-aa-exit='slide-right']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-right"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='slide-right']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-right"]):is(
 			:hover,
 			:focus-within
 		)
@@ -309,12 +310,12 @@
 	}
 
 	/* 3. Exit: Slide Left */
-	.wp-block-post-featured-image:has([data-aa-exit='slide-left']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-left"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='slide-left']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-left"]):is(
 			:hover,
 			:focus-within
 		)
@@ -323,12 +324,12 @@
 	}
 
 	/* 4. Exit: Slide Up */
-	.wp-block-post-featured-image:has([data-aa-exit='slide-up']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-up"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='slide-up']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-up"]):is(
 			:hover,
 			:focus-within
 		)
@@ -337,12 +338,12 @@
 	}
 
 	/* 5. Exit: Slide Down */
-	.wp-block-post-featured-image:has([data-aa-exit='slide-down']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-down"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='slide-down']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="slide-down"]):is(
 			:hover,
 			:focus-within
 		)
@@ -351,12 +352,12 @@
 	}
 
 	/* 6. Exit: Zoom In (grows as it exits) */
-	.wp-block-post-featured-image:has([data-aa-exit='zoom-in']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="zoom-in"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='zoom-in']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="zoom-in"]):is(
 			:hover,
 			:focus-within
 		)
@@ -365,12 +366,12 @@
 	}
 
 	/* 7. Exit: Zoom Out (shrinks as it exits) */
-	.wp-block-post-featured-image:has([data-aa-exit='zoom-out']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="zoom-out"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='zoom-out']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="zoom-out"]):is(
 			:hover,
 			:focus-within
 		)
@@ -379,12 +380,12 @@
 	}
 
 	/* 8. Exit: Flip Horizontal */
-	.wp-block-post-featured-image:has([data-aa-exit='flip-h']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="flip-h"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='flip-h']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="flip-h"]):is(
 			:hover,
 			:focus-within
 		)
@@ -393,12 +394,12 @@
 	}
 
 	/* 9. Exit: Flip Vertical */
-	.wp-block-post-featured-image:has([data-aa-exit='flip-v']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="flip-v"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='flip-v']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="flip-v"]):is(
 			:hover,
 			:focus-within
 		)
@@ -407,12 +408,12 @@
 	}
 
 	/* 10. Exit: Wipe Right */
-	.wp-block-post-featured-image:has([data-aa-exit='wipe-right']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="wipe-right"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='wipe-right']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="wipe-right"]):is(
 			:hover,
 			:focus-within
 		)
@@ -421,12 +422,12 @@
 	}
 
 	/* 11. Exit: Wipe Left */
-	.wp-block-post-featured-image:has([data-aa-exit='wipe-left']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="wipe-left"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='wipe-left']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="wipe-left"]):is(
 			:hover,
 			:focus-within
 		)
@@ -435,12 +436,12 @@
 	}
 
 	/* 12. Exit: Wipe Up */
-	.wp-block-post-featured-image:has([data-aa-exit='wipe-up']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="wipe-up"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='wipe-up']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="wipe-up"]):is(
 			:hover,
 			:focus-within
 		)
@@ -449,12 +450,12 @@
 	}
 
 	/* 13. Exit: Blur Out */
-	.wp-block-post-featured-image:has([data-aa-exit='blur-reveal']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="blur-reveal"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='blur-reveal']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="blur-reveal"]):is(
 			:hover,
 			:focus-within
 		)
@@ -463,12 +464,12 @@
 	}
 
 	/* 14. Exit: Diagonal Wipe */
-	.wp-block-post-featured-image:has([data-aa-exit='diagonal-wipe']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="diagonal-wipe"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='diagonal-wipe']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="diagonal-wipe"]):is(
 			:hover,
 			:focus-within
 		)
@@ -477,12 +478,12 @@
 	}
 
 	/* 15. Exit: Rotate & Fade */
-	.wp-block-post-featured-image:has([data-aa-exit='rotate-fade']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="rotate-fade"]):is(
 			:hover,
 			:focus-within
 		)
 		> img,
-	.wp-block-post-featured-image:has([data-aa-exit='rotate-fade']):is(
+	.wp-block-post-featured-image:has([data-aa-exit="rotate-fade"]):is(
 			:hover,
 			:focus-within
 		)
@@ -506,9 +507,15 @@
 			transition: opacity 0.01ms !important;
 		}
 
-		.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within)
+		.wp-block-post-featured-image:has(.aa-hover-img):is(
+				:hover,
+				:focus-within
+			)
 			> img,
-		.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within)
+		.wp-block-post-featured-image:has(.aa-hover-img):is(
+				:hover,
+				:focus-within
+			)
 			> a {
 			opacity: 0;
 			transform: none !important;

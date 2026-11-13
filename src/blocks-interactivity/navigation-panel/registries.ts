@@ -7,7 +7,7 @@
  */
 
 // Focus trap cleanup registry using WeakMap for proper garbage collection.
-export const focusTrapRegistry = new WeakMap<Element, () => void>();
+export const focusTrapRegistry = new WeakMap< Element, () => void >();
 
 // Swipe-to-close cleanup registry.
-export const swipeRegistry = new WeakMap<Element, () => void>();
+export const swipeRegistry = new WeakMap< Element, () => void >();

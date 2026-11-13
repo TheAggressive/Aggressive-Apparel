@@ -1,7 +1,7 @@
 import {
-  backupOptions,
-  FIXTURE_OWNER_META,
-  ownPostPhp,
+	backupOptions,
+	FIXTURE_OWNER_META,
+	ownPostPhp,
 } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
@@ -31,30 +31,30 @@ const PRETTY_PERMALINK_STRUCTURE = '/%postname%/';
 const FIXTURE_OWNER = 'catalog';
 
 export interface CatalogFixtures {
-  shopPageId: number;
+	shopPageId: number;
 }
 
 function publishedProductCount(): number {
-  try {
-    const out = wpCli([
-      'post',
-      'list',
-      '--post_type=product',
-      '--post_status=publish',
-      '--format=count',
-    ]);
-    const n = Number.parseInt(out, 10);
-    return Number.isFinite(n) ? n : 0;
-  } catch {
-    return 0;
-  }
+	try {
+		const out = wpCli( [
+			'post',
+			'list',
+			'--post_type=product',
+			'--post_status=publish',
+			'--format=count',
+		] );
+		const n = Number.parseInt( out, 10 );
+		return Number.isFinite( n ) ? n : 0;
+	} catch {
+		return 0;
+	}
 }
 
 function ensureInfiniteScrollMode(): void {
-  const state = JSON.parse(
-    wpCli([
-      'eval',
-      `$features = get_option('${FEATURE_OPTION}', array());
+	const state = JSON.parse(
+		wpCli( [
+			'eval',
+			`$features = get_option('${ FEATURE_OPTION }', array());
 if (!is_array($features)) {
 	$features = array();
 }
@@ -63,37 +63,37 @@ $features['load_more'] = 1;
 // Card actions, to prove they work on cards Load More appends.
 $features['quick_view'] = 1;
 $features['wishlist'] = 1;
-update_option('${FEATURE_OPTION}', $features, false);
-update_option('${LOAD_MORE_MODE_OPTION}', 'infinite_scroll', false);
+update_option('${ FEATURE_OPTION }', $features, false);
+update_option('${ LOAD_MORE_MODE_OPTION }', 'infinite_scroll', false);
 
 echo wp_json_encode(
 	array(
-		'loadMoreEnabled' => !empty(get_option('${FEATURE_OPTION}', array())['load_more']),
-		'mode'            => get_option('${LOAD_MORE_MODE_OPTION}'),
+		'loadMoreEnabled' => !empty(get_option('${ FEATURE_OPTION }', array())['load_more']),
+		'mode'            => get_option('${ LOAD_MORE_MODE_OPTION }'),
 	)
 );`,
-    ])
-  ) as {
-    loadMoreEnabled?: boolean;
-    mode?: string;
-  };
+		] )
+	) as {
+		loadMoreEnabled?: boolean;
+		mode?: string;
+	};
 
-  if (state.loadMoreEnabled !== true || state.mode !== 'infinite_scroll') {
-    throw new Error(
-      `Expected the E2E Load More feature to use infinite_scroll, found ${JSON.stringify(state)}.`
-    );
-  }
+	if ( state.loadMoreEnabled !== true || state.mode !== 'infinite_scroll' ) {
+		throw new Error(
+			`Expected the E2E Load More feature to use infinite_scroll, found ${ JSON.stringify( state ) }.`
+		);
+	}
 }
 
 function ensurePublicStore(): void {
-  wpCli(['option', 'update', COMING_SOON_OPTION, 'no']);
+	wpCli( [ 'option', 'update', COMING_SOON_OPTION, 'no' ] );
 
-  const comingSoon = wpCli(['option', 'get', COMING_SOON_OPTION]);
-  if (comingSoon !== 'no') {
-    throw new Error(
-      `Expected the E2E WooCommerce store to be public, found ${comingSoon}.`
-    );
-  }
+	const comingSoon = wpCli( [ 'option', 'get', COMING_SOON_OPTION ] );
+	if ( comingSoon !== 'no' ) {
+		throw new Error(
+			`Expected the E2E WooCommerce store to be public, found ${ comingSoon }.`
+		);
+	}
 }
 
 /**
@@ -104,10 +104,10 @@ function ensurePublicStore(): void {
  * directly and returns a raw 404 before WordPress or the theme can run.
  */
 function ensureStorefrontInfrastructure(): number {
-  const shopPageId = Number.parseInt(
-    wpCli([
-      'eval',
-      `if (!class_exists('WC_Install')) {
+	const shopPageId = Number.parseInt(
+		wpCli( [
+			'eval',
+			`if (!class_exists('WC_Install')) {
 	throw new RuntimeException('WooCommerce installation APIs are unavailable.');
 }
 
@@ -126,74 +126,78 @@ if (
 }
 
 echo (string) $shop_page_id;`,
-    ]),
-    10
-  );
+		] ),
+		10
+	);
 
-  if (!Number.isInteger(shopPageId) || shopPageId <= 0) {
-    throw new Error(
-      `Expected a valid WooCommerce Shop page ID, found ${shopPageId}.`
-    );
-  }
+	if ( ! Number.isInteger( shopPageId ) || shopPageId <= 0 ) {
+		throw new Error(
+			`Expected a valid WooCommerce Shop page ID, found ${ shopPageId }.`
+		);
+	}
 
-  wpCli(['rewrite', 'structure', PRETTY_PERMALINK_STRUCTURE, '--hard']);
+	wpCli( [ 'rewrite', 'structure', PRETTY_PERMALINK_STRUCTURE, '--hard' ] );
 
-  const permalinkStructure = wpCli(['option', 'get', 'permalink_structure']);
-  if (permalinkStructure !== PRETTY_PERMALINK_STRUCTURE) {
-    throw new Error(
-      `Expected E2E permalinks to use ${PRETTY_PERMALINK_STRUCTURE}, found ${permalinkStructure}.`
-    );
-  }
+	const permalinkStructure = wpCli( [
+		'option',
+		'get',
+		'permalink_structure',
+	] );
+	if ( permalinkStructure !== PRETTY_PERMALINK_STRUCTURE ) {
+		throw new Error(
+			`Expected E2E permalinks to use ${ PRETTY_PERMALINK_STRUCTURE }, found ${ permalinkStructure }.`
+		);
+	}
 
-  return shopPageId;
+	return shopPageId;
 }
 
-function createSimpleProducts(startIndex: number, count: number): void {
-  wpCli([
-    'eval',
-    `if (!function_exists('wc_get_product')) {
+function createSimpleProducts( startIndex: number, count: number ): void {
+	wpCli( [
+		'eval',
+		`if (!function_exists('wc_get_product')) {
 	throw new RuntimeException('WooCommerce product APIs are unavailable.');
 }
 
-for ($offset = 0; $offset < ${count}; $offset++) {
-	$index = ${startIndex} + $offset;
+for ($offset = 0; $offset < ${ count }; $offset++) {
+	$index = ${ startIndex } + $offset;
 	$product = new WC_Product_Simple();
 	$product->set_name('E2E Catalog Product ' . $index);
 	$product->set_regular_price((string) (10 + ($index % 50)));
 	$product->set_status('publish');
 	$product->set_catalog_visibility('visible');
-	${ownPostPhp('$product->save()', FIXTURE_OWNER)}
+	${ ownPostPhp( '$product->save()', FIXTURE_OWNER ) }
 }`,
-  ]);
+	] );
 }
 
 function ensureProductFloor(): void {
-  const count = publishedProductCount();
-  if (count >= MIN_PRODUCTS) {
-    return;
-  }
+	const count = publishedProductCount();
+	if ( count >= MIN_PRODUCTS ) {
+		return;
+	}
 
-  createSimpleProducts(count + 1, MIN_PRODUCTS - count);
+	createSimpleProducts( count + 1, MIN_PRODUCTS - count );
 
-  const finalCount = publishedProductCount();
-  if (finalCount < MIN_PRODUCTS) {
-    throw new Error(
-      `Expected at least ${MIN_PRODUCTS} published products, found ${finalCount}.`
-    );
-  }
+	const finalCount = publishedProductCount();
+	if ( finalCount < MIN_PRODUCTS ) {
+		throw new Error(
+			`Expected at least ${ MIN_PRODUCTS } published products, found ${ finalCount }.`
+		);
+	}
 
-  // The floor exists to guarantee a SECOND page, not merely some products.
-  // Asserting the count alone is what let a 24-product floor sit against a
-  // 24-per-page archive: the fixture reported success while leaving nothing to
-  // paginate, and the failure surfaced 60 seconds later as an unrelated-looking
-  // locator timeout in a spec that never mentions page size.
-  if (finalCount <= PRODUCTS_PER_PAGE) {
-    throw new Error(
-      `Catalog pagination needs more than one page: found ${finalCount} ` +
-        `products against ${PRODUCTS_PER_PAGE} per page, so the load-more ` +
-        'sentinel stays hidden and every pagination spec times out.'
-    );
-  }
+	// The floor exists to guarantee a SECOND page, not merely some products.
+	// Asserting the count alone is what let a 24-product floor sit against a
+	// 24-per-page archive: the fixture reported success while leaving nothing to
+	// paginate, and the failure surfaced 60 seconds later as an unrelated-looking
+	// locator timeout in a spec that never mentions page size.
+	if ( finalCount <= PRODUCTS_PER_PAGE ) {
+		throw new Error(
+			`Catalog pagination needs more than one page: found ${ finalCount } ` +
+				`products against ${ PRODUCTS_PER_PAGE } per page, so the load-more ` +
+				'sentinel stays hidden and every pagination spec times out.'
+		);
+	}
 }
 
 /**
@@ -201,10 +205,10 @@ function ensureProductFloor(): void {
  * wishlist heart) render inside the image, so without one a card has none.
  */
 function ensureCatalogImages(): void {
-  wpCli([
-    'eval',
-    `$title = 'E2E Catalog Card Image';
-$existing = get_posts(array('post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => '${FIXTURE_OWNER_META}', 'meta_value' => '${FIXTURE_OWNER}', 'fields' => 'ids', 'posts_per_page' => 1));
+	wpCli( [
+		'eval',
+		`$title = 'E2E Catalog Card Image';
+$existing = get_posts(array('post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => '${ FIXTURE_OWNER_META }', 'meta_value' => '${ FIXTURE_OWNER }', 'fields' => 'ids', 'posts_per_page' => 1));
 $attachment_id = $existing ? (int) $existing[0] : 0;
 if (!$attachment_id) {
 	$bytes = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', true);
@@ -216,34 +220,34 @@ if (!$attachment_id) {
 	if (is_wp_error($attachment_id)) {
 		throw new RuntimeException($attachment_id->get_error_message());
 	}
-	${ownPostPhp('$attachment_id', FIXTURE_OWNER)}
+	${ ownPostPhp( '$attachment_id', FIXTURE_OWNER ) }
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	wp_update_attachment_metadata($attachment_id, wp_generate_attachment_metadata($attachment_id, $upload['file']));
 }
 
-$products = get_posts(array('post_type' => 'product', 'post_status' => 'publish', 'meta_key' => '${FIXTURE_OWNER_META}', 'meta_value' => '${FIXTURE_OWNER}', 'fields' => 'ids', 'posts_per_page' => -1));
+$products = get_posts(array('post_type' => 'product', 'post_status' => 'publish', 'meta_key' => '${ FIXTURE_OWNER_META }', 'meta_value' => '${ FIXTURE_OWNER }', 'fields' => 'ids', 'posts_per_page' => -1));
 foreach ($products as $product_id) {
 	if (!has_post_thumbnail($product_id)) {
 		set_post_thumbnail($product_id, $attachment_id);
 	}
 }`,
-  ]);
+	] );
 }
 
 /** Idempotent catalogue floor for Load More e2e. */
 export function ensureCatalogFixtures(): CatalogFixtures {
-  // Restored by global teardown (fixture-cleanup.ts).
-  backupOptions([
-    FEATURE_OPTION,
-    LOAD_MORE_MODE_OPTION,
-    COMING_SOON_OPTION,
-    'permalink_structure',
-  ]);
-  ensurePublicStore();
-  const shopPageId = ensureStorefrontInfrastructure();
-  ensureInfiniteScrollMode();
-  ensureProductFloor();
-  ensureCatalogImages();
+	// Restored by global teardown (fixture-cleanup.ts).
+	backupOptions( [
+		FEATURE_OPTION,
+		LOAD_MORE_MODE_OPTION,
+		COMING_SOON_OPTION,
+		'permalink_structure',
+	] );
+	ensurePublicStore();
+	const shopPageId = ensureStorefrontInfrastructure();
+	ensureInfiniteScrollMode();
+	ensureProductFloor();
+	ensureCatalogImages();
 
-  return { shopPageId };
+	return { shopPageId };
 }

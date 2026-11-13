@@ -6,7 +6,8 @@
 .site-header__customer-links
 	.wp-block-woocommerce-customer-account
 	.wc-block-customer-account__account-icon {
-	transition: color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
+	transition: color var(--aa-duration-fast, 150ms)
+		var(--aa-ease-default, ease);
 }
 
 .site-header__customer-links

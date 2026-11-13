@@ -7,8 +7,8 @@
  * @package Aggressive_Apparel
  */
 
-@import './_cart.css';
-@import './_saved-for-later.css';
+@import "./_cart.css";
+@import "./_saved-for-later.css";
 
 /* Allow collection headings and their CTA to wrap when text is enlarged. */
 .wp-block-woocommerce-product-collection.is-style-commerce-grid
@@ -180,7 +180,7 @@
    every variation change) the price line collapses and the page below jumps.
    An empty inline-block keeps a line box, so the line holds its height. */
 :where(.wcpay-async-price:not(.wcpay-price-converted))::before {
-	content: '';
+	content: "";
 	display: inline-block;
 }
 
@@ -210,7 +210,7 @@
    and sale amounts. Without this, the semantic del/ins defaults win because a
    directly assigned color outranks an inherited wrapper color. */
 .wp-block-woocommerce-product-price.has-text-color :is(del, ins),
-.wp-block-woocommerce-product-price[style*='color:'] :is(del, ins) {
+.wp-block-woocommerce-product-price[style*="color:"] :is(del, ins) {
 	color: inherit;
 }
 
@@ -264,7 +264,7 @@
 }
 
 .wc-block-components-button:not(.is-link):disabled,
-.wc-block-components-button:not(.is-link)[aria-disabled='true'] {
+.wc-block-components-button:not(.is-link)[aria-disabled="true"] {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
@@ -429,7 +429,7 @@
 	.wc-block-components-checkout-place-order-button__text::before,
 .wc-block-checkout__payment-method
 	.wc-block-components-checkout-step__description::after {
-	content: '';
+	content: "";
 	display: inline-block;
 	width: 1em;
 	height: 1em;
@@ -447,13 +447,13 @@
  * unlayered (0,2,0)/(0,3,0) rules; the type selector outranks both. Size and
  * position stay WooCommerce's. */
 .wc-block-components-radio-control
-	.wc-block-components-radio-control__input[type='radio'] {
+	.wc-block-components-radio-control__input[type="radio"] {
 	border: 1.5px solid var(--aa-color-foreground-muted);
 	background-color: var(--aa-field-bg);
 	cursor: pointer;
 	transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
 
-	&:hover:not(:checked, :disabled, [aria-disabled='true']) {
+	&:hover:not(:checked, :disabled, [aria-disabled="true"]) {
 		border-color: var(--aa-color-foreground);
 	}
 

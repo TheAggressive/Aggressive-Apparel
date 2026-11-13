@@ -1,133 +1,138 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/navigation",
-  "version": "3.0.0",
-  "title": "Desktop Navigation",
-  "category": "aggressive-apparel",
-  "description": "Responsive desktop navigation with a sliding indicator and submenus. Add a Navigation Trigger to open the mobile panel.",
-  "keywords": ["menu", "navigation", "header", "nav", "desktop"],
-  "textdomain": "aggressive-apparel",
-  "attributes": {
-    "breakpoint": {
-      "type": "number",
-      "default": 1024
-    },
-    "ariaLabel": {
-      "type": "string",
-      "default": "Main navigation"
-    },
-    "navId": {
-      "type": "string",
-      "default": ""
-    },
-    "openOn": {
-      "type": "string",
-      "enum": ["hover", "click"],
-      "default": "hover"
-    },
-    "autoLoadMobilePanel": {
-      "type": "boolean",
-      "default": true
-    },
-    "mobileNavPart": {
-      "type": "string",
-      "default": "mobile-nav"
-    },
-    "scrollBehavior": {
-      "type": "string",
-      "enum": ["none", "sticky", "hide-on-scroll", "transparent-to-opaque"],
-      "default": "none"
-    },
-    "indicatorColor": {
-      "type": "string"
-    },
-    "submenuBackgroundColor": {
-      "type": "string"
-    },
-    "submenuTextColor": {
-      "type": "string"
-    },
-    "submenuLinkHoverColor": {
-      "type": "string"
-    },
-    "submenuLinkHoverBg": {
-      "type": "string"
-    },
-    "submenuBorderRadius": {
-      "type": "string",
-      "default": ""
-    },
-    "submenuBorderWidth": {
-      "type": "string",
-      "default": ""
-    },
-    "submenuBorderColor": {
-      "type": "string",
-      "default": ""
-    },
-    "submenuBorderStyle": {
-      "type": "string",
-      "enum": ["solid", "dashed", "dotted", "none"],
-      "default": "solid"
-    }
-  },
-  "supports": {
-    "html": false,
-    "interactivity": true,
-    "align": ["wide", "full"],
-    "color": {
-      "background": true,
-      "text": true
-    },
-    "typography": {
-      "fontSize": true,
-      "lineHeight": true,
-      "__experimentalFontFamily": true
-    },
-    "spacing": {
-      "padding": true,
-      "margin": true,
-      "blockGap": true
-    },
-    "__experimentalBorder": {
-      "radius": true,
-      "width": true,
-      "color": true,
-      "style": true
-    },
-    "shadow": true,
-    "layout": {
-      "default": {
-        "type": "flex",
-        "flexWrap": "nowrap",
-        "justifyContent": "space-between",
-        "orientation": "horizontal"
-      },
-      "allowSwitching": true,
-      "allowInheriting": false,
-      "allowEditing": true,
-      "allowJustification": true,
-      "allowOrientation": false,
-      "allowVerticalAlignment": true
-    },
-    "className": true
-  },
-  "providesContext": {
-    "aggressive-apparel/navigationBreakpoint": "breakpoint",
-    "aggressive-apparel/navigationOpenOn": "openOn",
-    "aggressive-apparel/navigationId": "navId",
-    "aggressive-apparel/submenuBackgroundColor": "submenuBackgroundColor",
-    "aggressive-apparel/submenuTextColor": "submenuTextColor",
-    "aggressive-apparel/submenuLinkHoverColor": "submenuLinkHoverColor",
-    "aggressive-apparel/submenuLinkHoverBg": "submenuLinkHoverBg",
-    "aggressive-apparel/submenuBorderRadius": "submenuBorderRadius",
-    "aggressive-apparel/submenuBorderWidth": "submenuBorderWidth",
-    "aggressive-apparel/submenuBorderColor": "submenuBorderColor",
-    "aggressive-apparel/submenuBorderStyle": "submenuBorderStyle"
-  },
-  "render": "file:./render.php",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css",
-  "style": "file:./style-index.css"
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/navigation",
+	"version": "3.0.0",
+	"title": "Desktop Navigation",
+	"category": "aggressive-apparel",
+	"description": "Responsive desktop navigation with a sliding indicator and submenus. Add a Navigation Trigger to open the mobile panel.",
+	"keywords": [ "menu", "navigation", "header", "nav", "desktop" ],
+	"textdomain": "aggressive-apparel",
+	"attributes": {
+		"breakpoint": {
+			"type": "number",
+			"default": 1024
+		},
+		"ariaLabel": {
+			"type": "string",
+			"default": "Main navigation"
+		},
+		"navId": {
+			"type": "string",
+			"default": ""
+		},
+		"openOn": {
+			"type": "string",
+			"enum": [ "hover", "click" ],
+			"default": "hover"
+		},
+		"autoLoadMobilePanel": {
+			"type": "boolean",
+			"default": true
+		},
+		"mobileNavPart": {
+			"type": "string",
+			"default": "mobile-nav"
+		},
+		"scrollBehavior": {
+			"type": "string",
+			"enum": [
+				"none",
+				"sticky",
+				"hide-on-scroll",
+				"transparent-to-opaque"
+			],
+			"default": "none"
+		},
+		"indicatorColor": {
+			"type": "string"
+		},
+		"submenuBackgroundColor": {
+			"type": "string"
+		},
+		"submenuTextColor": {
+			"type": "string"
+		},
+		"submenuLinkHoverColor": {
+			"type": "string"
+		},
+		"submenuLinkHoverBg": {
+			"type": "string"
+		},
+		"submenuBorderRadius": {
+			"type": "string",
+			"default": ""
+		},
+		"submenuBorderWidth": {
+			"type": "string",
+			"default": ""
+		},
+		"submenuBorderColor": {
+			"type": "string",
+			"default": ""
+		},
+		"submenuBorderStyle": {
+			"type": "string",
+			"enum": [ "solid", "dashed", "dotted", "none" ],
+			"default": "solid"
+		}
+	},
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"align": [ "wide", "full" ],
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"blockGap": true
+		},
+		"__experimentalBorder": {
+			"radius": true,
+			"width": true,
+			"color": true,
+			"style": true
+		},
+		"shadow": true,
+		"layout": {
+			"default": {
+				"type": "flex",
+				"flexWrap": "nowrap",
+				"justifyContent": "space-between",
+				"orientation": "horizontal"
+			},
+			"allowSwitching": true,
+			"allowInheriting": false,
+			"allowEditing": true,
+			"allowJustification": true,
+			"allowOrientation": false,
+			"allowVerticalAlignment": true
+		},
+		"className": true
+	},
+	"providesContext": {
+		"aggressive-apparel/navigationBreakpoint": "breakpoint",
+		"aggressive-apparel/navigationOpenOn": "openOn",
+		"aggressive-apparel/navigationId": "navId",
+		"aggressive-apparel/submenuBackgroundColor": "submenuBackgroundColor",
+		"aggressive-apparel/submenuTextColor": "submenuTextColor",
+		"aggressive-apparel/submenuLinkHoverColor": "submenuLinkHoverColor",
+		"aggressive-apparel/submenuLinkHoverBg": "submenuLinkHoverBg",
+		"aggressive-apparel/submenuBorderRadius": "submenuBorderRadius",
+		"aggressive-apparel/submenuBorderWidth": "submenuBorderWidth",
+		"aggressive-apparel/submenuBorderColor": "submenuBorderColor",
+		"aggressive-apparel/submenuBorderStyle": "submenuBorderStyle"
+	},
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
 }

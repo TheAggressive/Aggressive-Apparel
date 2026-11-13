@@ -12,11 +12,11 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './editor.css';
 
 type SizeGuideAttributes = {
-  label: string;
-  showIcon: boolean;
+	label: string;
+	showIcon: boolean;
 };
 
-registerThemeBlock<SizeGuideAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-});
+registerThemeBlock< SizeGuideAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+} );

@@ -5,35 +5,35 @@ import { cleanUpFixtures } from './fixture-cleanup';
 import { wpCli } from './wp-cli';
 
 interface ThemeRecord {
-  name: string;
-  status: string;
+	name: string;
+	status: string;
 }
 
 /** Activate the project theme in the selected WordPress installation. */
 function ensureProjectThemeActive(): void {
-  const themes = JSON.parse(
-    wpCli(['theme', 'list', '--format=json'])
-  ) as ThemeRecord[];
-  const projectTheme = themes.find(
-    theme => theme.name.toLowerCase() === 'aggressive-apparel'
-  );
+	const themes = JSON.parse(
+		wpCli( [ 'theme', 'list', '--format=json' ] )
+	) as ThemeRecord[];
+	const projectTheme = themes.find(
+		( theme ) => theme.name.toLowerCase() === 'aggressive-apparel'
+	);
 
-  if (!projectTheme) {
-    throw new Error(
-      'Aggressive Apparel is not installed in the Playwright WordPress site.'
-    );
-  }
+	if ( ! projectTheme ) {
+		throw new Error(
+			'Aggressive Apparel is not installed in the Playwright WordPress site.'
+		);
+	}
 
-  if (projectTheme.status !== 'active') {
-    wpCli(['theme', 'activate', projectTheme.name]);
-  }
+	if ( projectTheme.status !== 'active' ) {
+		wpCli( [ 'theme', 'activate', projectTheme.name ] );
+	}
 
-  const activeStylesheet = wpCli(['option', 'get', 'stylesheet']);
-  if (activeStylesheet !== projectTheme.name) {
-    throw new Error(
-      `Expected ${projectTheme.name} to be active, found ${activeStylesheet}.`
-    );
-  }
+	const activeStylesheet = wpCli( [ 'option', 'get', 'stylesheet' ] );
+	if ( activeStylesheet !== projectTheme.name ) {
+		throw new Error(
+			`Expected ${ projectTheme.name } to be active, found ${ activeStylesheet }.`
+		);
+	}
 }
 
 /**
@@ -41,45 +41,47 @@ function ensureProjectThemeActive(): void {
  * the specs. WP-CLI checks alone cannot detect a missing Apache rewrite.
  */
 async function ensurePublicCatalogReady(
-  page: Page,
-  base: string,
-  shopPageId: number
-): Promise<void> {
-  const shopUrl = new URL('/shop/', base).toString();
-  const response = await page.goto(shopUrl, {
-    waitUntil: 'domcontentloaded',
-  });
+	page: Page,
+	base: string,
+	shopPageId: number
+): Promise< void > {
+	const shopUrl = new URL( '/shop/', base ).toString();
+	const response = await page.goto( shopUrl, {
+		waitUntil: 'domcontentloaded',
+	} );
 
-  if (!response) {
-    throw new Error(`The E2E Shop page did not return a response: ${shopUrl}`);
-  }
+	if ( ! response ) {
+		throw new Error(
+			`The E2E Shop page did not return a response: ${ shopUrl }`
+		);
+	}
 
-  if (!response.ok()) {
-    throw new Error(
-      `The E2E Shop page (ID ${shopPageId}) returned HTTP ${response.status()}: ${shopUrl}`
-    );
-  }
+	if ( ! response.ok() ) {
+		throw new Error(
+			`The E2E Shop page (ID ${ shopPageId }) returned HTTP ${ response.status() }: ${ shopUrl }`
+		);
+	}
 
-  const productCard = page
-    .locator('.wp-block-woocommerce-product-template > .wc-block-product')
-    .first();
-  const sentinel = page.locator('.aa-load-more__sentinel');
+	const productCard = page
+		.locator( '.wp-block-woocommerce-product-template > .wc-block-product' )
+		.first();
+	const sentinel = page.locator( '.aa-load-more__sentinel' );
 
-  try {
-    await productCard.waitFor({ state: 'attached', timeout: 15_000 });
-  } catch {
-    throw new Error(
-      `The public E2E Shop page is missing product cards: ${shopUrl}`
-    );
-  }
+	try {
+		await productCard.waitFor( { state: 'attached', timeout: 15_000 } );
+	} catch {
+		throw new Error(
+			`The public E2E Shop page is missing product cards: ${ shopUrl }`
+		);
+	}
 
-  try {
-    await sentinel.waitFor({ state: 'attached', timeout: 15_000 });
-  } catch {
-    throw new Error(
-      `The public E2E Shop page is missing its infinite-scroll sentinel; verify the load_more fixture flag: ${shopUrl}`
-    );
-  }
+	try {
+		await sentinel.waitFor( { state: 'attached', timeout: 15_000 } );
+	} catch {
+		throw new Error(
+			`The public E2E Shop page is missing its infinite-scroll sentinel; verify the load_more fixture flag: ${ shopUrl }`
+		);
+	}
 }
 
 /**
@@ -87,35 +89,42 @@ async function ensurePublicCatalogReady(
  * for editor coverage. Catalog fixtures explicitly launch the isolated store so
  * anonymous storefront specs exercise the same public routes as production.
  */
-export default async function globalSetup(_config: FullConfig): Promise<void> {
-  const base = process.env.WP_BASE_URL;
-  const user = process.env.WP_ADMIN_USER ?? 'admin';
-  const pass = process.env.WP_ADMIN_PASS ?? 'password';
+export default async function globalSetup(
+	_config: FullConfig
+): Promise< void > {
+	const base = process.env.WP_BASE_URL;
+	const user = process.env.WP_ADMIN_USER ?? 'admin';
+	const pass = process.env.WP_ADMIN_PASS ?? 'password';
 
-  if (!base) {
-    throw new Error(
-      'WP_BASE_URL is required. Use pnpm test:e2e for Studio or pnpm test:e2e:ci for release parity.'
-    );
-  }
+	if ( ! base ) {
+		throw new Error(
+			'WP_BASE_URL is required. Use pnpm test:e2e for Studio or pnpm test:e2e:ci for release parity.'
+		);
+	}
 
-  mkdirSync('tests/e2e/.auth', { recursive: true });
+	mkdirSync( 'tests/e2e/.auth', { recursive: true } );
 
-  ensureProjectThemeActive();
-  // A run that crashed or was interrupted skipped teardown: clean up after
-  // it, and restore its options, before backing them up again.
-  cleanUpFixtures();
-  const { shopPageId } = ensureCatalogFixtures();
+	ensureProjectThemeActive();
+	// A run that crashed or was interrupted skipped teardown: clean up after
+	// it, and restore its options, before backing them up again.
+	cleanUpFixtures();
+	const { shopPageId } = ensureCatalogFixtures();
 
-  const browser = await chromium.launch();
-  try {
-    const page = await browser.newPage();
-    await ensurePublicCatalogReady(page, base, shopPageId);
-    await page.goto(`${base}/wp-login.php`);
-    await page.fill('#user_login', user);
-    await page.fill('#user_pass', pass);
-    await Promise.all([page.waitForNavigation(), page.click('#wp-submit')]);
-    await page.context().storageState({ path: 'tests/e2e/.auth/admin.json' });
-  } finally {
-    await browser.close();
-  }
+	const browser = await chromium.launch();
+	try {
+		const page = await browser.newPage();
+		await ensurePublicCatalogReady( page, base, shopPageId );
+		await page.goto( `${ base }/wp-login.php` );
+		await page.fill( '#user_login', user );
+		await page.fill( '#user_pass', pass );
+		await Promise.all( [
+			page.waitForNavigation(),
+			page.click( '#wp-submit' ),
+		] );
+		await page
+			.context()
+			.storageState( { path: 'tests/e2e/.auth/admin.json' } );
+	} finally {
+		await browser.close();
+	}
 }

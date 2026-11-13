@@ -1,22 +1,22 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-  # Releasing is a decision, not a side effect of merging. Every push to master
-  # still runs the full quality pipeline; only this input reaches the publishing
-  # path, so several merges can ship as one update instead of one each.
-  workflow_dispatch:
-    inputs:
-      publish:
-        description: 'Cut a release from master if the merged commits warrant one'
-        type: boolean
-        default: false
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+    # Releasing is a decision, not a side effect of merging. Every push to master
+    # still runs the full quality pipeline; only this input reaches the publishing
+    # path, so several merges can ship as one update instead of one each.
+    workflow_dispatch:
+        inputs:
+            publish:
+                description: 'Cut a release from master if the merged commits warrant one'
+                type: boolean
+                default: false
 
 permissions:
-  contents: read
+    contents: read
 
 # Superseded PR pushes are cancelled, but a release-branch run is allowed to
 # finish its draft creation, remote verification and promotion as one operation.
@@ -24,737 +24,737 @@ permissions:
 # sharing with push CI let a later push (an auto-merged translations PR)
 # silently replace a queued release, and made the release wait behind it.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}${{ github.event_name == 'workflow_dispatch' && inputs.publish && '-publish' || '' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    group: ${{ github.workflow }}-${{ github.ref }}${{ github.event_name == 'workflow_dispatch' && inputs.publish && '-publish' || '' }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  NODE_VERSION: '24.18.0'
-  PHP_VERSION: '8.2.32'
+    NODE_VERSION: '24.18.0'
+    PHP_VERSION: '8.2.32'
 
 jobs:
-  # ============================================================================
-  # Classify the diff so a lane only runs when the change could affect it.
-  #
-  # `code` — anything outside languages/. A translations-only merge (the i18n MT
-  # pull request) leaves it false, which skips the frontend and build jobs and
-  # cascade-skips test → package. Those translations ship with the next release, whose
-  # package step recompiles the .mo from whatever catalogs are on master.
-  #
-  # `docs_only` — the diff is nothing but Markdown. Prose cannot change built
-  # output, shift a POT source reference, or alter behaviour, so the i18n and
-  # build jobs skip, and PHP → browser E2E cascade-skip with build. Linting still
-  # runs. Note this is deliberately narrower than it could be: workflow-only
-  # changes still run everything, because a workflow edit must be exercised by
-  # the pipeline it edits.
-  #
-  # A manual run has no diff to read, so it answers for itself: dispatch is
-  # either a release or a deliberate re-verification, and both need every lane.
-  # ============================================================================
-  changes:
-    name: 🧭 Detect changes
-    runs-on: ubuntu-24.04
-    timeout-minutes: 2
-    outputs:
-      code: ${{ steps.decide.outputs.code }}
-      docs_only: ${{ steps.decide.outputs.docs_only }}
-      version_sync: ${{ steps.decide.outputs.version_sync }}
+    # ============================================================================
+    # Classify the diff so a lane only runs when the change could affect it.
+    #
+    # `code` — anything outside languages/. A translations-only merge (the i18n MT
+    # pull request) leaves it false, which skips the frontend and build jobs and
+    # cascade-skips test → package. Those translations ship with the next release, whose
+    # package step recompiles the .mo from whatever catalogs are on master.
+    #
+    # `docs_only` — the diff is nothing but Markdown. Prose cannot change built
+    # output, shift a POT source reference, or alter behaviour, so the i18n and
+    # build jobs skip, and PHP → browser E2E cascade-skip with build. Linting still
+    # runs. Note this is deliberately narrower than it could be: workflow-only
+    # changes still run everything, because a workflow edit must be exercised by
+    # the pipeline it edits.
+    #
+    # A manual run has no diff to read, so it answers for itself: dispatch is
+    # either a release or a deliberate re-verification, and both need every lane.
+    # ============================================================================
+    changes:
+        name: 🧭 Detect changes
+        runs-on: ubuntu-24.04
+        timeout-minutes: 2
+        outputs:
+            code: ${{ steps.decide.outputs.code }}
+            docs_only: ${{ steps.decide.outputs.docs_only }}
+            version_sync: ${{ steps.decide.outputs.version_sync }}
 
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
 
-      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
-        id: filter
-        if: github.event_name != 'workflow_dispatch'
-        with:
-          # The action is used ONLY to produce the changed-file list. Its glob
-          # filters are not trusted to classify anything: at this pinned version
-          # the quantifier options are `every` and `some`, and under `some` a
-          # pattern prefixed with `!` excludes nothing — it is just another way
-          # to match. The documented `['**', '!languages/**']` filter therefore
-          # matched every file, so `code` was permanently true and the
-          # translations-only skip never engaged once. Confirmed on the merge of
-          # a881323, a translations-only commit that ran every lane in full.
-          list-files: json
-          filters: |
-            all:
-              - '**'
+            - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+              id: filter
+              if: github.event_name != 'workflow_dispatch'
+              with:
+                  # The action is used ONLY to produce the changed-file list. Its glob
+                  # filters are not trusted to classify anything: at this pinned version
+                  # the quantifier options are `every` and `some`, and under `some` a
+                  # pattern prefixed with `!` excludes nothing — it is just another way
+                  # to match. The documented `['**', '!languages/**']` filter therefore
+                  # matched every file, so `code` was permanently true and the
+                  # translations-only skip never engaged once. Confirmed on the merge of
+                  # a881323, a translations-only commit that ran every lane in full.
+                  list-files: json
+                  filters: |
+                      all:
+                        - '**'
 
-      - name: Decide which lanes are required
-        id: decide
+            - name: Decide which lanes are required
+              id: decide
+              env:
+                  IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+                  CHANGED_FILES: ${{ steps.filter.outputs.all_files }}
+                  # Branch and author together identify the machine version sync, whose
+                  # only content is a version header this pipeline just published.
+                  HEAD_REF: ${{ github.head_ref }}
+                  PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+              run: node bin/ci/classify-changes.mjs
+
+    # ============================================================================
+    # PARALLEL: Release planning.
+    #
+    # semantic-release intentionally verifies push permission even in dry-run
+    # mode. Keep that write-capable token isolated from build and test jobs, run
+    # only for trusted pushes to a release branch, and fail closed if planning
+    # itself errors. This job runs alongside linting, so it does not extend the
+    # pipeline's critical path.
+    # ============================================================================
+    release-plan:
+        name: 🧮 Plan Release
+        runs-on: ubuntu-24.04
+        needs: changes
+        # Only a deliberate publish reaches this job, so merging a fix no longer
+        # ships an update on its own. Everything downstream of it — package,
+        # acceptance, release, version-sync — skips with it on an ordinary push,
+        # because a skipped dependency skips its dependents.
+        if: >-
+            github.event_name == 'workflow_dispatch' &&
+            inputs.publish &&
+            github.ref == 'refs/heads/master'
+        timeout-minutes: 5
+        permissions:
+            contents: write
+        outputs:
+            should_release: ${{ steps.check.outputs.should_release }}
+            release_type: ${{ steps.check.outputs.release_type }}
+            next_version: ${{ steps.check.outputs.next_version }}
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            # Lifecycle scripts are unnecessary for release analysis. Disabling them
+            # reduces what can execute while this job holds its scoped write token.
+            - name: Install release tooling
+              run: pnpm install --frozen-lockfile --ignore-scripts
+
+            - name: Determine release
+              id: check
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  HUSKY: '0'
+              run: node bin/release/plan.mjs
+
+    # ============================================================================
+    # PARALLEL: Quality Checks (no setup dependency — each job self-caches)
+    # ============================================================================
+    lint-frontend:
+        name: 🔍 Lint & Test Frontend
+        runs-on: ubuntu-24.04
+        timeout-minutes: 5
+        needs: changes
+        if: >-
+            needs.changes.outputs.code == 'true' &&
+            needs.changes.outputs.version_sync != 'true'
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - name: Install gettext for PO validator tests
+              run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gettext
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Run canonical frontend lane
+              run: pnpm ci:frontend
+
+    # ============================================================================
+    # Supply chain: block a pull request that introduces a dependency with a known
+    # advisory, before it reaches the tree. `pnpm audit` in the frontend lane only
+    # sees what is already installed; this reviews the diff itself.
+    # ============================================================================
+    dependency-review:
+        name: 🛡️ Dependency Review
+        runs-on: ubuntu-24.04
+        if: github.event_name == 'pull_request'
+        timeout-minutes: 5
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+              with:
+                  fail-on-severity: high
+
+    # ============================================================================
+    # i18n: POT drift + PO validity + translators-comment lint
+    # ============================================================================
+    i18n:
+        name: 🌐 i18n Check
+        runs-on: ubuntu-24.04
+        needs: changes
+        # Markdown holds no translatable strings and cannot shift a POT source
+        # reference, so a prose-only diff has nothing for this lane to check.
+        # A machine version sync changes one header line that this pipeline just
+        # published and verified inside the archive. It cannot move a POT reference
+        # or change built output, so this lane skips (as do build, PHP and E2E, on
+        # the same outputs). Linting still runs, because check-version-sync is what
+        # proves the pull request does what it claims.
+        if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.version_sync != 'true'
+        timeout-minutes: 5
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            # The lane runs the pinned WP-CLI PHAR on the runner's PHP; it no longer
+            # boots wp-env just to borrow a PHP binary.
+            - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+              with:
+                  php-version: ${{ env.PHP_VERSION }}
+                  coverage: none
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Run canonical i18n lane
+              run: pnpm ci:i18n
+
+    # ============================================================================
+    # Build Assets. Gated on the same change outputs as the frontend and i18n
+    # jobs rather than on the jobs themselves: it uses nothing they produce, and
+    # waiting on them held build → PHP → E2E back by the slower of the two. A
+    # translations-only merge still never rebuilds. Package and release still
+    # require frontend and i18n to pass, so nothing ships unlinted.
+    # ============================================================================
+    build:
+        name: 🔨 Build
+        runs-on: ubuntu-24.04
+        needs: changes
+        if: >-
+            needs.changes.outputs.code == 'true' &&
+            needs.changes.outputs.docs_only != 'true' &&
+            needs.changes.outputs.version_sync != 'true'
+        timeout-minutes: 5
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Run canonical build lane
+              run: pnpm ci:build
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: build-artifacts
+                  path: build/
+                  retention-days: 7
+
+    # ============================================================================
+    # PHP quality + tests: syntax, PHPCS, PHPStan and every PHPUnit suite run in
+    # the same committed PHP 8.2 wp-env lane locally and in Actions.
+    # Runs in parallel with the browser E2E job after both consume the same build.
+    # ============================================================================
+    test:
+        name: 🧪 PHP Quality & Tests
+        runs-on: ubuntu-24.04
+        # build cascade-skips on the translations-only path, so this 15-min wp-env
+        # suite skips with it — no explicit gate needed. Browser tests run in a
+        # sibling job so they do not extend this job's critical path.
+        needs: [build]
+        timeout-minutes: 15
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Download build artifacts
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: build-artifacts
+                  path: build/
+
+            - name: Run canonical PHP lane
+              run: pnpm ci:php
+
+    # ============================================================================
+    # Browser E2E: Runs beside PHP tests and reuses the build job's artifacts.
+    # The shared CI lane avoids the public local E2E command's rebuild because the
+    # build job already produced and uploaded the exact assets under test.
+    # ============================================================================
+    e2e:
+        name: 🎭 Browser E2E
+        runs-on: ubuntu-24.04
+        needs: [build]
+        # A job timeout is there to catch something stuck, not to bound normal
+        # variance. At 15 this cancelled a healthy run mid-suite with 73 of 74 specs
+        # already green, purely because that runner was slower than the ~8-9 minutes
+        # these 74 specs usually take. A cap that fails a passing run teaches you to
+        # re-run on red, which is how a real hang gets waved through. 20 keeps a
+        # genuine hang bounded while leaving room for a slow runner.
+        timeout-minutes: 20
+
+        # bin/ci/e2e.sh runs WordPress natively on the runner's PHP. It uses this
+        # database when AA_E2E_DB_HOST names one, and starts a local mysqld otherwise.
+        services:
+            mysql:
+                image: mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+                env:
+                    MYSQL_DATABASE: aa_e2e
+                    MYSQL_USER: wordpress
+                    MYSQL_PASSWORD: wordpress
+                    MYSQL_ROOT_PASSWORD: root
+                ports:
+                    - 127.0.0.1:3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+                    --health-interval=5s
+                    --health-timeout=5s
+                    --health-retries=20
+
         env:
-          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
-          CHANGED_FILES: ${{ steps.filter.outputs.all_files }}
-          # Branch and author together identify the machine version sync, whose
-          # only content is a version header this pipeline just published.
-          HEAD_REF: ${{ github.head_ref }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-        run: node bin/ci/classify-changes.mjs
-
-  # ============================================================================
-  # PARALLEL: Release planning.
-  #
-  # semantic-release intentionally verifies push permission even in dry-run
-  # mode. Keep that write-capable token isolated from build and test jobs, run
-  # only for trusted pushes to a release branch, and fail closed if planning
-  # itself errors. This job runs alongside linting, so it does not extend the
-  # pipeline's critical path.
-  # ============================================================================
-  release-plan:
-    name: 🧮 Plan Release
-    runs-on: ubuntu-24.04
-    needs: changes
-    # Only a deliberate publish reaches this job, so merging a fix no longer
-    # ships an update on its own. Everything downstream of it — package,
-    # acceptance, release, version-sync — skips with it on an ordinary push,
-    # because a skipped dependency skips its dependents.
-    if: >-
-      github.event_name == 'workflow_dispatch' &&
-      inputs.publish &&
-      github.ref == 'refs/heads/master'
-    timeout-minutes: 5
-    permissions:
-      contents: write
-    outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
-      release_type: ${{ steps.check.outputs.release_type }}
-      next_version: ${{ steps.check.outputs.next_version }}
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      # Lifecycle scripts are unnecessary for release analysis. Disabling them
-      # reduces what can execute while this job holds its scoped write token.
-      - name: Install release tooling
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Determine release
-        id: check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HUSKY: '0'
-        run: node bin/release/plan.mjs
-
-  # ============================================================================
-  # PARALLEL: Quality Checks (no setup dependency — each job self-caches)
-  # ============================================================================
-  lint-frontend:
-    name: 🔍 Lint & Test Frontend
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    needs: changes
-    if: >-
-      needs.changes.outputs.code == 'true' &&
-      needs.changes.outputs.version_sync != 'true'
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      - name: Install gettext for PO validator tests
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gettext
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run canonical frontend lane
-        run: pnpm ci:frontend
-
-  # ============================================================================
-  # Supply chain: block a pull request that introduces a dependency with a known
-  # advisory, before it reaches the tree. `pnpm audit` in the frontend lane only
-  # sees what is already installed; this reviews the diff itself.
-  # ============================================================================
-  dependency-review:
-    name: 🛡️ Dependency Review
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'pull_request'
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-        with:
-          fail-on-severity: high
-
-  # ============================================================================
-  # i18n: POT drift + PO validity + translators-comment lint
-  # ============================================================================
-  i18n:
-    name: 🌐 i18n Check
-    runs-on: ubuntu-24.04
-    needs: changes
-    # Markdown holds no translatable strings and cannot shift a POT source
-    # reference, so a prose-only diff has nothing for this lane to check.
-    # A machine version sync changes one header line that this pipeline just
-    # published and verified inside the archive. It cannot move a POT reference
-    # or change built output, so this lane skips (as do build, PHP and E2E, on
-    # the same outputs). Linting still runs, because check-version-sync is what
-    # proves the pull request does what it claims.
-    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.version_sync != 'true'
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      # The lane runs the pinned WP-CLI PHAR on the runner's PHP; it no longer
-      # boots wp-env just to borrow a PHP binary.
-      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          coverage: none
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run canonical i18n lane
-        run: pnpm ci:i18n
-
-  # ============================================================================
-  # Build Assets. Gated on the same change outputs as the frontend and i18n
-  # jobs rather than on the jobs themselves: it uses nothing they produce, and
-  # waiting on them held build → PHP → E2E back by the slower of the two. A
-  # translations-only merge still never rebuilds. Package and release still
-  # require frontend and i18n to pass, so nothing ships unlinted.
-  # ============================================================================
-  build:
-    name: 🔨 Build
-    runs-on: ubuntu-24.04
-    needs: changes
-    if: >-
-      needs.changes.outputs.code == 'true' &&
-      needs.changes.outputs.docs_only != 'true' &&
-      needs.changes.outputs.version_sync != 'true'
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run canonical build lane
-        run: pnpm ci:build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: build-artifacts
-          path: build/
-          retention-days: 7
-
-  # ============================================================================
-  # PHP quality + tests: syntax, PHPCS, PHPStan and every PHPUnit suite run in
-  # the same committed PHP 8.2 wp-env lane locally and in Actions.
-  # Runs in parallel with the browser E2E job after both consume the same build.
-  # ============================================================================
-  test:
-    name: 🧪 PHP Quality & Tests
-    runs-on: ubuntu-24.04
-    # build cascade-skips on the translations-only path, so this 15-min wp-env
-    # suite skips with it — no explicit gate needed. Browser tests run in a
-    # sibling job so they do not extend this job's critical path.
-    needs: [build]
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: build-artifacts
-          path: build/
-
-      - name: Run canonical PHP lane
-        run: pnpm ci:php
-
-  # ============================================================================
-  # Browser E2E: Runs beside PHP tests and reuses the build job's artifacts.
-  # The shared CI lane avoids the public local E2E command's rebuild because the
-  # build job already produced and uploaded the exact assets under test.
-  # ============================================================================
-  e2e:
-    name: 🎭 Browser E2E
-    runs-on: ubuntu-24.04
-    needs: [build]
-    # A job timeout is there to catch something stuck, not to bound normal
-    # variance. At 15 this cancelled a healthy run mid-suite with 73 of 74 specs
-    # already green, purely because that runner was slower than the ~8-9 minutes
-    # these 74 specs usually take. A cap that fails a passing run teaches you to
-    # re-run on red, which is how a real hang gets waved through. 20 keeps a
-    # genuine hang bounded while leaving room for a slow runner.
-    timeout-minutes: 20
-
-    # bin/ci/e2e.sh runs WordPress natively on the runner's PHP. It uses this
-    # database when AA_E2E_DB_HOST names one, and starts a local mysqld otherwise.
-    services:
-      mysql:
-        image: mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
-        env:
-          MYSQL_DATABASE: aa_e2e
-          MYSQL_USER: wordpress
-          MYSQL_PASSWORD: wordpress
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 127.0.0.1:3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=20
-
-    env:
-      AA_E2E_DB_HOST: 127.0.0.1:3306
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          coverage: none
-
-      - name: Cache Playwright browser
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
-          # A lockfile bump usually does not change the browser build, so fall
-          # back to the most recent cache instead of re-downloading Chromium.
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: build-artifacts
-          path: build/
-
-      - name: Install Playwright browser
-        run: pnpm test:e2e:install
-
-      - name: Run end-to-end tests
-        run: pnpm ci:e2e
-
-      - name: Upload Playwright report
-        if: ${{ failure() || cancelled() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-            .cache/ci/e2e/server.log
-            .cache/ci/e2e/wordpress/wp-content/debug.log
-          include-hidden-files: true
-          retention-days: 7
-
-  # ============================================================================
-  # Package Theme
-  # ============================================================================
-  package:
-    name: 📦 Package Theme
-    runs-on: ubuntu-24.04
-    # Runs alongside PHP and E2E rather than after them: it needs only the build
-    # and the lint gates. `release` is what waits for every test.
-    needs: [release-plan, build, lint-frontend, i18n]
-    if: success() && needs.release-plan.outputs.should_release == 'true'
-    # Matches the `test` job: this lane brings up wp-env from cold to compile
-    # catalogs with the pinned WP-CLI inside the parity image.
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: build-artifacts
-          path: build/
-
-      # Compiles catalogs, builds the ZIP from the allowlist in
-      # bin/release/lib.sh, then asserts contents, exclusions, catalogs and
-      # headers. Identical to what `pnpm qa:ci` runs explicitly.
-      - name: Run canonical package lane
-        env:
-          AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
-        run: pnpm ci:package
-
-      - name: Upload theme package
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: theme-package
-          path: |
-            aggressive-apparel-${{ needs.release-plan.outputs.next_version }}.zip
-            aggressive-apparel-${{ needs.release-plan.outputs.next_version }}.zip.sha256
-          retention-days: 30
-
-  # Install the exact release ZIP into a WordPress environment with no checkout
-  # mapping. Source-tree E2E cannot prove that a standalone archive activates.
-  artifact-acceptance:
-    name: 🧳 Release Artifact Acceptance
-    runs-on: ubuntu-24.04
-    needs: [release-plan, package]
-    if: success() && needs.release-plan.outputs.should_release == 'true'
-    timeout-minutes: 20
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      - name: Cache Playwright browser
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download final theme package
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: theme-package
-          path: ./
-
-      - name: Install Playwright browser
-        run: pnpm test:e2e:install
-
-      - name: Run canonical artifact acceptance lane
-        env:
-          AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
-        run: pnpm ci:artifact
-
-      - name: Upload artifact-smoke diagnostics
-        if: ${{ failure() || cancelled() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: artifact-smoke-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 7
-
-  # ============================================================================
-  # Release (Only on master)
-  # ============================================================================
-  release:
-    name: 🚀 Release
-    runs-on: ubuntu-24.04
-    # PHP and E2E run in parallel with packaging, so they are gated here.
-    needs: [release-plan, package, artifact-acceptance, test, e2e]
-    if: success() && github.ref == 'refs/heads/master' && github.event_name == 'workflow_dispatch'
-    timeout-minutes: 15
-    # The solo-maintainer production environment restricts deployments to
-    # master. Add an independent reviewer and prevent self-review when a second
-    # maintainer exists. The committed intent is documented in rulesets/README.md.
-    environment: production
-    permissions:
-      contents: write
-      # Provenance attestation: proves this ZIP was built by this workflow from
-      # this commit. The .sha256 sidecar only proves the download was not
-      # corrupted — it is written by the same job that writes the ZIP, so it
-      # cannot attest origin.
-      id-token: write
-      attestations: write
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          # zizmor: ignore[artipacked] semantic-release needs this credential
-          # to push the verified release tag from this publishing-only job.
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      # This job holds the pipeline's contents-write token. Dependency lifecycle
-      # scripts have no part to play in publishing, so they do not run here.
-      - name: Install release tooling
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Download theme package
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: theme-package
-          path: ./
-
-      - name: Semantic Release
-        id: semantic_release
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HUSKY: 0
-        run: pnpm semantic-release
-
-      # semantic-release intentionally leaves the release as a draft. Attest the
-      # final bytes before the reconciler verifies and promotes that draft.
-      - name: Attest build provenance
-        if: ${{ !cancelled() && hashFiles('aggressive-apparel-*.zip') != '' }}
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: aggressive-apparel-*.zip
-
-      # This runs even when semantic-release reports a partial upload failure.
-      # It repairs the draft, downloads and verifies the remote bytes, verifies
-      # provenance, and only then makes the release visible to the updater.
-      - name: Reconcile and publish verified draft
-        if: ${{ !cancelled() }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
-        run: bash bin/release/verify-assets.sh
-
-  # ============================================================================
-  # Post-release: put the shipped version back into the checkout.
-  #
-  # package.sh stamps the staged tree and deliberately leaves the repository
-  # untouched, so without this master drifts from every release — as it did from
-  # 1.181.4 to 1.183.2 before anyone noticed.
-  #
-  # It opens a pull request rather than pushing: the release-branches ruleset has
-  # no bypass actors, and a version header is not worth reinstating one. The
-  # commits are created through the GitHub API by create-pull-request's
-  # sign-commits, so they are verified and satisfy the ruleset's signature rule
-  # without any exemption.
-  #
-  # Failure here cannot corrupt a release — the release is already published and
-  # verified by the time this runs — but it is allowed to fail the run loudly
-  # rather than drop the sync silently, because a silent failure is how the
-  # drift started.
-  # ============================================================================
-  version-sync:
-    name: 🔖 Sync Theme Version
-    runs-on: ubuntu-24.04
-    needs: [release-plan, release]
-    if: success()
-    timeout-minutes: 10
-    # The App token below performs the write, so the workflow's own credential
-    # only needs to read the tree.
-    permissions:
-      contents: read
-
-    steps:
-      # A pull request opened with GITHUB_TOKEN gets no unattended pipeline run.
-      # This one must be validated like any other change to master.
-      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        id: app-token
-        with:
-          client-id: ${{ secrets.AA_CI_CLIENT_ID }}
-          private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
-          # Scope the token to this job's work. Without these it would inherit
-          # the App's entire installation permission set.
-          permission-contents: write
-          permission-pull-requests: write
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Stamp the released version into style.css
-        env:
-          AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
-        run: bash bin/release/sync-version.sh
-
-      - name: Open version sync pull request
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          sign-commits: true
-          add-paths: style.css
-          branch: chore/version-sync
-          delete-branch: true
-          # chore(release) deliberately: syncing the header must never itself
-          # qualify for a release, or merging it would plan the next version.
-          commit-message: 'chore(release): sync style.css to ${{ needs.release-plan.outputs.next_version }}'
-          title: 'chore(release): sync style.css to ${{ needs.release-plan.outputs.next_version }}'
-          body: |
-            Automated follow-up to **v${{ needs.release-plan.outputs.next_version }}**.
-
-            `bin/release/package.sh` stamps the version into the distributable ZIP
-            and leaves the checkout untouched, so this restores the tracked
-            `style.css` header to the version that actually shipped.
-
-            This is not cosmetic: WordPress reads `style.css` as the authoritative
-            theme version, and `AGGRESSIVE_APPAREL_VERSION` is a cache-invalidation
-            key in `Rendered_Product_Cache`, the Product Collection style
-            fingerprint, and five asset enqueues.
-
-            Reproduce locally with:
-
-            ```bash
-            bash bin/release/sync-version.sh ${{ needs.release-plan.outputs.next_version }}
-            ```
-
-      # Merges itself once its checks pass. The content is machine-written from
-      # the tag this run just published and re-derivable with one command, so a
-      # human clicking merge reviews nothing and only delays the repository
-      # agreeing with its own release. Auto-merge still waits for every required
-      # check, so master's protection is unchanged — this removes a wait, not a
-      # gate.
-      - name: Let it merge once its checks pass
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          set -euo pipefail
-
-          number="$(gh pr list --head chore/version-sync --state open \
-            --json number --jq '.[0].number // empty')"
-
-          if [[ -z "${number}" ]]; then
-            echo "No sync pull request was opened, so there is nothing to merge."
-            exit 0
-          fi
-
-          gh pr merge "${number}" --auto --squash --delete-branch
-          echo "Version sync #${number} will merge when its checks pass."
-
-  # ============================================================================
-  # Summary
-  # ============================================================================
-  summary:
-    name: CI Summary
-    runs-on: ubuntu-24.04
-    needs:
-      [
-        changes,
-        release-plan,
-        dependency-review,
-        lint-frontend,
-        i18n,
-        build,
-        test,
-        e2e,
-        package,
-        artifact-acceptance,
-        release,
-        version-sync,
-      ]
-    if: always()
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Check status
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_REF: ${{ github.ref }}
-          CODE_CHANGED: ${{ needs.changes.outputs.code }}
-          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
-          VERSION_SYNC: ${{ needs.changes.outputs.version_sync }}
-          PUBLISH_REQUESTED: ${{ inputs.publish }}
-          SHOULD_RELEASE: ${{ needs.release-plan.outputs.should_release }}
-          NEXT_VERSION: ${{ needs.release-plan.outputs.next_version }}
-          CHANGES_RESULT: ${{ needs.changes.result }}
-          RELEASE_PLAN_RESULT: ${{ needs.release-plan.result }}
-          DEPENDENCY_REVIEW_RESULT: ${{ needs.dependency-review.result }}
-          FRONTEND_RESULT: ${{ needs.lint-frontend.result }}
-          I18N_RESULT: ${{ needs.i18n.result }}
-          BUILD_RESULT: ${{ needs.build.result }}
-          PHP_RESULT: ${{ needs.test.result }}
-          E2E_RESULT: ${{ needs.e2e.result }}
-          PACKAGE_RESULT: ${{ needs.package.result }}
-          ARTIFACT_ACCEPTANCE_RESULT: ${{ needs.artifact-acceptance.result }}
-          RELEASE_RESULT: ${{ needs.release.result }}
-          VERSION_SYNC_RESULT: ${{ needs.version-sync.result }}
-        run: node bin/ci/release-summary.mjs
+            AA_E2E_DB_HOST: 127.0.0.1:3306
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+              with:
+                  php-version: ${{ env.PHP_VERSION }}
+                  coverage: none
+
+            - name: Cache Playwright browser
+              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+                  # A lockfile bump usually does not change the browser build, so fall
+                  # back to the most recent cache instead of re-downloading Chromium.
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Download build artifacts
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: build-artifacts
+                  path: build/
+
+            - name: Install Playwright browser
+              run: pnpm test:e2e:install
+
+            - name: Run end-to-end tests
+              run: pnpm ci:e2e
+
+            - name: Upload Playwright report
+              if: ${{ failure() || cancelled() }}
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: playwright-report
+                  path: |
+                      playwright-report/
+                      test-results/
+                      .cache/ci/e2e/server.log
+                      .cache/ci/e2e/wordpress/wp-content/debug.log
+                  include-hidden-files: true
+                  retention-days: 7
+
+    # ============================================================================
+    # Package Theme
+    # ============================================================================
+    package:
+        name: 📦 Package Theme
+        runs-on: ubuntu-24.04
+        # Runs alongside PHP and E2E rather than after them: it needs only the build
+        # and the lint gates. `release` is what waits for every test.
+        needs: [release-plan, build, lint-frontend, i18n]
+        if: success() && needs.release-plan.outputs.should_release == 'true'
+        # Matches the `test` job: this lane brings up wp-env from cold to compile
+        # catalogs with the pinned WP-CLI inside the parity image.
+        timeout-minutes: 15
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Download build artifacts
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: build-artifacts
+                  path: build/
+
+            # Compiles catalogs, builds the ZIP from the allowlist in
+            # bin/release/lib.sh, then asserts contents, exclusions, catalogs and
+            # headers. Identical to what `pnpm qa:ci` runs explicitly.
+            - name: Run canonical package lane
+              env:
+                  AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
+              run: pnpm ci:package
+
+            - name: Upload theme package
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: theme-package
+                  path: |
+                      aggressive-apparel-${{ needs.release-plan.outputs.next_version }}.zip
+                      aggressive-apparel-${{ needs.release-plan.outputs.next_version }}.zip.sha256
+                  retention-days: 30
+
+    # Install the exact release ZIP into a WordPress environment with no checkout
+    # mapping. Source-tree E2E cannot prove that a standalone archive activates.
+    artifact-acceptance:
+        name: 🧳 Release Artifact Acceptance
+        runs-on: ubuntu-24.04
+        needs: [release-plan, package]
+        if: success() && needs.release-plan.outputs.should_release == 'true'
+        timeout-minutes: 20
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - name: Cache Playwright browser
+              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Download final theme package
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: theme-package
+                  path: ./
+
+            - name: Install Playwright browser
+              run: pnpm test:e2e:install
+
+            - name: Run canonical artifact acceptance lane
+              env:
+                  AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
+              run: pnpm ci:artifact
+
+            - name: Upload artifact-smoke diagnostics
+              if: ${{ failure() || cancelled() }}
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: artifact-smoke-report
+                  path: |
+                      playwright-report/
+                      test-results/
+                  retention-days: 7
+
+    # ============================================================================
+    # Release (Only on master)
+    # ============================================================================
+    release:
+        name: 🚀 Release
+        runs-on: ubuntu-24.04
+        # PHP and E2E run in parallel with packaging, so they are gated here.
+        needs: [release-plan, package, artifact-acceptance, test, e2e]
+        if: success() && github.ref == 'refs/heads/master' && github.event_name == 'workflow_dispatch'
+        timeout-minutes: 15
+        # The solo-maintainer production environment restricts deployments to
+        # master. Add an independent reviewer and prevent self-review when a second
+        # maintainer exists. The committed intent is documented in rulesets/README.md.
+        environment: production
+        permissions:
+            contents: write
+            # Provenance attestation: proves this ZIP was built by this workflow from
+            # this commit. The .sha256 sidecar only proves the download was not
+            # corrupted — it is written by the same job that writes the ZIP, so it
+            # cannot attest origin.
+            id-token: write
+            attestations: write
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  fetch-depth: 0
+                  # zizmor: ignore[artipacked] semantic-release needs this credential
+                  # to push the verified release tag from this publishing-only job.
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            # This job holds the pipeline's contents-write token. Dependency lifecycle
+            # scripts have no part to play in publishing, so they do not run here.
+            - name: Install release tooling
+              run: pnpm install --frozen-lockfile --ignore-scripts
+
+            - name: Configure Git
+              run: |
+                  git config --global user.name "github-actions[bot]"
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+            - name: Download theme package
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: theme-package
+                  path: ./
+
+            - name: Semantic Release
+              id: semantic_release
+              continue-on-error: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  HUSKY: 0
+              run: pnpm semantic-release
+
+            # semantic-release intentionally leaves the release as a draft. Attest the
+            # final bytes before the reconciler verifies and promotes that draft.
+            - name: Attest build provenance
+              if: ${{ !cancelled() && hashFiles('aggressive-apparel-*.zip') != '' }}
+              uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+              with:
+                  subject-path: aggressive-apparel-*.zip
+
+            # This runs even when semantic-release reports a partial upload failure.
+            # It repairs the draft, downloads and verifies the remote bytes, verifies
+            # provenance, and only then makes the release visible to the updater.
+            - name: Reconcile and publish verified draft
+              if: ${{ !cancelled() }}
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
+              run: bash bin/release/verify-assets.sh
+
+    # ============================================================================
+    # Post-release: put the shipped version back into the checkout.
+    #
+    # package.sh stamps the staged tree and deliberately leaves the repository
+    # untouched, so without this master drifts from every release — as it did from
+    # 1.181.4 to 1.183.2 before anyone noticed.
+    #
+    # It opens a pull request rather than pushing: the release-branches ruleset has
+    # no bypass actors, and a version header is not worth reinstating one. The
+    # commits are created through the GitHub API by create-pull-request's
+    # sign-commits, so they are verified and satisfy the ruleset's signature rule
+    # without any exemption.
+    #
+    # Failure here cannot corrupt a release — the release is already published and
+    # verified by the time this runs — but it is allowed to fail the run loudly
+    # rather than drop the sync silently, because a silent failure is how the
+    # drift started.
+    # ============================================================================
+    version-sync:
+        name: 🔖 Sync Theme Version
+        runs-on: ubuntu-24.04
+        needs: [release-plan, release]
+        if: success()
+        timeout-minutes: 10
+        # The App token below performs the write, so the workflow's own credential
+        # only needs to read the tree.
+        permissions:
+            contents: read
+
+        steps:
+            # A pull request opened with GITHUB_TOKEN gets no unattended pipeline run.
+            # This one must be validated like any other change to master.
+            - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+              id: app-token
+              with:
+                  client-id: ${{ secrets.AA_CI_CLIENT_ID }}
+                  private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
+                  # Scope the token to this job's work. Without these it would inherit
+                  # the App's entire installation permission set.
+                  permission-contents: write
+                  permission-pull-requests: write
+
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - name: Stamp the released version into style.css
+              env:
+                  AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
+              run: bash bin/release/sync-version.sh
+
+            - name: Open version sync pull request
+              uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+              with:
+                  token: ${{ steps.app-token.outputs.token }}
+                  sign-commits: true
+                  add-paths: style.css
+                  branch: chore/version-sync
+                  delete-branch: true
+                  # chore(release) deliberately: syncing the header must never itself
+                  # qualify for a release, or merging it would plan the next version.
+                  commit-message: 'chore(release): sync style.css to ${{ needs.release-plan.outputs.next_version }}'
+                  title: 'chore(release): sync style.css to ${{ needs.release-plan.outputs.next_version }}'
+                  body: |
+                      Automated follow-up to **v${{ needs.release-plan.outputs.next_version }}**.
+
+                      `bin/release/package.sh` stamps the version into the distributable ZIP
+                      and leaves the checkout untouched, so this restores the tracked
+                      `style.css` header to the version that actually shipped.
+
+                      This is not cosmetic: WordPress reads `style.css` as the authoritative
+                      theme version, and `AGGRESSIVE_APPAREL_VERSION` is a cache-invalidation
+                      key in `Rendered_Product_Cache`, the Product Collection style
+                      fingerprint, and five asset enqueues.
+
+                      Reproduce locally with:
+
+                      ```bash
+                      bash bin/release/sync-version.sh ${{ needs.release-plan.outputs.next_version }}
+                      ```
+
+            # Merges itself once its checks pass. The content is machine-written from
+            # the tag this run just published and re-derivable with one command, so a
+            # human clicking merge reviews nothing and only delays the repository
+            # agreeing with its own release. Auto-merge still waits for every required
+            # check, so master's protection is unchanged — this removes a wait, not a
+            # gate.
+            - name: Let it merge once its checks pass
+              env:
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+              run: |
+                  set -euo pipefail
+
+                  number="$(gh pr list --head chore/version-sync --state open \
+                    --json number --jq '.[0].number // empty')"
+
+                  if [[ -z "${number}" ]]; then
+                    echo "No sync pull request was opened, so there is nothing to merge."
+                    exit 0
+                  fi
+
+                  gh pr merge "${number}" --auto --squash --delete-branch
+                  echo "Version sync #${number} will merge when its checks pass."
+
+    # ============================================================================
+    # Summary
+    # ============================================================================
+    summary:
+        name: CI Summary
+        runs-on: ubuntu-24.04
+        needs:
+            [
+                changes,
+                release-plan,
+                dependency-review,
+                lint-frontend,
+                i18n,
+                build,
+                test,
+                e2e,
+                package,
+                artifact-acceptance,
+                release,
+                version-sync,
+            ]
+        if: always()
+        timeout-minutes: 5
+
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - name: Check status
+              env:
+                  EVENT_NAME: ${{ github.event_name }}
+                  EVENT_REF: ${{ github.ref }}
+                  CODE_CHANGED: ${{ needs.changes.outputs.code }}
+                  DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+                  VERSION_SYNC: ${{ needs.changes.outputs.version_sync }}
+                  PUBLISH_REQUESTED: ${{ inputs.publish }}
+                  SHOULD_RELEASE: ${{ needs.release-plan.outputs.should_release }}
+                  NEXT_VERSION: ${{ needs.release-plan.outputs.next_version }}
+                  CHANGES_RESULT: ${{ needs.changes.result }}
+                  RELEASE_PLAN_RESULT: ${{ needs.release-plan.result }}
+                  DEPENDENCY_REVIEW_RESULT: ${{ needs.dependency-review.result }}
+                  FRONTEND_RESULT: ${{ needs.lint-frontend.result }}
+                  I18N_RESULT: ${{ needs.i18n.result }}
+                  BUILD_RESULT: ${{ needs.build.result }}
+                  PHP_RESULT: ${{ needs.test.result }}
+                  E2E_RESULT: ${{ needs.e2e.result }}
+                  PACKAGE_RESULT: ${{ needs.package.result }}
+                  ARTIFACT_ACCEPTANCE_RESULT: ${{ needs.artifact-acceptance.result }}
+                  RELEASE_RESULT: ${{ needs.release.result }}
+                  VERSION_SYNC_RESULT: ${{ needs.version-sync.result }}
+              run: node bin/ci/release-summary.mjs

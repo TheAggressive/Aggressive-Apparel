@@ -164,7 +164,7 @@
 	/* iOS Safari keeps its native push-button shape on these unless they ask
 	 * for `button` appearance, so a theme/editor border-radius would not show. */
 	button,
-	input:where([type='button'], [type='reset'], [type='submit']),
+	input:where([type="button"], [type="reset"], [type="submit"]),
 	::file-selector-button {
 		/* stylelint-disable-next-line declaration-property-value-keyword-no-deprecated -- the iOS Safari fix needs the `button` keyword, not `auto` */
 		appearance: button;
@@ -252,7 +252,7 @@
 	 * works if no `display` rule can reveal it. This is state, not styling, so
 	 * it is the one deliberate !important (an important declaration in the
 	 * lowest layer outranks every normal and unlayered-important one). */
-	[hidden]:where(:not([hidden='until-found'])) {
+	[hidden]:where(:not([hidden="until-found"])) {
 		display: none !important;
 	}
 }

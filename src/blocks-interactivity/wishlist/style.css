@@ -56,7 +56,10 @@
 
 .aa-wishlist-page__grid {
 	display: grid;
-	grid-template-columns: repeat(var(--aa-wl-columns-mobile, 2), minmax(0, 1fr));
+	grid-template-columns: repeat(
+		var(--aa-wl-columns-mobile, 2),
+		minmax(0, 1fr)
+	);
 	align-items: stretch;
 	gap: var(--aa-wl-gap, var(--wp--preset--spacing--5));
 	width: 100%;
@@ -227,7 +230,7 @@
 		border: 1px solid var(--aa-color-border-default);
 		border-radius: inherit;
 		background: var(--aa-color-surface);
-		content: '';
+		content: "";
 		pointer-events: none;
 	}
 

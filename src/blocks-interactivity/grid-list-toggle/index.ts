@@ -13,10 +13,10 @@ import './editor.css';
 import './style.css';
 
 type GridListToggleAttributes = {
-  showLabels: boolean;
+	showLabels: boolean;
 };
 
-registerThemeBlock<GridListToggleAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-});
+registerThemeBlock< GridListToggleAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+} );

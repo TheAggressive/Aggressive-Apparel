@@ -1,20 +1,20 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "types": ["node"],
-    "checkJs": true,
-    "strict": true
-  },
-  "include": [
-    "bin/build-icons.mjs",
-    "bin/lib/icon-build*.mjs",
-    "bin/ci/lib/*.mjs",
-    "bin/ci/contracts.mjs",
-    "bin/ci/contracts.test.mjs"
-  ],
-  "exclude": ["node_modules", "vendor", "build"]
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": [ "ES2022" ],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"types": [ "node" ],
+		"checkJs": true,
+		"strict": true
+	},
+	"include": [
+		"bin/build-icons.mjs",
+		"bin/lib/icon-build*.mjs",
+		"bin/ci/lib/*.mjs",
+		"bin/ci/contracts.mjs",
+		"bin/ci/contracts.test.mjs"
+	],
+	"exclude": [ "node_modules", "vendor", "build" ]
 }

@@ -21,37 +21,37 @@ import './style.css';
  * Allows converting a nav-link to a nav-submenu (to add children).
  */
 const transforms = {
-  to: [
-    {
-      type: 'block' as const,
-      blocks: ['aggressive-apparel/nav-submenu-dropdown'],
-      // Upstream types transform args as `unknown[]` because the source block
-      // is only known at runtime; narrow to this block's own attributes.
-      transform: (...args: unknown[]) => {
-        const attributes = args[0] as NavLinkAttributes;
-        return createBlock(
-          'aggressive-apparel/nav-submenu-dropdown',
-          {
-            label: attributes.label,
-            url: attributes.url,
-            openOn: 'hover',
-            showArrow: true,
-          },
-          [
-            createBlock('aggressive-apparel/nav-link', {
-              label: 'Submenu Item',
-              url: '#',
-            }),
-          ]
-        );
-      },
-    },
-  ],
+	to: [
+		{
+			type: 'block' as const,
+			blocks: [ 'aggressive-apparel/nav-submenu-dropdown' ],
+			// Upstream types transform args as `unknown[]` because the source block
+			// is only known at runtime; narrow to this block's own attributes.
+			transform: ( ...args: unknown[] ) => {
+				const attributes = args[ 0 ] as NavLinkAttributes;
+				return createBlock(
+					'aggressive-apparel/nav-submenu-dropdown',
+					{
+						label: attributes.label,
+						url: attributes.url,
+						openOn: 'hover',
+						showArrow: true,
+					},
+					[
+						createBlock( 'aggressive-apparel/nav-link', {
+							label: 'Submenu Item',
+							url: '#',
+						} ),
+					]
+				);
+			},
+		},
+	],
 };
 
-registerThemeBlock<NavLinkAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  save: Save,
-  transforms,
-});
+registerThemeBlock< NavLinkAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	save: Save,
+	transforms,
+} );

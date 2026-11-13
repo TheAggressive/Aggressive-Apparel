@@ -1,44 +1,44 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/search",
-  "version": "1.0.0",
-  "title": "Aggressive Search",
-  "category": "aggressive-apparel",
-  "description": "A search icon that opens a full-screen modal with live results across products, articles and pages.",
-  "keywords": [
-    "search",
-    "find",
-    "modal",
-    "products",
-    "predictive",
-    "aggressive"
-  ],
-  "supports": {
-    "html": false,
-    "interactivity": true,
-    "align": false,
-    "spacing": {
-      "margin": true
-    }
-  },
-  "attributes": {
-    "label": {
-      "type": "string",
-      "default": "Search"
-    },
-    "showLabel": {
-      "type": "boolean",
-      "default": false
-    },
-    "iconSize": {
-      "type": "number",
-      "default": 24
-    }
-  },
-  "textdomain": "aggressive-apparel",
-  "editorScript": "file:./index.js",
-  "style": "file:./style-index.css",
-  "render": "file:./render.php",
-  "viewScriptModule": "file:./view.js"
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/search",
+	"version": "1.0.0",
+	"title": "Aggressive Search",
+	"category": "aggressive-apparel",
+	"description": "A search icon that opens a full-screen modal with live results across products, articles and pages.",
+	"keywords": [
+		"search",
+		"find",
+		"modal",
+		"products",
+		"predictive",
+		"aggressive"
+	],
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"align": false,
+		"spacing": {
+			"margin": true
+		}
+	},
+	"attributes": {
+		"label": {
+			"type": "string",
+			"default": "Search"
+		},
+		"showLabel": {
+			"type": "boolean",
+			"default": false
+		},
+		"iconSize": {
+			"type": "number",
+			"default": 24
+		}
+	},
+	"textdomain": "aggressive-apparel",
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:./view.js"
 }

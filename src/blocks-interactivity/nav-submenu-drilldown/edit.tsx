@@ -6,218 +6,238 @@
 
 import type React from 'react';
 import {
-  BlockControls,
-  InspectorControls,
-  LinkControl,
-  RichText,
-  useBlockProps,
-  useInnerBlocksProps,
+	BlockControls,
+	InspectorControls,
+	LinkControl,
+	RichText,
+	useBlockProps,
+	useInnerBlocksProps,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
-  PanelBody,
-  Popover,
-  SelectControl,
-  ToggleControl,
-  ToolbarButton,
-  ToolbarGroup,
+	PanelBody,
+	Popover,
+	SelectControl,
+	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
 import {
-  SUBMENU_BLOCK_NAMES,
-  useUniqueBlockId,
+	SUBMENU_BLOCK_NAMES,
+	useUniqueBlockId,
 } from '../nav-shared/use-unique-block-id';
 import {
-  DRILLDOWN_EXCLUDED_BLOCKS,
-  usePanelAllowedBlocks,
+	DRILLDOWN_EXCLUDED_BLOCKS,
+	usePanelAllowedBlocks,
 } from '../nav-shared/use-panel-allowed-blocks';
 import { resolveBlockGap } from '../nav-shared/spacing';
 import type { AnimationStyle, NavDrilldownAttributes } from './types';
 
-const TEMPLATE: [string, Record<string, unknown>][] = [
-  ['aggressive-apparel/nav-link', { label: 'Item 1', url: '#' }],
-  ['aggressive-apparel/nav-link', { label: 'Item 2', url: '#' }],
+const TEMPLATE: [ string, Record< string, unknown > ][] = [
+	[ 'aggressive-apparel/nav-link', { label: 'Item 1', url: '#' } ],
+	[ 'aggressive-apparel/nav-link', { label: 'Item 2', url: '#' } ],
 ];
 
-export default function Edit({
-  attributes,
-  setAttributes,
-  isSelected,
-  clientId,
-}: BlockEditProps<NavDrilldownAttributes>) {
-  const { label, url, submenuId, showArrow, animationStyle } = attributes;
-  const [isLinkOpen, setIsLinkOpen] = useState(false);
-  const linkButtonRef = useRef<HTMLButtonElement>(null);
+export default function Edit( {
+	attributes,
+	setAttributes,
+	isSelected,
+	clientId,
+}: BlockEditProps< NavDrilldownAttributes > ) {
+	const { label, url, submenuId, showArrow, animationStyle } = attributes;
+	const [ isLinkOpen, setIsLinkOpen ] = useState( false );
+	const linkButtonRef = useRef< HTMLButtonElement >( null );
 
-  useUniqueBlockId({
-    attributeName: 'submenuId',
-    blockNames: SUBMENU_BLOCK_NAMES,
-    clientId,
-    currentId: submenuId,
-    prefix: 'drilldown',
-    setId: id => setAttributes({ submenuId: id }),
-  });
+	useUniqueBlockId( {
+		attributeName: 'submenuId',
+		blockNames: SUBMENU_BLOCK_NAMES,
+		clientId,
+		currentId: submenuId,
+		prefix: 'drilldown',
+		setId: ( id ) => setAttributes( { submenuId: id } ),
+	} );
 
-  const submenuGap = resolveBlockGap(
-    attributes as unknown as Record<string, unknown>
-  );
-  const blockProps = useBlockProps({
-    className: `wp-block-aggressive-apparel-nav-submenu-drilldown wp-block-aggressive-apparel-nav-submenu-drilldown--${animationStyle}`,
-    style: submenuGap
-      ? ({ '--aa-nav-submenu-gap': submenuGap } as React.CSSProperties)
-      : undefined,
-  });
+	const submenuGap = resolveBlockGap(
+		attributes as unknown as Record< string, unknown >
+	);
+	const blockProps = useBlockProps( {
+		className: `wp-block-aggressive-apparel-nav-submenu-drilldown wp-block-aggressive-apparel-nav-submenu-drilldown--${ animationStyle }`,
+		style: submenuGap
+			? ( { '--aa-nav-submenu-gap': submenuGap } as React.CSSProperties )
+			: undefined,
+	} );
 
-  const allowedBlocks = usePanelAllowedBlocks(DRILLDOWN_EXCLUDED_BLOCKS);
-  const innerBlocksProps = useInnerBlocksProps(
-    {
-      className:
-        'wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner',
-      role: 'menu',
-    },
-    {
-      allowedBlocks,
-      template: TEMPLATE,
-      templateLock: false,
-    }
-  );
+	const allowedBlocks = usePanelAllowedBlocks( DRILLDOWN_EXCLUDED_BLOCKS );
+	const innerBlocksProps = useInnerBlocksProps(
+		{
+			className:
+				'wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner',
+			role: 'menu',
+		},
+		{
+			allowedBlocks,
+			template: TEMPLATE,
+			templateLock: false,
+		}
+	);
 
-  const chevronRight = (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      viewBox='0 0 24 24'
-      width='16'
-      height='16'
-      fill='currentColor'
-      aria-hidden='true'
-    >
-      <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
-    </svg>
-  );
+	const chevronRight = (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			width="16"
+			height="16"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+		</svg>
+	);
 
-  return (
-    <>
-      <BlockControls>
-        <ToolbarGroup>
-          <ToolbarButton
-            ref={linkButtonRef}
-            icon={linkIcon}
-            title={__('Edit link', 'aggressive-apparel')}
-            onClick={() => setIsLinkOpen(prev => !prev)}
-            isPressed={isLinkOpen}
-          />
-        </ToolbarGroup>
-      </BlockControls>
+	return (
+		<>
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton
+						ref={ linkButtonRef }
+						icon={ linkIcon }
+						title={ __( 'Edit link', 'aggressive-apparel' ) }
+						onClick={ () => setIsLinkOpen( ( prev ) => ! prev ) }
+						isPressed={ isLinkOpen }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
 
-      <InspectorControls>
-        <PanelBody title={__('Drilldown Settings', 'aggressive-apparel')}>
-          <SelectControl
-            label={__('Animation style', 'aggressive-apparel')}
-            value={animationStyle}
-            options={[
-              {
-                label: __('Overlay (slide over)', 'aggressive-apparel'),
-                value: 'overlay',
-              },
-              {
-                label: __('Push (slide push)', 'aggressive-apparel'),
-                value: 'push',
-              },
-            ]}
-            onChange={value =>
-              setAttributes({
-                animationStyle: value as AnimationStyle,
-              })
-            }
-          />
-          <ToggleControl
-            label={__('Show arrow icon', 'aggressive-apparel')}
-            checked={showArrow}
-            onChange={value => setAttributes({ showArrow: value })}
-          />
-        </PanelBody>
-      </InspectorControls>
+			<InspectorControls>
+				<PanelBody
+					title={ __( 'Drilldown Settings', 'aggressive-apparel' ) }
+				>
+					<SelectControl
+						label={ __( 'Animation style', 'aggressive-apparel' ) }
+						value={ animationStyle }
+						options={ [
+							{
+								label: __(
+									'Overlay (slide over)',
+									'aggressive-apparel'
+								),
+								value: 'overlay',
+							},
+							{
+								label: __(
+									'Push (slide push)',
+									'aggressive-apparel'
+								),
+								value: 'push',
+							},
+						] }
+						onChange={ ( value ) =>
+							setAttributes( {
+								animationStyle: value as AnimationStyle,
+							} )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show arrow icon', 'aggressive-apparel' ) }
+						checked={ showArrow }
+						onChange={ ( value ) =>
+							setAttributes( { showArrow: value } )
+						}
+					/>
+				</PanelBody>
+			</InspectorControls>
 
-      <li {...blockProps} role='none'>
-        <div className='wp-block-aggressive-apparel-nav-submenu-drilldown__trigger'>
-          <div
-            className='wp-block-aggressive-apparel-nav-submenu-drilldown__link'
-            role='menuitem'
-            aria-haspopup='menu'
-            aria-expanded='false'
-            aria-controls={submenuId}
-          >
-            <RichText
-              tagName='span'
-              className='wp-block-aggressive-apparel-nav-submenu-drilldown__label'
-              value={label}
-              onChange={value => setAttributes({ label: value })}
-              placeholder={__('Add label…', 'aggressive-apparel')}
-              allowedFormats={[]}
-            />
-            {showArrow && (
-              <span className='wp-block-aggressive-apparel-nav-submenu-drilldown__arrow'>
-                {chevronRight}
-              </span>
-            )}
-          </div>
+			<li { ...blockProps } role="none">
+				<div className="wp-block-aggressive-apparel-nav-submenu-drilldown__trigger">
+					<div
+						className="wp-block-aggressive-apparel-nav-submenu-drilldown__link"
+						role="menuitem"
+						aria-haspopup="menu"
+						aria-expanded="false"
+						aria-controls={ submenuId }
+					>
+						<RichText
+							tagName="span"
+							className="wp-block-aggressive-apparel-nav-submenu-drilldown__label"
+							value={ label }
+							onChange={ ( value ) =>
+								setAttributes( { label: value } )
+							}
+							placeholder={ __(
+								'Add label…',
+								'aggressive-apparel'
+							) }
+							allowedFormats={ [] }
+						/>
+						{ showArrow && (
+							<span className="wp-block-aggressive-apparel-nav-submenu-drilldown__arrow">
+								{ chevronRight }
+							</span>
+						) }
+					</div>
 
-          {isSelected && isLinkOpen && (
-            <Popover
-              placement='bottom'
-              onClose={() => setIsLinkOpen(false)}
-              anchor={linkButtonRef.current}
-              focusOnMount='firstElement'
-            >
-              <LinkControl
-                value={{ url }}
-                onChange={data => {
-                  if (data && typeof data === 'object') {
-                    setAttributes({
-                      url: data.url ?? '',
-                    });
-                  }
-                }}
-                onRemove={() => {
-                  setAttributes({ url: '' });
-                  setIsLinkOpen(false);
-                }}
-              />
-            </Popover>
-          )}
-        </div>
+					{ isSelected && isLinkOpen && (
+						<Popover
+							placement="bottom"
+							onClose={ () => setIsLinkOpen( false ) }
+							anchor={ linkButtonRef.current }
+							focusOnMount="firstElement"
+						>
+							<LinkControl
+								value={ { url } }
+								onChange={ ( data ) => {
+									if ( data && typeof data === 'object' ) {
+										setAttributes( {
+											url: data.url ?? '',
+										} );
+									}
+								} }
+								onRemove={ () => {
+									setAttributes( { url: '' } );
+									setIsLinkOpen( false );
+								} }
+							/>
+						</Popover>
+					) }
+				</div>
 
-        {/* Panel shown expanded in editor — no slide animation */}
-        <div
-          className='wp-block-aggressive-apparel-nav-submenu-drilldown__panel'
-          id={submenuId}
-          role='region'
-          aria-label={label}
-        >
-          {/* Back button hidden in editor */}
-          <ul {...innerBlocksProps}>
-            {url && (
-              <li role='none'>
-                <a
-                  className='wp-block-aggressive-apparel-nav-submenu-drilldown__view-all'
-                  href={url}
-                  role='menuitem'
-                  onClick={event => event.preventDefault()}
-                >
-                  {sprintf(
-                    /* translators: %s: navigation submenu label. */
-                    __('View all in %s', 'aggressive-apparel'),
-                    label
-                  )}
-                </a>
-              </li>
-            )}
-            {innerBlocksProps.children}
-          </ul>
-        </div>
-      </li>
-    </>
-  );
+				{ /* Panel shown expanded in editor — no slide animation */ }
+				<div
+					className="wp-block-aggressive-apparel-nav-submenu-drilldown__panel"
+					id={ submenuId }
+					role="region"
+					aria-label={ label }
+				>
+					{ /* Back button hidden in editor */ }
+					<ul { ...innerBlocksProps }>
+						{ url && (
+							<li role="none">
+								<a
+									className="wp-block-aggressive-apparel-nav-submenu-drilldown__view-all"
+									href={ url }
+									role="menuitem"
+									onClick={ ( event ) =>
+										event.preventDefault()
+									}
+								>
+									{ sprintf(
+										/* translators: %s: navigation submenu label. */
+										__(
+											'View all in %s',
+											'aggressive-apparel'
+										),
+										label
+									) }
+								</a>
+							</li>
+						) }
+						{ innerBlocksProps.children }
+					</ul>
+				</div>
+			</li>
+		</>
+	);
 }

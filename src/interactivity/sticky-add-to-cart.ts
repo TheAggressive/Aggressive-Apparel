@@ -9,105 +9,105 @@
  */
 
 import type {
-  InteractivityActions,
-  InteractivityCallbacks,
+	InteractivityActions,
+	InteractivityCallbacks,
 } from '../../types/interactivity-shared';
 
 import { getElement, store, withSyncEvent } from '@wordpress/interactivity';
 import { unlockScroll } from '@aggressive-apparel/scroll-lock';
 import {
-  prepareOverlayOpen,
-  activateOverlayFocus,
-  closeOverlay,
+	prepareOverlayOpen,
+	activateOverlayFocus,
+	closeOverlay,
 } from '@aggressive-apparel/use-overlay';
 import { matchVariation, storeApiPost } from '@aggressive-apparel/helpers';
 import type { Variation } from '@aggressive-apparel/helpers';
 import {
-  buildSelectedVariationPayload,
-  hasSelectedRequiredAttributes,
-  readFormAttributes,
-  restoreInlineProperty,
-  syncDrawerOptions,
+	buildSelectedVariationPayload,
+	hasSelectedRequiredAttributes,
+	readFormAttributes,
+	restoreInlineProperty,
+	syncDrawerOptions,
 } from './sticky-add-to-cart/dom';
 
 interface StickyCartState {
-  isVisible: boolean;
-  isAdding: boolean;
-  isBuyingNow: boolean;
-  isSuccess: boolean;
-  hasError: boolean;
-  isDrawerOpen: boolean;
-  isInStock: boolean;
-  productType: string;
-  productId: number;
-  matchedVariationId: number;
-  quantity: number;
-  selectedAttrs: Record<string, string>;
-  attributes: ProductAttribute[];
-  variations: Variation[];
-  displayPrice: string;
-  regularPrice: string;
-  originalPrice: string;
-  originalRegularPrice: string;
-  drawerImage: string;
-  drawerImageAlt: string;
-  originalDrawerImage: string;
-  originalDrawerImageAlt: string;
-  drawerView: string;
-  cartApiUrl: string;
-  checkoutUrl: string;
-  nonce: string;
-  announcement: string;
-  i18n: StickyCartLabels;
-  _syncing: boolean;
-  readonly ariaHidden: string;
-  readonly isVariable: boolean;
-  readonly isAddDisabled: boolean;
-  readonly buttonText: string;
-  readonly isDrawerAddDisabled: boolean;
-  readonly isOnSale: boolean;
-  readonly drawerButtonText: string;
-  readonly buyNowLabel: string;
-  readonly viewCartLabel: string;
-  readonly continueShoppingLabel: string;
-  readonly addedToCartMessage: string;
-  readonly hideDrawerHeader: boolean;
-  readonly hideDrawerSelection: boolean;
-  readonly hideDrawerSuccess: boolean;
+	isVisible: boolean;
+	isAdding: boolean;
+	isBuyingNow: boolean;
+	isSuccess: boolean;
+	hasError: boolean;
+	isDrawerOpen: boolean;
+	isInStock: boolean;
+	productType: string;
+	productId: number;
+	matchedVariationId: number;
+	quantity: number;
+	selectedAttrs: Record< string, string >;
+	attributes: ProductAttribute[];
+	variations: Variation[];
+	displayPrice: string;
+	regularPrice: string;
+	originalPrice: string;
+	originalRegularPrice: string;
+	drawerImage: string;
+	drawerImageAlt: string;
+	originalDrawerImage: string;
+	originalDrawerImageAlt: string;
+	drawerView: string;
+	cartApiUrl: string;
+	checkoutUrl: string;
+	nonce: string;
+	announcement: string;
+	i18n: StickyCartLabels;
+	_syncing: boolean;
+	readonly ariaHidden: string;
+	readonly isVariable: boolean;
+	readonly isAddDisabled: boolean;
+	readonly buttonText: string;
+	readonly isDrawerAddDisabled: boolean;
+	readonly isOnSale: boolean;
+	readonly drawerButtonText: string;
+	readonly buyNowLabel: string;
+	readonly viewCartLabel: string;
+	readonly continueShoppingLabel: string;
+	readonly addedToCartMessage: string;
+	readonly hideDrawerHeader: boolean;
+	readonly hideDrawerSelection: boolean;
+	readonly hideDrawerSuccess: boolean;
 }
 
 interface StickyCartLabels {
-  addToCartText?: string;
-  outOfStockButtonText?: string;
-  variableButtonText?: string;
-  buyNowText?: string;
-  redirectingText?: string;
-  viewCartText?: string;
-  continueShoppingText?: string;
-  addedToCartMessage?: string;
-  addedSuccessAnnounce?: string;
-  addToCartErrorAnnounce?: string;
-  unavailableLabel?: string;
+	addToCartText?: string;
+	outOfStockButtonText?: string;
+	variableButtonText?: string;
+	buyNowText?: string;
+	redirectingText?: string;
+	viewCartText?: string;
+	continueShoppingText?: string;
+	addedToCartMessage?: string;
+	addedSuccessAnnounce?: string;
+	addToCartErrorAnnounce?: string;
+	unavailableLabel?: string;
 }
 
 interface CartAddBody {
-  id: number;
-  quantity: number;
-  variation?: Array<{ attribute: string; value: string }>;
+	id: number;
+	quantity: number;
+	variation?: Array< { attribute: string; value: string } >;
 }
 
 interface ProductAttribute {
-  name: string;
+	name: string;
 }
 
 /**
  * Resolve server-provided copy with a local fallback for cached markup.
  */
 export function getLabel(
-  key: keyof StickyCartLabels,
-  fallback: string
+	key: keyof StickyCartLabels,
+	fallback: string
 ): string {
-  return state.i18n?.[key] || fallback;
+	return state.i18n?.[ key ] || fallback;
 }
 
 /* ---------------------------------------------------------------
@@ -115,28 +115,28 @@ export function getLabel(
  * ------------------------------------------------------------- */
 
 const FORM_SELECTORS: string = [
-  '.wc-block-add-to-cart-form',
-  '.wp-block-woocommerce-add-to-cart-with-options',
-  '.variations_form',
-].join(', ');
+	'.wc-block-add-to-cart-form',
+	'.wp-block-woocommerce-add-to-cart-with-options',
+	'.variations_form',
+].join( ', ' );
 
 export const ATTR_SELECTORS: string = [
-  'select[data-attribute_name]',
-  'select[name^="attribute_"]',
-  'input[name^="attribute_"]:checked',
-].join(', ');
+	'select[data-attribute_name]',
+	'select[name^="attribute_"]',
+	'input[name^="attribute_"]:checked',
+].join( ', ' );
 
 // Focus trap cleanup reference.
-let focusTrapCleanup: (() => void) | null = null;
+let focusTrapCleanup: ( () => void ) | null = null;
 
 // data-wp-init may run again after client-side DOM replacement. Keeping the
 // active cleanup makes re-initialization idempotent instead of stacking global
 // listeners and observers.
-let activeInitCleanup: (() => void) | null = null;
+let activeInitCleanup: ( () => void ) | null = null;
 
 type StickyCartVisibilityEntry = Pick<
-  IntersectionObserverEntry,
-  'boundingClientRect' | 'isIntersecting'
+	IntersectionObserverEntry,
+	'boundingClientRect' | 'isIntersecting'
 >;
 
 /**
@@ -144,661 +144,709 @@ type StickyCartVisibilityEntry = Pick<
  * has not yet entered from below must not trigger the sticky replacement.
  */
 export function shouldShowStickyCart(
-  entry: StickyCartVisibilityEntry
+	entry: StickyCartVisibilityEntry
 ): boolean {
-  return (
-    !entry.isIntersecting &&
-    entry.boundingClientRect.height > 0 &&
-    entry.boundingClientRect.bottom <= 0
-  );
+	return (
+		! entry.isIntersecting &&
+		entry.boundingClientRect.height > 0 &&
+		entry.boundingClientRect.bottom <= 0
+	);
 }
 
 interface StickyCartStore {
-  state: StickyCartState;
-  actions: InteractivityActions;
-  callbacks: InteractivityCallbacks;
+	state: StickyCartState;
+	actions: InteractivityActions;
+	callbacks: InteractivityCallbacks;
 }
 
 /** Store API nonce accessors for storeApiPost (read at request time). */
 const cartNonce = {
-  get: (): string => state.nonce,
-  set: (value: string): void => {
-    state.nonce = value;
-  },
+	get: (): string => state.nonce,
+	set: ( value: string ): void => {
+		state.nonce = value;
+	},
 };
 
-export const { state, actions } = store<StickyCartStore>(
-  'aggressive-apparel/sticky-add-to-cart',
-  {
-    state: {
-      get ariaHidden(): string {
-        return state.isVisible ? 'false' : 'true';
-      },
-      get isVariable(): boolean {
-        return state.productType === 'variable';
-      },
-      get isAddDisabled(): boolean {
-        if (state.isAdding || state.isBuyingNow) return true;
-        // Variable products without matched variation can still be clicked
-        // to open the drawer — not disabled.
-        return false;
-      },
-      get buttonText(): string {
-        if (!state.isInStock) {
-          return getLabel('outOfStockButtonText', 'Out of Stock');
-        }
-        if (state.productType === 'variable') {
-          return getLabel('variableButtonText', 'Choose');
-        }
-        if (state.isAdding) return '…';
-        if (state.isSuccess) return '✓';
-        if (state.hasError) return 'Error';
-        return getLabel('addToCartText', 'Add to Cart');
-      },
-      get isDrawerAddDisabled(): boolean {
-        if (state.isAdding || state.isBuyingNow) return true;
-        if (
-          state.productType === 'variable' &&
-          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
-        )
-          return true;
-        return false;
-      },
-      get isOnSale(): boolean {
-        return (
-          !!state.regularPrice && state.regularPrice !== state.displayPrice
-        );
-      },
-      get drawerButtonText(): string {
-        if (state.isAdding) return '…';
-        if (state.isSuccess) return '✓ Added';
-        if (state.hasError) return 'Error';
-        if (
-          state.productType === 'variable' &&
-          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
-        ) {
-          return getLabel('variableButtonText', 'Choose');
-        }
-        return getLabel('addToCartText', 'Add to Cart');
-      },
-      get buyNowLabel(): string {
-        if (state.isBuyingNow) {
-          return getLabel('redirectingText', 'Redirecting…');
-        }
-        return getLabel('buyNowText', 'Buy Now');
-      },
-      get viewCartLabel(): string {
-        return getLabel('viewCartText', 'View Cart');
-      },
-      get continueShoppingLabel(): string {
-        return getLabel('continueShoppingText', 'Continue Shopping');
-      },
-      get addedToCartMessage(): string {
-        return getLabel('addedToCartMessage', 'Added to cart!');
-      },
-      get hideDrawerHeader(): boolean {
-        return state.drawerView === 'success';
-      },
-      get hideDrawerSelection(): boolean {
-        return state.drawerView !== 'selection';
-      },
-      get hideDrawerSuccess(): boolean {
-        return state.drawerView !== 'success';
-      },
-    },
-
-    actions: {
-      addToCart(): void {
-        if (state.isAdding || state.isBuyingNow) return;
-
-        // Variable products: open the drawer first so the user can pick options.
-        // Once the drawer is open the button inside it calls this same action,
-        // so we only bail when the drawer still needs to be opened.
-        if (state.productType === 'variable' && !state.isDrawerOpen) {
-          actions.openDrawer();
-          return;
-        }
-
-        if (
-          state.productType === 'variable' &&
-          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
-        ) {
-          return;
-        }
-
-        state.isAdding = true;
-        state.isSuccess = false;
-        state.hasError = false;
-
-        const itemId: number =
-          state.productType === 'variable'
-            ? state.matchedVariationId
-            : state.productId;
-
-        if (!itemId) {
-          state.isAdding = false;
-          return;
-        }
-
-        const wasDrawerOpen = state.isDrawerOpen;
-
-        // Build the request body.
-        const body: CartAddBody = {
-          id: itemId,
-          quantity: state.quantity,
-        };
-
-        // For variable products, include variation attributes so the
-        // Store API can validate the selection.
-        if (state.productType === 'variable' && state.matchedVariationId) {
-          body.variation = buildSelectedVariationPayload();
-        }
-
-        storeApiPost(state.cartApiUrl, body, cartNonce)
-          .then((res: Response) => {
-            if (!res.ok) {
-              return res.json().then((err: { message?: string }) => {
-                throw new Error(err.message || `HTTP ${res.status}`);
-              });
-            }
-            return res.json();
-          })
-          .then(() => {
-            state.isAdding = false;
-            state.isSuccess = true;
-            state.announcement = getLabel(
-              'addedSuccessAnnounce',
-              'Added to cart'
-            );
-            state.quantity = 1;
-
-            // Dispatch on document.body with bubbles so WooCommerce
-            // mini-cart block picks it up and refreshes.
-            document.body.dispatchEvent(
-              new CustomEvent('wc-blocks_added_to_cart', {
-                bubbles: true,
-              })
-            );
-
-            // Switch drawer to success view.
-            if (wasDrawerOpen) {
-              setTimeout(() => {
-                state.isSuccess = false;
-                state.drawerView = 'success';
-              }, 600);
-            } else {
-              setTimeout(() => {
-                state.isSuccess = false;
-              }, 2000);
-            }
-          })
-          .catch(() => {
-            state.isAdding = false;
-            state.hasError = true;
-            state.announcement = getLabel(
-              'addToCartErrorAnnounce',
-              'Error adding to cart'
-            );
-
-            setTimeout(() => {
-              state.hasError = false;
-              state.announcement = '';
-            }, 3000);
-          });
-      },
-
-      /**
-       * Add item to cart and redirect to checkout.
-       */
-      buyNow(): void {
-        if (state.isBuyingNow || state.isAdding) return;
-
-        // Variable products: open drawer first if not already open.
-        if (state.productType === 'variable' && !state.isDrawerOpen) {
-          // Set flag so that when the drawer's Buy Now is clicked,
-          // we know to redirect after adding.
-          actions.openDrawer();
-          return;
-        }
-
-        if (
-          state.productType === 'variable' &&
-          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
-        ) {
-          return;
-        }
-
-        const itemId: number =
-          state.productType === 'variable'
-            ? state.matchedVariationId
-            : state.productId;
-
-        if (!itemId) return;
-
-        state.isBuyingNow = true;
-        state.hasError = false;
-
-        const body: CartAddBody = {
-          id: itemId,
-          quantity: state.quantity,
-        };
-
-        if (state.productType === 'variable' && state.matchedVariationId) {
-          body.variation = buildSelectedVariationPayload();
-        }
-
-        storeApiPost(state.cartApiUrl, body, cartNonce)
-          .then((res: Response) => {
-            if (!res.ok) {
-              return res.json().then((err: { message?: string }) => {
-                throw new Error(err.message || `HTTP ${res.status}`);
-              });
-            }
-            return res.json();
-          })
-          .then(() => {
-            window.location.href = state.checkoutUrl;
-          })
-          .catch(() => {
-            state.isBuyingNow = false;
-            state.hasError = true;
-            state.announcement = getLabel(
-              'addToCartErrorAnnounce',
-              'Error adding to cart'
-            );
-
-            setTimeout(() => {
-              state.hasError = false;
-              state.announcement = '';
-            }, 3000);
-          });
-      },
-
-      /* -----------------------------------------------------------
-       * Quantity controls
-       * --------------------------------------------------------- */
-
-      incrementQty(event?: Event): void {
-        if (event) event.preventDefault();
-        state.quantity = state.quantity + 1;
-      },
-
-      decrementQty(event?: Event): void {
-        if (event) event.preventDefault();
-        if (state.quantity > 1) {
-          state.quantity = state.quantity - 1;
-        }
-      },
-
-      setQuantity(event: Event): void {
-        const target = event.target as HTMLInputElement;
-        const value = parseInt(target.value, 10);
-        if (!isNaN(value) && value >= 1) {
-          state.quantity = value;
-        } else {
-          target.value = String(state.quantity);
-        }
-      },
-
-      /* -----------------------------------------------------------
-       * Variant selection + sync
-       * --------------------------------------------------------- */
-
-      matchVariation(): void {
-        const selected = state.selectedAttrs;
-        const activeKeys = Object.keys(selected).filter(
-          (k: string) => selected[k]
-        );
-
-        if (activeKeys.length === 0) {
-          state.matchedVariationId = 0;
-          state.drawerImage = state.originalDrawerImage;
-          state.drawerImageAlt = state.originalDrawerImageAlt;
-          return;
-        }
-
-        const match = matchVariation(state.variations, selected);
-
-        if (match) {
-          state.matchedVariationId = match.id;
-          state.displayPrice = (match.price as string) || '';
-          state.regularPrice = (match.regularPrice as string) || '';
-
-          // Swap drawer image if the variation has its own image.
-          if (match.image) {
-            state.drawerImage = match.image as string;
-            state.drawerImageAlt =
-              (match.imageAlt as string) || state.originalDrawerImageAlt;
-          }
-        } else {
-          state.matchedVariationId = 0;
-          state.displayPrice = state.originalPrice;
-          state.regularPrice = state.originalRegularPrice || '';
-
-          // Restore original product image.
-          state.drawerImage = state.originalDrawerImage;
-          state.drawerImageAlt = state.originalDrawerImageAlt;
-        }
-      },
-
-      /**
-       * Push a single attribute change from sticky bar to main form.
-       */
-      syncToMainForm(attrName: string, attrValue: string): void {
-        if (state._syncing) return;
-        state._syncing = true;
-
-        const form = document.querySelector<HTMLElement>(FORM_SELECTORS);
-        if (form) {
-          // Try select dropdown first (classic WC + block dropdown).
-          const sel = form.querySelector<HTMLSelectElement>(
-            `select[data-attribute_name="${attrName}"], select[name="${attrName}"]`
-          );
-          if (sel) {
-            sel.value = attrValue;
-            sel.dispatchEvent(new Event('change', { bubbles: true }));
-          } else {
-            // Try radio pill input (block-based form).
-            const radio = form.querySelector<HTMLInputElement>(
-              `input[name="${attrName}"][value="${attrValue}"]`
-            );
-            if (radio) {
-              radio.checked = true;
-              radio.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          }
-        }
-
-        state._syncing = false;
-      },
-
-      /* -----------------------------------------------------------
-       * Drawer (variant bottom sheet)
-       * --------------------------------------------------------- */
-
-      openDrawer(): void {
-        if (state.isDrawerOpen) return;
-
-        const drawer = document.querySelector<HTMLElement>(
-          '.aa-sticky-cart__drawer'
-        );
-        if (!drawer) return;
-
-        prepareOverlayOpen(drawer);
-        state.isDrawerOpen = true;
-
-        syncDrawerOptions();
-
-        const panel = drawer.querySelector<HTMLElement>(
-          '.aa-sticky-cart__drawer-panel'
-        );
-
-        if (panel) {
-          focusTrapCleanup = activateOverlayFocus({
-            shell: drawer,
-            panel,
-            focusSelector: '.aa-sticky-cart__drawer-close',
-          });
-        }
-      },
-
-      continueShopping(): void {
-        state.drawerView = 'selection';
-        actions.closeDrawer();
-      },
-
-      closeDrawer(): void {
-        const drawer = document.querySelector<HTMLElement>(
-          '.aa-sticky-cart__drawer'
-        );
-        if (!drawer) return;
-
-        state.isDrawerOpen = false;
-        state.drawerView = 'selection';
-
-        const selected = state.selectedAttrs;
-        for (const attrName of Object.keys(selected)) {
-          actions.syncToMainForm(attrName, selected[attrName]);
-        }
-
-        const panel = drawer.querySelector<HTMLElement>(
-          '.aa-sticky-cart__drawer-panel'
-        );
-
-        if (!panel) {
-          focusTrapCleanup?.();
-          focusTrapCleanup = null;
-          return;
-        }
-
-        closeOverlay({
-          shell: drawer,
-          panel,
-          focusTrapCleanup,
-          manageOpenClass: true,
-          transitionProperty: 'transform',
-          isStillOpen: () => state.isDrawerOpen,
-        });
-
-        focusTrapCleanup = null;
-      },
-
-      selectDrawerOption: withSyncEvent((event: MouseEvent): void => {
-        event.stopPropagation();
-        const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
-          '.aa-sticky-cart__drawer-option'
-        );
-        if (!button) return;
-
-        // Unavailable options are aria-disabled (still focusable), not natively
-        // disabled, so a keyboard/AT activation can reach here — reject it.
-        if (button.getAttribute('aria-disabled') === 'true') return;
-
-        const attrName = button.dataset.attribute;
-        const clickedValue = button.dataset.value;
-
-        if (!attrName || !clickedValue) return;
-
-        // Toggle: clicking the same option deselects it.
-        const newAttrs: Record<string, string> = {
-          ...state.selectedAttrs,
-        };
-        if (newAttrs[attrName] === clickedValue) {
-          delete newAttrs[attrName];
-        } else {
-          newAttrs[attrName] = clickedValue;
-        }
-        state.selectedAttrs = newAttrs;
-
-        // Update pill button visuals.
-        syncDrawerOptions();
-
-        // Match variation.
-        actions.matchVariation();
-
-        // Do NOT sync to main form here — dispatching change events
-        // on the WooCommerce form triggers its own variation handler
-        // which can cause page navigation. Sync happens on close.
-      }),
-    },
-
-    callbacks: {
-      init(): (() => void) | void {
-        const { ref } = getElement();
-        if (!(ref instanceof HTMLElement)) return;
-
-        // Avoid duplicate observers/listeners if this directive is hydrated
-        // again after a client-side DOM replacement.
-        activeInitCleanup?.();
-
-        const bar = ref;
-        const form = document.querySelector<HTMLElement>(FORM_SELECTORS);
-        if (!form) return;
-
-        const root = document.documentElement;
-        const body = document.body;
-        const heightProperty = '--aa-sticky-cart-height';
-        const previousRootHeight = root.style.getPropertyValue(heightProperty);
-        const previousBarHeight = bar.style.getPropertyValue(heightProperty);
-        const previouslyVisibleOnBody = body.classList.contains(
-          'aa-sticky-cart-visible'
-        );
-
-        /**
-         * Publish the bar height so social-proof (and peers) can clear it.
-         * :root defaults --aa-sticky-cart-height to 0, which defeats CSS
-         * fallbacks; measure the real bar when visible.
-         */
-        const syncStickyCartHeight = (visible: boolean): void => {
-          if (!visible) {
-            root.style.setProperty(heightProperty, '0px');
-            return;
-          }
-
-          const height = `${bar.offsetHeight}px`;
-          root.style.setProperty(heightProperty, height);
-          // Keep the local token in sync for drawer padding calcs.
-          bar.style.setProperty(heightProperty, height);
-        };
-
-        const setStickyCartVisible = (visible: boolean): void => {
-          state.isVisible = visible;
-          body.classList.toggle('aa-sticky-cart-visible', visible);
-          syncStickyCartHeight(visible);
-        };
-
-        let observer: IntersectionObserver | null = null;
-        if (typeof IntersectionObserver !== 'undefined') {
-          observer = new IntersectionObserver(
-            ([entry]: IntersectionObserverEntry[]) => {
-              if (!entry) return;
-
-              const visible = shouldShowStickyCart(entry);
-
-              // Mirrored as a body class so social-proof's offset CSS
-              // avoids body:has() (document-wide re-scan per mutation).
-              setStickyCartVisible(visible);
-            },
-            // The root extends far below the viewport, so a form below the
-            // fold already counts as intersecting: reaching the bottom of the
-            // page in one jump (End key, anchor link, restored scroll) still
-            // reports the form leaving through the top.
-            { threshold: 0, rootMargin: '0px 0px 100000px 0px' }
-          );
-
-          observer.observe(form);
-        } else {
-          // Progressive enhancement: unsupported browsers keep the source form
-          // as the only purchase UI rather than exposing a stale sticky copy.
-          setStickyCartVisible(false);
-        }
-
-        let resizeObserver: ResizeObserver | null = null;
-        if (typeof ResizeObserver !== 'undefined') {
-          resizeObserver = new ResizeObserver(() => {
-            if (state.isVisible) {
-              syncStickyCartHeight(true);
-            }
-          });
-          resizeObserver.observe(bar);
-        }
-
-        // Match default variation if set.
-        if (
-          state.productType === 'variable' &&
-          Object.keys(state.selectedAttrs).length > 0
-        ) {
-          actions.matchVariation();
-        }
-
-        /* ---------------------------------------------------------
-         * Variant sync: main form → sticky bar
-         * ------------------------------------------------------- */
-
-        const onFormChange = (event: Event): void => {
-          if (state._syncing) return;
-
-          const el = event.target;
-          if (!(
-            el instanceof HTMLSelectElement || el instanceof HTMLInputElement
-          )) {
-            return;
-          }
-
-          const name = el.name || el.getAttribute('data-attribute_name') || '';
-          if (!name.startsWith('attribute_')) return;
-
-          state._syncing = true;
-          try {
-            state.selectedAttrs = readFormAttributes(form);
-            actions.matchVariation();
-
-            // Sync drawer pills if open.
-            if (state.isDrawerOpen) {
-              syncDrawerOptions();
-            }
-          } finally {
-            state._syncing = false;
-          }
-        };
-
-        if (state.productType === 'variable') {
-          form.addEventListener('change', onFormChange);
-        }
-
-        /* ---------------------------------------------------------
-         * Escape key closes drawer
-         * ------------------------------------------------------- */
-
-        const onKeydown = (event: KeyboardEvent): void => {
-          if (event.key === 'Escape' && state.isDrawerOpen) {
-            actions.closeDrawer();
-          }
-        };
-        document.addEventListener('keydown', onKeydown);
-
-        let disposed = false;
-        const cleanup = (): void => {
-          if (disposed) return;
-          disposed = true;
-
-          observer?.disconnect();
-          resizeObserver?.disconnect();
-          form.removeEventListener('change', onFormChange);
-          document.removeEventListener('keydown', onKeydown);
-
-          focusTrapCleanup?.();
-          focusTrapCleanup = null;
-
-          if (state.isDrawerOpen) {
-            state.isDrawerOpen = false;
-            state.drawerView = 'selection';
-            const drawer = document.querySelector<HTMLElement>(
-              '.aa-sticky-cart__drawer'
-            );
-            if (drawer) {
-              drawer.classList.remove('is-open');
-              drawer.hidden = true;
-            }
-            unlockScroll();
-          }
-
-          state.isVisible = false;
-          body.classList.toggle(
-            'aa-sticky-cart-visible',
-            previouslyVisibleOnBody
-          );
-          restoreInlineProperty(root, heightProperty, previousRootHeight);
-          restoreInlineProperty(bar, heightProperty, previousBarHeight);
-
-          if (activeInitCleanup === cleanup) {
-            activeInitCleanup = null;
-          }
-        };
-
-        activeInitCleanup = cleanup;
-        return cleanup;
-      },
-    },
-  }
+export const { state, actions } = store< StickyCartStore >(
+	'aggressive-apparel/sticky-add-to-cart',
+	{
+		state: {
+			get ariaHidden(): string {
+				return state.isVisible ? 'false' : 'true';
+			},
+			get isVariable(): boolean {
+				return state.productType === 'variable';
+			},
+			get isAddDisabled(): boolean {
+				if ( state.isAdding || state.isBuyingNow ) return true;
+				// Variable products without matched variation can still be clicked
+				// to open the drawer — not disabled.
+				return false;
+			},
+			get buttonText(): string {
+				if ( ! state.isInStock ) {
+					return getLabel( 'outOfStockButtonText', 'Out of Stock' );
+				}
+				if ( state.productType === 'variable' ) {
+					return getLabel( 'variableButtonText', 'Choose' );
+				}
+				if ( state.isAdding ) return '…';
+				if ( state.isSuccess ) return '✓';
+				if ( state.hasError ) return 'Error';
+				return getLabel( 'addToCartText', 'Add to Cart' );
+			},
+			get isDrawerAddDisabled(): boolean {
+				if ( state.isAdding || state.isBuyingNow ) return true;
+				if (
+					state.productType === 'variable' &&
+					( ! hasSelectedRequiredAttributes() ||
+						! state.matchedVariationId )
+				)
+					return true;
+				return false;
+			},
+			get isOnSale(): boolean {
+				return (
+					!! state.regularPrice &&
+					state.regularPrice !== state.displayPrice
+				);
+			},
+			get drawerButtonText(): string {
+				if ( state.isAdding ) return '…';
+				if ( state.isSuccess ) return '✓ Added';
+				if ( state.hasError ) return 'Error';
+				if (
+					state.productType === 'variable' &&
+					( ! hasSelectedRequiredAttributes() ||
+						! state.matchedVariationId )
+				) {
+					return getLabel( 'variableButtonText', 'Choose' );
+				}
+				return getLabel( 'addToCartText', 'Add to Cart' );
+			},
+			get buyNowLabel(): string {
+				if ( state.isBuyingNow ) {
+					return getLabel( 'redirectingText', 'Redirecting…' );
+				}
+				return getLabel( 'buyNowText', 'Buy Now' );
+			},
+			get viewCartLabel(): string {
+				return getLabel( 'viewCartText', 'View Cart' );
+			},
+			get continueShoppingLabel(): string {
+				return getLabel( 'continueShoppingText', 'Continue Shopping' );
+			},
+			get addedToCartMessage(): string {
+				return getLabel( 'addedToCartMessage', 'Added to cart!' );
+			},
+			get hideDrawerHeader(): boolean {
+				return state.drawerView === 'success';
+			},
+			get hideDrawerSelection(): boolean {
+				return state.drawerView !== 'selection';
+			},
+			get hideDrawerSuccess(): boolean {
+				return state.drawerView !== 'success';
+			},
+		},
+
+		actions: {
+			addToCart(): void {
+				if ( state.isAdding || state.isBuyingNow ) return;
+
+				// Variable products: open the drawer first so the user can pick options.
+				// Once the drawer is open the button inside it calls this same action,
+				// so we only bail when the drawer still needs to be opened.
+				if (
+					state.productType === 'variable' &&
+					! state.isDrawerOpen
+				) {
+					actions.openDrawer();
+					return;
+				}
+
+				if (
+					state.productType === 'variable' &&
+					( ! hasSelectedRequiredAttributes() ||
+						! state.matchedVariationId )
+				) {
+					return;
+				}
+
+				state.isAdding = true;
+				state.isSuccess = false;
+				state.hasError = false;
+
+				const itemId: number =
+					state.productType === 'variable'
+						? state.matchedVariationId
+						: state.productId;
+
+				if ( ! itemId ) {
+					state.isAdding = false;
+					return;
+				}
+
+				const wasDrawerOpen = state.isDrawerOpen;
+
+				// Build the request body.
+				const body: CartAddBody = {
+					id: itemId,
+					quantity: state.quantity,
+				};
+
+				// For variable products, include variation attributes so the
+				// Store API can validate the selection.
+				if (
+					state.productType === 'variable' &&
+					state.matchedVariationId
+				) {
+					body.variation = buildSelectedVariationPayload();
+				}
+
+				storeApiPost( state.cartApiUrl, body, cartNonce )
+					.then( ( res: Response ) => {
+						if ( ! res.ok ) {
+							return res
+								.json()
+								.then( ( err: { message?: string } ) => {
+									throw new Error(
+										err.message || `HTTP ${ res.status }`
+									);
+								} );
+						}
+						return res.json();
+					} )
+					.then( () => {
+						state.isAdding = false;
+						state.isSuccess = true;
+						state.announcement = getLabel(
+							'addedSuccessAnnounce',
+							'Added to cart'
+						);
+						state.quantity = 1;
+
+						// Dispatch on document.body with bubbles so WooCommerce
+						// mini-cart block picks it up and refreshes.
+						document.body.dispatchEvent(
+							new CustomEvent( 'wc-blocks_added_to_cart', {
+								bubbles: true,
+							} )
+						);
+
+						// Switch drawer to success view.
+						if ( wasDrawerOpen ) {
+							setTimeout( () => {
+								state.isSuccess = false;
+								state.drawerView = 'success';
+							}, 600 );
+						} else {
+							setTimeout( () => {
+								state.isSuccess = false;
+							}, 2000 );
+						}
+					} )
+					.catch( () => {
+						state.isAdding = false;
+						state.hasError = true;
+						state.announcement = getLabel(
+							'addToCartErrorAnnounce',
+							'Error adding to cart'
+						);
+
+						setTimeout( () => {
+							state.hasError = false;
+							state.announcement = '';
+						}, 3000 );
+					} );
+			},
+
+			/**
+			 * Add item to cart and redirect to checkout.
+			 */
+			buyNow(): void {
+				if ( state.isBuyingNow || state.isAdding ) return;
+
+				// Variable products: open drawer first if not already open.
+				if (
+					state.productType === 'variable' &&
+					! state.isDrawerOpen
+				) {
+					// Set flag so that when the drawer's Buy Now is clicked,
+					// we know to redirect after adding.
+					actions.openDrawer();
+					return;
+				}
+
+				if (
+					state.productType === 'variable' &&
+					( ! hasSelectedRequiredAttributes() ||
+						! state.matchedVariationId )
+				) {
+					return;
+				}
+
+				const itemId: number =
+					state.productType === 'variable'
+						? state.matchedVariationId
+						: state.productId;
+
+				if ( ! itemId ) return;
+
+				state.isBuyingNow = true;
+				state.hasError = false;
+
+				const body: CartAddBody = {
+					id: itemId,
+					quantity: state.quantity,
+				};
+
+				if (
+					state.productType === 'variable' &&
+					state.matchedVariationId
+				) {
+					body.variation = buildSelectedVariationPayload();
+				}
+
+				storeApiPost( state.cartApiUrl, body, cartNonce )
+					.then( ( res: Response ) => {
+						if ( ! res.ok ) {
+							return res
+								.json()
+								.then( ( err: { message?: string } ) => {
+									throw new Error(
+										err.message || `HTTP ${ res.status }`
+									);
+								} );
+						}
+						return res.json();
+					} )
+					.then( () => {
+						window.location.href = state.checkoutUrl;
+					} )
+					.catch( () => {
+						state.isBuyingNow = false;
+						state.hasError = true;
+						state.announcement = getLabel(
+							'addToCartErrorAnnounce',
+							'Error adding to cart'
+						);
+
+						setTimeout( () => {
+							state.hasError = false;
+							state.announcement = '';
+						}, 3000 );
+					} );
+			},
+
+			/* -----------------------------------------------------------
+			 * Quantity controls
+			 * --------------------------------------------------------- */
+
+			incrementQty( event?: Event ): void {
+				if ( event ) event.preventDefault();
+				state.quantity = state.quantity + 1;
+			},
+
+			decrementQty( event?: Event ): void {
+				if ( event ) event.preventDefault();
+				if ( state.quantity > 1 ) {
+					state.quantity = state.quantity - 1;
+				}
+			},
+
+			setQuantity( event: Event ): void {
+				const target = event.target as HTMLInputElement;
+				const value = parseInt( target.value, 10 );
+				if ( ! isNaN( value ) && value >= 1 ) {
+					state.quantity = value;
+				} else {
+					target.value = String( state.quantity );
+				}
+			},
+
+			/* -----------------------------------------------------------
+			 * Variant selection + sync
+			 * --------------------------------------------------------- */
+
+			matchVariation(): void {
+				const selected = state.selectedAttrs;
+				const activeKeys = Object.keys( selected ).filter(
+					( k: string ) => selected[ k ]
+				);
+
+				if ( activeKeys.length === 0 ) {
+					state.matchedVariationId = 0;
+					state.drawerImage = state.originalDrawerImage;
+					state.drawerImageAlt = state.originalDrawerImageAlt;
+					return;
+				}
+
+				const match = matchVariation( state.variations, selected );
+
+				if ( match ) {
+					state.matchedVariationId = match.id;
+					state.displayPrice = ( match.price as string ) || '';
+					state.regularPrice = ( match.regularPrice as string ) || '';
+
+					// Swap drawer image if the variation has its own image.
+					if ( match.image ) {
+						state.drawerImage = match.image as string;
+						state.drawerImageAlt =
+							( match.imageAlt as string ) ||
+							state.originalDrawerImageAlt;
+					}
+				} else {
+					state.matchedVariationId = 0;
+					state.displayPrice = state.originalPrice;
+					state.regularPrice = state.originalRegularPrice || '';
+
+					// Restore original product image.
+					state.drawerImage = state.originalDrawerImage;
+					state.drawerImageAlt = state.originalDrawerImageAlt;
+				}
+			},
+
+			/**
+			 * Push a single attribute change from sticky bar to main form.
+			 */
+			syncToMainForm( attrName: string, attrValue: string ): void {
+				if ( state._syncing ) return;
+				state._syncing = true;
+
+				const form =
+					document.querySelector< HTMLElement >( FORM_SELECTORS );
+				if ( form ) {
+					// Try select dropdown first (classic WC + block dropdown).
+					const sel = form.querySelector< HTMLSelectElement >(
+						`select[data-attribute_name="${ attrName }"], select[name="${ attrName }"]`
+					);
+					if ( sel ) {
+						sel.value = attrValue;
+						sel.dispatchEvent(
+							new Event( 'change', { bubbles: true } )
+						);
+					} else {
+						// Try radio pill input (block-based form).
+						const radio = form.querySelector< HTMLInputElement >(
+							`input[name="${ attrName }"][value="${ attrValue }"]`
+						);
+						if ( radio ) {
+							radio.checked = true;
+							radio.dispatchEvent(
+								new Event( 'change', { bubbles: true } )
+							);
+						}
+					}
+				}
+
+				state._syncing = false;
+			},
+
+			/* -----------------------------------------------------------
+			 * Drawer (variant bottom sheet)
+			 * --------------------------------------------------------- */
+
+			openDrawer(): void {
+				if ( state.isDrawerOpen ) return;
+
+				const drawer = document.querySelector< HTMLElement >(
+					'.aa-sticky-cart__drawer'
+				);
+				if ( ! drawer ) return;
+
+				prepareOverlayOpen( drawer );
+				state.isDrawerOpen = true;
+
+				syncDrawerOptions();
+
+				const panel = drawer.querySelector< HTMLElement >(
+					'.aa-sticky-cart__drawer-panel'
+				);
+
+				if ( panel ) {
+					focusTrapCleanup = activateOverlayFocus( {
+						shell: drawer,
+						panel,
+						focusSelector: '.aa-sticky-cart__drawer-close',
+					} );
+				}
+			},
+
+			continueShopping(): void {
+				state.drawerView = 'selection';
+				actions.closeDrawer();
+			},
+
+			closeDrawer(): void {
+				const drawer = document.querySelector< HTMLElement >(
+					'.aa-sticky-cart__drawer'
+				);
+				if ( ! drawer ) return;
+
+				state.isDrawerOpen = false;
+				state.drawerView = 'selection';
+
+				const selected = state.selectedAttrs;
+				for ( const attrName of Object.keys( selected ) ) {
+					actions.syncToMainForm( attrName, selected[ attrName ] );
+				}
+
+				const panel = drawer.querySelector< HTMLElement >(
+					'.aa-sticky-cart__drawer-panel'
+				);
+
+				if ( ! panel ) {
+					focusTrapCleanup?.();
+					focusTrapCleanup = null;
+					return;
+				}
+
+				closeOverlay( {
+					shell: drawer,
+					panel,
+					focusTrapCleanup,
+					manageOpenClass: true,
+					transitionProperty: 'transform',
+					isStillOpen: () => state.isDrawerOpen,
+				} );
+
+				focusTrapCleanup = null;
+			},
+
+			selectDrawerOption: withSyncEvent( ( event: MouseEvent ): void => {
+				event.stopPropagation();
+				const button = (
+					event.target as HTMLElement
+				 ).closest< HTMLButtonElement >(
+					'.aa-sticky-cart__drawer-option'
+				);
+				if ( ! button ) return;
+
+				// Unavailable options are aria-disabled (still focusable), not natively
+				// disabled, so a keyboard/AT activation can reach here — reject it.
+				if ( button.getAttribute( 'aria-disabled' ) === 'true' ) return;
+
+				const attrName = button.dataset.attribute;
+				const clickedValue = button.dataset.value;
+
+				if ( ! attrName || ! clickedValue ) return;
+
+				// Toggle: clicking the same option deselects it.
+				const newAttrs: Record< string, string > = {
+					...state.selectedAttrs,
+				};
+				if ( newAttrs[ attrName ] === clickedValue ) {
+					delete newAttrs[ attrName ];
+				} else {
+					newAttrs[ attrName ] = clickedValue;
+				}
+				state.selectedAttrs = newAttrs;
+
+				// Update pill button visuals.
+				syncDrawerOptions();
+
+				// Match variation.
+				actions.matchVariation();
+
+				// Do NOT sync to main form here — dispatching change events
+				// on the WooCommerce form triggers its own variation handler
+				// which can cause page navigation. Sync happens on close.
+			} ),
+		},
+
+		callbacks: {
+			init(): ( () => void ) | void {
+				const { ref } = getElement();
+				if ( ! ( ref instanceof HTMLElement ) ) return;
+
+				// Avoid duplicate observers/listeners if this directive is hydrated
+				// again after a client-side DOM replacement.
+				activeInitCleanup?.();
+
+				const bar = ref;
+				const form =
+					document.querySelector< HTMLElement >( FORM_SELECTORS );
+				if ( ! form ) return;
+
+				const root = document.documentElement;
+				const body = document.body;
+				const heightProperty = '--aa-sticky-cart-height';
+				const previousRootHeight =
+					root.style.getPropertyValue( heightProperty );
+				const previousBarHeight =
+					bar.style.getPropertyValue( heightProperty );
+				const previouslyVisibleOnBody = body.classList.contains(
+					'aa-sticky-cart-visible'
+				);
+
+				/**
+				 * Publish the bar height so social-proof (and peers) can clear it.
+				 * :root defaults --aa-sticky-cart-height to 0, which defeats CSS
+				 * fallbacks; measure the real bar when visible.
+				 */
+				const syncStickyCartHeight = ( visible: boolean ): void => {
+					if ( ! visible ) {
+						root.style.setProperty( heightProperty, '0px' );
+						return;
+					}
+
+					const height = `${ bar.offsetHeight }px`;
+					root.style.setProperty( heightProperty, height );
+					// Keep the local token in sync for drawer padding calcs.
+					bar.style.setProperty( heightProperty, height );
+				};
+
+				const setStickyCartVisible = ( visible: boolean ): void => {
+					state.isVisible = visible;
+					body.classList.toggle( 'aa-sticky-cart-visible', visible );
+					syncStickyCartHeight( visible );
+				};
+
+				let observer: IntersectionObserver | null = null;
+				if ( typeof IntersectionObserver !== 'undefined' ) {
+					observer = new IntersectionObserver(
+						( [ entry ]: IntersectionObserverEntry[] ) => {
+							if ( ! entry ) return;
+
+							const visible = shouldShowStickyCart( entry );
+
+							// Mirrored as a body class so social-proof's offset CSS
+							// avoids body:has() (document-wide re-scan per mutation).
+							setStickyCartVisible( visible );
+						},
+						// The root extends far below the viewport, so a form below the
+						// fold already counts as intersecting: reaching the bottom of the
+						// page in one jump (End key, anchor link, restored scroll) still
+						// reports the form leaving through the top.
+						{ threshold: 0, rootMargin: '0px 0px 100000px 0px' }
+					);
+
+					observer.observe( form );
+				} else {
+					// Progressive enhancement: unsupported browsers keep the source form
+					// as the only purchase UI rather than exposing a stale sticky copy.
+					setStickyCartVisible( false );
+				}
+
+				let resizeObserver: ResizeObserver | null = null;
+				if ( typeof ResizeObserver !== 'undefined' ) {
+					resizeObserver = new ResizeObserver( () => {
+						if ( state.isVisible ) {
+							syncStickyCartHeight( true );
+						}
+					} );
+					resizeObserver.observe( bar );
+				}
+
+				// Match default variation if set.
+				if (
+					state.productType === 'variable' &&
+					Object.keys( state.selectedAttrs ).length > 0
+				) {
+					actions.matchVariation();
+				}
+
+				/* ---------------------------------------------------------
+				 * Variant sync: main form → sticky bar
+				 * ------------------------------------------------------- */
+
+				const onFormChange = ( event: Event ): void => {
+					if ( state._syncing ) return;
+
+					const el = event.target;
+					if ( ! (
+						el instanceof HTMLSelectElement ||
+						el instanceof HTMLInputElement
+					) ) {
+						return;
+					}
+
+					const name =
+						el.name ||
+						el.getAttribute( 'data-attribute_name' ) ||
+						'';
+					if ( ! name.startsWith( 'attribute_' ) ) return;
+
+					state._syncing = true;
+					try {
+						state.selectedAttrs = readFormAttributes( form );
+						actions.matchVariation();
+
+						// Sync drawer pills if open.
+						if ( state.isDrawerOpen ) {
+							syncDrawerOptions();
+						}
+					} finally {
+						state._syncing = false;
+					}
+				};
+
+				if ( state.productType === 'variable' ) {
+					form.addEventListener( 'change', onFormChange );
+				}
+
+				/* ---------------------------------------------------------
+				 * Escape key closes drawer
+				 * ------------------------------------------------------- */
+
+				const onKeydown = ( event: KeyboardEvent ): void => {
+					if ( event.key === 'Escape' && state.isDrawerOpen ) {
+						actions.closeDrawer();
+					}
+				};
+				document.addEventListener( 'keydown', onKeydown );
+
+				let disposed = false;
+				const cleanup = (): void => {
+					if ( disposed ) return;
+					disposed = true;
+
+					observer?.disconnect();
+					resizeObserver?.disconnect();
+					form.removeEventListener( 'change', onFormChange );
+					document.removeEventListener( 'keydown', onKeydown );
+
+					focusTrapCleanup?.();
+					focusTrapCleanup = null;
+
+					if ( state.isDrawerOpen ) {
+						state.isDrawerOpen = false;
+						state.drawerView = 'selection';
+						const drawer = document.querySelector< HTMLElement >(
+							'.aa-sticky-cart__drawer'
+						);
+						if ( drawer ) {
+							drawer.classList.remove( 'is-open' );
+							drawer.hidden = true;
+						}
+						unlockScroll();
+					}
+
+					state.isVisible = false;
+					body.classList.toggle(
+						'aa-sticky-cart-visible',
+						previouslyVisibleOnBody
+					);
+					restoreInlineProperty(
+						root,
+						heightProperty,
+						previousRootHeight
+					);
+					restoreInlineProperty(
+						bar,
+						heightProperty,
+						previousBarHeight
+					);
+
+					if ( activeInitCleanup === cleanup ) {
+						activeInitCleanup = null;
+					}
+				};
+
+				activeInitCleanup = cleanup;
+				return cleanup;
+			},
+		},
+	}
 );

@@ -134,8 +134,8 @@
 
 	.aggressive-apparel-countdown__segment {
 		gap: 0.1rem;
-		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style)
-			var(--aa-countdown-border-color);
+		border: var(--aa-countdown-border-width)
+			var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 		border-radius: var(--aa-countdown-radius);
 	}
 
@@ -261,8 +261,8 @@
 		justify-content: center;
 		min-width: 4.25rem;
 		min-height: 4rem;
-		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style)
-			var(--aa-countdown-border-color);
+		border: var(--aa-countdown-border-width)
+			var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 		border-radius: var(--aa-countdown-radius);
 	}
 
@@ -452,7 +452,8 @@
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 
-	.aggressive-apparel-countdown--magazine .aggressive-apparel-countdown__label,
+	.aggressive-apparel-countdown--magazine
+		.aggressive-apparel-countdown__label,
 	.aggressive-apparel-countdown--hero-split
 		.aggressive-apparel-countdown__label {
 		grid-column: 1 / -1;

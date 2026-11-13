@@ -25,79 +25,82 @@ const GHOST = '.aa-product-specs__fit-ghost';
  */
 type Shown = HTMLElement | 'prompt' | null;
 
-function ghostFor(ghosts: HTMLElement[], unit: Unit): Shown {
-  const picked = selectedSizes();
-  if (picked.length === 0) {
-    return 'prompt';
-  }
-  return (
-    ghosts.find(
-      ghost =>
-        ghost.dataset.unit === unit &&
-        picked.includes(sizeKey(ghost.dataset.size ?? ''))
-    ) ?? null
-  );
+function ghostFor( ghosts: HTMLElement[], unit: Unit ): Shown {
+	const picked = selectedSizes();
+	if ( picked.length === 0 ) {
+		return 'prompt';
+	}
+	return (
+		ghosts.find(
+			( ghost ) =>
+				ghost.dataset.unit === unit &&
+				picked.includes( sizeKey( ghost.dataset.size ?? '' ) )
+		) ?? null
+	);
 }
 
-store('aggressive-apparel/product-specs', {
-  callbacks: {
-    initFooter() {
-      const { ref } = getElement();
-      if (!(ref instanceof HTMLElement)) {
-        return;
-      }
+store( 'aggressive-apparel/product-specs', {
+	callbacks: {
+		initFooter() {
+			const { ref } = getElement();
+			if ( ! ( ref instanceof HTMLElement ) ) {
+				return;
+			}
 
-      // Wired here, not with data-wp-on: kses strips that in tab content.
-      const link = ref.querySelector<HTMLElement>(
-        '.aa-product-specs__guide-link'
-      );
-      link?.addEventListener('click', () => openSizeGuide(link));
+			// Wired here, not with data-wp-on: kses strips that in tab content.
+			const link = ref.querySelector< HTMLElement >(
+				'.aa-product-specs__guide-link'
+			);
+			link?.addEventListener( 'click', () => openSizeGuide( link ) );
 
-      const fit = ref.querySelector<HTMLElement>('.aa-product-specs__fit');
-      const ghosts = [...ref.querySelectorAll<HTMLElement>(GHOST)];
-      const lines = ghosts.filter(ghost => ghost.dataset.size);
-      if (!fit || lines.length === 0) {
-        return;
-      }
+			const fit = ref.querySelector< HTMLElement >(
+				'.aa-product-specs__fit'
+			);
+			const ghosts = [ ...ref.querySelectorAll< HTMLElement >( GHOST ) ];
+			const lines = ghosts.filter( ( ghost ) => ghost.dataset.size );
+			if ( ! fit || lines.length === 0 ) {
+				return;
+			}
 
-      // The server's prompt stays until a pick changes it, so nothing is
-      // announced on load.
-      const prompt =
-        ghosts.find(ghost => !ghost.dataset.size)?.textContent ?? '';
-      let unit = preferredUnit();
-      let frame = 0;
-      let shown: Shown = 'prompt';
+			// The server's prompt stays until a pick changes it, so nothing is
+			// announced on load.
+			const prompt =
+				ghosts.find( ( ghost ) => ! ghost.dataset.size )?.textContent ??
+				'';
+			let unit = preferredUnit();
+			let frame = 0;
+			let shown: Shown = 'prompt';
 
-      const update = () => {
-        const line = ghostFor(lines, unit);
-        if (line === shown) {
-          return;
-        }
-        shown = line;
-        if (line === 'prompt') {
-          fit.textContent = prompt;
-        } else if (line === null) {
-          fit.textContent = '';
-        } else {
-          fit.replaceChildren(...line.cloneNode(true).childNodes);
-        }
-      };
-      // Variation pickers update their own markup after the event, so read
-      // the pick a frame later, once their render has landed.
-      const schedule = () => {
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => {
-          frame = requestAnimationFrame(update);
-        });
-      };
+			const update = () => {
+				const line = ghostFor( lines, unit );
+				if ( line === shown ) {
+					return;
+				}
+				shown = line;
+				if ( line === 'prompt' ) {
+					fit.textContent = prompt;
+				} else if ( line === null ) {
+					fit.textContent = '';
+				} else {
+					fit.replaceChildren( ...line.cloneNode( true ).childNodes );
+				}
+			};
+			// Variation pickers update their own markup after the event, so read
+			// the pick a frame later, once their render has landed.
+			const schedule = () => {
+				cancelAnimationFrame( frame );
+				frame = requestAnimationFrame( () => {
+					frame = requestAnimationFrame( update );
+				} );
+			};
 
-      document.addEventListener('change', schedule);
-      document.addEventListener('click', schedule);
-      document.addEventListener(UNIT_EVENT, event => {
-        unit = (event as CustomEvent<Unit>).detail;
-        update();
-      });
-      update();
-    },
-  },
-});
+			document.addEventListener( 'change', schedule );
+			document.addEventListener( 'click', schedule );
+			document.addEventListener( UNIT_EVENT, ( event ) => {
+				unit = ( event as CustomEvent< Unit > ).detail;
+				update();
+			} );
+			update();
+		},
+	},
+} );

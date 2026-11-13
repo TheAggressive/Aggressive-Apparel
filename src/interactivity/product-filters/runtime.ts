@@ -14,5 +14,5 @@ export const requests = new FilterRequestManager();
 
 /** Whether filter selections changed but haven't been applied yet. */
 export const filterFlags = {
-  staged: false,
+	staged: false,
 };

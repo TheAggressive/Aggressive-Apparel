@@ -48,7 +48,7 @@
  * Breakpoint modifiers - responsive switching.
  * Uses !important to override inline styles set on SVGs.
  */
-.aggressive-apparel-logo[data-breakpoint='mobile'] {
+.aggressive-apparel-logo[data-breakpoint="mobile"] {
 	@media (width <= 480px) {
 		.aggressive-apparel-logo__svg--large {
 			display: none !important;
@@ -60,7 +60,7 @@
 	}
 }
 
-.aggressive-apparel-logo[data-breakpoint='tablet'] {
+.aggressive-apparel-logo[data-breakpoint="tablet"] {
 	@media (width <= 768px) {
 		.aggressive-apparel-logo__svg--large {
 			display: none !important;
@@ -72,7 +72,7 @@
 	}
 }
 
-.aggressive-apparel-logo[data-breakpoint='desktop'] {
+.aggressive-apparel-logo[data-breakpoint="desktop"] {
 	@media (width <= 1024px) {
 		.aggressive-apparel-logo__svg--large {
 			display: none !important;
@@ -127,7 +127,7 @@
 
 /* ── Dark mode: manual toggle ────────────────────────────────────────── */
 
-:root[data-theme='dark'] .aggressive-apparel-logo,
+:root[data-theme="dark"] .aggressive-apparel-logo,
 html.is-dark-mode .aggressive-apparel-logo {
 	--_logo-color: var(--logo-dark-color, var(--aa-color-white));
 	--_logo-hover: var(--logo-dark-hover, var(--aa-color-foreground-muted));
@@ -135,7 +135,7 @@ html.is-dark-mode .aggressive-apparel-logo {
 
 /* ── Light mode: manual override ─────────────────────────────────────── */
 
-:root[data-theme='light'] .aggressive-apparel-logo,
+:root[data-theme="light"] .aggressive-apparel-logo,
 html.is-light-mode .aggressive-apparel-logo {
 	--_logo-color: var(--logo-light-color, var(--aa-color-black));
 	--_logo-hover: var(--logo-light-hover, var(--aa-color-muted-50));

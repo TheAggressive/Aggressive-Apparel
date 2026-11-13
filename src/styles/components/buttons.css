@@ -74,7 +74,7 @@
 		.wp-element-button,
 		.wp-block-button__link,
 		.aggressive-apparel-button
-	):active:not(:disabled, [aria-disabled='true']) {
+	):active:not(:disabled, [aria-disabled="true"]) {
 	transform: scale(0.98);
 }
 
@@ -82,7 +82,7 @@
 	.wp-element-button,
 	.wp-block-button__link,
 	.aggressive-apparel-button
-):is(:disabled, [aria-disabled='true']) {
+):is(:disabled, [aria-disabled="true"]) {
 	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
 	cursor: not-allowed;
 	pointer-events: none;
@@ -107,7 +107,7 @@
 	background: var(--wp--custom--button--primary--background);
 	color: var(--wp--custom--button--primary--text);
 
-	&:hover:not(:disabled, [aria-disabled='true']) {
+	&:hover:not(:disabled, [aria-disabled="true"]) {
 		border-color: var(--wp--custom--button--primary--hover-background);
 		background: var(--wp--custom--button--primary--hover-background);
 		color: var(--wp--custom--button--primary--hover-text);
@@ -119,7 +119,7 @@
 	background: var(--wp--custom--button--secondary--background);
 	color: var(--wp--custom--button--secondary--text);
 
-	&:hover:not(:disabled, [aria-disabled='true']) {
+	&:hover:not(:disabled, [aria-disabled="true"]) {
 		background: var(--wp--custom--button--secondary--hover-background);
 		color: var(--wp--custom--button--secondary--hover-text);
 	}
@@ -135,7 +135,7 @@
 	text-decoration: underline;
 	text-underline-offset: 0.15em;
 
-	&:hover:not(:disabled, [aria-disabled='true']) {
+	&:hover:not(:disabled, [aria-disabled="true"]) {
 		background: transparent;
 		color: var(--aa-color-foreground);
 	}
@@ -159,7 +159,7 @@
 	background: var(--wp--custom--button--danger--background);
 	color: var(--wp--custom--button--danger--text);
 
-	&:hover:not(:disabled, [aria-disabled='true']) {
+	&:hover:not(:disabled, [aria-disabled="true"]) {
 		border-color: var(--wp--custom--button--danger--hover-background);
 		background: var(--wp--custom--button--danger--hover-background);
 		color: var(--wp--custom--button--danger--hover-text);
@@ -171,7 +171,7 @@
 	background: var(--wp--custom--button--success--background);
 	color: var(--wp--custom--button--success--text);
 
-	&:hover:not(:disabled, [aria-disabled='true']) {
+	&:hover:not(:disabled, [aria-disabled="true"]) {
 		border-color: var(--wp--custom--button--success--hover-background);
 		background: var(--wp--custom--button--success--hover-background);
 		color: var(--wp--custom--button--success--hover-text);
@@ -185,7 +185,7 @@
 	background: var(--wp--custom--button--ghost--background);
 	color: var(--wp--custom--button--ghost--text);
 
-	&:hover:not(:disabled, [aria-disabled='true']) {
+	&:hover:not(:disabled, [aria-disabled="true"]) {
 		border-color: transparent;
 		background: var(--wp--custom--button--ghost--hover-background);
 		color: var(--wp--custom--button--ghost--hover-text);
@@ -232,7 +232,7 @@
 @media (hover: hover) {
 	.aggressive-apparel-button.aggressive-apparel-button--elevated:hover:not(
 			:disabled,
-			[aria-disabled='true']
+			[aria-disabled="true"]
 		) {
 		box-shadow: var(--aa-shadow-lg);
 	}
@@ -295,7 +295,7 @@
 }
 
 @media (hover: hover) {
-	:where(.aa-icon-button):hover:not(:disabled, [aria-disabled='true']) {
+	:where(.aa-icon-button):hover:not(:disabled, [aria-disabled="true"]) {
 		border-color: var(--aa-icon-button-hover-border);
 		background: var(--aa-icon-button-hover-background);
 		color: var(--aa-icon-button-hover-color);
@@ -307,11 +307,11 @@
 	box-shadow: var(--aa-focus-ring);
 }
 
-:where(.aa-icon-button):active:not(:disabled, [aria-disabled='true']) {
+:where(.aa-icon-button):active:not(:disabled, [aria-disabled="true"]) {
 	transform: scale(0.94);
 }
 
-:where(.aa-icon-button):is(:disabled, [aria-disabled='true']) {
+:where(.aa-icon-button):is(:disabled, [aria-disabled="true"]) {
 	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
 	cursor: not-allowed;
 }
@@ -382,7 +382,7 @@
  * which the `isolation: isolate` context keeps above it).
  */
 :where(.aa-choice-pill:not(.is-color-swatch))::before {
-	content: '';
+	content: "";
 	position: absolute;
 	inset: 0;
 	z-index: -1;
@@ -399,16 +399,16 @@
 @media (hover: hover) {
 	:where(.aa-choice-pill):hover:not(
 			:disabled,
-			[aria-disabled='true'],
+			[aria-disabled="true"],
 			.is-unavailable,
 			.is-color-swatch,
 			.is-selected,
 			.is-active,
 			.is-current,
-			[aria-pressed='true'],
-			[aria-selected='true'],
-			[aria-checked='true'],
-			[aria-expanded='true']
+			[aria-pressed="true"],
+			[aria-selected="true"],
+			[aria-checked="true"],
+			[aria-expanded="true"]
 		) {
 		color: var(--wp--custom--button--choice--selected-text);
 		box-shadow: inset 0 0 0 2px var(--wp--custom--button--choice--border);
@@ -426,10 +426,10 @@
 	.is-selected,
 	.is-active,
 	.is-current,
-	[aria-pressed='true'],
-	[aria-selected='true'],
-	[aria-checked='true'],
-	[aria-expanded='true']
+	[aria-pressed="true"],
+	[aria-selected="true"],
+	[aria-checked="true"],
+	[aria-expanded="true"]
 ) {
 	color: var(--wp--custom--button--choice--selected-text);
 	box-shadow: inset 0 0 0 2px var(--wp--custom--button--choice--border);
@@ -439,10 +439,10 @@
 		.is-selected,
 		.is-active,
 		.is-current,
-		[aria-pressed='true'],
-		[aria-selected='true'],
-		[aria-checked='true'],
-		[aria-expanded='true']
+		[aria-pressed="true"],
+		[aria-selected="true"],
+		[aria-checked="true"],
+		[aria-expanded="true"]
 	)::before {
 	opacity: 1;
 	transform: scaleX(1);
@@ -455,13 +455,13 @@
 
 :where(.aa-choice-pill):active:not(
 		:disabled,
-		[aria-disabled='true'],
+		[aria-disabled="true"],
 		.is-unavailable
 	) {
 	transform: scale(0.97);
 }
 
-:where(.aa-choice-pill):is(:disabled, [aria-disabled='true'], .is-unavailable) {
+:where(.aa-choice-pill):is(:disabled, [aria-disabled="true"], .is-unavailable) {
 	opacity: 0.35;
 	cursor: not-allowed;
 }
@@ -496,7 +496,7 @@
  * (product form, cart, checkout, mini-cart, sticky bar, quick view) reads as one
  * control. */
 @media (hover: hover) {
-	:where(.aa-stepper-button):hover:not(:disabled, [aria-disabled='true']) {
+	:where(.aa-stepper-button):hover:not(:disabled, [aria-disabled="true"]) {
 		background: color-mix(in oklch, currentcolor 8%, transparent);
 	}
 }
@@ -507,11 +507,11 @@
 	box-shadow: inset 0 0 0 2px var(--aa-color-accent);
 }
 
-:where(.aa-stepper-button):active:not(:disabled, [aria-disabled='true']) {
+:where(.aa-stepper-button):active:not(:disabled, [aria-disabled="true"]) {
 	transform: scale(0.97);
 }
 
-:where(.aa-stepper-button):is(:disabled, [aria-disabled='true']) {
+:where(.aa-stepper-button):is(:disabled, [aria-disabled="true"]) {
 	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
 	cursor: not-allowed;
 }
@@ -522,7 +522,7 @@
  * an async lifecycle here. Load More uses an in-button spinner instead — see
  * .aa-load-more__btn. */
 .aggressive-apparel-button.is-loading:not(.aa-load-more__btn)::after {
-	content: '';
+	content: "";
 	display: inline-block;
 	width: 1rem;
 	height: 1rem;

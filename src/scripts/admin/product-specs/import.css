@@ -77,7 +77,7 @@
 	width: 32px;
 	height: 1px;
 	background: var(--aa-ps-border);
-	content: '';
+	content: "";
 }
 
 .aa-ps-steps-bar li.is-done:not(:last-child)::after {
@@ -116,7 +116,7 @@
 	background: var(--aa-ps-ok-bg);
 	box-shadow: none;
 	color: var(--aa-ps-ok);
-	content: '✓';
+	content: "✓";
 }
 
 /* Search and filters */
@@ -259,7 +259,7 @@
 	inset: 2px 6px 5px;
 	border-right: 2px solid #fff;
 	border-bottom: 2px solid #fff;
-	content: '';
+	content: "";
 	transform: rotate(45deg);
 }
 
@@ -300,7 +300,7 @@
 	position: absolute;
 	inset: calc(var(--aa-ps-tag-width) * -1);
 	background: var(--aa-ps-tag-line);
-	content: '';
+	content: "";
 	clip-path: polygon(
 		calc(16px + var(--aa-ps-tag-width) * 0.42) 0,
 		calc(100% - 16px - var(--aa-ps-tag-width) * 0.42) 0,

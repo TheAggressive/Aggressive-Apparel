@@ -14,39 +14,42 @@
  */
 
 const RENDERED_SELECTOR =
-  '.select2-selection[role="combobox"] .select2-selection__rendered[role="textbox"]';
+	'.select2-selection[role="combobox"] .select2-selection__rendered[role="textbox"]';
 
 /**
  * Strip the nameless nested textbox role inside `root`.
  */
-export function stripNestedTextboxRoles(root: ParentNode = document): void {
-  root.querySelectorAll(RENDERED_SELECTOR).forEach(node => {
-    node.removeAttribute('role');
-    node.removeAttribute('aria-readonly');
-    node.removeAttribute('aria-required');
-  });
+export function stripNestedTextboxRoles( root: ParentNode = document ): void {
+	root.querySelectorAll( RENDERED_SELECTOR ).forEach( ( node ) => {
+		node.removeAttribute( 'role' );
+		node.removeAttribute( 'aria-readonly' );
+		node.removeAttribute( 'aria-required' );
+	} );
 }
 
 /**
  * Fix existing selects and watch forms for re-initialised ones.
  */
 export function initSelect2A11y(): void {
-  stripNestedTextboxRoles();
+	stripNestedTextboxRoles();
 
-  document.querySelectorAll('form').forEach(form => {
-    if (!form.querySelector('select')) {
-      return;
-    }
+	document.querySelectorAll( 'form' ).forEach( ( form ) => {
+		if ( ! form.querySelector( 'select' ) ) {
+			return;
+		}
 
-    new MutationObserver(() => stripNestedTextboxRoles(form)).observe(form, {
-      childList: true,
-      subtree: true,
-    });
-  });
+		new MutationObserver( () => stripNestedTextboxRoles( form ) ).observe(
+			form,
+			{
+				childList: true,
+				subtree: true,
+			}
+		);
+	} );
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSelect2A11y);
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', initSelect2A11y );
 } else {
-  initSelect2A11y();
+	initSelect2A11y();
 }

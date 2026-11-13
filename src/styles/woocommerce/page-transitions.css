@@ -169,7 +169,7 @@ main.wp-block-group {
  * to <body> after 150ms, avoiding flashes during fast navigations.
  * view-transition-name:none prevents morph artifacts. */
 body::after {
-	content: '';
+	content: "";
 	position: fixed;
 	top: 0;
 	left: 0;

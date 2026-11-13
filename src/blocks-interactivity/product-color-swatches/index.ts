@@ -11,7 +11,7 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 
 import './style.css';
 
-registerThemeBlock<ProductColorSwatchesAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-});
+registerThemeBlock< ProductColorSwatchesAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+} );

@@ -68,7 +68,7 @@
 		scroll-snap-type: x mandatory;
 	}
 
-	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role='tab'] {
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role="tab"] {
 		padding: 0.75rem 0.875rem;
 		font-size: var(--wp--preset--font-size--x-small);
 		scroll-snap-align: start;
@@ -245,7 +245,7 @@
 		transition: none;
 	}
 
-	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role='tab'] {
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role="tab"] {
 		transition: none;
 	}
 

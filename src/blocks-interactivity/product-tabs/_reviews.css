@@ -21,7 +21,7 @@
 }
 
 .aa-product-info .star-rating::before {
-	content: 'SSSSS';
+	content: "SSSSS";
 	opacity: 0.25;
 	float: left;
 	top: 0;
@@ -39,7 +39,7 @@
 }
 
 .aa-product-info .star-rating span::before {
-	content: 'SSSSS';
+	content: "SSSSS";
 	top: 0;
 	position: absolute;
 	left: 0;
@@ -109,12 +109,12 @@
 }
 
 .aa-product-info .comment-form-rating .stars a::before {
-	content: 'S';
+	content: "S";
 }
 
 .aa-product-info .comment-form-rating .stars a.active::before,
 .aa-product-info .comment-form-rating .stars a:hover::before {
-	content: 'S';
+	content: "S";
 	opacity: 1;
 }
 
@@ -124,8 +124,8 @@
 }
 
 .aa-product-info .comment-form textarea,
-.aa-product-info .comment-form input[type='text'],
-.aa-product-info .comment-form input[type='email'] {
+.aa-product-info .comment-form input[type="text"],
+.aa-product-info .comment-form input[type="email"] {
 	width: 100%;
 	max-width: 100%;
 }

@@ -23,27 +23,31 @@ import { ColorSchemeIcon } from '../../utils/editor-color-scheme-icons';
  * Canvas sync (mount + iframe reload) lives in useEditorColorScheme.
  */
 function ColorSchemeToggle() {
-  const { colorMode, switchColorMode } = useEditorColorScheme();
-  const isDark = colorMode === 'dark';
+	const { colorMode, switchColorMode } = useEditorColorScheme();
+	const isDark = colorMode === 'dark';
 
-  const toggle = useCallback(() => {
-    switchColorMode(isDark ? 'light' : 'dark');
-  }, [isDark, switchColorMode]);
+	const toggle = useCallback( () => {
+		switchColorMode( isDark ? 'light' : 'dark' );
+	}, [ isDark, switchColorMode ] );
 
-  return (
-    <PluginMoreMenuItem
-      icon={
-        <Icon icon={<ColorSchemeIcon mode={isDark ? 'light' : 'dark'} />} />
-      }
-      onClick={toggle}
-    >
-      {isDark
-        ? __('Preview: Light Mode', 'aggressive-apparel')
-        : __('Preview: Dark Mode', 'aggressive-apparel')}
-    </PluginMoreMenuItem>
-  );
+	return (
+		<PluginMoreMenuItem
+			icon={
+				<Icon
+					icon={
+						<ColorSchemeIcon mode={ isDark ? 'light' : 'dark' } />
+					}
+				/>
+			}
+			onClick={ toggle }
+		>
+			{ isDark
+				? __( 'Preview: Light Mode', 'aggressive-apparel' )
+				: __( 'Preview: Dark Mode', 'aggressive-apparel' ) }
+		</PluginMoreMenuItem>
+	);
 }
 
-registerPlugin('aggressive-apparel-color-scheme-toggle', {
-  render: ColorSchemeToggle,
-});
+registerPlugin( 'aggressive-apparel-color-scheme-toggle', {
+	render: ColorSchemeToggle,
+} );

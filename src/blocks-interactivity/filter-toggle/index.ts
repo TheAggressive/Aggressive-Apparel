@@ -13,14 +13,14 @@ import './editor.css';
 import './style.css';
 
 type FilterToggleAttributes = {
-  label: string;
-  showLabel: boolean;
-  showIcon: boolean;
-  iconOnly: boolean;
-  mobileOnly: 'auto' | 'always' | 'never';
+	label: string;
+	showLabel: boolean;
+	showIcon: boolean;
+	iconOnly: boolean;
+	mobileOnly: 'auto' | 'always' | 'never';
 };
 
-registerThemeBlock<FilterToggleAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-});
+registerThemeBlock< FilterToggleAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+} );

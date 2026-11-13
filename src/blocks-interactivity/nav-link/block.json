@@ -1,71 +1,71 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/nav-link",
-  "version": "1.0.0",
-  "title": "Nav Link",
-  "category": "aggressive-apparel",
-  "description": "A single navigation link item.",
-  "keywords": ["link", "menu", "navigation", "item"],
-  "textdomain": "aggressive-apparel",
-  "parent": [
-    "aggressive-apparel/navigation",
-    "aggressive-apparel/nav-submenu-dropdown",
-    "aggressive-apparel/nav-submenu-mega",
-    "aggressive-apparel/nav-submenu-drilldown",
-    "aggressive-apparel/nav-submenu-accordion",
-    "aggressive-apparel/navigation-panel"
-  ],
-  "attributes": {
-    "label": {
-      "type": "string",
-      "default": ""
-    },
-    "url": {
-      "type": "string",
-      "default": ""
-    },
-    "opensInNewTab": {
-      "type": "boolean",
-      "default": false
-    },
-    "description": {
-      "type": "string",
-      "default": ""
-    },
-    "isCurrent": {
-      "type": "boolean",
-      "default": false
-    }
-  },
-  "supports": {
-    "html": false,
-    "reusable": false,
-    "color": {
-      "text": true,
-      "background": true,
-      "link": true
-    },
-    "typography": {
-      "fontSize": true,
-      "__experimentalFontWeight": true,
-      "__experimentalTextDecoration": true,
-      "__experimentalLetterSpacing": true
-    },
-    "spacing": {
-      "padding": true
-    },
-    "__experimentalBorder": {
-      "radius": true
-    },
-    "className": true
-  },
-  "usesContext": [
-    "aggressive-apparel/navigationId",
-    "aggressive-apparel/isMegaMenu"
-  ],
-  "render": "file:./render.php",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css",
-  "style": "file:./style-index.css"
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/nav-link",
+	"version": "1.0.0",
+	"title": "Nav Link",
+	"category": "aggressive-apparel",
+	"description": "A single navigation link item.",
+	"keywords": [ "link", "menu", "navigation", "item" ],
+	"textdomain": "aggressive-apparel",
+	"parent": [
+		"aggressive-apparel/navigation",
+		"aggressive-apparel/nav-submenu-dropdown",
+		"aggressive-apparel/nav-submenu-mega",
+		"aggressive-apparel/nav-submenu-drilldown",
+		"aggressive-apparel/nav-submenu-accordion",
+		"aggressive-apparel/navigation-panel"
+	],
+	"attributes": {
+		"label": {
+			"type": "string",
+			"default": ""
+		},
+		"url": {
+			"type": "string",
+			"default": ""
+		},
+		"opensInNewTab": {
+			"type": "boolean",
+			"default": false
+		},
+		"description": {
+			"type": "string",
+			"default": ""
+		},
+		"isCurrent": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"color": {
+			"text": true,
+			"background": true,
+			"link": true
+		},
+		"typography": {
+			"fontSize": true,
+			"__experimentalFontWeight": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true
+		},
+		"spacing": {
+			"padding": true
+		},
+		"__experimentalBorder": {
+			"radius": true
+		},
+		"className": true
+	},
+	"usesContext": [
+		"aggressive-apparel/navigationId",
+		"aggressive-apparel/isMegaMenu"
+	],
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
 }

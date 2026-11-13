@@ -425,7 +425,11 @@
 	width: 3.5rem;
 	height: 3.5rem;
 	border-radius: 50%;
-	background: color-mix(in oklch, var(--quick-view-stock-in) 12%, transparent);
+	background: color-mix(
+		in oklch,
+		var(--quick-view-stock-in) 12%,
+		transparent
+	);
 	color: var(--quick-view-stock-in);
 	font-size: 1.5rem;
 	font-weight: 700;

@@ -21,35 +21,36 @@
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
 interface SocialProofNotification {
-  message: string;
-  time?: string;
-  url?: string;
-  thumbnail?: string;
-  /** Safe HTML for left-column PREFIX icons without a WC thumbnail (trust / announcements). */
-  decor_html?: string;
-  /** Safe HTML thumbnail badge overlay (WC purchases, engagement, demo). */
-  badge_html?: string;
-  kind?: 'trust' | 'purchase' | 'engagement' | 'announcement' | 'demo' | string;
+	message: string;
+	time?: string;
+	url?: string;
+	thumbnail?: string;
+	/** Safe HTML for left-column PREFIX icons without a WC thumbnail (trust / announcements). */
+	decor_html?: string;
+	/** Safe HTML thumbnail badge overlay (WC purchases, engagement, demo). */
+	badge_html?: string;
+	kind?:
+		'trust' | 'purchase' | 'engagement' | 'announcement' | 'demo' | string;
 }
 
 interface SocialProofContext {
-  notifications: SocialProofNotification[];
-  currentIndex: number;
-  isDismissed: boolean;
-  isVisible: boolean;
-  isHovered: boolean;
-  displayDurationMs: number;
-  intervalMs: number;
+	notifications: SocialProofNotification[];
+	currentIndex: number;
+	isDismissed: boolean;
+	isVisible: boolean;
+	isHovered: boolean;
+	displayDurationMs: number;
+	intervalMs: number;
 }
 
 /**
  * Subset of the store's derived state accessed from data-wp-watch callbacks.
  */
 interface SocialProofStore {
-  state: {
-    currentDecorHtml: string;
-    currentBadgeHtml: string;
-  };
+	state: {
+		currentDecorHtml: string;
+		currentBadgeHtml: string;
+	};
 }
 
 const DISMISSED_KEY = 'aggressive_apparel_social_proof_dismissed';
@@ -58,282 +59,306 @@ const SOCIAL_PROOF_STORE = 'aggressive-apparel/social-proof';
 let started = false;
 
 const currentNotification = (
-  ctx: SocialProofContext
-): SocialProofNotification | undefined => ctx.notifications[ctx.currentIndex];
+	ctx: SocialProofContext
+): SocialProofNotification | undefined => ctx.notifications[ ctx.currentIndex ];
 
-store(SOCIAL_PROOF_STORE, {
-  state: {
-    get currentMessage(): string {
-      return (
-        currentNotification(getContext<SocialProofContext>())?.message ?? ''
-      );
-    },
+store( SOCIAL_PROOF_STORE, {
+	state: {
+		get currentMessage(): string {
+			return (
+				currentNotification( getContext< SocialProofContext >() )
+					?.message ?? ''
+			);
+		},
 
-    get currentTime(): string {
-      return currentNotification(getContext<SocialProofContext>())?.time ?? '';
-    },
+		get currentTime(): string {
+			return (
+				currentNotification( getContext< SocialProofContext >() )
+					?.time ?? ''
+			);
+		},
 
-    get currentUrl(): string {
-      return currentNotification(getContext<SocialProofContext>())?.url ?? '#';
-    },
+		get currentUrl(): string {
+			return (
+				currentNotification( getContext< SocialProofContext >() )
+					?.url ?? '#'
+			);
+		},
 
-    get currentDecorHtml(): string {
-      return (
-        currentNotification(getContext<SocialProofContext>())?.decor_html ?? ''
-      );
-    },
+		get currentDecorHtml(): string {
+			return (
+				currentNotification( getContext< SocialProofContext >() )
+					?.decor_html ?? ''
+			);
+		},
 
-    get currentBadgeHtml(): string {
-      return (
-        currentNotification(getContext<SocialProofContext>())?.badge_html ?? ''
-      );
-    },
+		get currentBadgeHtml(): string {
+			return (
+				currentNotification( getContext< SocialProofContext >() )
+					?.badge_html ?? ''
+			);
+		},
 
-    get currentThumbnailWrapHidden(): boolean {
-      const n = currentNotification(getContext<SocialProofContext>());
-      return !n?.thumbnail?.trim();
-    },
+		get currentThumbnailWrapHidden(): boolean {
+			const n = currentNotification( getContext< SocialProofContext >() );
+			return ! n?.thumbnail?.trim();
+		},
 
-    get currentDecorHidden(): boolean {
-      const n = currentNotification(getContext<SocialProofContext>());
-      const decor = n?.decor_html?.trim();
+		get currentDecorHidden(): boolean {
+			const n = currentNotification( getContext< SocialProofContext >() );
+			const decor = n?.decor_html?.trim();
 
-      if (!decor) {
-        return true;
-      }
+			if ( ! decor ) {
+				return true;
+			}
 
-      // Product thumbnails win the visual row; PREFIX icons are trust-only.
-      if (n?.thumbnail?.trim()) {
-        return true;
-      }
+			// Product thumbnails win the visual row; PREFIX icons are trust-only.
+			if ( n?.thumbnail?.trim() ) {
+				return true;
+			}
 
-      return false;
-    },
+			return false;
+		},
 
-    get currentBadgeHidden(): boolean {
-      const n = currentNotification(getContext<SocialProofContext>());
-      const badge = n?.badge_html?.trim();
-      const thumb = n?.thumbnail?.trim();
+		get currentBadgeHidden(): boolean {
+			const n = currentNotification( getContext< SocialProofContext >() );
+			const badge = n?.badge_html?.trim();
+			const thumb = n?.thumbnail?.trim();
 
-      return !badge || !thumb;
-    },
+			return ! badge || ! thumb;
+		},
 
-    get currentVisualHidden(): boolean {
-      const n = currentNotification(getContext<SocialProofContext>());
+		get currentVisualHidden(): boolean {
+			const n = currentNotification( getContext< SocialProofContext >() );
 
-      if (n?.thumbnail?.trim()) {
-        return false;
-      }
+			if ( n?.thumbnail?.trim() ) {
+				return false;
+			}
 
-      return !n?.decor_html?.trim();
-    },
+			return ! n?.decor_html?.trim();
+		},
 
-    get currentHasNoTime(): boolean {
-      return !currentNotification(getContext<SocialProofContext>())?.time;
-    },
+		get currentHasNoTime(): boolean {
+			return ! currentNotification( getContext< SocialProofContext >() )
+				?.time;
+		},
 
-    get currentHasLink(): boolean {
-      return !!currentNotification(getContext<SocialProofContext>())?.url;
-    },
+		get currentHasLink(): boolean {
+			return !! currentNotification( getContext< SocialProofContext >() )
+				?.url;
+		},
 
-    get currentHasNoLink(): boolean {
-      return !currentNotification(getContext<SocialProofContext>())?.url;
-    },
+		get currentHasNoLink(): boolean {
+			return ! currentNotification( getContext< SocialProofContext >() )
+				?.url;
+		},
 
-    get currentIsDemo(): boolean {
-      return (
-        currentNotification(getContext<SocialProofContext>())?.kind === 'demo'
-      );
-    },
-  },
+		get currentIsDemo(): boolean {
+			return (
+				currentNotification( getContext< SocialProofContext >() )
+					?.kind === 'demo'
+			);
+		},
+	},
 
-  actions: {
-    dismiss(): void {
-      const ctx = getContext<SocialProofContext>();
-      ctx.isDismissed = true;
-      ctx.isVisible = false;
-      try {
-        sessionStorage.setItem(DISMISSED_KEY, '1');
-      } catch {
-        // Ignore storage errors (private mode, full quota, etc.).
-      }
-    },
+	actions: {
+		dismiss(): void {
+			const ctx = getContext< SocialProofContext >();
+			ctx.isDismissed = true;
+			ctx.isVisible = false;
+			try {
+				sessionStorage.setItem( DISMISSED_KEY, '1' );
+			} catch {
+				// Ignore storage errors (private mode, full quota, etc.).
+			}
+		},
 
-    handleMouseEnter(): void {
-      const ctx = getContext<SocialProofContext>();
-      ctx.isHovered = true;
-    },
+		handleMouseEnter(): void {
+			const ctx = getContext< SocialProofContext >();
+			ctx.isHovered = true;
+		},
 
-    handleMouseLeave(): void {
-      const ctx = getContext<SocialProofContext>();
-      ctx.isHovered = false;
-    },
-  },
+		handleMouseLeave(): void {
+			const ctx = getContext< SocialProofContext >();
+			ctx.isHovered = false;
+		},
+	},
 
-  callbacks: {
-    syncImage(): void {
-      const ctx = getContext<SocialProofContext>();
-      const { ref } = getElement();
-      if (!ref) return;
-      const n = currentNotification(ctx);
-      const src = n?.thumbnail ?? '';
-      const img = ref as HTMLImageElement;
-      // Avoid setting src="" which fires a network request to the page URL.
-      if (src) {
-        img.src = src;
-      } else {
-        img.removeAttribute('src');
-      }
-    },
+	callbacks: {
+		syncImage(): void {
+			const ctx = getContext< SocialProofContext >();
+			const { ref } = getElement();
+			if ( ! ref ) return;
+			const n = currentNotification( ctx );
+			const src = n?.thumbnail ?? '';
+			const img = ref as HTMLImageElement;
+			// Avoid setting src="" which fires a network request to the page URL.
+			if ( src ) {
+				img.src = src;
+			} else {
+				img.removeAttribute( 'src' );
+			}
+		},
 
-    syncDecorHtml(): void {
-      const { ref } = getElement();
-      if (!ref) {
-        return;
-      }
-      const { state: st } = store<SocialProofStore>(SOCIAL_PROOF_STORE);
-      ref.innerHTML = st.currentDecorHtml;
-    },
+		syncDecorHtml(): void {
+			const { ref } = getElement();
+			if ( ! ref ) {
+				return;
+			}
+			const { state: st } =
+				store< SocialProofStore >( SOCIAL_PROOF_STORE );
+			ref.innerHTML = st.currentDecorHtml;
+		},
 
-    syncBadgeHtml(): void {
-      const { ref } = getElement();
-      if (!ref) {
-        return;
-      }
-      const { state: st } = store<SocialProofStore>(SOCIAL_PROOF_STORE);
-      ref.innerHTML = st.currentBadgeHtml;
-    },
+		syncBadgeHtml(): void {
+			const { ref } = getElement();
+			if ( ! ref ) {
+				return;
+			}
+			const { state: st } =
+				store< SocialProofStore >( SOCIAL_PROOF_STORE );
+			ref.innerHTML = st.currentBadgeHtml;
+		},
 
-    startCycle(): void {
-      if (started) {
-        return;
-      }
-      started = true;
+		startCycle(): void {
+			if ( started ) {
+				return;
+			}
+			started = true;
 
-      const ctx = getContext<SocialProofContext>();
+			const ctx = getContext< SocialProofContext >();
 
-      try {
-        if (sessionStorage.getItem(DISMISSED_KEY) === '1') {
-          ctx.isDismissed = true;
-          return;
-        }
-      } catch {
-        // Ignore storage errors.
-      }
+			try {
+				if ( sessionStorage.getItem( DISMISSED_KEY ) === '1' ) {
+					ctx.isDismissed = true;
+					return;
+				}
+			} catch {
+				// Ignore storage errors.
+			}
 
-      if (!ctx.notifications || ctx.notifications.length === 0) {
-        return;
-      }
+			if ( ! ctx.notifications || ctx.notifications.length === 0 ) {
+				return;
+			}
 
-      // Warm the next notification, rather than downloading the entire pool
-      // while the page's primary images are loading.
-      const preloaded = new Set<string>();
-      const preloadNotification = (index: number): void => {
-        const n = ctx.notifications[index];
-        const preload = (src: string): void => {
-          if (preloaded.has(src)) return;
-          preloaded.add(src);
-          const img = new Image();
-          img.fetchPriority = 'low';
-          img.src = src;
-        };
-        if (n.thumbnail) {
-          preload(n.thumbnail);
-        }
+			// Warm the next notification, rather than downloading the entire pool
+			// while the page's primary images are loading.
+			const preloaded = new Set< string >();
+			const preloadNotification = ( index: number ): void => {
+				const n = ctx.notifications[ index ];
+				const preload = ( src: string ): void => {
+					if ( preloaded.has( src ) ) return;
+					preloaded.add( src );
+					const img = new Image();
+					img.fetchPriority = 'low';
+					img.src = src;
+				};
+				if ( n.thumbnail ) {
+					preload( n.thumbnail );
+				}
 
-        const decor = n.decor_html?.trim();
-        if (decor) {
-          const match = decor.match(/src="([^"]+)"/u);
-          if (match?.[1]) {
-            preload(match[1]);
-          }
-        }
-      };
-      preloadNotification(ctx.currentIndex);
+				const decor = n.decor_html?.trim();
+				if ( decor ) {
+					const match = decor.match( /src="([^"]+)"/u );
+					if ( match?.[ 1 ] ) {
+						preload( match[ 1 ] );
+					}
+				}
+			};
+			preloadNotification( ctx.currentIndex );
 
-      const displayMs = ctx.displayDurationMs || 5000;
-      // Gap between notifications: total interval minus display time, minimum 1 s.
-      const gapMs = Math.max((ctx.intervalMs || 20000) - displayMs, 1000);
-      let hideTimer: ReturnType<typeof setTimeout> | null = null;
-      let remaining = 0;
-      let hideStartedAt = 0;
+			const displayMs = ctx.displayDurationMs || 5000;
+			// Gap between notifications: total interval minus display time, minimum 1 s.
+			const gapMs = Math.max(
+				( ctx.intervalMs || 20000 ) - displayMs,
+				1000
+			);
+			let hideTimer: ReturnType< typeof setTimeout > | null = null;
+			let remaining = 0;
+			let hideStartedAt = 0;
 
-      const startHideTimer = (ms: number): void => {
-        if (hideTimer) {
-          clearTimeout(hideTimer);
-        }
-        remaining = ms;
-        hideStartedAt = Date.now();
-        hideTimer = setTimeout(() => {
-          hideTimer = null;
-          if (ctx.isHovered) {
-            // Timer expired during hover — dismiss on mouse leave.
-            remaining = 0;
-            return;
-          }
-          ctx.isVisible = false;
-          setTimeout(() => {
-            ctx.currentIndex =
-              (ctx.currentIndex + 1) % ctx.notifications.length;
-            if (!ctx.isDismissed) {
-              setTimeout(showNext, gapMs);
-            }
-          }, 350);
-        }, ms);
-      };
+			const startHideTimer = ( ms: number ): void => {
+				if ( hideTimer ) {
+					clearTimeout( hideTimer );
+				}
+				remaining = ms;
+				hideStartedAt = Date.now();
+				hideTimer = setTimeout( () => {
+					hideTimer = null;
+					if ( ctx.isHovered ) {
+						// Timer expired during hover — dismiss on mouse leave.
+						remaining = 0;
+						return;
+					}
+					ctx.isVisible = false;
+					setTimeout( () => {
+						ctx.currentIndex =
+							( ctx.currentIndex + 1 ) % ctx.notifications.length;
+						if ( ! ctx.isDismissed ) {
+							setTimeout( showNext, gapMs );
+						}
+					}, 350 );
+				}, ms );
+			};
 
-      const pauseTimer = (): void => {
-        if (hideTimer && ctx.isVisible) {
-          clearTimeout(hideTimer);
-          hideTimer = null;
-          const elapsed = Date.now() - hideStartedAt;
-          remaining = Math.max(remaining - elapsed, 0);
-        }
-      };
+			const pauseTimer = (): void => {
+				if ( hideTimer && ctx.isVisible ) {
+					clearTimeout( hideTimer );
+					hideTimer = null;
+					const elapsed = Date.now() - hideStartedAt;
+					remaining = Math.max( remaining - elapsed, 0 );
+				}
+			};
 
-      const resumeTimer = (): void => {
-        if (!ctx.isVisible || ctx.isDismissed) {
-          return;
-        }
-        if (remaining <= 0) {
-          ctx.isVisible = false;
-          setTimeout(() => {
-            ctx.currentIndex =
-              (ctx.currentIndex + 1) % ctx.notifications.length;
-            if (!ctx.isDismissed) {
-              setTimeout(showNext, gapMs);
-            }
-          }, 350);
-        } else {
-          startHideTimer(remaining);
-        }
-      };
+			const resumeTimer = (): void => {
+				if ( ! ctx.isVisible || ctx.isDismissed ) {
+					return;
+				}
+				if ( remaining <= 0 ) {
+					ctx.isVisible = false;
+					setTimeout( () => {
+						ctx.currentIndex =
+							( ctx.currentIndex + 1 ) % ctx.notifications.length;
+						if ( ! ctx.isDismissed ) {
+							setTimeout( showNext, gapMs );
+						}
+					}, 350 );
+				} else {
+					startHideTimer( remaining );
+				}
+			};
 
-      const showNext = (): void => {
-        if (ctx.isDismissed || ctx.isVisible) {
-          return;
-        }
-        ctx.isVisible = true;
-        startHideTimer(displayMs);
-        preloadNotification((ctx.currentIndex + 1) % ctx.notifications.length);
-      };
+			const showNext = (): void => {
+				if ( ctx.isDismissed || ctx.isVisible ) {
+					return;
+				}
+				ctx.isVisible = true;
+				startHideTimer( displayMs );
+				preloadNotification(
+					( ctx.currentIndex + 1 ) % ctx.notifications.length
+				);
+			};
 
-      // Pause on hover and keyboard focus; resume on leave/blur.
-      const el = document.querySelector(
-        '.aggressive-apparel-social-proof__toast'
-      );
-      if (el) {
-        el.addEventListener('mouseenter', pauseTimer);
-        el.addEventListener('mouseleave', resumeTimer);
-        el.addEventListener('focusin', pauseTimer);
-        el.addEventListener('focusout', (e: Event) => {
-          if (!el.contains((e as FocusEvent).relatedTarget as Node | null)) {
-            resumeTimer();
-          }
-        });
-      }
+			// Pause on hover and keyboard focus; resume on leave/blur.
+			const el = document.querySelector(
+				'.aggressive-apparel-social-proof__toast'
+			);
+			if ( el ) {
+				el.addEventListener( 'mouseenter', pauseTimer );
+				el.addEventListener( 'mouseleave', resumeTimer );
+				el.addEventListener( 'focusin', pauseTimer );
+				el.addEventListener( 'focusout', ( e: Event ) => {
+					if (
+						! el.contains(
+							( e as FocusEvent ).relatedTarget as Node | null
+						)
+					) {
+						resumeTimer();
+					}
+				} );
+			}
 
-      setTimeout(showNext, 5000);
-    },
-  },
-});
+			setTimeout( showNext, 5000 );
+		},
+	},
+} );

@@ -11,50 +11,50 @@ name: PHP Forward Compatibility
 # on a version the theme does not claim to support is information, not a defect.
 
 on:
-  schedule:
-    - cron: '43 4 * * 1'
-  workflow_dispatch:
+    schedule:
+        - cron: '43 4 * * 1'
+    workflow_dispatch:
 
 permissions:
-  contents: read
+    contents: read
 
 concurrency:
-  group: php-forward-compatibility
-  cancel-in-progress: false
+    group: php-forward-compatibility
+    cancel-in-progress: false
 
 env:
-  NODE_VERSION: '24.18.0'
+    NODE_VERSION: '24.18.0'
 
 jobs:
-  php:
-    name: 🔮 PHP ${{ matrix.php }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    php:
+        name: 🔮 PHP ${{ matrix.php }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
 
-    strategy:
-      # One version failing must not hide the result of the others.
-      fail-fast: false
-      matrix:
-        php: ['8.3', '8.4']
+        strategy:
+            # One version failing must not hide the result of the others.
+            fail-fast: false
+            matrix:
+                php: ['8.3', '8.4']
 
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
 
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
-      # The PHP lane needs compiled assets present for the integration suites.
-      - name: Run canonical build lane
-        run: pnpm ci:build
+            # The PHP lane needs compiled assets present for the integration suites.
+            - name: Run canonical build lane
+              run: pnpm ci:build
 
-      - name: Run PHP lane on ${{ matrix.php }}
-        run: pnpm ci:php:forward ${{ matrix.php }}
+            - name: Run PHP lane on ${{ matrix.php }}
+              run: pnpm ci:php:forward ${{ matrix.php }}

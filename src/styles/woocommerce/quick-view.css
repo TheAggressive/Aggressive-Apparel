@@ -5,7 +5,7 @@
  * @since 1.17.0
  */
 
-@import './_quick-view-cards.css';
-@import './_quick-view-modal.css';
-@import './_quick-view-details.css';
-@import './_quick-view-responsive.css';
+@import "./_quick-view-cards.css";
+@import "./_quick-view-modal.css";
+@import "./_quick-view-details.css";
+@import "./_quick-view-responsive.css";

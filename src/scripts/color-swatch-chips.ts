@@ -22,92 +22,99 @@ const LIST_SELECTOR = '.wc-block-product-filter-chips[data-aa-color-swatches]';
 const CHIP_CLASS = 'aggressive-apparel-color-chip';
 const SWATCH_SELECTOR = '.wc-block-product-filter-chips__swatch';
 const SWATCH_CLASSES = [
-  'aggressive-apparel-color-swatch',
-  'aggressive-apparel-color-swatch__circle',
+	'aggressive-apparel-color-swatch',
+	'aggressive-apparel-color-swatch__circle',
 ];
 
 export interface SwatchEntry {
-  name: string;
-  ring: string;
-  pattern: boolean;
-  tooltip?: string;
+	name: string;
+	ring: string;
+	pattern: boolean;
+	tooltip?: string;
 }
 
-type SwatchMap = Record<string, SwatchEntry>;
+type SwatchMap = Record< string, SwatchEntry >;
 
 /**
  * Read a list's swatch map.
  */
-function readMap(list: Element): SwatchMap {
-  try {
-    const map = JSON.parse(list.getAttribute('data-aa-color-swatches') || '{}');
-    return map && typeof map === 'object' ? (map as SwatchMap) : {};
-  } catch {
-    return {};
-  }
+function readMap( list: Element ): SwatchMap {
+	try {
+		const map = JSON.parse(
+			list.getAttribute( 'data-aa-color-swatches' ) || '{}'
+		);
+		return map && typeof map === 'object' ? ( map as SwatchMap ) : {};
+	} catch {
+		return {};
+	}
 }
 
 /**
  * Decorate one chip WooCommerce rendered in the browser, as
  * Color_Block_Swatch_Manager does the server's.
  */
-export function decorateChip(chip: HTMLElement, entry: SwatchEntry): void {
-  chip.classList.add(CHIP_CLASS);
-  chip.removeAttribute('title');
-  chip.style.setProperty('--swatch-color', entry.ring);
+export function decorateChip( chip: HTMLElement, entry: SwatchEntry ): void {
+	chip.classList.add( CHIP_CLASS );
+	chip.removeAttribute( 'title' );
+	chip.style.setProperty( '--swatch-color', entry.ring );
 
-  const swatch = chip.querySelector<HTMLElement>(SWATCH_SELECTOR);
-  if (!swatch) {
-    return;
-  }
-  swatch.classList.add(...SWATCH_CLASSES);
-  swatch.classList.toggle(
-    'aggressive-apparel-color-swatch--pattern',
-    entry.pattern
-  );
-  swatch.dataset.colorName = entry.name;
-  if (entry.tooltip) {
-    swatch.dataset.tooltip = entry.tooltip;
-  }
+	const swatch = chip.querySelector< HTMLElement >( SWATCH_SELECTOR );
+	if ( ! swatch ) {
+		return;
+	}
+	swatch.classList.add( ...SWATCH_CLASSES );
+	swatch.classList.toggle(
+		'aggressive-apparel-color-swatch--pattern',
+		entry.pattern
+	);
+	swatch.dataset.colorName = entry.name;
+	if ( entry.tooltip ) {
+		swatch.dataset.tooltip = entry.tooltip;
+	}
 }
 
 /**
  * Bring every chip in a list in line: decorate new ones, drop titles.
  */
-export function syncList(list: Element, map: SwatchMap = readMap(list)): void {
-  list
-    .querySelectorAll<HTMLButtonElement>('.wc-block-product-filter-chips__item')
-    .forEach(chip => {
-      if (!chip.classList.contains(CHIP_CLASS)) {
-        const entry = map[chip.value];
-        if (!entry) {
-          return;
-        }
-        decorateChip(chip, entry);
-      }
-      chip.removeAttribute('title');
-    });
+export function syncList(
+	list: Element,
+	map: SwatchMap = readMap( list )
+): void {
+	list.querySelectorAll< HTMLButtonElement >(
+		'.wc-block-product-filter-chips__item'
+	).forEach( ( chip ) => {
+		if ( ! chip.classList.contains( CHIP_CLASS ) ) {
+			const entry = map[ chip.value ];
+			if ( ! entry ) {
+				return;
+			}
+			decorateChip( chip, entry );
+		}
+		chip.removeAttribute( 'title' );
+	} );
 }
 
 /**
  * Sync each colour chip list now and whenever WooCommerce changes it.
  */
-export function initColorSwatchChips(doc: Document = document): void {
-  doc.querySelectorAll(LIST_SELECTOR).forEach(list => {
-    const map = readMap(list);
-    syncList(list, map);
+export function initColorSwatchChips( doc: Document = document ): void {
+	doc.querySelectorAll( LIST_SELECTOR ).forEach( ( list ) => {
+		const map = readMap( list );
+		syncList( list, map );
 
-    new MutationObserver(() => syncList(list, map)).observe(list, {
-      attributes: true,
-      attributeFilter: ['title'],
-      childList: true,
-      subtree: true,
-    });
-  });
+		new MutationObserver( () => syncList( list, map ) ).observe( list, {
+			attributes: true,
+			attributeFilter: [ 'title' ],
+			childList: true,
+			subtree: true,
+		} );
+	} );
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => initColorSwatchChips());
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', () =>
+		initColorSwatchChips()
+	);
 } else {
-  initColorSwatchChips();
+	initColorSwatchChips();
 }

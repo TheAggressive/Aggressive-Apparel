@@ -15,35 +15,35 @@
  * Selector matching all natively focusable elements.
  */
 export const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), input:not([disabled]), ' +
-  'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+	'a[href], button:not([disabled]), input:not([disabled]), ' +
+	'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
  * Keyboard key values (KeyboardEvent.key).
  */
 export const KEYS = {
-  escape: 'Escape',
-  tab: 'Tab',
-  enter: 'Enter',
-  space: ' ',
-  arrowUp: 'ArrowUp',
-  arrowDown: 'ArrowDown',
-  arrowLeft: 'ArrowLeft',
-  arrowRight: 'ArrowRight',
-  home: 'Home',
-  end: 'End',
+	escape: 'Escape',
+	tab: 'Tab',
+	enter: 'Enter',
+	space: ' ',
+	arrowUp: 'ArrowUp',
+	arrowDown: 'ArrowDown',
+	arrowLeft: 'ArrowLeft',
+	arrowRight: 'ArrowRight',
+	home: 'Home',
+	end: 'End',
 } as const;
 
 /**
  * Arrow/navigation keys handled by roving-tabindex menus.
  */
 export const ARROW_KEYS = [
-  KEYS.arrowUp,
-  KEYS.arrowDown,
-  KEYS.arrowLeft,
-  KEYS.arrowRight,
-  KEYS.home,
-  KEYS.end,
+	KEYS.arrowUp,
+	KEYS.arrowDown,
+	KEYS.arrowLeft,
+	KEYS.arrowRight,
+	KEYS.home,
+	KEYS.end,
 ] as const;
 
 /**

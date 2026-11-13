@@ -80,11 +80,18 @@ suppressed findings). PSR-4 under `Aggressive_Apparel\`, directory-matched;
 
 ### JavaScript / TypeScript / CSS
 
-TypeScript for all new code; React/JSX for editor components; ESLint (WordPress
-plugin) + Prettier. Native CSS (no framework) built by PostCSS (`postcss-import`)
-+ Lightning CSS; Prettier formats it (tabs, per the WordPress CSS standard)
-and Stylelint checks it.
-BEM-like custom classes.
+TypeScript for all new code; React/JSX for editor components. Native CSS (no
+framework) built by PostCSS (`postcss-import`) + Lightning CSS. BEM-like custom
+classes.
+
+**Formatting is the WordPress standard, owned by one tool per language:**
+`wp-prettier` (installed as `prettier`) with `@wordpress/prettier-config`
+formats JS/TS/CSS/JSON — tabs, spaces inside parens — and WPCS/phpcbf owns PHP.
+ESLint and Stylelint check correctness only, never layout, so nothing fights
+the formatter (`format:fix` is idempotent). `.editorconfig` matches, and
+editors must use the project's local Prettier (the default for the VS Code
+extension), so format-on-save writes exactly what CI checks. Never add style
+rules to ESLint/Stylelint or a global Prettier config.
 
 - **Native CSS nesting only.** Lightning CSS flattens it at build time. No
   Sass-style concatenation (`&__el`, `&--mod`) — native nesting can't express

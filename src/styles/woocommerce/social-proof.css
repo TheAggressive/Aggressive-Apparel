@@ -267,7 +267,8 @@ body.has-bottom-nav.aa-sticky-cart-visible .aggressive-apparel-social-proof {
 		bottom: calc(0.75rem + var(--aa-sticky-cart-height, 6rem));
 	}
 
-	body.has-bottom-nav.aa-sticky-cart-visible .aggressive-apparel-social-proof {
+	body.has-bottom-nav.aa-sticky-cart-visible
+		.aggressive-apparel-social-proof {
 		bottom: calc(
 			0.75rem + var(--aa-bottom-nav-height, 0px) +
 				var(--aa-sticky-cart-height, 6rem)

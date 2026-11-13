@@ -69,6 +69,7 @@
 	.wp-block-aggressive-apparel-nav-link__link {
 	min-height: 48px;
 	padding: var(--aa-nav-submenu-item-pad, 0.75rem)
-		var(--aa-nav-panel-inset, 1.25rem) var(--aa-nav-submenu-item-pad, 0.75rem)
+		var(--aa-nav-panel-inset, 1.25rem)
+		var(--aa-nav-submenu-item-pad, 0.75rem)
 		var(--aa-nav-submenu-inset, 3.25rem) !important;
 }

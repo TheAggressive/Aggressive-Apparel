@@ -136,7 +136,10 @@ body.has-bottom-nav.aa-wc-checkout-bar-visible
 	) {
 	bottom: calc(
 		1.25rem +
-			max(var(--aa-bottom-nav-height), var(--aa-wc-checkout-bar-height, 5rem))
+			max(
+				var(--aa-bottom-nav-height),
+				var(--aa-wc-checkout-bar-height, 5rem)
+			)
 	);
 }
 
@@ -146,7 +149,11 @@ body.has-bottom-nav.aa-wc-checkout-bar-visible
  * first toast isn't hidden behind the bar. Bottom positions are unaffected.
  */
 body.admin-bar
-	:is(.aa-notices--top-right, .aa-notices--top-left, .aa-notices--top-center) {
+	:is(
+		.aa-notices--top-right,
+		.aa-notices--top-left,
+		.aa-notices--top-center
+	) {
 	top: calc(1.25rem + 32px);
 }
 
@@ -307,7 +314,7 @@ body.admin-bar
 }
 
 .aa-notices__badge::before {
-	content: '';
+	content: "";
 	position: absolute;
 	inset: 0;
 	margin: auto;

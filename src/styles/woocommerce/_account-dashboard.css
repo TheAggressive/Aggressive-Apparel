@@ -127,7 +127,7 @@
 }
 
 .aa-account-latest__cta::after {
-	content: '';
+	content: "";
 	width: 1rem;
 	height: 1rem;
 	background-color: currentcolor;
@@ -162,7 +162,7 @@
 
 .aa-account-tile {
 	display: grid;
-	grid-template: 'icon label' auto 'icon value' auto / auto minmax(0, 1fr);
+	grid-template: "icon label" auto "icon value" auto / auto minmax(0, 1fr);
 	align-items: center;
 	gap: var(--wp--preset--spacing--1) var(--aa-account-card-gap);
 	padding-block: var(--wp--preset--spacing--4);
@@ -170,7 +170,7 @@
 
 @media (width >= 960px) {
 	.aa-account-tile {
-		grid-template: 'icon' auto 'label' auto 'value' auto / minmax(0, 1fr);
+		grid-template: "icon" auto "label" auto "value" auto / minmax(0, 1fr);
 		align-content: start;
 		padding-block: var(--aa-account-card-padding);
 	}

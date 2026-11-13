@@ -248,7 +248,7 @@
 .woocommerce-account
 	.woocommerce
 	form.woocommerce-EditAccountForm
-	[id='account_display_name_description'] {
+	[id="account_display_name_description"] {
 	display: block;
 	margin-top: var(--wp--preset--spacing--2);
 	color: var(--aa-account-muted);
@@ -258,7 +258,7 @@
 .woocommerce-account
 	.woocommerce
 	form.woocommerce-EditAccountForm
-	[id='account_display_name_description']
+	[id="account_display_name_description"]
 	em {
 	font-style: normal;
 }
@@ -279,7 +279,7 @@
 }
 
 .woocommerce-account .woocommerce form .show-password-input::before {
-	content: '';
+	content: "";
 	display: block;
 	width: 1.25rem;
 	height: 1.25rem;

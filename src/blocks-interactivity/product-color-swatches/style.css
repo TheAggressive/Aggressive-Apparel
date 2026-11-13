@@ -60,7 +60,7 @@
 }
 
 .aa-product-color-swatches__swatch::before {
-	content: '';
+	content: "";
 	display: block;
 	width: var(--aa-card-swatch-visual-size);
 	height: var(--aa-card-swatch-visual-size);
@@ -186,7 +186,9 @@
 		min-height: var(--aa-card-swatch-dense-min);
 	}
 
-	.aa-product-color-swatches__swatch.is-hidden-standard:not(.is-hidden-dense) {
+	.aa-product-color-swatches__swatch.is-hidden-standard:not(
+			.is-hidden-dense
+		) {
 		display: grid;
 	}
 
@@ -674,12 +676,12 @@
 		transition: none;
 	}
 
-	[class*='aa-cs-anim-'] {
+	[class*="aa-cs-anim-"] {
 		transition: none;
 		animation: none !important;
 	}
 
-	[class*='aa-cs-anim-'].aa-cs-loading {
+	[class*="aa-cs-anim-"].aa-cs-loading {
 		opacity: 0;
 		filter: none;
 		scale: 1;

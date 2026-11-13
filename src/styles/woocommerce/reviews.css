@@ -89,7 +89,8 @@
 		border-radius: var(--aa-radius-card);
 		background-color: var(--aa-review-card-bg);
 		transition:
-			transform var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease),
+			transform var(--aa-duration-fast, 150ms)
+				var(--aa-ease-default, ease),
 			background-color var(--aa-duration-fast, 150ms)
 				var(--aa-ease-default, ease);
 
@@ -272,7 +273,7 @@
 	}
 
 	& .children .comment-text .description::before {
-		content: 'Reply';
+		content: "Reply";
 		display: block;
 		margin-block-end: var(--wp--preset--spacing--1);
 		color: var(--aa-color-foreground-muted);

@@ -11,20 +11,20 @@
 export { escapeHtml } from '../utils/escape-html';
 
 export interface StoreApiPrices {
-  price: string;
-  regular_price?: string;
-  sale_price?: string;
-  currency_minor_unit?: number;
-  currency_prefix?: string;
-  currency_suffix?: string;
-  price_range?: { min_amount?: string; max_amount?: string } | null;
+	price: string;
+	regular_price?: string;
+	sale_price?: string;
+	currency_minor_unit?: number;
+	currency_prefix?: string;
+	currency_suffix?: string;
+	price_range?: { min_amount?: string; max_amount?: string } | null;
 }
 
 export interface VariablePriceRangeOptions {
-  /** Collapse the range to a single "From $X" starting price. */
-  collapse: boolean;
-  /** Prefix word for the collapsed form (e.g. "From"); empty renders bare. */
-  prefix: string;
+	/** Collapse the range to a single "From $X" starting price. */
+	collapse: boolean;
+	/** Prefix word for the collapsed form (e.g. "From"); empty renders bare. */
+	prefix: string;
 }
 
 /**
@@ -38,117 +38,125 @@ export interface VariablePriceRangeOptions {
  * Shared by the Quick View and Wishlist stores so both surfaces stay identical.
  */
 export function formatVariablePriceRange(
-  prices: StoreApiPrices | null | undefined,
-  { collapse, prefix }: VariablePriceRangeOptions
+	prices: StoreApiPrices | null | undefined,
+	{ collapse, prefix }: VariablePriceRangeOptions
 ): string | null {
-  const range = prices?.price_range;
-  if (
-    !prices ||
-    !range ||
-    !range.min_amount ||
-    !range.max_amount ||
-    range.min_amount === range.max_amount
-  ) {
-    return null;
-  }
+	const range = prices?.price_range;
+	if (
+		! prices ||
+		! range ||
+		! range.min_amount ||
+		! range.max_amount ||
+		range.min_amount === range.max_amount
+	) {
+		return null;
+	}
 
-  const minorUnit = prices.currency_minor_unit ?? 2;
-  const divisor = Math.pow(10, minorUnit);
-  const pre = prices.currency_prefix ?? '$';
-  const suf = prices.currency_suffix ?? '';
-  const lo = (parseInt(range.min_amount, 10) / divisor).toFixed(minorUnit);
-  const minAmount = `${pre}${lo}${suf}`;
+	const minorUnit = prices.currency_minor_unit ?? 2;
+	const divisor = Math.pow( 10, minorUnit );
+	const pre = prices.currency_prefix ?? '$';
+	const suf = prices.currency_suffix ?? '';
+	const lo = ( parseInt( range.min_amount, 10 ) / divisor ).toFixed(
+		minorUnit
+	);
+	const minAmount = `${ pre }${ lo }${ suf }`;
 
-  if (collapse) {
-    const word = (prefix || '').trim();
-    return word ? `${word} ${minAmount}` : minAmount;
-  }
+	if ( collapse ) {
+		const word = ( prefix || '' ).trim();
+		return word ? `${ word } ${ minAmount }` : minAmount;
+	}
 
-  const hi = (parseInt(range.max_amount, 10) / divisor).toFixed(minorUnit);
-  return `${minAmount} – ${pre}${hi}${suf}`;
+	const hi = ( parseInt( range.max_amount, 10 ) / divisor ).toFixed(
+		minorUnit
+	);
+	return `${ minAmount } – ${ pre }${ hi }${ suf }`;
 }
 
 export interface PriceResult {
-  current: string;
-  regular: string;
-  onSale: boolean;
+	current: string;
+	regular: string;
+	onSale: boolean;
 }
 
 interface StoreApiAttribute {
-  attribute?: string;
-  name?: string;
-  taxonomy?: string;
-  value?: string;
+	attribute?: string;
+	name?: string;
+	taxonomy?: string;
+	value?: string;
 }
 
 export interface Variation {
-  id: number;
-  attributes: StoreApiAttribute[] | Record<string, string>;
-  [key: string]: unknown;
+	id: number;
+	attributes: StoreApiAttribute[] | Record< string, string >;
+	[ key: string ]: unknown;
 }
 
 export function parsePrice(
-  prices: StoreApiPrices | null | undefined
+	prices: StoreApiPrices | null | undefined
 ): PriceResult {
-  const result: PriceResult = { current: '', regular: '', onSale: false };
-  if (!prices || !prices.price) {
-    return result;
-  }
+	const result: PriceResult = { current: '', regular: '', onSale: false };
+	if ( ! prices || ! prices.price ) {
+		return result;
+	}
 
-  const minorUnit = prices.currency_minor_unit ?? 2;
-  const divisor = Math.pow(10, minorUnit);
-  const prefix = prices.currency_prefix ?? '$';
-  const suffix = prices.currency_suffix ?? '';
+	const minorUnit = prices.currency_minor_unit ?? 2;
+	const divisor = Math.pow( 10, minorUnit );
+	const prefix = prices.currency_prefix ?? '$';
+	const suffix = prices.currency_suffix ?? '';
 
-  const currentVal = (parseInt(prices.price, 10) / divisor).toFixed(minorUnit);
-  result.current = `${prefix}${currentVal}${suffix}`;
+	const currentVal = ( parseInt( prices.price, 10 ) / divisor ).toFixed(
+		minorUnit
+	);
+	result.current = `${ prefix }${ currentVal }${ suffix }`;
 
-  if (
-    prices.regular_price &&
-    prices.sale_price &&
-    prices.regular_price !== prices.sale_price
-  ) {
-    const regularVal = (parseInt(prices.regular_price, 10) / divisor).toFixed(
-      minorUnit
-    );
-    result.regular = `${prefix}${regularVal}${suffix}`;
-    result.onSale = true;
-  }
-  return result;
+	if (
+		prices.regular_price &&
+		prices.sale_price &&
+		prices.regular_price !== prices.sale_price
+	) {
+		const regularVal = (
+			parseInt( prices.regular_price, 10 ) / divisor
+		).toFixed( minorUnit );
+		result.regular = `${ prefix }${ regularVal }${ suffix }`;
+		result.onSale = true;
+	}
+	return result;
 }
 
-export function decodeEntities(str: string | null | undefined): string {
-  if (!str) {
-    return '';
-  }
+export function decodeEntities( str: string | null | undefined ): string {
+	if ( ! str ) {
+		return '';
+	}
 
-  // `&` must be produced LAST, in every form it can arrive in. Decoded early,
-  // "&amp;lt;" — or its numeric equivalents "&#38;lt;" and "&#x26;lt;" — leaves
-  // "&lt;" for a later pass to turn into a real "<", so text that was meant to
-  // display an entity becomes markup. Numeric refs are held back as a sentinel
-  // that cannot appear in the input, then released once the rest are done.
-  const AMP = '\u0000AA_AMP\u0000';
-  const character = (value: number): string =>
-    Number.isInteger(value) &&
-    value > 0 &&
-    value <= 0x10ffff &&
-    (value < 0xd800 || value > 0xdfff)
-      ? String.fromCodePoint(value)
-      : '\ufffd';
+	// `&` must be produced LAST, in every form it can arrive in. Decoded early,
+	// "&amp;lt;" — or its numeric equivalents "&#38;lt;" and "&#x26;lt;" — leaves
+	// "&lt;" for a later pass to turn into a real "<", so text that was meant to
+	// display an entity becomes markup. Numeric refs are held back as a sentinel
+	// that cannot appear in the input, then released once the rest are done.
+	const AMP = '\u0000AA_AMP\u0000';
+	const character = ( value: number ): string =>
+		Number.isInteger( value ) &&
+		value > 0 &&
+		value <= 0x10ffff &&
+		( value < 0xd800 || value > 0xdfff )
+			? String.fromCodePoint( value )
+			: '\ufffd';
 
-  return str
-    .replace(/&#0*38;|&#x0*26;/gi, AMP)
-    .replace(/&amp;/g, AMP)
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
-      character(parseInt(hex, 16))
-    )
-    .replace(/&#(\d+);/g, (_, dec: string) => character(parseInt(dec, 10)))
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&nbsp;/g, ' ')
-    .split(AMP)
-    .join('&');
+	return str
+		.replace( /&#0*38;|&#x0*26;/gi, AMP )
+		.replace( /&amp;/g, AMP )
+		.replace( /&#x([0-9a-f]+);/gi, ( _, hex: string ) =>
+			character( parseInt( hex, 16 ) )
+		)
+		.replace( /&#(\d+);/g, ( _, dec: string ) =>
+			character( parseInt( dec, 10 ) )
+		)
+		.replace( /&lt;/g, '<' )
+		.replace( /&gt;/g, '>' )
+		.replace( /&quot;/g, '"' )
+		.replace( /&nbsp;/g, ' ' )
+		.split( AMP )
+		.join( '&' );
 }
 
 /**
@@ -164,21 +172,21 @@ export function decodeEntities(str: string | null | undefined): string {
  * the result through `data-wp-text`, which sets textContent, so a stray "<" is
  * inert — and deleting it would quietly corrupt real copy like "orders < 5kg".
  */
-export function stripTags(html: string | null | undefined): string {
-  if (!html) {
-    return '';
-  }
+export function stripTags( html: string | null | undefined ): string {
+	if ( ! html ) {
+		return '';
+	}
 
-  let previous = html;
-  for (let pass = 0; pass < 10; pass += 1) {
-    const stripped = previous.replace(/<[^>]*>/g, '');
-    if (stripped === previous) {
-      break;
-    }
-    previous = stripped;
-  }
+	let previous = html;
+	for ( let pass = 0; pass < 10; pass += 1 ) {
+		const stripped = previous.replace( /<[^>]*>/g, '' );
+		if ( stripped === previous ) {
+			break;
+		}
+		previous = stripped;
+	}
 
-  return decodeEntities(previous).trim();
+	return decodeEntities( previous ).trim();
 }
 
 /**
@@ -188,15 +196,15 @@ export function stripTags(html: string | null | undefined): string {
  * WooCommerce form name (`attribute_pa_color`); both must match the same
  * variation records.
  */
-function bareAttrKey(key: string): string {
-  return (key || '').toLowerCase().replace(/^attribute_/, '');
+function bareAttrKey( key: string ): string {
+	return ( key || '' ).toLowerCase().replace( /^attribute_/, '' );
 }
 
 /** Whether a variation is in stock. Missing flag ⇒ assume available. */
-function variationInStock(variation: Variation): boolean {
-  const record = variation as Record<string, unknown>;
-  const flag = record.inStock ?? record.in_stock;
-  return flag === undefined ? true : flag !== false;
+function variationInStock( variation: Variation ): boolean {
+	const record = variation as Record< string, unknown >;
+	const flag = record.inStock ?? record.in_stock;
+	return flag === undefined ? true : flag !== false;
 }
 
 /**
@@ -207,30 +215,32 @@ function variationInStock(variation: Variation): boolean {
  * of the latter act as wildcards during availability checks.
  */
 function variationValueFor(
-  variation: Variation,
-  attrKey: string
+	variation: Variation,
+	attrKey: string
 ): string | undefined {
-  const target = bareAttrKey(attrKey);
-  const attrs = variation.attributes;
+	const target = bareAttrKey( attrKey );
+	const attrs = variation.attributes;
 
-  if (Array.isArray(attrs)) {
-    for (const attr of attrs) {
-      const keys = [attr.attribute, attr.name, attr.taxonomy].filter(
-        Boolean
-      ) as string[];
-      if (keys.some(k => bareAttrKey(k) === target)) {
-        return attr.value || '';
-      }
-    }
-    return undefined;
-  }
+	if ( Array.isArray( attrs ) ) {
+		for ( const attr of attrs ) {
+			const keys = [ attr.attribute, attr.name, attr.taxonomy ].filter(
+				Boolean
+			) as string[];
+			if ( keys.some( ( k ) => bareAttrKey( k ) === target ) ) {
+				return attr.value || '';
+			}
+		}
+		return undefined;
+	}
 
-  for (const [key, value] of Object.entries(attrs as Record<string, string>)) {
-    if (bareAttrKey(key) === target) {
-      return value || '';
-    }
-  }
-  return undefined;
+	for ( const [ key, value ] of Object.entries(
+		attrs as Record< string, string >
+	) ) {
+		if ( bareAttrKey( key ) === target ) {
+			return value || '';
+		}
+	}
+	return undefined;
 }
 
 /**
@@ -245,48 +255,48 @@ function variationValueFor(
  * shopper can always toggle their own pick back off.
  */
 export function isOptionAvailable(
-  variations: Variation[],
-  attrKey: string,
-  optionValue: string,
-  selected: Record<string, string>,
-  requireStock = true
+	variations: Variation[],
+	attrKey: string,
+	optionValue: string,
+	selected: Record< string, string >,
+	requireStock = true
 ): boolean {
-  const optionLower = (optionValue || '').toLowerCase();
-  const targetBare = bareAttrKey(attrKey);
+	const optionLower = ( optionValue || '' ).toLowerCase();
+	const targetBare = bareAttrKey( attrKey );
 
-  // Selections for every attribute except the one being evaluated.
-  const others = Object.entries(selected).filter(
-    ([key, value]) => value && bareAttrKey(key) !== targetBare
-  );
+	// Selections for every attribute except the one being evaluated.
+	const others = Object.entries( selected ).filter(
+		( [ key, value ] ) => value && bareAttrKey( key ) !== targetBare
+	);
 
-  return variations.some(variation => {
-    if (requireStock && !variationInStock(variation)) {
-      return false;
-    }
+	return variations.some( ( variation ) => {
+		if ( requireStock && ! variationInStock( variation ) ) {
+			return false;
+		}
 
-    // Compatible with this option for its own attribute.
-    const ownValue = variationValueFor(variation, attrKey);
-    if (
-      ownValue !== undefined &&
-      ownValue !== '' &&
-      ownValue.toLowerCase() !== optionLower
-    ) {
-      return false;
-    }
+		// Compatible with this option for its own attribute.
+		const ownValue = variationValueFor( variation, attrKey );
+		if (
+			ownValue !== undefined &&
+			ownValue !== '' &&
+			ownValue.toLowerCase() !== optionLower
+		) {
+			return false;
+		}
 
-    // Compatible with each other current selection.
-    for (const [key, selectedValue] of others) {
-      const value = variationValueFor(variation, key);
-      if (
-        value !== undefined &&
-        value !== '' &&
-        value.toLowerCase() !== selectedValue.toLowerCase()
-      ) {
-        return false;
-      }
-    }
-    return true;
-  });
+		// Compatible with each other current selection.
+		for ( const [ key, selectedValue ] of others ) {
+			const value = variationValueFor( variation, key );
+			if (
+				value !== undefined &&
+				value !== '' &&
+				value.toLowerCase() !== selectedValue.toLowerCase()
+			) {
+				return false;
+			}
+		}
+		return true;
+	} );
 }
 
 /**
@@ -296,63 +306,65 @@ export function isOptionAvailable(
  * from its own translated i18n bag.
  */
 export function describeUnavailableOption(
-  baseName: string,
-  label: string
+	baseName: string,
+	label: string
 ): string {
-  return `${baseName} — ${label}`;
+	return `${ baseName } — ${ label }`;
 }
 
 export function matchVariation(
-  variations: Variation[],
-  selected: Record<string, string>
+	variations: Variation[],
+	selected: Record< string, string >
 ): Variation | null {
-  const activeEntries = Object.entries(selected).filter(([, v]) => v);
-  if (activeEntries.length === 0) {
-    return null;
-  }
+	const activeEntries = Object.entries( selected ).filter( ( [ , v ] ) => v );
+	if ( activeEntries.length === 0 ) {
+		return null;
+	}
 
-  const norm: Record<string, string> = {};
-  for (const [key, value] of activeEntries) {
-    const lower = key.toLowerCase();
-    norm[lower] = value;
-    if (!lower.startsWith('attribute_')) {
-      norm[`attribute_${lower}`] = value;
-    }
-  }
+	const norm: Record< string, string > = {};
+	for ( const [ key, value ] of activeEntries ) {
+		const lower = key.toLowerCase();
+		norm[ lower ] = value;
+		if ( ! lower.startsWith( 'attribute_' ) ) {
+			norm[ `attribute_${ lower }` ] = value;
+		}
+	}
 
-  return (
-    variations.find(v => {
-      const attrs = v.attributes;
+	return (
+		variations.find( ( v ) => {
+			const attrs = v.attributes;
 
-      if (Array.isArray(attrs)) {
-        return attrs.every(attr => {
-          if (!attr.value) return true;
+			if ( Array.isArray( attrs ) ) {
+				return attrs.every( ( attr ) => {
+					if ( ! attr.value ) return true;
 
-          const possibleKeys = [
-            attr.attribute,
-            attr.name,
-            attr.taxonomy,
-          ].filter(Boolean) as string[];
-          let val: string | undefined;
-          for (const k of possibleKeys) {
-            val = norm[k.toLowerCase()];
-            if (val) break;
-          }
+					const possibleKeys = [
+						attr.attribute,
+						attr.name,
+						attr.taxonomy,
+					].filter( Boolean ) as string[];
+					let val: string | undefined;
+					for ( const k of possibleKeys ) {
+						val = norm[ k.toLowerCase() ];
+						if ( val ) break;
+					}
 
-          return val && val.toLowerCase() === attr.value.toLowerCase();
-        });
-      }
+					return (
+						val && val.toLowerCase() === attr.value.toLowerCase()
+					);
+				} );
+			}
 
-      return Object.entries(attrs as Record<string, string>).every(
-        ([key, vValue]) => {
-          if (!vValue) return true;
-          const selectedValue = norm[key.toLowerCase()];
-          if (!selectedValue) return false;
-          return selectedValue.toLowerCase() === vValue.toLowerCase();
-        }
-      );
-    }) || null
-  );
+			return Object.entries( attrs as Record< string, string > ).every(
+				( [ key, vValue ] ) => {
+					if ( ! vValue ) return true;
+					const selectedValue = norm[ key.toLowerCase() ];
+					if ( ! selectedValue ) return false;
+					return selectedValue.toLowerCase() === vValue.toLowerCase();
+				}
+			);
+		} ) || null
+	);
 }
 
 /* ------------------------------------------------------------------ */
@@ -368,8 +380,8 @@ export function matchVariation(
 
 /** Store API error codes that a fresh nonce resolves. */
 const STORE_API_NONCE_ERRORS = [
-  'woocommerce_rest_invalid_nonce',
-  'woocommerce_rest_missing_nonce',
+	'woocommerce_rest_invalid_nonce',
+	'woocommerce_rest_missing_nonce',
 ];
 
 /**
@@ -385,41 +397,41 @@ const STORE_API_NONCE_ERRORS = [
  * @param nonce Accessors for the caller's nonce state.
  */
 export async function storeApiPost(
-  url: string,
-  body: unknown,
-  nonce: { get: () => string; set: (value: string) => void }
-): Promise<Response> {
-  const send = (): Promise<Response> =>
-    fetch(url, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', Nonce: nonce.get() },
-      body: JSON.stringify(body),
-    });
-  // Returns whether the response carried a nonce different from the one sent.
-  const adopt = (res: Response): boolean => {
-    const fresh = res.headers.get('Nonce');
-    if (!fresh || fresh === nonce.get()) {
-      return false;
-    }
-    nonce.set(fresh);
-    return true;
-  };
+	url: string,
+	body: unknown,
+	nonce: { get: () => string; set: ( value: string ) => void }
+): Promise< Response > {
+	const send = (): Promise< Response > =>
+		fetch( url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', Nonce: nonce.get() },
+			body: JSON.stringify( body ),
+		} );
+	// Returns whether the response carried a nonce different from the one sent.
+	const adopt = ( res: Response ): boolean => {
+		const fresh = res.headers.get( 'Nonce' );
+		if ( ! fresh || fresh === nonce.get() ) {
+			return false;
+		}
+		nonce.set( fresh );
+		return true;
+	};
 
-  const res = await send();
-  if (!adopt(res) || (res.status !== 401 && res.status !== 403)) {
-    return res;
-  }
-  const error = (await res
-    .clone()
-    .json()
-    .catch(() => null)) as { code?: string } | null;
-  if (!STORE_API_NONCE_ERRORS.includes(error?.code ?? '')) {
-    return res;
-  }
-  const retry = await send();
-  adopt(retry);
-  return retry;
+	const res = await send();
+	if ( ! adopt( res ) || ( res.status !== 401 && res.status !== 403 ) ) {
+		return res;
+	}
+	const error = ( await res
+		.clone()
+		.json()
+		.catch( () => null ) ) as { code?: string } | null;
+	if ( ! STORE_API_NONCE_ERRORS.includes( error?.code ?? '' ) ) {
+		return res;
+	}
+	const retry = await send();
+	adopt( retry );
+	return retry;
 }
 
 /**
@@ -429,12 +441,12 @@ export async function storeApiPost(
  *
  * @param container Element containing the freshly rendered cards.
  */
-export function notifyCardsRendered(container: HTMLElement | null): void {
-  document.dispatchEvent(
-    new CustomEvent('aa:cards-rendered', {
-      detail: { container },
-    })
-  );
+export function notifyCardsRendered( container: HTMLElement | null ): void {
+	document.dispatchEvent(
+		new CustomEvent( 'aa:cards-rendered', {
+			detail: { container },
+		} )
+	);
 }
 
 /**
@@ -457,100 +469,104 @@ const GRID_SPACER_CLASS = 'aa-product-grid__spacer';
  * @param grid    Product template list element.
  * @param perPage Cards per loaded page.
  */
-export function pruneProductGrid(grid: HTMLElement, perPage: number): void {
-  const maxCards = Math.max(perPage, PRODUCT_GRID_MAX_PAGES * perPage);
-  const cards = Array.from(
-    grid.querySelectorAll<HTMLElement>(`:scope > li:not(.${GRID_SPACER_CLASS})`)
-  );
-  if (cards.length <= maxCards) {
-    return;
-  }
+export function pruneProductGrid( grid: HTMLElement, perPage: number ): void {
+	const maxCards = Math.max( perPage, PRODUCT_GRID_MAX_PAGES * perPage );
+	const cards = Array.from(
+		grid.querySelectorAll< HTMLElement >(
+			`:scope > li:not(.${ GRID_SPACER_CLASS })`
+		)
+	);
+	if ( cards.length <= maxCards ) {
+		return;
+	}
 
-  const removeCount = cards.length - maxCards;
-  let removedHeight = 0;
-  for (let i = 0; i < removeCount; i++) {
-    removedHeight += cards[i].getBoundingClientRect().height;
-    cards[i].remove();
-  }
+	const removeCount = cards.length - maxCards;
+	let removedHeight = 0;
+	for ( let i = 0; i < removeCount; i++ ) {
+		removedHeight += cards[ i ].getBoundingClientRect().height;
+		cards[ i ].remove();
+	}
 
-  let spacer = grid.querySelector<HTMLElement>(
-    `:scope > .${GRID_SPACER_CLASS}`
-  );
-  if (!spacer) {
-    spacer = document.createElement('li');
-    spacer.className = GRID_SPACER_CLASS;
-    spacer.setAttribute('aria-hidden', 'true');
-    grid.prepend(spacer);
-  }
-  const previous = parseFloat(spacer.style.height || '0') || 0;
-  spacer.style.height = `${previous + removedHeight}px`;
-  spacer.style.listStyle = 'none';
-  spacer.style.margin = '0';
-  spacer.style.padding = '0';
-  spacer.style.border = '0';
-  spacer.style.pointerEvents = 'none';
+	let spacer = grid.querySelector< HTMLElement >(
+		`:scope > .${ GRID_SPACER_CLASS }`
+	);
+	if ( ! spacer ) {
+		spacer = document.createElement( 'li' );
+		spacer.className = GRID_SPACER_CLASS;
+		spacer.setAttribute( 'aria-hidden', 'true' );
+		grid.prepend( spacer );
+	}
+	const previous = parseFloat( spacer.style.height || '0' ) || 0;
+	spacer.style.height = `${ previous + removedHeight }px`;
+	spacer.style.listStyle = 'none';
+	spacer.style.margin = '0';
+	spacer.style.padding = '0';
+	spacer.style.border = '0';
+	spacer.style.pointerEvents = 'none';
 }
 
 /**
  * Whether the user prefers reduced motion.
  */
 export function prefersReducedMotion(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	return window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 }
 
 /** Controls that can participate in sequential keyboard navigation. */
-export function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  const FOCUSABLE_SELECTOR =
-    'a[href], button:not([disabled]), input:not([disabled]), ' +
-    'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+export function getFocusableElements( container: HTMLElement ): HTMLElement[] {
+	const FOCUSABLE_SELECTOR =
+		'a[href], button:not([disabled]), input:not([disabled]), ' +
+		'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-  return Array.from(
-    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-  ).filter(el => {
-    if (
-      el.tabIndex < 0 ||
-      el.matches(':disabled') ||
-      el.closest('[hidden], [inert]') ||
-      el.getClientRects().length === 0
-    ) {
-      return false;
-    }
-    const { visibility } = getComputedStyle(el);
-    return visibility !== 'hidden' && visibility !== 'collapse';
-  });
+	return Array.from(
+		container.querySelectorAll< HTMLElement >( FOCUSABLE_SELECTOR )
+	).filter( ( el ) => {
+		if (
+			el.tabIndex < 0 ||
+			el.matches( ':disabled' ) ||
+			el.closest( '[hidden], [inert]' ) ||
+			el.getClientRects().length === 0
+		) {
+			return false;
+		}
+		const { visibility } = getComputedStyle( el );
+		return visibility !== 'hidden' && visibility !== 'collapse';
+	} );
 }
 
-export function setupFocusTrap(container: HTMLElement): () => void {
-  const handleKeydown = (e: KeyboardEvent): void => {
-    if (e.key !== 'Tab') {
-      return;
-    }
+export function setupFocusTrap( container: HTMLElement ): () => void {
+	const handleKeydown = ( e: KeyboardEvent ): void => {
+		if ( e.key !== 'Tab' ) {
+			return;
+		}
 
-    const focusable = getFocusableElements(container);
+		const focusable = getFocusableElements( container );
 
-    if (focusable.length === 0) {
-      e.preventDefault();
-      return;
-    }
+		if ( focusable.length === 0 ) {
+			e.preventDefault();
+			return;
+		}
 
-    const currentIndex = focusable.indexOf(
-      document.activeElement as HTMLElement
-    );
-    let nextIndex: number;
+		const currentIndex = focusable.indexOf(
+			document.activeElement as HTMLElement
+		);
+		let nextIndex: number;
 
-    if (e.shiftKey) {
-      nextIndex = currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1;
-    } else {
-      nextIndex = currentIndex >= focusable.length - 1 ? 0 : currentIndex + 1;
-    }
+		if ( e.shiftKey ) {
+			nextIndex =
+				currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1;
+		} else {
+			nextIndex =
+				currentIndex >= focusable.length - 1 ? 0 : currentIndex + 1;
+		}
 
-    e.preventDefault();
-    focusable[nextIndex].focus();
-  };
+		e.preventDefault();
+		focusable[ nextIndex ].focus();
+	};
 
-  container.addEventListener('keydown', handleKeydown);
+	container.addEventListener( 'keydown', handleKeydown );
 
-  return () => {
-    container.removeEventListener('keydown', handleKeydown);
-  };
+	return () => {
+		container.removeEventListener( 'keydown', handleKeydown );
+	};
 }

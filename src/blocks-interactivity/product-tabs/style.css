@@ -9,7 +9,7 @@
  * Split into partials, imported in cascade order.
  */
 
-@import './_layouts.css';
-@import './_custom-layouts.css';
-@import './_reviews.css';
-@import './_responsive.css';
+@import "./_layouts.css";
+@import "./_custom-layouts.css";
+@import "./_reviews.css";
+@import "./_responsive.css";

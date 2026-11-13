@@ -33,7 +33,7 @@
 
 	/* Hover bridge */
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		top: 100%;
 		left: 0;

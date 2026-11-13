@@ -191,7 +191,7 @@
 	margin-top: 0;
 }
 
-.aa-custom-tabs-repeater input[type='text'],
+.aa-custom-tabs-repeater input[type="text"],
 .aa-custom-tabs-repeater select,
 .aa-custom-tabs-repeater textarea {
 	margin-top: 0.25rem;
@@ -215,13 +215,13 @@
 
 /* No-code layout item builder. */
 
-.aa-custom-tabs-repeater__row[data-source='manual'] [data-source-field],
-.aa-custom-tabs-repeater__row[data-source='product_meta']
-	[data-source-field='attribute'],
-.aa-custom-tabs-repeater__row[data-source='product_attribute']
-	[data-source-field='meta'],
-.aa-custom-tabs-repeater__row[data-layout='rich_text'] .aa-custom-tab-items,
-.aa-custom-tabs-repeater__row[data-layout='custom_html'] .aa-custom-tab-items {
+.aa-custom-tabs-repeater__row[data-source="manual"] [data-source-field],
+.aa-custom-tabs-repeater__row[data-source="product_meta"]
+	[data-source-field="attribute"],
+.aa-custom-tabs-repeater__row[data-source="product_attribute"]
+	[data-source-field="meta"],
+.aa-custom-tabs-repeater__row[data-layout="rich_text"] .aa-custom-tab-items,
+.aa-custom-tabs-repeater__row[data-layout="custom_html"] .aa-custom-tab-items {
 	display: none;
 }
 
@@ -257,7 +257,7 @@
 	min-width: 0;
 }
 
-.aa-custom-tab-items__row-fields input[type='text'] {
+.aa-custom-tab-items__row-fields input[type="text"] {
 	width: 100%;
 }
 
@@ -578,8 +578,8 @@
 	align-items: start;
 }
 
-.aa-tab-override[data-mode='inherit'] .aa-tab-override__content,
-.aa-tab-override[data-mode='hide'] .aa-tab-override__content {
+.aa-tab-override[data-mode="inherit"] .aa-tab-override__content,
+.aa-tab-override[data-mode="hide"] .aa-tab-override__content {
 	display: none;
 }
 

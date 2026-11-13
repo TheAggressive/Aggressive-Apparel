@@ -244,13 +244,13 @@
 	   own check + label reveal below. */
 
 	/* Checkmark bounces in on the active tab. */
-	&:is(.is-active, [aria-selected='true']) .aa-search__tab-check {
+	&:is(.is-active, [aria-selected="true"]) .aa-search__tab-check {
 		opacity: 1;
 		transform: translateX(0) scale(1);
 	}
 
 	/* Label slides right to make room for the checkmark. */
-	&:is(.is-active, [aria-selected='true']) .aa-search__tab-label {
+	&:is(.is-active, [aria-selected="true"]) .aa-search__tab-label {
 		transform: translateX(0);
 	}
 }
@@ -258,7 +258,7 @@
 @media (hover: hover) {
 	/* Stronger border on hover; the wipe fill itself comes from the shared
 	   .aa-choice-pill primitive. */
-	.aa-search__tab:hover:not(.is-active, [aria-selected='true']) {
+	.aa-search__tab:hover:not(.is-active, [aria-selected="true"]) {
 		color: var(--wp--custom--button--choice--selected-text);
 		box-shadow: inset 0 0 0 2px
 			color-mix(

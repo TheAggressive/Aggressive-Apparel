@@ -15,23 +15,23 @@ import { useMemo } from '@wordpress/element';
 
 /** Navigation shells that must never nest inside the panel. */
 const PANEL_EXCLUDED_BLOCKS = [
-  'aggressive-apparel/navigation',
-  'aggressive-apparel/navigation-panel',
-  'aggressive-apparel/navigation-trigger',
-  'core/navigation',
+	'aggressive-apparel/navigation',
+	'aggressive-apparel/navigation-panel',
+	'aggressive-apparel/navigation-trigger',
+	'core/navigation',
 ];
 
 const NO_EXCLUSIONS: readonly string[] = [];
 
 /** Extra exclusions for drilldown screens: accordions stay top-level. */
 export const DRILLDOWN_EXCLUDED_BLOCKS = [
-  'aggressive-apparel/nav-submenu-accordion',
+	'aggressive-apparel/nav-submenu-accordion',
 ];
 
 /** Extra exclusions for accordion bodies: no nested submenus. */
 export const ACCORDION_EXCLUDED_BLOCKS = [
-  'aggressive-apparel/nav-submenu-accordion',
-  'aggressive-apparel/nav-submenu-drilldown',
+	'aggressive-apparel/nav-submenu-accordion',
+	'aggressive-apparel/nav-submenu-drilldown',
 ];
 
 /**
@@ -40,20 +40,20 @@ export const ACCORDION_EXCLUDED_BLOCKS = [
  * Pass a module-level constant for `exclude` so the list stays memoized.
  */
 export function usePanelAllowedBlocks(
-  exclude: readonly string[] = NO_EXCLUSIONS
+	exclude: readonly string[] = NO_EXCLUSIONS
 ): string[] {
-  const blockTypes = useSelect(
-    select =>
-      select(blocksStore).getBlockTypes() as unknown as {
-        name: string;
-      }[],
-    []
-  );
+	const blockTypes = useSelect(
+		( select ) =>
+			select( blocksStore ).getBlockTypes() as unknown as {
+				name: string;
+			}[],
+		[]
+	);
 
-  return useMemo(() => {
-    const excluded = new Set([...PANEL_EXCLUDED_BLOCKS, ...exclude]);
-    return blockTypes
-      .map(blockType => blockType.name)
-      .filter(name => !excluded.has(name));
-  }, [blockTypes, exclude]);
+	return useMemo( () => {
+		const excluded = new Set( [ ...PANEL_EXCLUDED_BLOCKS, ...exclude ] );
+		return blockTypes
+			.map( ( blockType ) => blockType.name )
+			.filter( ( name ) => ! excluded.has( name ) );
+	}, [ blockTypes, exclude ] );
 }

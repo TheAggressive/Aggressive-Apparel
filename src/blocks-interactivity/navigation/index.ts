@@ -16,9 +16,9 @@ import type { BlockVariation } from '@wordpress/blocks';
  * This mirrors the upstream shape exactly.
  */
 type InnerBlockTemplate = [
-  string,
-  Record<string, unknown>?,
-  InnerBlockTemplate[]?,
+	string,
+	Record< string, unknown >?,
+	InnerBlockTemplate[]?,
 ];
 import metadata from './block.json';
 import blockIcon from './icon';
@@ -26,9 +26,9 @@ import Edit from './edit';
 import Save from './save';
 import type { NavigationAttributes } from './types';
 import {
-  dropdownNavigationIcon,
-  ecommerceNavigationIcon,
-  simpleNavigationIcon,
+	dropdownNavigationIcon,
+	ecommerceNavigationIcon,
+	simpleNavigationIcon,
 } from './variation-icons';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
@@ -37,16 +37,16 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
  * WordPress variations only need to specify overridden attributes.
  */
 interface NavigationVariation {
-  name: string;
-  title: string;
-  description: string;
-  // Matches BlockVariation's icon slot, which does not accept the full
-  // ReactNode union (null in particular).
-  icon: NonNullable<BlockVariation['icon']>;
-  isDefault?: boolean;
-  attributes: Partial<NavigationAttributes>;
-  innerBlocks: InnerBlockTemplate[];
-  scope: ('inserter' | 'block' | 'transform')[];
+	name: string;
+	title: string;
+	description: string;
+	// Matches BlockVariation's icon slot, which does not accept the full
+	// ReactNode union (null in particular).
+	icon: NonNullable< BlockVariation[ 'icon' ] >;
+	isDefault?: boolean;
+	attributes: Partial< NavigationAttributes >;
+	innerBlocks: InnerBlockTemplate[];
+	scope: ( 'inserter' | 'block' | 'transform' )[];
 }
 
 // Import styles for webpack to bundle.
@@ -59,11 +59,11 @@ import './style.css';
  * Toggle, panel, and auto-sync are handled by render.php.
  */
 const simpleNavTemplate: InnerBlockTemplate[] = [
-  ['aggressive-apparel/nav-link', { label: 'Home', url: '/' }],
-  ['aggressive-apparel/nav-link', { label: 'About', url: '/about' }],
-  ['aggressive-apparel/nav-link', { label: 'Services', url: '/services' }],
-  ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
-  ['aggressive-apparel/navigation-trigger', {}],
+	[ 'aggressive-apparel/nav-link', { label: 'Home', url: '/' } ],
+	[ 'aggressive-apparel/nav-link', { label: 'About', url: '/about' } ],
+	[ 'aggressive-apparel/nav-link', { label: 'Services', url: '/services' } ],
+	[ 'aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' } ],
+	[ 'aggressive-apparel/navigation-trigger', {} ],
 ];
 
 /**
@@ -71,37 +71,49 @@ const simpleNavTemplate: InnerBlockTemplate[] = [
  * Submenus with dropdown type for desktop, auto-converted to drilldown on mobile.
  */
 const dropdownNavTemplate: InnerBlockTemplate[] = [
-  ['aggressive-apparel/nav-link', { label: 'Home', url: '/' }],
-  [
-    'aggressive-apparel/nav-submenu-dropdown',
-    { label: 'Products', showArrow: true },
-    [
-      [
-        'aggressive-apparel/nav-link',
-        { label: 'All Products', url: '/products' },
-      ],
-      [
-        'aggressive-apparel/nav-link',
-        { label: 'New Arrivals', url: '/products/new' },
-      ],
-      [
-        'aggressive-apparel/nav-link',
-        { label: 'Best Sellers', url: '/products/best-sellers' },
-      ],
-      ['aggressive-apparel/nav-link', { label: 'Sale', url: '/products/sale' }],
-    ],
-  ],
-  [
-    'aggressive-apparel/nav-submenu-dropdown',
-    { label: 'About', showArrow: true },
-    [
-      ['aggressive-apparel/nav-link', { label: 'Our Story', url: '/about' }],
-      ['aggressive-apparel/nav-link', { label: 'Team', url: '/about/team' }],
-      ['aggressive-apparel/nav-link', { label: 'Careers', url: '/careers' }],
-    ],
-  ],
-  ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
-  ['aggressive-apparel/navigation-trigger', {}],
+	[ 'aggressive-apparel/nav-link', { label: 'Home', url: '/' } ],
+	[
+		'aggressive-apparel/nav-submenu-dropdown',
+		{ label: 'Products', showArrow: true },
+		[
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'All Products', url: '/products' },
+			],
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'New Arrivals', url: '/products/new' },
+			],
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Best Sellers', url: '/products/best-sellers' },
+			],
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Sale', url: '/products/sale' },
+			],
+		],
+	],
+	[
+		'aggressive-apparel/nav-submenu-dropdown',
+		{ label: 'About', showArrow: true },
+		[
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Our Story', url: '/about' },
+			],
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Team', url: '/about/team' },
+			],
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Careers', url: '/careers' },
+			],
+		],
+	],
+	[ 'aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' } ],
+	[ 'aggressive-apparel/navigation-trigger', {} ],
 ];
 
 /**
@@ -109,129 +121,138 @@ const dropdownNavTemplate: InnerBlockTemplate[] = [
  * Mega menu content uses core/columns directly inside nav-submenu.
  */
 const ecommerceNavTemplate: InnerBlockTemplate[] = [
-  ['aggressive-apparel/nav-link', { label: 'Home', url: '/' }],
-  [
-    'aggressive-apparel/nav-submenu-mega',
-    { label: 'Shop', showArrow: true },
-    [
-      [
-        'core/columns',
-        { isStackedOnMobile: true },
-        [
-          [
-            'core/column',
-            {},
-            [
-              ['core/heading', { level: 4, content: 'Men' }],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'T-Shirts',
-                  url: '/shop/men/t-shirts',
-                },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                { label: 'Hoodies', url: '/shop/men/hoodies' },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                { label: 'Pants', url: '/shop/men/pants' },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'Accessories',
-                  url: '/shop/men/accessories',
-                },
-              ],
-            ],
-          ],
-          [
-            'core/column',
-            {},
-            [
-              ['core/heading', { level: 4, content: 'Women' }],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'T-Shirts',
-                  url: '/shop/women/t-shirts',
-                },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'Hoodies',
-                  url: '/shop/women/hoodies',
-                },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'Leggings',
-                  url: '/shop/women/leggings',
-                },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'Accessories',
-                  url: '/shop/women/accessories',
-                },
-              ],
-            ],
-          ],
-          [
-            'core/column',
-            {},
-            [
-              ['core/heading', { level: 4, content: 'Collections' }],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'New Arrivals',
-                  url: '/collections/new',
-                },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'Best Sellers',
-                  url: '/collections/best-sellers',
-                },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                {
-                  label: 'Limited Edition',
-                  url: '/collections/limited',
-                },
-              ],
-              [
-                'aggressive-apparel/nav-link',
-                { label: 'Sale', url: '/collections/sale' },
-              ],
-            ],
-          ],
-        ],
-      ],
-    ],
-  ],
-  [
-    'aggressive-apparel/nav-submenu-dropdown',
-    { label: 'About', showArrow: true },
-    [
-      ['aggressive-apparel/nav-link', { label: 'Our Story', url: '/about' }],
-      [
-        'aggressive-apparel/nav-link',
-        { label: 'Sustainability', url: '/sustainability' },
-      ],
-      ['aggressive-apparel/nav-link', { label: 'Careers', url: '/careers' }],
-    ],
-  ],
-  ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
-  ['aggressive-apparel/navigation-trigger', {}],
+	[ 'aggressive-apparel/nav-link', { label: 'Home', url: '/' } ],
+	[
+		'aggressive-apparel/nav-submenu-mega',
+		{ label: 'Shop', showArrow: true },
+		[
+			[
+				'core/columns',
+				{ isStackedOnMobile: true },
+				[
+					[
+						'core/column',
+						{},
+						[
+							[ 'core/heading', { level: 4, content: 'Men' } ],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'T-Shirts',
+									url: '/shop/men/t-shirts',
+								},
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{ label: 'Hoodies', url: '/shop/men/hoodies' },
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{ label: 'Pants', url: '/shop/men/pants' },
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'Accessories',
+									url: '/shop/men/accessories',
+								},
+							],
+						],
+					],
+					[
+						'core/column',
+						{},
+						[
+							[ 'core/heading', { level: 4, content: 'Women' } ],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'T-Shirts',
+									url: '/shop/women/t-shirts',
+								},
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'Hoodies',
+									url: '/shop/women/hoodies',
+								},
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'Leggings',
+									url: '/shop/women/leggings',
+								},
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'Accessories',
+									url: '/shop/women/accessories',
+								},
+							],
+						],
+					],
+					[
+						'core/column',
+						{},
+						[
+							[
+								'core/heading',
+								{ level: 4, content: 'Collections' },
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'New Arrivals',
+									url: '/collections/new',
+								},
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'Best Sellers',
+									url: '/collections/best-sellers',
+								},
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{
+									label: 'Limited Edition',
+									url: '/collections/limited',
+								},
+							],
+							[
+								'aggressive-apparel/nav-link',
+								{ label: 'Sale', url: '/collections/sale' },
+							],
+						],
+					],
+				],
+			],
+		],
+	],
+	[
+		'aggressive-apparel/nav-submenu-dropdown',
+		{ label: 'About', showArrow: true },
+		[
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Our Story', url: '/about' },
+			],
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Sustainability', url: '/sustainability' },
+			],
+			[
+				'aggressive-apparel/nav-link',
+				{ label: 'Careers', url: '/careers' },
+			],
+		],
+	],
+	[ 'aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' } ],
+	[ 'aggressive-apparel/navigation-trigger', {} ],
 ];
 
 /**
@@ -239,49 +260,50 @@ const ecommerceNavTemplate: InnerBlockTemplate[] = [
  * Provides one-click setups for common navigation patterns.
  */
 const variations: NavigationVariation[] = [
-  {
-    name: 'simple',
-    title: 'Simple Navigation',
-    description:
-      'Basic horizontal navigation with Home, About, Services, and Contact links.',
-    icon: simpleNavigationIcon,
-    isDefault: true,
-    attributes: {
-      ariaLabel: 'Main navigation',
-    },
-    innerBlocks: simpleNavTemplate,
-    scope: ['inserter', 'block'],
-  },
-  {
-    name: 'dropdowns',
-    title: 'Navigation with Dropdowns',
-    description: 'Navigation with dropdown submenus for organizing content.',
-    icon: dropdownNavigationIcon,
-    attributes: {
-      ariaLabel: 'Main navigation',
-      openOn: 'hover',
-    },
-    innerBlocks: dropdownNavTemplate,
-    scope: ['inserter', 'block'],
-  },
-  {
-    name: 'ecommerce',
-    title: 'E-commerce Navigation',
-    description:
-      'Full-featured shop navigation with mega menu and mobile drill-down.',
-    icon: ecommerceNavigationIcon,
-    attributes: {
-      ariaLabel: 'Shop navigation',
-      openOn: 'hover',
-    },
-    innerBlocks: ecommerceNavTemplate,
-    scope: ['inserter', 'block'],
-  },
+	{
+		name: 'simple',
+		title: 'Simple Navigation',
+		description:
+			'Basic horizontal navigation with Home, About, Services, and Contact links.',
+		icon: simpleNavigationIcon,
+		isDefault: true,
+		attributes: {
+			ariaLabel: 'Main navigation',
+		},
+		innerBlocks: simpleNavTemplate,
+		scope: [ 'inserter', 'block' ],
+	},
+	{
+		name: 'dropdowns',
+		title: 'Navigation with Dropdowns',
+		description:
+			'Navigation with dropdown submenus for organizing content.',
+		icon: dropdownNavigationIcon,
+		attributes: {
+			ariaLabel: 'Main navigation',
+			openOn: 'hover',
+		},
+		innerBlocks: dropdownNavTemplate,
+		scope: [ 'inserter', 'block' ],
+	},
+	{
+		name: 'ecommerce',
+		title: 'E-commerce Navigation',
+		description:
+			'Full-featured shop navigation with mega menu and mobile drill-down.',
+		icon: ecommerceNavigationIcon,
+		attributes: {
+			ariaLabel: 'Shop navigation',
+			openOn: 'hover',
+		},
+		innerBlocks: ecommerceNavTemplate,
+		scope: [ 'inserter', 'block' ],
+	},
 ];
 
-registerThemeBlock<NavigationAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  save: Save,
-  variations,
-});
+registerThemeBlock< NavigationAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	save: Save,
+	variations,
+} );

@@ -1,38 +1,38 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "aggressive-apparel/recently-viewed",
-  "version": "1.0.0",
-  "title": "Recently Viewed Products",
-  "category": "aggressive-apparel",
-  "description": "Shows products the visitor recently viewed using browser localStorage.",
-  "keywords": ["recently viewed", "history", "products"],
-  "supports": {
-    "requiresPlugins": ["woocommerce"],
-    "html": false,
-    "interactivity": true,
-    "color": {
-      "text": true,
-      "background": true
-    },
-    "spacing": {
-      "margin": true,
-      "padding": true
-    }
-  },
-  "attributes": {
-    "maxDisplay": {
-      "type": "number",
-      "default": 4
-    },
-    "heading": {
-      "type": "string",
-      "default": "Recently Viewed"
-    }
-  },
-  "textdomain": "aggressive-apparel",
-  "editorScript": "file:./index.js",
-  "style": "file:./style-index.css",
-  "render": "file:./render.php",
-  "viewScriptModule": "file:./view.js"
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "aggressive-apparel/recently-viewed",
+	"version": "1.0.0",
+	"title": "Recently Viewed Products",
+	"category": "aggressive-apparel",
+	"description": "Shows products the visitor recently viewed using browser localStorage.",
+	"keywords": [ "recently viewed", "history", "products" ],
+	"supports": {
+		"requiresPlugins": [ "woocommerce" ],
+		"html": false,
+		"interactivity": true,
+		"color": {
+			"text": true,
+			"background": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"attributes": {
+		"maxDisplay": {
+			"type": "number",
+			"default": 4
+		},
+		"heading": {
+			"type": "string",
+			"default": "Recently Viewed"
+		}
+	},
+	"textdomain": "aggressive-apparel",
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:./view.js"
 }

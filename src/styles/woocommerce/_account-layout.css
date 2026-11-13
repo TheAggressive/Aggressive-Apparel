@@ -166,7 +166,7 @@ a.aa-account-card:focus-visible {
 }
 
 .woocommerce-account .woocommerce-MyAccount-navigation a::before {
-	content: '';
+	content: "";
 	flex: none;
 	width: 1.375rem;
 	height: 1.375rem;

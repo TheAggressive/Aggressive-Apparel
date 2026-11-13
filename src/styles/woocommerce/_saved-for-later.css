@@ -30,11 +30,11 @@
 		/* A percentage track resolves against the card, so the thumbnail
 		 * follows each card's own width: 5rem on a phone, 6rem on a roomy card. */
 		grid-template:
-			'image name remove' auto
-			'image variation variation' auto
-			'image price price' auto
-			'image quantity quantity' auto
-			'image move move' 1fr
+			"image name remove" auto
+			"image variation variation" auto
+			"image price price" auto
+			"image quantity quantity" auto
+			"image move move" 1fr
 			/ clamp(5rem, 25%, 6rem) minmax(0, 1fr) auto;
 		gap: 0.25rem var(--wp--preset--spacing--4);
 		padding: var(--wp--preset--spacing--4);
@@ -138,7 +138,8 @@
  * instead. The attribute selector outranks WooCommerce's `.columns-N` rule, so
  * stylesheet order doesn't decide it. Gap stays WooCommerce's block-gap. */
 @container (width < 60rem) {
-	.wc-block-saved-for-later .wc-block-saved-for-later__list[class*='columns-'] {
+	.wc-block-saved-for-later
+		.wc-block-saved-for-later__list[class*="columns-"] {
 		grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
 	}
 }

@@ -28,7 +28,8 @@
 	transform: translateY(-50%);
 	background: var(--pf-border);
 	border-radius: 999px;
-	box-shadow: inset 0 1px 2px color-mix(in oklch, var(--pf-fg) 12%, transparent);
+	box-shadow: inset 0 1px 2px
+		color-mix(in oklch, var(--pf-fg) 12%, transparent);
 }
 
 /* Active range — solid accent with top-edge gloss highlight. */
@@ -58,7 +59,7 @@
 
 	/* Caret pointing down toward the track. */
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		bottom: -3px;
 		left: 50%;

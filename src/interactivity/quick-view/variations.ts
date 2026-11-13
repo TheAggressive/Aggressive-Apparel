@@ -25,30 +25,36 @@ const MAX_PAGES = 10;
  * @param signal    Aborts with the product request.
  */
 export async function fetchVariations(
-  endpoint: string,
-  productId: number,
-  signal?: AbortSignal
-): Promise<StoreApiProduct[]> {
-  const variations: StoreApiProduct[] = [];
+	endpoint: string,
+	productId: number,
+	signal?: AbortSignal
+): Promise< StoreApiProduct[] > {
+	const variations: StoreApiProduct[] = [];
 
-  try {
-    for (let page = 1, pages = 1; page <= pages && page <= MAX_PAGES; page++) {
-      const url = new URL(endpoint.replace(/\/$/, ''), location.href);
-      url.searchParams.set('type', 'variation');
-      url.searchParams.set('parent', String(productId));
-      url.searchParams.set('per_page', String(PAGE_SIZE));
-      url.searchParams.set('page', String(page));
+	try {
+		for (
+			let page = 1, pages = 1;
+			page <= pages && page <= MAX_PAGES;
+			page++
+		) {
+			const url = new URL( endpoint.replace( /\/$/, '' ), location.href );
+			url.searchParams.set( 'type', 'variation' );
+			url.searchParams.set( 'parent', String( productId ) );
+			url.searchParams.set( 'per_page', String( PAGE_SIZE ) );
+			url.searchParams.set( 'page', String( page ) );
 
-      const res = await fetch(url.toString(), { signal });
-      if (!res.ok) break;
-      const data: unknown = await res.json();
-      if (!Array.isArray(data)) break;
-      variations.push(...(data as StoreApiProduct[]));
-      pages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10) || 1;
-    }
-  } catch (err) {
-    if ((err as Error)?.name === 'AbortError') throw err;
-  }
+			const res = await fetch( url.toString(), { signal } );
+			if ( ! res.ok ) break;
+			const data: unknown = await res.json();
+			if ( ! Array.isArray( data ) ) break;
+			variations.push( ...( data as StoreApiProduct[] ) );
+			pages =
+				parseInt( res.headers.get( 'X-WP-TotalPages' ) || '1', 10 ) ||
+				1;
+		}
+	} catch ( err ) {
+		if ( ( err as Error )?.name === 'AbortError' ) throw err;
+	}
 
-  return variations;
+	return variations;
 }

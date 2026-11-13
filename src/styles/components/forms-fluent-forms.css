@@ -180,7 +180,7 @@
  * button is a 24px target (WCAG 2.5.8; it sits inside the clickable chip)
  * with a small icon; negative margins keep the chip compact. */
 .fluentform.ff-inherit-theme-style
-	.choices[data-type*='select-multiple']
+	.choices[data-type*="select-multiple"]
 	.choices__button {
 	width: 1.5rem;
 	height: 1.5rem;
@@ -194,14 +194,14 @@
 }
 
 .fluentform.ff-inherit-theme-style
-	.choices[data-type*='select-multiple']
+	.choices[data-type*="select-multiple"]
 	.choices__button:is(:hover, :focus-visible) {
 	background-color: currentcolor;
 	opacity: 1;
 }
 
 .fluentform.ff-inherit-theme-style
-	.choices[data-type*='select-multiple']
+	.choices[data-type*="select-multiple"]
 	.choices__button:focus-visible {
 	outline: 2px solid var(--aa-field-bar-focus);
 	outline-offset: 1px;
@@ -214,7 +214,7 @@
 
 /* The inline multi-select search box takes the rest of the row. */
 .fluentform.ff-inherit-theme-style
-	.choices[data-type*='select-multiple']
+	.choices[data-type*="select-multiple"]
 	.choices__input {
 	flex: 1 1 6rem;
 	min-height: 0;
@@ -223,7 +223,7 @@
 }
 
 .fluentform.ff-inherit-theme-style
-	.choices[data-type*='select-one']
+	.choices[data-type*="select-one"]
 	.choices__input {
 	background-color: var(--aa-field-bg-solid);
 }
@@ -231,8 +231,8 @@
 /* Chevron — the theme's, turning while open (replaces the CSS triangle). */
 .fluentform.ff-inherit-theme-style
 	.choices:is(
-		[data-type*='select-one'],
-		[data-type*='select-multiple']
+		[data-type*="select-one"],
+		[data-type*="select-multiple"]
 	)::after {
 	width: 0.75rem;
 	height: 0.75rem;
@@ -246,8 +246,8 @@
 
 .fluentform.ff-inherit-theme-style
 	.choices:is(
-		[data-type*='select-one'],
-		[data-type*='select-multiple']
+		[data-type*="select-one"],
+		[data-type*="select-multiple"]
 	).is-open::after {
 	margin-top: -0.375rem;
 	border: 0;
@@ -308,7 +308,7 @@
 
 .fluentform.ff-inherit-theme-style
 	.ff-el-input--content:has(> .flatpickr-input)::after {
-	content: '';
+	content: "";
 	position: absolute;
 	top: calc(var(--aa-field-height) / 2);
 	right: 1rem;

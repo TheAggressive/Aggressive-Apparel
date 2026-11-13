@@ -10,78 +10,78 @@ name: WordPress Beta Compatibility
 # unchanged beta — noise that trains you to ignore a red badge, which is the
 # only thing this job produces.
 on:
-  schedule:
-    - cron: '17 8 * * 3'
-  workflow_dispatch:
+    schedule:
+        - cron: '17 8 * * 3'
+    workflow_dispatch:
 
 permissions:
-  contents: read
+    contents: read
 
 concurrency:
-  group: wordpress-beta-compatibility
-  cancel-in-progress: true
+    group: wordpress-beta-compatibility
+    cancel-in-progress: true
 
 env:
-  NODE_VERSION: '24.18.0'
-  PHP_VERSION: '8.2.32'
+    NODE_VERSION: '24.18.0'
+    PHP_VERSION: '8.2.32'
 
 jobs:
-  e2e:
-    name: 🧪 Latest WordPress Beta/RC
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    e2e:
+        name: 🧪 Latest WordPress Beta/RC
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
 
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
 
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
 
-      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          tools: composer:v2
+            - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+              with:
+                  php-version: ${{ env.PHP_VERSION }}
+                  tools: composer:v2
 
-      - name: Cache Playwright browser
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+            - name: Cache Playwright browser
+              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --prefer-dist --no-progress
-          pnpm install --frozen-lockfile
+            - name: Install dependencies
+              run: |
+                  composer install --no-interaction --prefer-dist --no-progress
+                  pnpm install --frozen-lockfile
 
-      - name: Build theme
-        run: pnpm ci:build
+            - name: Build theme
+              run: pnpm ci:build
 
-      - name: Install Playwright browser
-        run: pnpm test:e2e:install
+            - name: Install Playwright browser
+              run: pnpm test:e2e:install
 
-      # The beta upgrade is isolated under ci:* commands. Local env:* commands
-      # target WordPress Studio and never start containers.
-      - name: Start latest Beta/RC environment
-        run: |
-          pnpm ci:env:reset
-          pnpm ci:env:beta
-          pnpm ci:env:check
+            # The beta upgrade is isolated under ci:* commands. Local env:* commands
+            # target WordPress Studio and never start containers.
+            - name: Start latest Beta/RC environment
+              run: |
+                  pnpm ci:env:reset
+                  pnpm ci:env:beta
+                  pnpm ci:env:check
 
-      - name: Run end-to-end compatibility suite
-        run: pnpm ci:e2e:beta
+            - name: Run end-to-end compatibility suite
+              run: pnpm ci:e2e:beta
 
-      - name: Upload Playwright diagnostics
-        if: ${{ failure() || cancelled() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: wordpress-beta-playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 7
+            - name: Upload Playwright diagnostics
+              if: ${{ failure() || cancelled() }}
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: wordpress-beta-playwright-report
+                  path: |
+                      playwright-report/
+                      test-results/
+                  retention-days: 7

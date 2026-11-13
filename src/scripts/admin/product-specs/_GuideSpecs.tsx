@@ -27,333 +27,390 @@ import { SECTION, hasSpecs, moveSpecKey, specValue } from './_guideSummary';
 import { edited, type SpecEdits } from './_specEdits';
 
 type Props = {
-  config: Config;
-  /** Global attributes, taxonomy => label (current, not as loaded). */
-  taxonomies: Record<string, string>;
-  /** Saved registry items: the store's specs. */
-  items: SpecItem[];
-  /** The specs this guide lists, as edited here (guideSpecs). */
-  specs: DraftItem[];
-  /** Changes to saved specs for every guide; they save with the guide. */
-  edits: SpecEdits;
-  /** Specs added here; they save with the guide. */
-  added: DraftItem[];
-  values: Record<string, string>;
-  /** Specs hidden on this guide's products. */
-  hidden: string[];
-  /** Wording for this guide's products only. */
-  wording: Wording;
-  /** Change the guide's Shown/Hidden switches or wording. */
-  onGuide: (patch: Partial<Pick<GuideDetail, 'hidden' | 'wording'>>) => void;
-  /** Whether the guide shows a Size Guide button (a chart or old content). */
-  hasChart: boolean;
-  onValues: (values: Record<string, string>) => void;
-  onEdit: (key: string, patch: Partial<SpecItem>) => void;
-  onDiscardEdit: (key: string) => void;
-  onAdded: (added: DraftItem[]) => void;
-  /** Open the Specs tab. */
-  onManage: () => void;
-  /** Shown under the specs (Apply to products). */
-  footer?: ReactNode;
+	config: Config;
+	/** Global attributes, taxonomy => label (current, not as loaded). */
+	taxonomies: Record< string, string >;
+	/** Saved registry items: the store's specs. */
+	items: SpecItem[];
+	/** The specs this guide lists, as edited here (guideSpecs). */
+	specs: DraftItem[];
+	/** Changes to saved specs for every guide; they save with the guide. */
+	edits: SpecEdits;
+	/** Specs added here; they save with the guide. */
+	added: DraftItem[];
+	values: Record< string, string >;
+	/** Specs hidden on this guide's products. */
+	hidden: string[];
+	/** Wording for this guide's products only. */
+	wording: Wording;
+	/** Change the guide's Shown/Hidden switches or wording. */
+	onGuide: (
+		patch: Partial< Pick< GuideDetail, 'hidden' | 'wording' > >
+	) => void;
+	/** Whether the guide shows a Size Guide button (a chart or old content). */
+	hasChart: boolean;
+	onValues: ( values: Record< string, string > ) => void;
+	onEdit: ( key: string, patch: Partial< SpecItem > ) => void;
+	onDiscardEdit: ( key: string ) => void;
+	onAdded: ( added: DraftItem[] ) => void;
+	/** Open the Specs tab. */
+	onManage: () => void;
+	/** Shown under the specs (Apply to products). */
+	footer?: ReactNode;
 };
 
-export default function GuideSpecs({
-  config,
-  taxonomies,
-  items,
-  specs,
-  edits,
-  added,
-  values,
-  hidden,
-  wording,
-  onGuide,
-  hasChart,
-  onValues,
-  onEdit,
-  onDiscardEdit,
-  onAdded,
-  onManage,
-  footer,
-}: Props) {
-  // The spec whose card is open, by key (saved) or uid (added here).
-  const [open, setOpen] = useState<string | null>(null);
-  // Edits are for this guide only unless every guide is chosen, per spec.
-  const [everyGuide, setEveryGuide] = useState<string[]>([]);
-  // A spec whose changes for every guide are about to be dropped.
-  const [dropping, setDropping] = useState<string | null>(null);
+export default function GuideSpecs( {
+	config,
+	taxonomies,
+	items,
+	specs,
+	edits,
+	added,
+	values,
+	hidden,
+	wording,
+	onGuide,
+	hasChart,
+	onValues,
+	onEdit,
+	onDiscardEdit,
+	onAdded,
+	onManage,
+	footer,
+}: Props ) {
+	// The spec whose card is open, by key (saved) or uid (added here).
+	const [ open, setOpen ] = useState< string | null >( null );
+	// Edits are for this guide only unless every guide is chosen, per spec.
+	const [ everyGuide, setEveryGuide ] = useState< string[] >( [] );
+	// A spec whose changes for every guide are about to be dropped.
+	const [ dropping, setDropping ] = useState< string | null >( null );
 
-  const shown = specs
-    .filter(item => item.enabled && !hidden.includes(item.key))
-    .map(item => worded(item, wording));
-  const full = items.length + added.length >= config.limits.items;
-  // Keys and attributes are unique across the whole store, as edited here.
-  const store = items.map(item => edited(item, edits));
-  const taken = (except = '') => [
-    ...store,
-    ...added.filter(other => other.uid !== except),
-  ];
+	const shown = specs
+		.filter( ( item ) => item.enabled && ! hidden.includes( item.key ) )
+		.map( ( item ) => worded( item, wording ) );
+	const full = items.length + added.length >= config.limits.items;
+	// Keys and attributes are unique across the whole store, as edited here.
+	const store = items.map( ( item ) => edited( item, edits ) );
+	const taken = ( except = '' ) => [
+		...store,
+		...added.filter( ( other ) => other.uid !== except ),
+	];
 
-  // Attributes a spec can switch to: its own, and any no other spec uses.
-  const freeTaxonomies = (item: DraftItem) =>
-    Object.fromEntries(
-      Object.entries(taxonomies).filter(
-        ([taxonomy]) =>
-          taxonomy === item.taxonomy ||
-          !taken(item.uid).some(other => other.taxonomy === taxonomy)
-      )
-    );
+	// Attributes a spec can switch to: its own, and any no other spec uses.
+	const freeTaxonomies = ( item: DraftItem ) =>
+		Object.fromEntries(
+			Object.entries( taxonomies ).filter(
+				( [ taxonomy ] ) =>
+					taxonomy === item.taxonomy ||
+					! taken( item.uid ).some(
+						( other ) => other.taxonomy === taxonomy
+					)
+			)
+		);
 
-  // A new spec is keyed by its name as it's typed, so its value has a key
-  // to save under (the registry fixes keys once saved).
-  const updateAdded = (item: DraftItem, patch: Partial<DraftItem>) => {
-    const next =
-      patch.name !== undefined
-        ? { ...patch, key: specKey(patch.name, taken(item.uid)) }
-        : patch;
-    if (next.key !== undefined && next.key !== item.key) {
-      const { [item.key]: moved = '', ...rest } = values;
-      onValues(moved ? { ...rest, [next.key]: moved } : rest);
-      onGuide(moveSpecKey({ hidden, wording }, item.key, next.key));
-    }
-    onAdded(
-      added.map(other =>
-        other.uid === item.uid ? { ...other, ...next } : other
-      )
-    );
-  };
+	// A new spec is keyed by its name as it's typed, so its value has a key
+	// to save under (the registry fixes keys once saved).
+	const updateAdded = ( item: DraftItem, patch: Partial< DraftItem > ) => {
+		const next =
+			patch.name !== undefined
+				? { ...patch, key: specKey( patch.name, taken( item.uid ) ) }
+				: patch;
+		if ( next.key !== undefined && next.key !== item.key ) {
+			const { [ item.key ]: moved = '', ...rest } = values;
+			onValues( moved ? { ...rest, [ next.key ]: moved } : rest );
+			onGuide( moveSpecKey( { hidden, wording }, item.key, next.key ) );
+		}
+		onAdded(
+			added.map( ( other ) =>
+				other.uid === item.uid ? { ...other, ...next } : other
+			)
+		);
+	};
 
-  const add = (partial: Partial<SpecItem> & Pick<SpecItem, 'type'>) => {
-    const item = newItem(partial, taken());
-    item.key = item.key || specKey(item.name, taken());
-    onAdded([...added, item]);
-    setOpen(item.uid);
-  };
+	const add = ( partial: Partial< SpecItem > & Pick< SpecItem, 'type' > ) => {
+		const item = newItem( partial, taken() );
+		item.key = item.key || specKey( item.name, taken() );
+		onAdded( [ ...added, item ] );
+		setOpen( item.uid );
+	};
 
-  const row = (item: DraftItem) => {
-    const isNew = item.isNew;
-    const id = isNew ? item.uid : item.key;
-    const isOpen = open === id;
-    const on = !hidden.includes(item.key);
-    const here = worded(item, wording);
-    const pending = Boolean(edits[item.key]);
-    const forEvery = isNew || pending || everyGuide.includes(item.key);
-    const empty = specValue(item, values).value === '';
-    const notes: string[] = [];
-    if (isNew) {
-      notes.push(__('New: saved with the guide', 'aggressive-apparel'));
-    } else if (wording[item.key]) {
-      notes.push(__('Reworded for this guide', 'aggressive-apparel'));
-    }
-    if (on && empty) {
-      notes.push(__('No value yet', 'aggressive-apparel'));
-    }
+	const row = ( item: DraftItem ) => {
+		const isNew = item.isNew;
+		const id = isNew ? item.uid : item.key;
+		const isOpen = open === id;
+		const on = ! hidden.includes( item.key );
+		const here = worded( item, wording );
+		const pending = Boolean( edits[ item.key ] );
+		const forEvery = isNew || pending || everyGuide.includes( item.key );
+		const empty = specValue( item, values ).value === '';
+		const notes: string[] = [];
+		if ( isNew ) {
+			notes.push(
+				__( 'New: saved with the guide', 'aggressive-apparel' )
+			);
+		} else if ( wording[ item.key ] ) {
+			notes.push( __( 'Reworded for this guide', 'aggressive-apparel' ) );
+		}
+		if ( on && empty ) {
+			notes.push( __( 'No value yet', 'aggressive-apparel' ) );
+		}
 
-    let help: string = __(
-      'Reword it for this guide’s products only. Blank fields keep the spec’s own wording, shown greyed out.',
-      'aggressive-apparel'
-    );
-    if (isNew) {
-      help = __(
-        'A new spec is added for every guide, switched on here. It saves with this guide.',
-        'aggressive-apparel'
-      );
-    } else if (forEvery) {
-      help = __(
-        'Changes here apply to every guide and the Specs tab, and save with this guide.',
-        'aggressive-apparel'
-      );
-    }
+		let help: string = __(
+			'Reword it for this guide’s products only. Blank fields keep the spec’s own wording, shown greyed out.',
+			'aggressive-apparel'
+		);
+		if ( isNew ) {
+			help = __(
+				'A new spec is added for every guide, switched on here. It saves with this guide.',
+				'aggressive-apparel'
+			);
+		} else if ( forEvery ) {
+			help = __(
+				'Changes here apply to every guide and the Specs tab, and save with this guide.',
+				'aggressive-apparel'
+			);
+		}
 
-    return (
-      <SpecRow
-        key={id}
-        title={here.name}
-        notes={notes}
-        shown={on}
-        empty={empty}
-        switchLabel={sprintf(
-          /* translators: %s: spec name. */
-          __('Show %s on this guide’s products', 'aggressive-apparel'),
-          here.name
-        )}
-        onShow={show =>
-          onGuide({
-            hidden: show
-              ? hidden.filter(other => other !== item.key)
-              : [...hidden, item.key],
-          })
-        }
-        editing={isOpen}
-        onEdit={() => setOpen(isOpen ? null : id)}
-        panel={
-          <EditPanel
-            title={
-              isNew
-                ? __('New spec', 'aggressive-apparel')
-                : sprintf(
-                    /* translators: %s: spec name. */
-                    __('Edit %s', 'aggressive-apparel'),
-                    item.name
-                  )
-            }
-            aside={
-              !isNew && (
-                <OnOff
-                  checked={forEvery}
-                  label={__('Change it for every guide', 'aggressive-apparel')}
-                  text={__('Change for every guide', 'aggressive-apparel')}
-                  onChange={every => {
-                    if (every) {
-                      setEveryGuide([...everyGuide, item.key]);
-                    } else if (pending) {
-                      setDropping(item.key);
-                    } else {
-                      setEveryGuide(everyGuide.filter(key => key !== item.key));
-                    }
-                  }}
-                />
-              )
-            }
-            help={help}
-            onDone={() => setOpen(null)}
-            actions={
-              isNew && (
-                <Button
-                  variant='tertiary'
-                  isDestructive
-                  onClick={() => {
-                    const { [item.key]: _value, ...rest } = values;
-                    onAdded(added.filter(other => other.uid !== item.uid));
-                    onValues(rest);
-                    onGuide(moveSpecKey({ hidden, wording }, item.key, ''));
-                    setOpen(null);
-                  }}
-                >
-                  {__('Remove new spec', 'aggressive-apparel')}
-                </Button>
-              )
-            }
-          >
-            {dropping === item.key && (
-              <Notice
-                status='warning'
-                isDismissible={false}
-                actions={[
-                  {
-                    label: __('Drop the changes', 'aggressive-apparel'),
-                    onClick: () => {
-                      onDiscardEdit(item.key);
-                      setEveryGuide(everyGuide.filter(key => key !== item.key));
-                      setDropping(null);
-                    },
-                  },
-                  {
-                    label: __('Keep them', 'aggressive-apparel'),
-                    onClick: () => setDropping(null),
-                    variant: 'link',
-                  },
-                ]}
-              >
-                {__(
-                  'Your changes to this spec for every guide haven’t been saved. Drop them?',
-                  'aggressive-apparel'
-                )}
-              </Notice>
-            )}
-            {!forEvery && (
-              <WordingFields
-                item={item}
-                wording={wording}
-                onChange={next => onGuide({ wording: next })}
-              />
-            )}
-            {forEvery && (
-              <ItemCard
-                item={item}
-                index={0}
-                total={1}
-                categories={config.categories}
-                attributeNames={config.attributes}
-                limits={config.limits}
-                taxonomies={freeTaxonomies(item)}
-                open
-                movable={false}
-                deletable={false}
-                onToggle={() => setOpen(null)}
-                saved={items.find(other => other.key === item.key)}
-                restPath={config.restPath}
-                weightPresets={config.weightPresets}
-                onChange={patch =>
-                  isNew ? updateAdded(item, patch) : onEdit(item.key, patch)
-                }
-                onMove={() => undefined}
-                onDelete={() => undefined}
-                // The value is picked in the row above.
-                valueField={<></>}
-              />
-            )}
-          </EditPanel>
-        }
-      >
-        <ValuePicker
-          item={here}
-          value={values[item.key] ?? ''}
-          label={here.name}
-          inherited={describeValue(here, here.default)}
-          onChange={value => onValues({ ...values, [item.key]: value })}
-        />
-      </SpecRow>
-    );
-  };
+		return (
+			<SpecRow
+				key={ id }
+				title={ here.name }
+				notes={ notes }
+				shown={ on }
+				empty={ empty }
+				switchLabel={ sprintf(
+					/* translators: %s: spec name. */
+					__(
+						'Show %s on this guide’s products',
+						'aggressive-apparel'
+					),
+					here.name
+				) }
+				onShow={ ( show ) =>
+					onGuide( {
+						hidden: show
+							? hidden.filter( ( other ) => other !== item.key )
+							: [ ...hidden, item.key ],
+					} )
+				}
+				editing={ isOpen }
+				onEdit={ () => setOpen( isOpen ? null : id ) }
+				panel={
+					<EditPanel
+						title={
+							isNew
+								? __( 'New spec', 'aggressive-apparel' )
+								: sprintf(
+										/* translators: %s: spec name. */
+										__( 'Edit %s', 'aggressive-apparel' ),
+										item.name
+									)
+						}
+						aside={
+							! isNew && (
+								<OnOff
+									checked={ forEvery }
+									label={ __(
+										'Change it for every guide',
+										'aggressive-apparel'
+									) }
+									text={ __(
+										'Change for every guide',
+										'aggressive-apparel'
+									) }
+									onChange={ ( every ) => {
+										if ( every ) {
+											setEveryGuide( [
+												...everyGuide,
+												item.key,
+											] );
+										} else if ( pending ) {
+											setDropping( item.key );
+										} else {
+											setEveryGuide(
+												everyGuide.filter(
+													( key ) => key !== item.key
+												)
+											);
+										}
+									} }
+								/>
+							)
+						}
+						help={ help }
+						onDone={ () => setOpen( null ) }
+						actions={
+							isNew && (
+								<Button
+									variant="tertiary"
+									isDestructive
+									onClick={ () => {
+										const {
+											[ item.key ]: _value,
+											...rest
+										} = values;
+										onAdded(
+											added.filter(
+												( other ) =>
+													other.uid !== item.uid
+											)
+										);
+										onValues( rest );
+										onGuide(
+											moveSpecKey(
+												{ hidden, wording },
+												item.key,
+												''
+											)
+										);
+										setOpen( null );
+									} }
+								>
+									{ __(
+										'Remove new spec',
+										'aggressive-apparel'
+									) }
+								</Button>
+							)
+						}
+					>
+						{ dropping === item.key && (
+							<Notice
+								status="warning"
+								isDismissible={ false }
+								actions={ [
+									{
+										label: __(
+											'Drop the changes',
+											'aggressive-apparel'
+										),
+										onClick: () => {
+											onDiscardEdit( item.key );
+											setEveryGuide(
+												everyGuide.filter(
+													( key ) => key !== item.key
+												)
+											);
+											setDropping( null );
+										},
+									},
+									{
+										label: __(
+											'Keep them',
+											'aggressive-apparel'
+										),
+										onClick: () => setDropping( null ),
+										variant: 'link',
+									},
+								] }
+							>
+								{ __(
+									'Your changes to this spec for every guide haven’t been saved. Drop them?',
+									'aggressive-apparel'
+								) }
+							</Notice>
+						) }
+						{ ! forEvery && (
+							<WordingFields
+								item={ item }
+								wording={ wording }
+								onChange={ ( next ) =>
+									onGuide( { wording: next } )
+								}
+							/>
+						) }
+						{ forEvery && (
+							<ItemCard
+								item={ item }
+								index={ 0 }
+								total={ 1 }
+								categories={ config.categories }
+								attributeNames={ config.attributes }
+								limits={ config.limits }
+								taxonomies={ freeTaxonomies( item ) }
+								open
+								movable={ false }
+								deletable={ false }
+								onToggle={ () => setOpen( null ) }
+								saved={ items.find(
+									( other ) => other.key === item.key
+								) }
+								restPath={ config.restPath }
+								weightPresets={ config.weightPresets }
+								onChange={ ( patch ) =>
+									isNew
+										? updateAdded( item, patch )
+										: onEdit( item.key, patch )
+								}
+								onMove={ () => undefined }
+								onDelete={ () => undefined }
+								// The value is picked in the row above.
+								valueField={ <></> }
+							/>
+						) }
+					</EditPanel>
+				}
+			>
+				<ValuePicker
+					item={ here }
+					value={ values[ item.key ] ?? '' }
+					label={ here.name }
+					inherited={ describeValue( here, here.default ) }
+					onChange={ ( value ) =>
+						onValues( { ...values, [ item.key ]: value } )
+					}
+				/>
+			</SpecRow>
+		);
+	};
 
-  return (
-    <section id={SECTION.specs} className='aa-ps-guide__section'>
-      <div className='aa-ps-guide__section-head'>
-        <div>
-          <h2>{__('Specs', 'aggressive-apparel')}</h2>
-          <p className='aa-ps-help'>
-            {__(
-              'Every spec that’s on, with this guide’s values. Products using this guide show them, unless a product has its own value.',
-              'aggressive-apparel'
-            )}
-          </p>
-        </div>
-        <Button variant='tertiary' onClick={onManage}>
-          {__('Manage specs', 'aggressive-apparel')}
-        </Button>
-      </div>
-      {!hasChart && (
-        <Notice status='info' isDismissible={false}>
-          {hasSpecs({ specs: values, hidden, wording })
-            ? __(
-                'Specs only: this guide has no size chart, so its products show these specs without a Size Guide button. Add sizes to the chart to show one.',
-                'aggressive-apparel'
-              )
-            : __(
-                'This guide is empty, so products assigned to it keep their category’s or the store’s size guide. Add a size chart or set a spec to use it.',
-                'aggressive-apparel'
-              )}
-        </Notice>
-      )}
+	return (
+		<section id={ SECTION.specs } className="aa-ps-guide__section">
+			<div className="aa-ps-guide__section-head">
+				<div>
+					<h2>{ __( 'Specs', 'aggressive-apparel' ) }</h2>
+					<p className="aa-ps-help">
+						{ __(
+							'Every spec that’s on, with this guide’s values. Products using this guide show them, unless a product has its own value.',
+							'aggressive-apparel'
+						) }
+					</p>
+				</div>
+				<Button variant="tertiary" onClick={ onManage }>
+					{ __( 'Manage specs', 'aggressive-apparel' ) }
+				</Button>
+			</div>
+			{ ! hasChart && (
+				<Notice status="info" isDismissible={ false }>
+					{ hasSpecs( { specs: values, hidden, wording } )
+						? __(
+								'Specs only: this guide has no size chart, so its products show these specs without a Size Guide button. Add sizes to the chart to show one.',
+								'aggressive-apparel'
+							)
+						: __(
+								'This guide is empty, so products assigned to it keep their category’s or the store’s size guide. Add a size chart or set a spec to use it.',
+								'aggressive-apparel'
+							) }
+				</Notice>
+			) }
 
-      <div className='aa-ps-guide__chart'>
-        <div className='aa-ps-spec-rows'>
-          {specs.map(row)}
-          <div className='aa-ps-add'>
-            <AddSpecButton
-              existing={specs}
-              disabled={full}
-              onAdd={add}
-              variant='secondary'
-            />
-          </div>
-        </div>
+			<div className="aa-ps-guide__chart">
+				<div className="aa-ps-spec-rows">
+					{ specs.map( row ) }
+					<div className="aa-ps-add">
+						<AddSpecButton
+							existing={ specs }
+							disabled={ full }
+							onAdd={ add }
+							variant="secondary"
+						/>
+					</div>
+				</div>
 
-        <GuidePreview items={shown} values={values} />
-      </div>
+				<GuidePreview items={ shown } values={ values } />
+			</div>
 
-      {footer}
-    </section>
-  );
+			{ footer }
+		</section>
+	);
 }

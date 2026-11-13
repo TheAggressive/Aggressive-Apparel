@@ -83,7 +83,7 @@
 
 		/* Wipe fill — slides in from the left on select. */
 		&::before {
-			content: '';
+			content: "";
 			position: absolute;
 			inset: 0;
 			background: var(--wp--custom--button--choice--selected-background);
@@ -99,13 +99,14 @@
 
 		/* Hover ring — opacity fades over a stable base ring to avoid flicker. */
 		&::after {
-			content: '';
+			content: "";
 			position: absolute;
 			inset: 0;
 			z-index: 2;
 			border-radius: inherit;
 			pointer-events: none;
-			box-shadow: inset 0 0 0 2px var(--wp--custom--button--choice--border);
+			box-shadow: inset 0 0 0 2px
+				var(--wp--custom--button--choice--border);
 			opacity: 0;
 			transition: opacity 0.2s ease;
 		}
@@ -129,8 +130,9 @@
 		}
 
 		/* Selected — wipe fill visible, text inverts. */
-		&[aria-checked='true'] {
-			box-shadow: inset 0 0 0 2px var(--wp--custom--button--choice--border);
+		&[aria-checked="true"] {
+			box-shadow: inset 0 0 0 2px
+				var(--wp--custom--button--choice--border);
 			color: var(--wp--custom--button--choice--selected-text);
 
 			&::before {
@@ -177,12 +179,14 @@
 			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 			&::before {
-				content: '';
+				content: "";
 				width: 0.75rem;
 				height: 0.75rem;
 				margin-right: 0.375rem;
 				flex-shrink: 0;
-				background-color: var(--wp--custom--button--choice--selected-text);
+				background-color: var(
+					--wp--custom--button--choice--selected-text
+				);
 				mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='2.5 6.5 5 9 9.5 3.5' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
 					center / contain no-repeat;
 				opacity: 0;
@@ -193,7 +197,7 @@
 			}
 		}
 
-		&[aria-checked='true'] .wc-block-product-filter-chips__text {
+		&[aria-checked="true"] .wc-block-product-filter-chips__text {
 			transform: translateX(0);
 
 			&::before {
@@ -209,7 +213,9 @@
  */
 @media (prefers-reduced-motion: reduce) {
 	.wp-block-woocommerce-add-to-cart-with-options-variation-selector
-		.wc-block-product-filter-chips__item:not(.aggressive-apparel-color-chip) {
+		.wc-block-product-filter-chips__item:not(
+			.aggressive-apparel-color-chip
+		) {
 		&,
 		&::before,
 		&::after,
@@ -226,8 +232,8 @@
 			transform: translateX(-0.1875rem) scale(0);
 		}
 
-		&[aria-checked='true'] .wc-block-product-filter-chips__text,
-		&[aria-checked='true'] .wc-block-product-filter-chips__text::before {
+		&[aria-checked="true"] .wc-block-product-filter-chips__text,
+		&[aria-checked="true"] .wc-block-product-filter-chips__text::before {
 			transform: translateX(0) scale(1);
 		}
 	}

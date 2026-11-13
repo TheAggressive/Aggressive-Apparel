@@ -90,7 +90,7 @@
 
 	/* Visible 0.5rem notification dot, centered inside the bounding box. */
 	&::before {
-		content: '';
+		content: "";
 		position: absolute;
 		inset: calc(50% - 0.25rem);
 		border-radius: 50%;
@@ -100,7 +100,7 @@
 
 	/* Ping ring — fills the bounding box and scales outward. */
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		inset: 0;
 		border-radius: 50%;
@@ -294,7 +294,8 @@
 	   the product cell to line 4, which shoves the total into an implicit 4th
 	   column past the drawer edge — horizontal scroll on mobile. Cells are placed
 	   explicitly for the same reason (WC's placement rules are (0,4,1)). */
-	table.wc-block-cart-items.wc-block-mini-cart-items .wc-block-cart-items__row {
+	table.wc-block-cart-items.wc-block-mini-cart-items
+		.wc-block-cart-items__row {
 		display: grid;
 		grid-template-columns: 5rem minmax(0, 1fr) auto;
 		column-gap: 0;
@@ -304,7 +305,8 @@
 		padding-right: 1rem;
 		border: 0;
 		border-bottom: 1px solid var(--aa-color-border-subtle);
-		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
+		transition: background-color var(--aa-duration-fast)
+			var(--aa-ease-default);
 
 		&:last-child {
 			border-bottom: 0;

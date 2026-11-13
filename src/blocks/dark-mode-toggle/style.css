@@ -70,13 +70,13 @@
  * Dark mode: show sun. Prefer html[data-theme] so the early head bootstrap
  * can set the correct icon before the view script marks the button active.
  */
-html[data-theme='dark'] .dark-mode-toggle__icon--moon,
+html[data-theme="dark"] .dark-mode-toggle__icon--moon,
 .dark-mode-toggle__button.is-active .dark-mode-toggle__icon--moon {
 	opacity: 0;
 	transform: scale(0.7) rotate(20deg);
 }
 
-html[data-theme='dark'] .dark-mode-toggle__icon--sun,
+html[data-theme="dark"] .dark-mode-toggle__icon--sun,
 .dark-mode-toggle__button.is-active .dark-mode-toggle__icon--sun {
 	opacity: 1;
 	transform: scale(1) rotate(0deg);

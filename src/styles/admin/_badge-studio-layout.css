@@ -34,7 +34,7 @@ body.taxonomy-aa_product_badge .aa-badge-studio__search svg {
 	margin: 0;
 }
 
-body.taxonomy-aa_product_badge .aa-badge-studio__search input[type='search'] {
+body.taxonomy-aa_product_badge .aa-badge-studio__search input[type="search"] {
 	appearance: none;
 	flex: 1 1 auto;
 	min-width: 0;
@@ -57,10 +57,10 @@ body.taxonomy-aa_product_badge .aa-badge-studio__search input[type='search'] {
 
 body.taxonomy-aa_product_badge
 	.aa-badge-studio__search
-	input[type='search']::-webkit-search-decoration,
+	input[type="search"]::-webkit-search-decoration,
 body.taxonomy-aa_product_badge
 	.aa-badge-studio__search
-	input[type='search']::-webkit-search-cancel-button {
+	input[type="search"]::-webkit-search-cancel-button {
 	appearance: none;
 	display: none;
 }

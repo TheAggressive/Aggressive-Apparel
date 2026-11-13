@@ -5,9 +5,9 @@
  */
 
 export type NavLinkAttributes = {
-  label: string;
-  url: string;
-  opensInNewTab: boolean;
-  description: string;
-  isCurrent: boolean;
+	label: string;
+	url: string;
+	opensInNewTab: boolean;
+	description: string;
+	isCurrent: boolean;
 };

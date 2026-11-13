@@ -8,10 +8,10 @@
  */
 
 /** Handler on an Interactivity API store action or callback. */
-export type InteractivityHandler = (...args: unknown[]) => unknown;
+export type InteractivityHandler = ( ...args: unknown[] ) => unknown;
 
 /** Open-ended actions map (directive handlers may pass events). */
-export type InteractivityActions = Record<string, InteractivityHandler>;
+export type InteractivityActions = Record< string, InteractivityHandler >;
 
 /** Open-ended callbacks map (data-wp-watch, data-wp-init, etc.). */
-export type InteractivityCallbacks = Record<string, InteractivityHandler>;
+export type InteractivityCallbacks = Record< string, InteractivityHandler >;

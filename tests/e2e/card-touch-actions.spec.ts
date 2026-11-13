@@ -21,172 +21,179 @@ const QUICK_VIEW = '.aggressive-apparel-quick-view__trigger';
 const TOUCH_MODE_OPTION = 'aggressive_apparel_quick_view_touch_mode';
 const WISHLIST_HOVER_OPTION = 'aggressive_apparel_card_wishlist_hover';
 const ACTIONS =
-  '.aggressive-apparel-card-action:not(.aggressive-apparel-card-actions__toggle)';
+	'.aggressive-apparel-card-action:not(.aggressive-apparel-card-actions__toggle)';
 
-async function expectActions(stack: Locator, visible: boolean): Promise<void> {
-  const actions = await stack.locator(ACTIONS).all();
-  expect(actions.length).toBeGreaterThan(0);
-  for (const action of actions) {
-    if (visible) {
-      await expect(action).toBeVisible();
-    } else {
-      await expect(action).toBeHidden();
-    }
-  }
+async function expectActions(
+	stack: Locator,
+	visible: boolean
+): Promise< void > {
+	const actions = await stack.locator( ACTIONS ).all();
+	expect( actions.length ).toBeGreaterThan( 0 );
+	for ( const action of actions ) {
+		if ( visible ) {
+			await expect( action ).toBeVisible();
+		} else {
+			await expect( action ).toBeHidden();
+		}
+	}
 }
 
 // Workers are capped at 1, so a describe-scoped option can't leak into a
 // concurrently running spec. The previous value is restored, since local runs
 // share the developer's Studio site.
-function useOption(option: string, value: string): void {
-  let previous: string | null = null;
+function useOption( option: string, value: string ): void {
+	let previous: string | null = null;
 
-  test.beforeAll(() => {
-    try {
-      previous = wpCli(['option', 'get', option]);
-    } catch {
-      previous = null;
-    }
-    wpCli(['option', 'update', option, value]);
-  });
-  test.afterAll(() => {
-    if (previous === null) {
-      wpCli(['option', 'delete', option]);
-    } else {
-      wpCli(['option', 'update', option, previous]);
-    }
-  });
+	test.beforeAll( () => {
+		try {
+			previous = wpCli( [ 'option', 'get', option ] );
+		} catch {
+			previous = null;
+		}
+		wpCli( [ 'option', 'update', option, value ] );
+	} );
+	test.afterAll( () => {
+		if ( previous === null ) {
+			wpCli( [ 'option', 'delete', option ] );
+		} else {
+			wpCli( [ 'option', 'update', option, previous ] );
+		}
+	} );
 }
 
-function useTouchMode(mode: string): void {
-  useOption(TOUCH_MODE_OPTION, mode);
+function useTouchMode( mode: string ): void {
+	useOption( TOUCH_MODE_OPTION, mode );
 }
 
-test.describe('card buttons on touch devices, heart only', () => {
-  test.use({
-    viewport: { width: 390, height: 844 },
-    hasTouch: true,
-    isMobile: true,
-  });
-  useTouchMode('wishlist');
+test.describe( 'card buttons on touch devices, heart only', () => {
+	test.use( {
+		viewport: { width: 390, height: 844 },
+		hasTouch: true,
+		isMobile: true,
+	} );
+	useTouchMode( 'wishlist' );
 
-  test('one tap on the heart saves without leaving the page', async ({
-    page,
-  }) => {
-    await page.goto('/shop/');
-    const first = page.locator(STACK).first();
-    const heart = first.locator(HEART);
+	test( 'one tap on the heart saves without leaving the page', async ( {
+		page,
+	} ) => {
+		await page.goto( '/shop/' );
+		const first = page.locator( STACK ).first();
+		const heart = first.locator( HEART );
 
-    await first.scrollIntoViewIfNeeded();
-    await expect(heart).toBeVisible();
-    await expect(first.locator(QUICK_VIEW)).toBeHidden();
-    await expect(first.locator(TOGGLE)).toHaveCount(0);
+		await first.scrollIntoViewIfNeeded();
+		await expect( heart ).toBeVisible();
+		await expect( first.locator( QUICK_VIEW ) ).toBeHidden();
+		await expect( first.locator( TOGGLE ) ).toHaveCount( 0 );
 
-    const url = page.url();
-    await heart.tap();
-    await expect(heart).toHaveClass(/\bis-active\b/);
-    expect(page.url()).toBe(url);
-  });
-});
+		const url = page.url();
+		await heart.tap();
+		await expect( heart ).toHaveClass( /\bis-active\b/ );
+		expect( page.url() ).toBe( url );
+	} );
+} );
 
-test.describe('card buttons on touch devices', () => {
-  test.use({
-    viewport: { width: 390, height: 844 },
-    hasTouch: true,
-    isMobile: true,
-  });
-  useTouchMode('toggle');
+test.describe( 'card buttons on touch devices', () => {
+	test.use( {
+		viewport: { width: 390, height: 844 },
+		hasTouch: true,
+		isMobile: true,
+	} );
+	useTouchMode( 'toggle' );
 
-  test('one chip reveals the card buttons without leaving the page', async ({
-    page,
-  }) => {
-    await page.goto('/shop/');
-    const first = page.locator(STACK).nth(0);
-    const second = page.locator(STACK).nth(1);
-    const toggle = first.locator(TOGGLE);
+	test( 'one chip reveals the card buttons without leaving the page', async ( {
+		page,
+	} ) => {
+		await page.goto( '/shop/' );
+		const first = page.locator( STACK ).nth( 0 );
+		const second = page.locator( STACK ).nth( 1 );
+		const toggle = first.locator( TOGGLE );
 
-    await first.scrollIntoViewIfNeeded();
-    await expect(toggle).toBeVisible();
-    await expectActions(first, false);
+		await first.scrollIntoViewIfNeeded();
+		await expect( toggle ).toBeVisible();
+		await expectActions( first, false );
 
-    const url = page.url();
-    await toggle.tap();
-    await expectActions(first, true);
-    expect(page.url()).toBe(url);
+		const url = page.url();
+		await toggle.tap();
+		await expectActions( first, true );
+		expect( page.url() ).toBe( url );
 
-    // Only one card is open at a time.
-    await second.locator(TOGGLE).tap();
-    await expectActions(first, false);
-    await expectActions(second, true);
+		// Only one card is open at a time.
+		await second.locator( TOGGLE ).tap();
+		await expectActions( first, false );
+		await expectActions( second, true );
 
-    await page.keyboard.press('Escape');
-    await expectActions(second, false);
+		await page.keyboard.press( 'Escape' );
+		await expectActions( second, false );
 
-    // Quick View closes the popover so it can't float above the modal.
-    await toggle.tap();
-    await first.locator(QUICK_VIEW).tap();
-    await expect(page.locator('#aggressive-apparel-quick-view')).toBeVisible();
-    await expectActions(first, false);
-  });
-});
+		// Quick View closes the popover so it can't float above the modal.
+		await toggle.tap();
+		await first.locator( QUICK_VIEW ).tap();
+		await expect(
+			page.locator( '#aggressive-apparel-quick-view' )
+		).toBeVisible();
+		await expectActions( first, false );
+	} );
+} );
 
-test.describe('card buttons on touch devices, appended cards', () => {
-  test.use({
-    viewport: { width: 390, height: 844 },
-    hasTouch: true,
-    isMobile: true,
-  });
-  useTouchMode('toggle');
+test.describe( 'card buttons on touch devices, appended cards', () => {
+	test.use( {
+		viewport: { width: 390, height: 844 },
+		hasTouch: true,
+		isMobile: true,
+	} );
+	useTouchMode( 'toggle' );
 
-  // Load More renders page 2 in its own request: its popover ids and anchor
-  // names must not repeat page 1's, or a chip would open another card.
-  test('a chip on an appended card opens its own buttons', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/shop/');
-    const cards = page.locator(
-      '.wp-block-woocommerce-product-template > .wc-block-product'
-    );
-    const before = await cards.count();
-    await page.locator('.aa-load-more__btn').tap();
-    await expect.poll(() => cards.count()).toBeGreaterThan(before);
+	// Load More renders page 2 in its own request: its popover ids and anchor
+	// names must not repeat page 1's, or a chip would open another card.
+	test( 'a chip on an appended card opens its own buttons', async ( {
+		page,
+	} ) => {
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		await page.goto( '/shop/' );
+		const cards = page.locator(
+			'.wp-block-woocommerce-product-template > .wc-block-product'
+		);
+		const before = await cards.count();
+		await page.locator( '.aa-load-more__btn' ).tap();
+		await expect.poll( () => cards.count() ).toBeGreaterThan( before );
 
-    const appended = cards.nth(before).locator(STACK);
-    await appended.scrollIntoViewIfNeeded();
-    await appended.locator(TOGGLE).tap();
-    await expectActions(appended, true);
-    await expectActions(page.locator(STACK).first(), false);
-  });
-});
+		const appended = cards.nth( before ).locator( STACK );
+		await appended.scrollIntoViewIfNeeded();
+		await appended.locator( TOGGLE ).tap();
+		await expectActions( appended, true );
+		await expectActions( page.locator( STACK ).first(), false );
+	} );
+} );
 
-test.describe('card buttons with a mouse', () => {
-  test.use({ viewport: { width: 1280, height: 900 } });
-  useOption(WISHLIST_HOVER_OPTION, 'always');
+test.describe( 'card buttons with a mouse', () => {
+	test.use( { viewport: { width: 1280, height: 900 } } );
+	useOption( WISHLIST_HOVER_OPTION, 'always' );
 
-  test('the heart shows without hovering and Quick View joins on hover', async ({
-    page,
-  }) => {
-    await page.goto('/shop/');
-    const first = page.locator(STACK).first();
+	test( 'the heart shows without hovering and Quick View joins on hover', async ( {
+		page,
+	} ) => {
+		await page.goto( '/shop/' );
+		const first = page.locator( STACK ).first();
 
-    await first.scrollIntoViewIfNeeded();
-    await page.mouse.move(0, 0);
-    await expect(first.locator(HEART)).toHaveCSS('opacity', '1');
-    await expect(first.locator(QUICK_VIEW)).toHaveCSS('opacity', '0');
+		await first.scrollIntoViewIfNeeded();
+		await page.mouse.move( 0, 0 );
+		await expect( first.locator( HEART ) ).toHaveCSS( 'opacity', '1' );
+		await expect( first.locator( QUICK_VIEW ) ).toHaveCSS( 'opacity', '0' );
 
-    await first.locator(HEART).hover();
-    await expect(first.locator(QUICK_VIEW)).toHaveCSS('opacity', '1');
-  });
+		await first.locator( HEART ).hover();
+		await expect( first.locator( QUICK_VIEW ) ).toHaveCSS( 'opacity', '1' );
+	} );
 
-  test.describe('with the touch chip on', () => {
-    useTouchMode('toggle');
+	test.describe( 'with the touch chip on', () => {
+		useTouchMode( 'toggle' );
 
-    test('the touch chip never shows', async ({ page }) => {
-      await page.goto('/shop/');
-      const first = page.locator(STACK).first();
+		test( 'the touch chip never shows', async ( { page } ) => {
+			await page.goto( '/shop/' );
+			const first = page.locator( STACK ).first();
 
-      await first.scrollIntoViewIfNeeded();
-      await expect(first.locator(TOGGLE)).toBeHidden();
-      await expectActions(first, true);
-    });
-  });
-});
+			await first.scrollIntoViewIfNeeded();
+			await expect( first.locator( TOGGLE ) ).toBeHidden();
+			await expectActions( first, true );
+		} );
+	} );
+} );

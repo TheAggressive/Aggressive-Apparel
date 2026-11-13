@@ -135,7 +135,7 @@
 }
 
 .aa-product-tab-layout__item--timeline::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 2rem;
 	bottom: 0;

@@ -10,20 +10,22 @@
 
 /** Wire the Configure/Close disclosure, if the card is on screen. */
 export function initRulesPanel(): void {
-  const toggle = document.querySelector<HTMLButtonElement>(
-    '[data-badge-rules-toggle]'
-  );
-  const form = document.querySelector<HTMLFormElement>(
-    '[data-badge-rules-form]'
-  );
-  if (!toggle || !form) return;
+	const toggle = document.querySelector< HTMLButtonElement >(
+		'[data-badge-rules-toggle]'
+	);
+	const form = document.querySelector< HTMLFormElement >(
+		'[data-badge-rules-form]'
+	);
+	if ( ! toggle || ! form ) return;
 
-  toggle.addEventListener('click', () => {
-    const open = form.hidden;
-    form.hidden = !open;
-    toggle.setAttribute('aria-expanded', String(open));
+	toggle.addEventListener( 'click', () => {
+		const open = form.hidden;
+		form.hidden = ! open;
+		toggle.setAttribute( 'aria-expanded', String( open ) );
 
-    const label = open ? toggle.dataset.closeLabel : toggle.dataset.openLabel;
-    if (label) toggle.textContent = label;
-  });
+		const label = open
+			? toggle.dataset.closeLabel
+			: toggle.dataset.openLabel;
+		if ( label ) toggle.textContent = label;
+	} );
 }

@@ -24,7 +24,7 @@
 		--aa-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='3' width='12' height='11' rx='2'/%3E%3Cpath d='M2 7h12M5 1.5v3M11 1.5v3'/%3E%3C/svg%3E");
 	}
 
-	html[data-theme='dark'] {
+	html[data-theme="dark"] {
 		--aa-field-chevron: var(--aa-field-chevron-dark);
 	}
 
@@ -50,10 +50,10 @@
 	 * -------------------------------------------------------------------- */
 	:where(
 		:not(
-			[class*='wc-block'],
-			[class*='wc-block'] *,
-			[class^='components-'],
-			[class*=' components-'],
+			[class*="wc-block"],
+			[class*="wc-block"] *,
+			[class^="components-"],
+			[class*=" components-"],
 			.components-placeholder *,
 			.flatpickr-calendar,
 			.flatpickr-calendar *,
@@ -67,16 +67,16 @@
 		 * ------------------------------------------------------------------ */
 		&:where(
 			input:not(
-				[type='checkbox'],
-				[type='radio'],
-				[type='range'],
-				[type='color'],
-				[type='file'],
-				[type='submit'],
-				[type='button'],
-				[type='reset'],
-				[type='image'],
-				[type='hidden'],
+				[type="checkbox"],
+				[type="radio"],
+				[type="range"],
+				[type="color"],
+				[type="file"],
+				[type="submit"],
+				[type="button"],
+				[type="reset"],
+				[type="image"],
+				[type="hidden"],
 				.qty,
 				.quantity *,
 				.aa-sticky-cart__qty-input,
@@ -88,7 +88,8 @@
 			box-sizing: border-box;
 			width: 100%;
 			min-height: var(--aa-field-height);
-			padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
+			padding: var(--aa-field-padding-block)
+				var(--aa-field-padding-inline);
 			border: 0 solid transparent;
 
 			/* Reserved; coloured on focus. */
@@ -150,7 +151,7 @@
 				border-left-color: var(--aa-field-bar-invalid);
 			}
 
-			&[aria-invalid='true'] {
+			&[aria-invalid="true"] {
 				border-left-color: var(--aa-field-bar-invalid);
 			}
 
@@ -177,11 +178,11 @@
 		 * by the dark-mode toggle) recolours the indicator. */
 		&:where(
 			input:is(
-				[type='date'],
-				[type='time'],
-				[type='datetime-local'],
-				[type='month'],
-				[type='week']
+				[type="date"],
+				[type="time"],
+				[type="datetime-local"],
+				[type="month"],
+				[type="week"]
 			)
 		) {
 			min-inline-size: 0;
@@ -235,12 +236,13 @@
 				background-image: none;
 
 				&::picker-icon {
-					content: '';
+					content: "";
 					width: 0.75rem;
 					height: 0.75rem;
 					background-color: var(--aa-color-foreground-muted);
 					mask: var(--aa-icon-chevron) center / contain no-repeat;
-					transition: rotate var(--aa-duration-fast) var(--aa-ease-default);
+					transition: rotate var(--aa-duration-fast)
+						var(--aa-ease-default);
 				}
 
 				&:open::picker-icon {
@@ -300,7 +302,7 @@
 
 				/* Check at the end of the row, drawn like the checkbox check. */
 				& option::checkmark {
-					content: '';
+					content: "";
 					order: 1;
 					width: 0.75rem;
 					height: 0.75rem;
@@ -328,7 +330,7 @@
 		 * controls (switches, pills, swatches) hide or restyle their input and
 		 * win. Forced-colours mode gets the native widget back.
 		 * ------------------------------------------------------------------ */
-		&:where(input:is([type='checkbox'], [type='radio'])) {
+		&:where(input:is([type="checkbox"], [type="radio"])) {
 			appearance: none;
 			box-sizing: border-box;
 			flex-shrink: 0;
@@ -378,14 +380,14 @@
 		 * by a sibling label (the core comment form's consent). Both markups put a
 		 * space character before the text, which supplies the last ~0.25em. */
 		&:where(
-			label > input:is([type='checkbox'], [type='radio']):first-child,
-			input:is([type='checkbox'], [type='radio']):has(+ label)
+			label > input:is([type="checkbox"], [type="radio"]):first-child,
+			input:is([type="checkbox"], [type="radio"]):has(+ label)
 		) {
 			margin-inline-end: calc(var(--aa-field-choice-gap) - 0.25em);
 		}
 
 		/* "Some selected" — a dash instead of the check. */
-		&:where(input[type='checkbox']:indeterminate) {
+		&:where(input[type="checkbox"]:indeterminate) {
 			border-color: var(--aa-color-accent-fill);
 			background-color: var(--aa-color-accent-fill);
 			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6h6' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -393,7 +395,7 @@
 		}
 
 		/* Radio: the dot is sized in % of the image, so it scales from centre. */
-		&:where(input[type='radio']) {
+		&:where(input[type="radio"]) {
 			border-radius: 50%;
 			background-image: radial-gradient(
 				circle closest-side,
@@ -410,13 +412,13 @@
 		}
 
 		@media (forced-colors: active) {
-			&:where(input:is([type='checkbox'], [type='radio'])) {
+			&:where(input:is([type="checkbox"], [type="radio"])) {
 				appearance: auto;
 				background-image: none;
 			}
 		}
 
-		&:where(input[type='range']) {
+		&:where(input[type="range"]) {
 			accent-color: var(--aa-color-accent);
 			cursor: pointer;
 			vertical-align: middle;
@@ -436,7 +438,7 @@
 		}
 
 		/* File input — field typography; its button is a secondary button. */
-		&:where(input[type='file']) {
+		&:where(input[type="file"]) {
 			width: 100%;
 			color: var(--aa-field-text);
 			font-family: var(--aa-field-font-family);
@@ -455,7 +457,8 @@
 			&::file-selector-button {
 				margin-right: 0.75rem;
 				min-height: var(--aa-control-min);
-				padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
+				padding: var(--wp--preset--spacing--2)
+					var(--wp--preset--spacing--5);
 				border: 2px solid var(--wp--custom--button--secondary--border);
 				border-radius: var(--aa-radius-button);
 				background: var(--wp--custom--button--secondary--background);
@@ -466,19 +469,22 @@
 				letter-spacing: 0.04em;
 				cursor: pointer;
 				transition:
-					background-color var(--aa-duration-fast) var(--aa-ease-default),
+					background-color var(--aa-duration-fast)
+						var(--aa-ease-default),
 					border-color var(--aa-duration-fast) var(--aa-ease-default),
 					color var(--aa-duration-fast) var(--aa-ease-default);
 			}
 
 			&::file-selector-button:hover {
-				background: var(--wp--custom--button--secondary--hover-background);
+				background: var(
+					--wp--custom--button--secondary--hover-background
+				);
 				color: var(--wp--custom--button--secondary--hover-text);
 			}
 		}
 
 		/* Colour picker — a field-height swatch on the field fill. */
-		&:where(input[type='color']) {
+		&:where(input[type="color"]) {
 			box-sizing: border-box;
 			inline-size: 3.25rem;
 			block-size: var(--aa-field-height);
@@ -516,7 +522,7 @@
 		 * (a <button> its preset leaves unstyled) joins via its adapter class.
 		 * ------------------------------------------------------------------ */
 		&:where(
-			input:is([type='submit'], [type='reset'], [type='button']):not(
+			input:is([type="submit"], [type="reset"], [type="button"]):not(
 					.button,
 					.wp-element-button,
 					.wp-block-button__link,
@@ -526,7 +532,8 @@
 		) {
 			box-sizing: border-box;
 			min-height: var(--aa-button-height-md);
-			padding: var(--aa-button-padding-block) var(--aa-button-padding-inline);
+			padding: var(--aa-button-padding-block)
+				var(--aa-button-padding-inline);
 			border: 2px solid var(--wp--custom--button--primary--background);
 			border-radius: var(--aa-radius-button);
 			background-color: var(--wp--custom--button--primary--background);
@@ -545,8 +552,12 @@
 				box-shadow var(--aa-duration-fast) var(--aa-ease-default);
 
 			&:hover:not(:disabled) {
-				border-color: var(--wp--custom--button--primary--hover-background);
-				background-color: var(--wp--custom--button--primary--hover-background);
+				border-color: var(
+					--wp--custom--button--primary--hover-background
+				);
+				background-color: var(
+					--wp--custom--button--primary--hover-background
+				);
 				color: var(--wp--custom--button--primary--hover-text);
 			}
 
@@ -562,7 +573,7 @@
 		}
 
 		&:where(
-			input:is([type='reset'], [type='button']):not(
+			input:is([type="reset"], [type="button"]):not(
 					.button,
 					.wp-element-button,
 					.wp-block-button__link,
@@ -592,8 +603,8 @@
 		 * by a checkbox / radio) are excluded and read as sentence-case text. */
 		&:where(
 			label:not(
-				:has(> input:is([type='checkbox'], [type='radio'])),
-				input:is([type='checkbox'], [type='radio']) + label
+				:has(> input:is([type="checkbox"], [type="radio"])),
+				input:is([type="checkbox"], [type="radio"]) + label
 			)
 		) {
 			display: inline-block;
@@ -612,7 +623,11 @@
 		 * wrappers would otherwise provide. */
 		&:where(
 			:is(
-					input:not([type='checkbox'], [type='radio'], [type='hidden']),
+					input:not(
+						[type="checkbox"],
+						[type="radio"],
+						[type="hidden"]
+					),
 					select,
 					textarea
 				)
@@ -622,8 +637,8 @@
 		}
 
 		&:where(
-			label:has(> input:is([type='checkbox'], [type='radio'])),
-			input:is([type='checkbox'], [type='radio']) + label
+			label:has(> input:is([type="checkbox"], [type="radio"])),
+			input:is([type="checkbox"], [type="radio"]) + label
 		) {
 			color: var(--aa-color-foreground);
 			cursor: pointer;
@@ -665,7 +680,7 @@
 			&:where(input, textarea, select),
 			&:where(select)::picker-icon,
 			&:where(select)::picker(select),
-			&:where(input[type='file'])::file-selector-button {
+			&:where(input[type="file"])::file-selector-button {
 				transition: none;
 			}
 		}

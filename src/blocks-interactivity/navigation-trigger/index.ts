@@ -15,8 +15,8 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './editor.css';
 import './style.css';
 
-registerThemeBlock<NavigationTriggerAttributes>(metadata, {
-  icon: blockIcon,
-  edit: Edit,
-  save: Save,
-});
+registerThemeBlock< NavigationTriggerAttributes >( metadata, {
+	icon: blockIcon,
+	edit: Edit,
+	save: Save,
+} );

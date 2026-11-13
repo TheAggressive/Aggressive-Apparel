@@ -154,14 +154,14 @@
 	outline-offset: 2px;
 }
 
-.aa-badge-rules__toggle[aria-expanded='true'] {
+.aa-badge-rules__toggle[aria-expanded="true"] {
 	border: 1px solid var(--aa-studio-line);
 	background: #fff;
 	color: var(--aa-studio-ink);
 }
 
-.aa-badge-rules__toggle[aria-expanded='true']:hover,
-.aa-badge-rules__toggle[aria-expanded='true']:focus {
+.aa-badge-rules__toggle[aria-expanded="true"]:hover,
+.aa-badge-rules__toggle[aria-expanded="true"]:focus {
 	border-color: #d4d0c8;
 	background: var(--aa-studio-page);
 	color: var(--aa-studio-ink);

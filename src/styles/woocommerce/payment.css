@@ -87,7 +87,7 @@
 
 		/* The check badge: an accent disc with a white check that springs in. */
 		&::before {
-			content: '';
+			content: "";
 			position: absolute;
 			inset-block-start: 50%;
 			inset-inline-start: 16px;
@@ -117,7 +117,7 @@
 	/* The native radio, invisible and stretched over the header: the whole
 	 * header is its hit area, and it keeps focus, arrow keys and its label. */
 	.wc-block-components-radio-control
-		.wc-block-components-radio-control__input[type='radio'] {
+		.wc-block-components-radio-control__input[type="radio"] {
 		inset: 0;
 		width: 100%;
 		height: 100%;
@@ -192,7 +192,7 @@
 @media (forced-colors: active) {
 	.wc-block-checkout__payment-method {
 		.wc-block-components-radio-control
-			.wc-block-components-radio-control__input[type='radio'] {
+			.wc-block-components-radio-control__input[type="radio"] {
 			appearance: auto;
 			inset-block: 50% auto;
 			inset-inline: 16px auto;

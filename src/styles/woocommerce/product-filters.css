@@ -8,7 +8,7 @@
  * @since 1.22.0
  */
 
-@import './_product-filters-price.css';
+@import "./_product-filters-price.css";
 
 /* ── Custom Properties ──────────────────────────────── */
 
@@ -145,9 +145,9 @@ body.has-product-filters {
 		transform: none;
 	}
 
-	button.aa-product-filters__color-swatch[aria-disabled='true'],
-	button.aa-product-filters__size-chip[aria-disabled='true'],
-	button.aa-product-filters__collection-chip[aria-disabled='true'] {
+	button.aa-product-filters__color-swatch[aria-disabled="true"],
+	button.aa-product-filters__size-chip[aria-disabled="true"],
+	button.aa-product-filters__collection-chip[aria-disabled="true"] {
 		transition: none;
 	}
 
@@ -203,7 +203,7 @@ body.has-product-filters {
 .aa-product-filters__section-icon {
 	transition: transform 0.2s ease;
 
-	[aria-expanded='false'] & {
+	[aria-expanded="false"] & {
 		transform: rotate(-90deg);
 	}
 }
@@ -213,7 +213,7 @@ body.has-product-filters {
 	grid-template-rows: 1fr;
 	transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-	[aria-expanded='false'] + & {
+	[aria-expanded="false"] + & {
 		grid-template-rows: 0fr;
 	}
 }
@@ -227,7 +227,7 @@ body.has-product-filters {
 	   so the grid collapse hides it completely. */
 	&::before,
 	&::after {
-		content: '';
+		content: "";
 		display: block;
 	}
 
@@ -347,9 +347,9 @@ button.aa-product-filters__collection-chip {
  * Items stay in place (no layout reflow) — just dimmed and non-interactive.
  * Styled from `aria-disabled`, the same marker assistive tech announces.
  */
-button.aa-product-filters__color-swatch[aria-disabled='true'],
-button.aa-product-filters__size-chip[aria-disabled='true'],
-button.aa-product-filters__collection-chip[aria-disabled='true'] {
+button.aa-product-filters__color-swatch[aria-disabled="true"],
+button.aa-product-filters__size-chip[aria-disabled="true"],
+button.aa-product-filters__collection-chip[aria-disabled="true"] {
 	opacity: 0.2;
 	pointer-events: none;
 	cursor: default;
@@ -389,7 +389,7 @@ button.aa-product-filters__color-swatch {
 		box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
 	&::before {
-		content: '';
+		content: "";
 		position: absolute;
 		inset: 0.25rem;
 		border-radius: inherit;
@@ -479,7 +479,7 @@ button.aa-product-filters__color-swatch {
 	flex-shrink: 0;
 
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		top: 2px;
 		left: 2px;
@@ -688,7 +688,7 @@ button.aa-product-filters__color-swatch {
 		transition: transform 0.2s ease;
 	}
 
-	&[aria-expanded='true'] svg {
+	&[aria-expanded="true"] svg {
 		transform: rotate(180deg);
 	}
 }

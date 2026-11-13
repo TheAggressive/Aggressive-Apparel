@@ -7,256 +7,256 @@ import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 
 export default [
-  js.configs.recommended,
-  reactPlugin.configs.flat.recommended,
-  {
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-  },
-  {
-    ignores: [
-      '*.config.js',
-      '*.config.mjs',
-      'node_modules/**',
-      'dist/**',
-      'assets/**',
-      'vendor/**',
-      'coverage/**',
-      'tests/**',
-      'wordpress-core/**',
-    ],
-  },
-  {
-    files: ['src/**/*.{js,jsx}'],
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-      globals: {
-        wp: 'readonly',
-        console: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        Event: 'readonly',
-        KeyboardEvent: 'readonly',
-        MouseEvent: 'readonly',
-        MutationObserver: 'readonly',
-        IntersectionObserver: 'readonly',
-        ResizeObserver: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLInputElement: 'readonly',
-        navigator: 'readonly',
-        location: 'readonly',
-        localStorage: 'readonly',
-        sessionStorage: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        requestAnimationFrame: 'readonly',
-        cancelAnimationFrame: 'readonly',
-        fetch: 'readonly',
-        FormData: 'readonly',
-        performance: 'readonly',
-      },
-    },
-    plugins: {
-      '@wordpress': wpPlugin,
-      'jsx-a11y': jsxA11yPlugin,
-    },
-    rules: {
-      // Disable ESLint rules that conflict with Prettier
-      indent: 'off',
-      'no-tabs': 'off',
-      quotes: 'off',
-      semi: 'off',
-      'no-mixed-spaces-and-tabs': 'off',
-      'comma-dangle': 'off',
-      'object-curly-spacing': 'off',
-      'array-bracket-spacing': 'off',
-      // React specific rules
-      'react/react-in-jsx-scope': 'off', // Not needed in modern React
-      'react/prop-types': 'off', // WordPress handles props differently
-      // WordPress specific rules
-      '@wordpress/no-unsafe-wp-apis': 'warn', // Warn about experimental APIs
-      // Accessibility rules (jsx-a11y)
-      'jsx-a11y/alt-text': 'error', // Images must have alt text
-      'jsx-a11y/anchor-has-content': 'error', // Links must have content
-      'jsx-a11y/aria-role': 'error', // ARIA roles must be valid
-      'jsx-a11y/heading-has-content': 'error', // Headings must have content
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-  },
-  // TypeScript files configuration
-  {
-    files: ['src/**/*.{ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      sourceType: 'module',
-      parser: tsParser,
-      parserOptions: {
-        project: './tsconfig.json',
-        ecmaFeatures: {
-          jsx: true,
-        },
-        tsconfigRootDir: import.meta.dirname || process.cwd(),
-      },
-      globals: {
-        wp: 'readonly',
-        console: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        JSX: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLInputElement: 'readonly',
-        HTMLSelectElement: 'readonly',
-        HTMLTextAreaElement: 'readonly',
-        HTMLButtonElement: 'readonly',
-        HTMLLabelElement: 'readonly',
-        KeyboardEvent: 'readonly',
-        FocusEvent: 'readonly',
-        Event: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        requestAnimationFrame: 'readonly',
-        cancelAnimationFrame: 'readonly',
-        performance: 'readonly',
-        localStorage: 'readonly',
-        sessionStorage: 'readonly',
-        fetch: 'readonly',
-        AbortController: 'readonly',
-        Response: 'readonly',
-        Image: 'readonly',
-        location: 'readonly',
-        navigator: 'readonly',
-        getComputedStyle: 'readonly',
-        MutationObserver: 'readonly',
-        IntersectionObserver: 'readonly',
-        HTMLImageElement: 'readonly',
-        HTMLAnchorElement: 'readonly',
-        campaignbridgeAdmin: 'readonly',
-      },
-    },
-    plugins: {
-      '@wordpress': wpPlugin,
-      '@typescript-eslint': tsPlugin,
-      'jsx-a11y': jsxA11yPlugin,
-      'react-hooks': reactHooksPlugin,
-    },
-    rules: {
-      // Disable ESLint rules that conflict with Prettier
-      indent: 'off',
-      'no-tabs': 'off',
-      quotes: 'off',
-      semi: 'off',
-      'no-mixed-spaces-and-tabs': 'off',
-      'comma-dangle': 'off',
-      'object-curly-spacing': 'off',
-      'array-bracket-spacing': 'off',
-      // Use TypeScript-aware no-unused-vars rule
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
-      // React specific rules
-      'react/react-in-jsx-scope': 'off', // Not needed in modern React
-      'react/prop-types': 'off', // WordPress handles props differently
-      // WordPress specific rules
-      '@wordpress/no-unsafe-wp-apis': 'warn', // Warn about experimental APIs
-      // Accessibility rules (jsx-a11y)
-      'jsx-a11y/alt-text': 'error', // Images must have alt text
-      'jsx-a11y/anchor-has-content': 'error', // Links must have content
-      'jsx-a11y/aria-role': 'error', // ARIA roles must be valid
-      'jsx-a11y/heading-has-content': 'error', // Headings must have content
-      // React hooks rules
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-  },
-  // Node-based build and maintenance tools.
-  {
-    files: ['bin/**/*.mjs'],
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: {
-        AbortSignal: 'readonly',
-        Buffer: 'readonly',
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        clearTimeout: 'readonly',
-        console: 'readonly',
-        fetch: 'readonly',
-        process: 'readonly',
-        setTimeout: 'readonly',
-      },
-    },
-  },
-  // Test files configuration
-  {
-    files: [
-      'src/**/*.test.{js,jsx,ts,tsx}',
-      'src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-      // Test support code: helpers under testing/ and the Jest setup file.
-      'src/**/testing/**/*.{js,jsx,ts,tsx}',
-      'src/jest.setup-*.{js,ts}',
-    ],
-    languageOptions: {
-      ecmaVersion: 2020,
-      sourceType: 'module',
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-      globals: {
-        wp: 'readonly',
-        console: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        Event: 'readonly',
-        // Node / Jest CJS runtime (path resolution in source locks, etc.)
-        __dirname: 'readonly',
-        process: 'readonly',
-        require: 'readonly',
-        // Jest globals
-        describe: 'readonly',
-        it: 'readonly',
-        test: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
-        jest: 'readonly',
-      },
-    },
-    plugins: {
-      '@wordpress': wpPlugin,
-      'jsx-a11y': jsxA11yPlugin,
-    },
-    rules: {
-      // Relax rules for test files
-      '@wordpress/no-unsafe-wp-apis': 'off',
-    },
-  },
+	js.configs.recommended,
+	reactPlugin.configs.flat.recommended,
+	{
+		settings: {
+			react: {
+				version: 'detect',
+			},
+		},
+	},
+	{
+		ignores: [
+			'*.config.js',
+			'*.config.mjs',
+			'node_modules/**',
+			'dist/**',
+			'assets/**',
+			'vendor/**',
+			'coverage/**',
+			'tests/**',
+			'wordpress-core/**',
+		],
+	},
+	{
+		files: [ 'src/**/*.{js,jsx}' ],
+		languageOptions: {
+			ecmaVersion: 2022,
+			sourceType: 'module',
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+			globals: {
+				wp: 'readonly',
+				console: 'readonly',
+				window: 'readonly',
+				document: 'readonly',
+				Event: 'readonly',
+				KeyboardEvent: 'readonly',
+				MouseEvent: 'readonly',
+				MutationObserver: 'readonly',
+				IntersectionObserver: 'readonly',
+				ResizeObserver: 'readonly',
+				HTMLElement: 'readonly',
+				HTMLInputElement: 'readonly',
+				navigator: 'readonly',
+				location: 'readonly',
+				localStorage: 'readonly',
+				sessionStorage: 'readonly',
+				setTimeout: 'readonly',
+				clearTimeout: 'readonly',
+				setInterval: 'readonly',
+				clearInterval: 'readonly',
+				requestAnimationFrame: 'readonly',
+				cancelAnimationFrame: 'readonly',
+				fetch: 'readonly',
+				FormData: 'readonly',
+				performance: 'readonly',
+			},
+		},
+		plugins: {
+			'@wordpress': wpPlugin,
+			'jsx-a11y': jsxA11yPlugin,
+		},
+		rules: {
+			// Disable ESLint rules that conflict with Prettier
+			indent: 'off',
+			'no-tabs': 'off',
+			quotes: 'off',
+			semi: 'off',
+			'no-mixed-spaces-and-tabs': 'off',
+			'comma-dangle': 'off',
+			'object-curly-spacing': 'off',
+			'array-bracket-spacing': 'off',
+			// React specific rules
+			'react/react-in-jsx-scope': 'off', // Not needed in modern React
+			'react/prop-types': 'off', // WordPress handles props differently
+			// WordPress specific rules
+			'@wordpress/no-unsafe-wp-apis': 'warn', // Warn about experimental APIs
+			// Accessibility rules (jsx-a11y)
+			'jsx-a11y/alt-text': 'error', // Images must have alt text
+			'jsx-a11y/anchor-has-content': 'error', // Links must have content
+			'jsx-a11y/aria-role': 'error', // ARIA roles must be valid
+			'jsx-a11y/heading-has-content': 'error', // Headings must have content
+		},
+		settings: {
+			react: {
+				version: 'detect',
+			},
+		},
+	},
+	// TypeScript files configuration
+	{
+		files: [ 'src/**/*.{ts,tsx}' ],
+		languageOptions: {
+			ecmaVersion: 2020,
+			sourceType: 'module',
+			parser: tsParser,
+			parserOptions: {
+				project: './tsconfig.json',
+				ecmaFeatures: {
+					jsx: true,
+				},
+				tsconfigRootDir: import.meta.dirname || process.cwd(),
+			},
+			globals: {
+				wp: 'readonly',
+				console: 'readonly',
+				window: 'readonly',
+				document: 'readonly',
+				JSX: 'readonly',
+				HTMLElement: 'readonly',
+				HTMLInputElement: 'readonly',
+				HTMLSelectElement: 'readonly',
+				HTMLTextAreaElement: 'readonly',
+				HTMLButtonElement: 'readonly',
+				HTMLLabelElement: 'readonly',
+				KeyboardEvent: 'readonly',
+				FocusEvent: 'readonly',
+				Event: 'readonly',
+				setTimeout: 'readonly',
+				clearTimeout: 'readonly',
+				setInterval: 'readonly',
+				clearInterval: 'readonly',
+				requestAnimationFrame: 'readonly',
+				cancelAnimationFrame: 'readonly',
+				performance: 'readonly',
+				localStorage: 'readonly',
+				sessionStorage: 'readonly',
+				fetch: 'readonly',
+				AbortController: 'readonly',
+				Response: 'readonly',
+				Image: 'readonly',
+				location: 'readonly',
+				navigator: 'readonly',
+				getComputedStyle: 'readonly',
+				MutationObserver: 'readonly',
+				IntersectionObserver: 'readonly',
+				HTMLImageElement: 'readonly',
+				HTMLAnchorElement: 'readonly',
+				campaignbridgeAdmin: 'readonly',
+			},
+		},
+		plugins: {
+			'@wordpress': wpPlugin,
+			'@typescript-eslint': tsPlugin,
+			'jsx-a11y': jsxA11yPlugin,
+			'react-hooks': reactHooksPlugin,
+		},
+		rules: {
+			// Disable ESLint rules that conflict with Prettier
+			indent: 'off',
+			'no-tabs': 'off',
+			quotes: 'off',
+			semi: 'off',
+			'no-mixed-spaces-and-tabs': 'off',
+			'comma-dangle': 'off',
+			'object-curly-spacing': 'off',
+			'array-bracket-spacing': 'off',
+			// Use TypeScript-aware no-unused-vars rule
+			'no-unused-vars': 'off',
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+			],
+			// React specific rules
+			'react/react-in-jsx-scope': 'off', // Not needed in modern React
+			'react/prop-types': 'off', // WordPress handles props differently
+			// WordPress specific rules
+			'@wordpress/no-unsafe-wp-apis': 'warn', // Warn about experimental APIs
+			// Accessibility rules (jsx-a11y)
+			'jsx-a11y/alt-text': 'error', // Images must have alt text
+			'jsx-a11y/anchor-has-content': 'error', // Links must have content
+			'jsx-a11y/aria-role': 'error', // ARIA roles must be valid
+			'jsx-a11y/heading-has-content': 'error', // Headings must have content
+			// React hooks rules
+			'react-hooks/rules-of-hooks': 'error',
+			'react-hooks/exhaustive-deps': 'warn',
+		},
+		settings: {
+			react: {
+				version: 'detect',
+			},
+		},
+	},
+	// Node-based build and maintenance tools.
+	{
+		files: [ 'bin/**/*.mjs' ],
+		languageOptions: {
+			ecmaVersion: 'latest',
+			sourceType: 'module',
+			globals: {
+				AbortSignal: 'readonly',
+				Buffer: 'readonly',
+				URL: 'readonly',
+				URLSearchParams: 'readonly',
+				clearTimeout: 'readonly',
+				console: 'readonly',
+				fetch: 'readonly',
+				process: 'readonly',
+				setTimeout: 'readonly',
+			},
+		},
+	},
+	// Test files configuration
+	{
+		files: [
+			'src/**/*.test.{js,jsx,ts,tsx}',
+			'src/**/__tests__/**/*.{js,jsx,ts,tsx}',
+			// Test support code: helpers under testing/ and the Jest setup file.
+			'src/**/testing/**/*.{js,jsx,ts,tsx}',
+			'src/jest.setup-*.{js,ts}',
+		],
+		languageOptions: {
+			ecmaVersion: 2020,
+			sourceType: 'module',
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+			globals: {
+				wp: 'readonly',
+				console: 'readonly',
+				window: 'readonly',
+				document: 'readonly',
+				Event: 'readonly',
+				// Node / Jest CJS runtime (path resolution in source locks, etc.)
+				__dirname: 'readonly',
+				process: 'readonly',
+				require: 'readonly',
+				// Jest globals
+				describe: 'readonly',
+				it: 'readonly',
+				test: 'readonly',
+				expect: 'readonly',
+				beforeEach: 'readonly',
+				afterEach: 'readonly',
+				beforeAll: 'readonly',
+				afterAll: 'readonly',
+				jest: 'readonly',
+			},
+		},
+		plugins: {
+			'@wordpress': wpPlugin,
+			'jsx-a11y': jsxA11yPlugin,
+		},
+		rules: {
+			// Relax rules for test files
+			'@wordpress/no-unsafe-wp-apis': 'off',
+		},
+	},
 ];

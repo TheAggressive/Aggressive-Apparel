@@ -25,19 +25,22 @@ declare const process: { env: { NODE_ENV: string } } | undefined;
  * Log a warning message in development mode.
  */
 export function logWarning(
-  message: string,
-  context?: Record<string, unknown>
+	message: string,
+	context?: Record< string, unknown >
 ): void {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
-    console.warn(`[Nav] ${message}`, context ?? '');
-  }
+	if (
+		typeof process !== 'undefined' &&
+		process.env.NODE_ENV !== 'production'
+	) {
+		console.warn( `[Nav] ${ message }`, context ?? '' );
+	}
 }
 
 /**
  * Log an error message.
  */
-export function logError(message: string, error?: unknown): void {
-  console.error(`[Nav] ${message}`, error ?? '');
+export function logError( message: string, error?: unknown ): void {
+	console.error( `[Nav] ${ message }`, error ?? '' );
 }
 
 // ============================================================================
@@ -47,58 +50,58 @@ export function logError(message: string, error?: unknown): void {
 /**
  * Safely get an element by ID.
  */
-export function safeGetElementById<T extends HTMLElement = HTMLElement>(
-  id: string,
-  warnIfMissing = true
+export function safeGetElementById< T extends HTMLElement = HTMLElement >(
+	id: string,
+	warnIfMissing = true
 ): T | null {
-  if (!id) {
-    if (warnIfMissing) {
-      logWarning('safeGetElementById called with empty ID');
-    }
-    return null;
-  }
+	if ( ! id ) {
+		if ( warnIfMissing ) {
+			logWarning( 'safeGetElementById called with empty ID' );
+		}
+		return null;
+	}
 
-  const element = document.getElementById(id);
-  if (!element && warnIfMissing) {
-    logWarning(`Element not found: #${id}`);
-  }
+	const element = document.getElementById( id );
+	if ( ! element && warnIfMissing ) {
+		logWarning( `Element not found: #${ id }` );
+	}
 
-  return element as T | null;
+	return element as T | null;
 }
 
 /**
  * Safely query for an element within a container.
  */
-export function safeQuerySelector<T extends HTMLElement = HTMLElement>(
-  container: Element | Document,
-  selector: string,
-  warnIfMissing = false
+export function safeQuerySelector< T extends HTMLElement = HTMLElement >(
+	container: Element | Document,
+	selector: string,
+	warnIfMissing = false
 ): T | null {
-  try {
-    const element = container.querySelector<T>(selector);
-    if (!element && warnIfMissing) {
-      logWarning(`Element not found: ${selector}`);
-    }
-    return element;
-  } catch (error) {
-    logError(`Invalid selector: ${selector}`, error);
-    return null;
-  }
+	try {
+		const element = container.querySelector< T >( selector );
+		if ( ! element && warnIfMissing ) {
+			logWarning( `Element not found: ${ selector }` );
+		}
+		return element;
+	} catch ( error ) {
+		logError( `Invalid selector: ${ selector }`, error );
+		return null;
+	}
 }
 
 /**
  * Safely query for all elements matching a selector.
  */
-export function safeQuerySelectorAll<T extends HTMLElement = HTMLElement>(
-  container: Element | Document,
-  selector: string
+export function safeQuerySelectorAll< T extends HTMLElement = HTMLElement >(
+	container: Element | Document,
+	selector: string
 ): T[] {
-  try {
-    return Array.from(container.querySelectorAll<T>(selector));
-  } catch (error) {
-    logError(`Invalid selector: ${selector}`, error);
-    return [];
-  }
+	try {
+		return Array.from( container.querySelectorAll< T >( selector ) );
+	} catch ( error ) {
+		logError( `Invalid selector: ${ selector }`, error );
+		return [];
+	}
 }
 
 // ============================================================================
@@ -111,14 +114,14 @@ let _prefersReducedMotion: boolean | null = null;
  * Check if the user prefers reduced motion.
  */
 export function prefersReducedMotion(): boolean {
-  if (_prefersReducedMotion === null) {
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-    _prefersReducedMotion = mql.matches;
-    mql.addEventListener('change', e => {
-      _prefersReducedMotion = e.matches;
-    });
-  }
-  return _prefersReducedMotion;
+	if ( _prefersReducedMotion === null ) {
+		const mql = window.matchMedia( '(prefers-reduced-motion: reduce)' );
+		_prefersReducedMotion = mql.matches;
+		mql.addEventListener( 'change', ( e ) => {
+			_prefersReducedMotion = e.matches;
+		} );
+	}
+	return _prefersReducedMotion;
 }
 
 /**
@@ -128,12 +131,12 @@ export function prefersReducedMotion(): boolean {
  * change; returns a cleanup that removes the listener.
  */
 export function watchMaxWidth(
-  breakpoint: number,
-  onChange: (matches: boolean) => void
+	breakpoint: number,
+	onChange: ( matches: boolean ) => void
 ): () => void {
-  const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-  const handler = (): void => onChange(mql.matches);
-  handler();
-  mql.addEventListener('change', handler);
-  return () => mql.removeEventListener('change', handler);
+	const mql = window.matchMedia( `(max-width: ${ breakpoint - 1 }px)` );
+	const handler = (): void => onChange( mql.matches );
+	handler();
+	mql.addEventListener( 'change', handler );
+	return () => mql.removeEventListener( 'change', handler );
 }

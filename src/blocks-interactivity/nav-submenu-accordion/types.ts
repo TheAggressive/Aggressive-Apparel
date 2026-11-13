@@ -5,8 +5,8 @@
  */
 
 export type NavAccordionAttributes = {
-  label: string;
-  url: string;
-  submenuId: string;
-  showArrow: boolean;
+	label: string;
+	url: string;
+	submenuId: string;
+	showArrow: boolean;
 };

@@ -13,52 +13,52 @@ import { useEffect, useState } from '@wordpress/element';
 import { fetchIconSvg } from './icon-library';
 
 export interface UseIconPreviewResult {
-  svg: string;
-  isLoading: boolean;
+	svg: string;
+	isLoading: boolean;
 }
 
 /**
  * Load sanitized SVG markup for an icon slug from the theme REST API.
  */
-export function useIconPreview(slug: string): UseIconPreviewResult {
-  const [svg, setSvg] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+export function useIconPreview( slug: string ): UseIconPreviewResult {
+	const [ svg, setSvg ] = useState( '' );
+	const [ isLoading, setIsLoading ] = useState( false );
 
-  useEffect(() => {
-    if (!slug) {
-      setSvg('');
-      setIsLoading(false);
-      return;
-    }
+	useEffect( () => {
+		if ( ! slug ) {
+			setSvg( '' );
+			setIsLoading( false );
+			return;
+		}
 
-    let cancelled = false;
+		let cancelled = false;
 
-    const loadPreview = async () => {
-      setIsLoading(true);
+		const loadPreview = async () => {
+			setIsLoading( true );
 
-      try {
-        const markup = await fetchIconSvg(slug);
+			try {
+				const markup = await fetchIconSvg( slug );
 
-        if (!cancelled) {
-          setSvg(markup);
-        }
-      } catch {
-        if (!cancelled) {
-          setSvg('');
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
-    };
+				if ( ! cancelled ) {
+					setSvg( markup );
+				}
+			} catch {
+				if ( ! cancelled ) {
+					setSvg( '' );
+				}
+			} finally {
+				if ( ! cancelled ) {
+					setIsLoading( false );
+				}
+			}
+		};
 
-    void loadPreview();
+		void loadPreview();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [slug]);
+		return () => {
+			cancelled = true;
+		};
+	}, [ slug ] );
 
-  return { svg, isLoading };
+	return { svg, isLoading };
 }

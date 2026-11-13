@@ -35,406 +35,406 @@
 	max-width: 100%;
 	padding: var(--aa-countdown-surface-padding);
 	font-variant-numeric: tabular-nums;
+}
 
-	&__label {
-		font-size: var(--aa-countdown-label-font-size);
-		font-weight: var(--aa-countdown-label-font-weight);
+.aggressive-apparel-countdown__label {
+	font-size: var(--aa-countdown-label-font-size);
+	font-weight: var(--aa-countdown-label-font-weight);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--aa-countdown-label-color);
+}
+
+.aggressive-apparel-countdown__segment {
+	display: inline-flex;
+	align-items: baseline;
+	padding: var(--aa-countdown-segment-padding);
+	background: var(--aa-countdown-segment-bg);
+	color: var(--aa-countdown-segment-color);
+}
+
+.aggressive-apparel-countdown__value {
+	color: var(--aa-countdown-value-color);
+	font-size: var(--aa-countdown-value-font-size);
+	font-weight: var(--aa-countdown-value-font-weight);
+
+	/* Reserve two tabular digits so segments don't shift when the
+	   ticking values populate/change (CLS). */
+	display: inline-block;
+	min-width: 2ch;
+	text-align: center;
+}
+
+.aggressive-apparel-countdown__unit {
+	color: var(--aa-countdown-unit-color);
+	font-size: var(--aa-countdown-unit-font-size);
+	font-weight: var(--aa-countdown-unit-font-weight);
+	margin-left: 1px;
+}
+
+.aggressive-apparel-countdown--inline {
+	display: inline-flex;
+}
+
+/* Compact variant for archives. */
+.aggressive-apparel-countdown--compact {
+	--aa-countdown-gap: 0.3rem;
+	--aa-countdown-label-font-size: var(--wp--preset--font-size--x-small);
+	--aa-countdown-value-font-size: var(--wp--preset--font-size--x-small);
+	--aa-countdown-unit-font-size: var(--wp--preset--font-size--x-small);
+
+	margin: 0.25rem 0 0;
+}
+
+.aggressive-apparel-countdown--minimal {
+	--aa-countdown-gap: 0.35rem;
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-label-font-size: 0.75rem;
+	--aa-countdown-label-font-weight: 500;
+	--aa-countdown-value-font-size: 0.82rem;
+	--aa-countdown-value-font-weight: 600;
+	--aa-countdown-unit-font-size: 0.82rem;
+	--aa-countdown-unit-font-weight: 600;
+
+	margin: 0.25rem 0;
+	color: var(--wp--preset--color--foreground-muted, currentcolor);
+
+	.aggressive-apparel-countdown__label {
+		text-transform: none;
+	}
+}
+
+.aggressive-apparel-countdown--card {
+	--aa-countdown-label-font-size: 0.75rem;
+	--aa-countdown-value-font-size: 0.78rem;
+	--aa-countdown-unit-font-size: 0.78rem;
+
+	display: grid;
+	grid-template-columns: repeat(4, max-content);
+	align-items: center;
+	gap: 0.25rem 0.45rem;
+	margin: 0.35rem 0;
+
+	.aggressive-apparel-countdown__label {
+		grid-column: 1 / -1;
+	}
+
+	.aggressive-apparel-countdown__segment {
+		gap: 0.08rem;
+	}
+
+}
+
+.aggressive-apparel-countdown--chips {
+	--aa-countdown-segment-padding: 0.22rem 0.45rem;
+
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+
+	.aggressive-apparel-countdown__segment {
+		gap: 0.1rem;
+		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+		border-radius: var(--aa-countdown-radius);
+	}
+
+	.aggressive-apparel-countdown__value {
+		font-size: var(--wp--preset--font-size--small);
+	}
+}
+
+.aggressive-apparel-countdown--banner {
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-value-font-size: var(--wp--preset--font-size--small);
+	--aa-countdown-surface-padding: 0.5rem 0;
+
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem 0.75rem;
+	width: 100%;
+	margin: 0;
+	border-block: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+}
+
+.aggressive-apparel-countdown--strip {
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
+	--aa-countdown-value-font-size: var(--wp--preset--font-size--medium);
+	--aa-countdown-surface-padding: 0.7rem 0;
+
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem 1rem;
+	width: 100%;
+	margin: 0.75rem 0;
+	border-block: calc(var(--aa-countdown-border-width) * 2) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+}
+
+.aggressive-apparel-countdown--pill {
+	--aa-countdown-value-font-size: var(--wp--preset--font-size--small);
+	--aa-countdown-unit-font-size: 0.75rem;
+	--aa-countdown-surface-padding: 0.35rem 0.75rem;
+
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem;
+	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border-radius: var(--aa-countdown-pill-radius);
+
+	.aggressive-apparel-countdown__segment {
+		gap: 0.08rem;
+	}
+
+}
+
+.aggressive-apparel-countdown--outline {
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-value-font-size: var(--wp--preset--font-size--large);
+	--aa-countdown-segment-padding: 0.55rem;
+
+	display: grid;
+	grid-template-columns: repeat(4, minmax(3.5rem, 1fr));
+	gap: 0;
+	width: min(100%, 34rem);
+	margin: 1rem 0;
+	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+
+	.aggressive-apparel-countdown__label {
+		grid-column: 1 / -1;
+		padding: 0.6rem 0.75rem;
+		border-bottom: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+		text-align: center;
+	}
+
+	.aggressive-apparel-countdown__segment {
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-height: 4rem;
+		border-right: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	}
+
+	.aggressive-apparel-countdown__segment:last-child {
+		border-right: 0;
+	}
+
+	.aggressive-apparel-countdown__value {
+		line-height: 1;
+	}
+
+	.aggressive-apparel-countdown__unit {
+		margin: 0.2rem 0 0;
 		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		color: var(--aa-countdown-label-color);
 	}
+}
 
-	&__segment {
-		display: inline-flex;
-		align-items: baseline;
-		padding: var(--aa-countdown-segment-padding);
-		background: var(--aa-countdown-segment-bg);
-		color: var(--aa-countdown-segment-color);
-	}
+.aggressive-apparel-countdown--boxed {
+	--aa-countdown-value-font-size: var(--wp--preset--font-size--large);
+	--aa-countdown-segment-padding: 0.55rem 0.65rem;
 
-	&__value {
-		color: var(--aa-countdown-value-color);
-		font-size: var(--aa-countdown-value-font-size);
-		font-weight: var(--aa-countdown-value-font-weight);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	margin: 1rem 0;
 
-		/* Reserve two tabular digits so segments don't shift when the
-		   ticking values populate/change (CLS). */
-		display: inline-block;
-		min-width: 2ch;
+	.aggressive-apparel-countdown__label {
+		flex-basis: 100%;
 		text-align: center;
 	}
 
-	&__unit {
-		color: var(--aa-countdown-unit-color);
-		font-size: var(--aa-countdown-unit-font-size);
-		font-weight: var(--aa-countdown-unit-font-weight);
-		margin-left: 1px;
+	.aggressive-apparel-countdown__segment {
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-width: 4.25rem;
+		min-height: 4rem;
+		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+		border-radius: var(--aa-countdown-radius);
 	}
 
-	&--inline {
-		display: inline-flex;
+	.aggressive-apparel-countdown__value {
+		line-height: 1;
 	}
 
-	/* Compact variant for archives. */
-	&--compact {
-		--aa-countdown-gap: 0.3rem;
-		--aa-countdown-label-font-size: var(--wp--preset--font-size--x-small);
-		--aa-countdown-value-font-size: var(--wp--preset--font-size--x-small);
-		--aa-countdown-unit-font-size: var(--wp--preset--font-size--x-small);
+	.aggressive-apparel-countdown__unit {
+		margin: 0.2rem 0 0;
+		text-transform: uppercase;
+	}
+}
 
+.aggressive-apparel-countdown--magazine {
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
+	--aa-countdown-value-font-size: clamp(2rem, 5vw, 4.5rem);
+	--aa-countdown-value-font-weight: 800;
+
+	display: grid;
+	grid-template-columns: minmax(7rem, auto) repeat(4, minmax(0, 1fr));
+	align-items: end;
+	gap: 0.75rem;
+	width: min(100%, 48rem);
+	margin: 1.25rem 0;
+	padding-block: 0.75rem;
+	border-block: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+
+	.aggressive-apparel-countdown__label {
+		align-self: center;
+		line-height: 1.1;
+	}
+
+	.aggressive-apparel-countdown__segment {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.aggressive-apparel-countdown__value {
+		line-height: 0.9;
+	}
+
+	.aggressive-apparel-countdown__unit {
 		margin: 0.25rem 0 0;
+		text-transform: uppercase;
+	}
+}
+
+.aggressive-apparel-countdown--editorial {
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
+	--aa-countdown-value-font-size: var(--aa-countdown-feature-value-font-size);
+
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 0.4rem 0.9rem;
+	width: min(100%, 42rem);
+	margin: 1rem 0;
+	padding-left: 1rem;
+	border-left: calc(var(--aa-countdown-border-width) * 2) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+
+	.aggressive-apparel-countdown__label {
+		grid-column: 1 / -1;
+		text-align: left;
 	}
 
-	&--minimal {
-		--aa-countdown-gap: 0.35rem;
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-label-font-size: 0.75rem;
-		--aa-countdown-label-font-weight: 500;
-		--aa-countdown-value-font-size: 0.82rem;
-		--aa-countdown-value-font-weight: 600;
-		--aa-countdown-unit-font-size: 0.82rem;
-		--aa-countdown-unit-font-weight: 600;
-
-		margin: 0.25rem 0;
-		color: var(--wp--preset--color--foreground-muted, currentcolor);
-
-		.aggressive-apparel-countdown__label {
-			text-transform: none;
-		}
+	.aggressive-apparel-countdown__segment {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 
-	&--card {
-		--aa-countdown-label-font-size: 0.75rem;
-		--aa-countdown-value-font-size: 0.78rem;
-		--aa-countdown-unit-font-size: 0.78rem;
+	.aggressive-apparel-countdown__value {
+		line-height: 0.95;
+	}
 
-		display: grid;
-		grid-template-columns: repeat(4, max-content);
+	.aggressive-apparel-countdown__unit {
+		margin: 0.2rem 0 0;
+		text-transform: uppercase;
+	}
+}
+
+.aggressive-apparel-countdown--hero,
+.aggressive-apparel-countdown--hero-center,
+.aggressive-apparel-countdown--hero-split,
+.aggressive-apparel-countdown--hero-panel {
+	--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
+	--aa-countdown-value-font-size: var(--aa-countdown-hero-value-font-size);
+	--aa-countdown-value-font-weight: 800;
+	--aa-countdown-unit-font-size: var(--wp--preset--font-size--small);
+	--aa-countdown-unit-font-weight: 700;
+
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: clamp(0.75rem, 2vw, 1.25rem);
+	margin: clamp(1rem, 3vw, 1.75rem) 0;
+
+	.aggressive-apparel-countdown__label {
+		flex-basis: 100%;
+	}
+
+	.aggressive-apparel-countdown__segment {
+		align-items: flex-end;
+		gap: 0.18rem;
+	}
+
+	.aggressive-apparel-countdown__value {
+		line-height: 0.9;
+	}
+
+	.aggressive-apparel-countdown__unit {
+		text-transform: uppercase;
+	}
+}
+
+.aggressive-apparel-countdown--hero-center {
+	--aa-countdown-label-color: currentcolor;
+
+	justify-content: center;
+	text-align: center;
+
+	.aggressive-apparel-countdown__segment {
+		flex-direction: column;
 		align-items: center;
-		gap: 0.25rem 0.45rem;
-		margin: 0.35rem 0;
+		gap: 0.25rem;
+	}
+}
 
-		.aggressive-apparel-countdown__label {
-			grid-column: 1 / -1;
-		}
+.aggressive-apparel-countdown--hero-split {
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-label-font-size: var(--wp--preset--font-size--medium);
 
-		.aggressive-apparel-countdown__segment {
-			gap: 0.08rem;
-		}
+	display: grid;
+	grid-template-columns: minmax(8rem, 0.8fr) repeat(4, minmax(0, 1fr));
+	align-items: end;
+	gap: clamp(0.75rem, 2vw, 1.5rem);
+	width: min(100%, 56rem);
 
+	.aggressive-apparel-countdown__label {
+		flex-basis: auto;
+		line-height: 1;
 	}
 
-	&--chips {
-		--aa-countdown-segment-padding: 0.22rem 0.45rem;
-
-		display: inline-flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.4rem;
-
-		.aggressive-apparel-countdown__segment {
-			gap: 0.1rem;
-			border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-			border-radius: var(--aa-countdown-radius);
-		}
-
-		.aggressive-apparel-countdown__value {
-			font-size: var(--wp--preset--font-size--small);
-		}
+	.aggressive-apparel-countdown__segment {
+		flex-direction: column;
+		align-items: flex-start;
 	}
+}
 
-	&--banner {
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-value-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-surface-padding: 0.5rem 0;
+.aggressive-apparel-countdown--hero-panel {
+	--aa-countdown-label-color: currentcolor;
+	--aa-countdown-surface-padding: clamp(1rem, 3vw, 2rem);
 
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: center;
-		gap: 0.45rem 0.75rem;
-		width: 100%;
-		margin: 0;
-		border-block: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-	}
+	justify-content: center;
+	width: min(100%, 48rem);
+	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 
-	&--strip {
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-value-font-size: var(--wp--preset--font-size--medium);
-		--aa-countdown-surface-padding: 0.7rem 0;
-
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem 1rem;
-		width: 100%;
-		margin: 0.75rem 0;
-		border-block: calc(var(--aa-countdown-border-width) * 2) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-	}
-
-	&--pill {
-		--aa-countdown-value-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-unit-font-size: 0.75rem;
-		--aa-countdown-surface-padding: 0.35rem 0.75rem;
-
-		display: inline-flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.35rem;
-		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-		border-radius: var(--aa-countdown-pill-radius);
-
-		.aggressive-apparel-countdown__segment {
-			gap: 0.08rem;
-		}
-
-	}
-
-	&--outline {
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-value-font-size: var(--wp--preset--font-size--large);
-		--aa-countdown-segment-padding: 0.55rem;
-
-		display: grid;
-		grid-template-columns: repeat(4, minmax(3.5rem, 1fr));
-		gap: 0;
-		width: min(100%, 34rem);
-		margin: 1rem 0;
-		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-
-		.aggressive-apparel-countdown__label {
-			grid-column: 1 / -1;
-			padding: 0.6rem 0.75rem;
-			border-bottom: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-			text-align: center;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			min-height: 4rem;
-			border-right: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-		}
-
-		.aggressive-apparel-countdown__segment:last-child {
-			border-right: 0;
-		}
-
-		.aggressive-apparel-countdown__value {
-			line-height: 1;
-		}
-
-		.aggressive-apparel-countdown__unit {
-			margin: 0.2rem 0 0;
-			text-transform: uppercase;
-		}
-	}
-
-	&--boxed {
-		--aa-countdown-value-font-size: var(--wp--preset--font-size--large);
-		--aa-countdown-segment-padding: 0.55rem 0.65rem;
-
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		margin: 1rem 0;
-
-		.aggressive-apparel-countdown__label {
-			flex-basis: 100%;
-			text-align: center;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			min-width: 4.25rem;
-			min-height: 4rem;
-			border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-			border-radius: var(--aa-countdown-radius);
-		}
-
-		.aggressive-apparel-countdown__value {
-			line-height: 1;
-		}
-
-		.aggressive-apparel-countdown__unit {
-			margin: 0.2rem 0 0;
-			text-transform: uppercase;
-		}
-	}
-
-	&--magazine {
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-value-font-size: clamp(2rem, 5vw, 4.5rem);
-		--aa-countdown-value-font-weight: 800;
-
-		display: grid;
-		grid-template-columns: minmax(7rem, auto) repeat(4, minmax(0, 1fr));
-		align-items: end;
-		gap: 0.75rem;
-		width: min(100%, 48rem);
-		margin: 1.25rem 0;
-		padding-block: 0.75rem;
-		border-block: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-
-		.aggressive-apparel-countdown__label {
-			align-self: center;
-			line-height: 1.1;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			flex-direction: column;
-			align-items: flex-start;
-		}
-
-		.aggressive-apparel-countdown__value {
-			line-height: 0.9;
-		}
-
-		.aggressive-apparel-countdown__unit {
-			margin: 0.25rem 0 0;
-			text-transform: uppercase;
-		}
-	}
-
-	&--editorial {
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-value-font-size: var(--aa-countdown-feature-value-font-size);
-
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 0.4rem 0.9rem;
-		width: min(100%, 42rem);
-		margin: 1rem 0;
-		padding-left: 1rem;
-		border-left: calc(var(--aa-countdown-border-width) * 2) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-
-		.aggressive-apparel-countdown__label {
-			grid-column: 1 / -1;
-			text-align: left;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			flex-direction: column;
-			align-items: flex-start;
-		}
-
-		.aggressive-apparel-countdown__value {
-			line-height: 0.95;
-		}
-
-		.aggressive-apparel-countdown__unit {
-			margin: 0.2rem 0 0;
-			text-transform: uppercase;
-		}
-	}
-
-	&--hero,
-	&--hero-center,
-	&--hero-split,
-	&--hero-panel {
-		--aa-countdown-label-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-value-font-size: var(--aa-countdown-hero-value-font-size);
-		--aa-countdown-value-font-weight: 800;
-		--aa-countdown-unit-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-unit-font-weight: 700;
-
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: clamp(0.75rem, 2vw, 1.25rem);
-		margin: clamp(1rem, 3vw, 1.75rem) 0;
-
-		.aggressive-apparel-countdown__label {
-			flex-basis: 100%;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			align-items: flex-end;
-			gap: 0.18rem;
-		}
-
-		.aggressive-apparel-countdown__value {
-			line-height: 0.9;
-		}
-
-		.aggressive-apparel-countdown__unit {
-			text-transform: uppercase;
-		}
-	}
-
-	&--hero-center {
-		--aa-countdown-label-color: currentcolor;
-
-		justify-content: center;
+	.aggressive-apparel-countdown__label {
 		text-align: center;
-
-		.aggressive-apparel-countdown__segment {
-			flex-direction: column;
-			align-items: center;
-			gap: 0.25rem;
-		}
 	}
 
-	&--hero-split {
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-label-font-size: var(--wp--preset--font-size--medium);
+	.aggressive-apparel-countdown__segment {
+		flex-direction: column;
+		align-items: center;
+		min-width: clamp(4.5rem, 12vw, 7rem);
+	}
+}
 
-		display: grid;
-		grid-template-columns: minmax(8rem, 0.8fr) repeat(4, minmax(0, 1fr));
-		align-items: end;
-		gap: clamp(0.75rem, 2vw, 1.5rem);
-		width: min(100%, 56rem);
+/* Expired state (view.ts toggles via context.isExpired): only the
+   "Sale ended" label remains — zeroed segments would read as a live sale. */
+.aggressive-apparel-countdown--expired {
 
-		.aggressive-apparel-countdown__label {
-			flex-basis: auto;
-			line-height: 1;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			flex-direction: column;
-			align-items: flex-start;
-		}
+	.aggressive-apparel-countdown__label {
+		color: currentcolor;
 	}
 
-	&--hero-panel {
-		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-surface-padding: clamp(1rem, 3vw, 2rem);
-
-		justify-content: center;
-		width: min(100%, 48rem);
-		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
-
-		.aggressive-apparel-countdown__label {
-			text-align: center;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			flex-direction: column;
-			align-items: center;
-			min-width: clamp(4.5rem, 12vw, 7rem);
-		}
-	}
-
-	/* Expired state (view.ts toggles via context.isExpired): only the
-	   "Sale ended" label remains — zeroed segments would read as a live sale. */
-	&--expired {
-
-		.aggressive-apparel-countdown__label {
-			color: currentcolor;
-		}
-
-		.aggressive-apparel-countdown__segment {
-			display: none;
-		}
+	.aggressive-apparel-countdown__segment {
+		display: none;
 	}
 }
 

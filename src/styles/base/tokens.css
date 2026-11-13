@@ -200,6 +200,13 @@
 	--aa-shadow-lg: var(--wp--preset--shadow--large, 0 12px 40px var(--aa-color-shadow-strong));
 	--aa-shadow-panel: var(--wp--preset--shadow--x-large, 0 25px 50px -12px var(--aa-color-shadow-strong));
 
+	/* Font stacks. --aa-font-body is the global-styles body family (including
+	   Site Editor changes), emitted inline on this stylesheet by
+	   Assets\Body_Font_Token — WordPress outputs no variable for it, so it is
+	   not declared here. Mono is a theme.json custom setting (theme.json
+	   registers no monospace preset); the fallback is only the generic. */
+	--aa-font-mono: var(--wp--custom--font-family--mono, monospace);
+
 	/* Typography roles. */
 	--aa-type-eyebrow-size: var(--wp--custom--type-role--eyebrow--font-size, var(--wp--preset--font-size--x-small));
 	--aa-type-eyebrow-weight: var(--wp--custom--type-role--eyebrow--font-weight, 700);

@@ -8,7 +8,7 @@
  * per-form CSS.
  *
  * Unit/PHP can't prove this: the guarantee is a computed-style outcome of the
- * cascade-layer order (main.css places `aa-forms` above Tailwind Preflight,
+ * cascade-layer order (main.css places `aa-forms` above `aa-reset`,
  * which otherwise zeroes input padding/border/radius) plus the frontend-only
  * forms.css and theme.json's `--wp--custom--field--*` properties all being
  * live on one front-end page. So this spec publishes a blank page, injects raw
@@ -135,7 +135,7 @@ test.describe('native form baseline', () => {
       await page.goto(url);
       const r = await injectForms(page);
 
-      // The baseline survives Preflight: real padding, radius, fill and bar.
+      // The baseline survives the reset: real padding, radius, fill and bar.
       expect(r.text.paddingLeft).not.toBe('0px');
       expect(r.text.borderRadius).not.toBe('0px');
       expect(TRANSPARENT.has(r.text.background)).toBe(false);

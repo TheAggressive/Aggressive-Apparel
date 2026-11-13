@@ -95,9 +95,6 @@ yarn-error.log*
 *.tar.gz
 *.rar
 
-# Tailwind
-.tailwindcss-cache/
-
 # Playwright e2e
 tests/e2e/.auth/
 test-results/

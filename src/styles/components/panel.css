@@ -26,92 +26,92 @@
 		opacity: 1;
 		transform: scale(1) translateY(0);
 	}
+}
 
-	&--md {
-		width: min(90vw, var(--aa-panel-width-md));
-		max-height: 85vh;
-	}
+.aggressive-apparel-panel--md {
+	width: min(90vw, var(--aa-panel-width-md));
+	max-height: 85vh;
+}
 
-	&--lg {
-		width: min(90vw, var(--aa-panel-width-lg));
-		max-height: 85vh;
-	}
+.aggressive-apparel-panel--lg {
+	width: min(90vw, var(--aa-panel-width-lg));
+	max-height: 85vh;
+}
 
-	&--xl {
-		width: min(90vw, var(--aa-panel-width-xl));
-		max-height: 85vh;
-	}
+.aggressive-apparel-panel--xl {
+	width: min(90vw, var(--aa-panel-width-xl));
+	max-height: 85vh;
+}
 
-	/* Size guide: slide-up only (no scale). */
-	&--guide {
-		width: min(90vw, var(--aa-panel-width-guide));
-		height: fit-content;
-		max-height: 85vh;
-		overflow-y: auto;
-		box-shadow: var(--aa-shadow-panel);
+/* Size guide: slide-up only (no scale). */
+.aggressive-apparel-panel--guide {
+	width: min(90vw, var(--aa-panel-width-guide));
+	height: fit-content;
+	max-height: 85vh;
+	overflow-y: auto;
+	box-shadow: var(--aa-shadow-panel);
+	opacity: 1;
+	transform: translateY(20px);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
+
+	.aggressive-apparel-overlay.is-open & {
 		opacity: 1;
-		transform: translateY(20px);
-		transition: transform var(--aa-duration-normal) var(--aa-ease-default);
-
-		.aggressive-apparel-overlay.is-open & {
-			opacity: 1;
-			transform: translateY(0);
-		}
+		transform: translateY(0);
 	}
+}
 
-	/* Left-edge drawer (product filters). */
-	&--drawer-left {
-		width: var(--aa-panel-width-drawer);
-		max-width: 90vw;
-		height: 100dvh;
-		max-height: none;
-		border-radius: 0;
+/* Left-edge drawer (product filters). */
+.aggressive-apparel-panel--drawer-left {
+	width: var(--aa-panel-width-drawer);
+	max-width: 90vw;
+	height: 100dvh;
+	max-height: none;
+	border-radius: 0;
+	opacity: 1;
+	transform: translateX(-100%);
+	box-shadow: 4px 0 24px var(--aa-color-shadow);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
+
+	.aggressive-apparel-overlay.is-open & {
 		opacity: 1;
-		transform: translateX(-100%);
-		box-shadow: 4px 0 24px var(--aa-color-shadow);
-		transition: transform var(--aa-duration-normal) var(--aa-ease-default);
-
-		.aggressive-apparel-overlay.is-open & {
-			opacity: 1;
-			transform: translateX(0);
-		}
+		transform: translateX(0);
 	}
+}
 
-	/* Bottom sheet (sticky cart variant picker). */
-	&--drawer-bottom {
-		width: 100%;
-		max-width: none;
-		max-height: 70dvh;
-		border-radius: var(--aa-radius-panel) var(--aa-radius-panel) 0 0;
+/* Bottom sheet (sticky cart variant picker). */
+.aggressive-apparel-panel--drawer-bottom {
+	width: 100%;
+	max-width: none;
+	max-height: 70dvh;
+	border-radius: var(--aa-radius-panel) var(--aa-radius-panel) 0 0;
+	opacity: 1;
+	transform: translateY(100%);
+	box-shadow: 0 -4px 24px var(--aa-color-shadow);
+
+	/* Closing: quick, accelerating away. Keep it under use-overlay's
+	   FALLBACK_MS, which hides the shell if transitionend never lands. */
+	transition: transform 240ms var(--aa-ease-exit);
+
+	.aggressive-apparel-overlay.is-open & {
 		opacity: 1;
-		transform: translateY(100%);
-		box-shadow: 0 -4px 24px var(--aa-color-shadow);
+		transform: translateY(0);
 
-		/* Closing: quick, accelerating away. Keep it under use-overlay's
-		   FALLBACK_MS, which hides the shell if transitionend never lands. */
-		transition: transform 240ms var(--aa-ease-exit);
-
-		.aggressive-apparel-overlay.is-open & {
-			opacity: 1;
-			transform: translateY(0);
-
-			/* Opening: a longer, decelerating settle into place. */
-			transition: transform 400ms var(--aa-ease-enter);
-		}
+		/* Opening: a longer, decelerating settle into place. */
+		transition: transform 400ms var(--aa-ease-enter);
 	}
+}
 
-	/* Top search bar (mobile bottom nav). */
-	&--search-bar {
-		width: 100%;
-		max-width: none;
-		max-height: none;
-		border-radius: 0;
-		box-shadow: 0 4px 12px var(--aa-color-shadow);
-		transform: translateY(-10px);
+/* Top search bar (mobile bottom nav). */
+.aggressive-apparel-panel--search-bar {
+	width: 100%;
+	max-width: none;
+	max-height: none;
+	border-radius: 0;
+	box-shadow: 0 4px 12px var(--aa-color-shadow);
+	transform: translateY(-10px);
 
-		.aggressive-apparel-overlay.is-open & {
-			transform: translateY(0);
-		}
+	.aggressive-apparel-overlay.is-open & {
+		transform: translateY(0);
 	}
 }
 

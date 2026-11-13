@@ -143,11 +143,11 @@ above the control.
   keeps only what WooCommerce's DOM needs: floating labels and the `!important`
   that beats WC's field selectors.
 
-**Layer order matters.** Tailwind's `base` layer (Preflight) resets input
-padding, border, radius and background, and every `aa-*` layer is ordered
-below it. The baseline therefore lives in its own `aa-forms` layer, which
-`main.css` pins directly after `base` (`… aa-utilities, theme, base, aa-forms`).
-It beats Preflight but loses to Tailwind utilities and all unlayered CSS.
+**Layer order matters.** The `aa-reset` layer (`base/reset.css`) zeroes input
+padding, border, radius and background. `main.css` orders it first and the
+form baseline's own `aa-forms` layer last (`aa-reset, … aa-utilities,
+aa-forms`), so the baseline beats the reset and every other `aa-*` layer but
+loses to all unlayered CSS (theme.json, WooCommerce, plugins, components).
 
 **Boundaries** live in ONE wrapper selector at the top of the baseline (every
 rule nests inside it): WooCommerce Blocks (`[class*='wc-block']` itself or any
@@ -177,3 +177,13 @@ style variations are defined in theme.json `styles.blocks.*.variations` (e.g. th
 ## Typography
 
 System font stack with 20+ fluid font sizes using `clamp()` for responsive scaling.
+
+Font-family tokens:
+
+- `--aa-font-body` — the global-styles body family (theme.json
+  `styles.typography.fontFamily`, or its Site Editor override). WordPress emits
+  no variable for it, so `Assets\Body_Font_Token` prints it inline on the token
+  stylesheet. Use it where an element must read body type while nested in
+  something with its own font (the mini-cart drawer inside the Mini-Cart block).
+- `--aa-font-mono` — `settings.custom.fontFamily.mono` (theme.json registers no
+  monospace preset); used by code/preformatted content and the reset.

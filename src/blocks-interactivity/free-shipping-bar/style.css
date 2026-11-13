@@ -9,45 +9,45 @@
 	--shipping-bar-complete: var(--aa-color-success);
 
 	margin-bottom: 1rem;
+}
 
-	&__track {
-		height: 6px;
-		background-color: color-mix(in oklch, currentcolor 15%, transparent);
-		border-radius: 3px;
-		overflow: hidden;
-	}
+.aggressive-apparel-shipping-bar__track {
+	height: 6px;
+	background-color: color-mix(in oklch, currentcolor 15%, transparent);
+	border-radius: 3px;
+	overflow: hidden;
+}
 
-	&__progress {
-		height: 100%;
-		background-color: var(--aa-color-accent);
-		border-radius: 3px;
-		transition: width 0.4s ease;
-	}
+.aggressive-apparel-shipping-bar__progress {
+	height: 100%;
+	background-color: var(--aa-color-accent);
+	border-radius: 3px;
+	transition: width 0.4s ease;
+}
 
-	&__message {
-		margin-top: 0.4rem;
-		font-size: var(--wp--preset--font-size--x-small);
-		text-align: center;
-	}
+.aggressive-apparel-shipping-bar__message {
+	margin-top: 0.4rem;
+	font-size: var(--wp--preset--font-size--x-small);
+	text-align: center;
+}
 
-	/* Relative weights, so the editor's font-weight setting stays the base. */
-	&__amount {
-		font-weight: bolder;
-		font-variant-numeric: tabular-nums;
-	}
+/* Relative weights, so the editor's font-weight setting stays the base. */
+.aggressive-apparel-shipping-bar__amount {
+	font-weight: bolder;
+	font-variant-numeric: tabular-nums;
+}
 
-	&__emphasis {
-		font-weight: bolder;
-	}
+.aggressive-apparel-shipping-bar__emphasis {
+	font-weight: bolder;
+}
 
-	&--complete &__progress {
-		background-color: var(--shipping-bar-complete);
-	}
+.aggressive-apparel-shipping-bar--complete .aggressive-apparel-shipping-bar__progress {
+	background-color: var(--shipping-bar-complete);
+}
 
-	&--complete &__message {
-		font-weight: 600;
-		color: var(--shipping-bar-complete);
-	}
+.aggressive-apparel-shipping-bar--complete .aggressive-apparel-shipping-bar__message {
+	font-weight: 600;
+	color: var(--shipping-bar-complete);
 }
 
 @media (prefers-reduced-motion: reduce) {

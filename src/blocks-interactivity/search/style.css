@@ -15,14 +15,14 @@
  * -------------------------------------------------------------------------- */
 .aa-search-trigger {
 	--aa-icon-button-color: currentcolor;
+}
 
-	&__label {
-		font-size: var(--wp--preset--font-size--small);
-		font-weight: 700;
-		line-height: 1.1;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-	}
+.aa-search-trigger__label {
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
 /* -----------------------------------------------------------------------------
@@ -460,10 +460,10 @@
 	object-fit: cover;
 	border-radius: var(--aa-radius-md);
 	background-color: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
+}
 
-	&--empty {
-		display: block;
-	}
+.aa-search__thumb--empty {
+	display: block;
 }
 
 .aa-search__result-body {

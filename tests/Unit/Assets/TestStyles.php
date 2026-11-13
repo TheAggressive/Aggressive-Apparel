@@ -8,6 +8,8 @@
 namespace Aggressive_Apparel\Tests\Unit\Assets;
 
 use WP_UnitTestCase;
+use Aggressive_Apparel\Assets\Asset_Loader;
+use Aggressive_Apparel\Assets\Body_Font_Token;
 use Aggressive_Apparel\Assets\Styles;
 
 /**
@@ -324,9 +326,9 @@ class TestStyles extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The native form baseline must sit above Tailwind Preflight and read the
-	 * shared field tokens — the regression this guards left every unclassed
-	 * <input> with Preflight's zero padding, border and radius.
+	 * The native form baseline must sit above the reset and read the shared
+	 * field tokens — the regression this guards left every unclassed <input>
+	 * with the reset's zero padding, border and radius.
 	 */
 	public function test_form_baseline_layer_and_token_contract() {
 		do_action( 'wp_enqueue_scripts' );
@@ -354,16 +356,12 @@ class TestStyles extends WP_UnitTestCase {
 		$this->assertIsString( $checkout_css );
 		$this->assertIsArray( $theme_json );
 
-		$this->assertMatchesRegularExpression(
-			'/@layer\s[^;]*aa-utilities,\s*theme,\s*base,\s*aa-forms;/',
-			$main_css,
-			'aa-forms must be declared directly after Tailwind\'s base layer (Preflight).'
-		);
+		$this->assert_layer_order_contract( $theme, $main_css );
 		$this->assertStringContainsString( '@layer aa-forms {', $forms_css );
 		$this->assertStringNotContainsString(
 			'@layer aa-components',
 			$forms_css,
-			'aa-components sits below Preflight; the form baseline would be reset.'
+			'The form baseline belongs in aa-forms, the top aa-* layer; in aa-components other theme layers would override it.'
 		);
 		$this->assertStringNotContainsString(
 			'.fluentform.ff-inherit-theme-style {',
@@ -411,6 +409,76 @@ class TestStyles extends WP_UnitTestCase {
 		}
 		$this->assertSame( $preset( $element['spacing']['padding']['top'] ), $custom['paddingBlock'] );
 		$this->assertSame( $preset( $element['spacing']['padding']['left'] ), $custom['paddingInline'] );
+	}
+
+	/**
+	 * Assert main.css's cascade-layer contract: one order statement, first,
+	 * naming every layer its partials use.
+	 *
+	 * @param string $theme    Theme directory.
+	 * @param string $main_css Source of src/styles/main.css.
+	 * @return void
+	 */
+	private function assert_layer_order_contract( string $theme, string $main_css ): void {
+		$expected = array( 'aa-reset', 'aa-tokens', 'aa-base', 'aa-components', 'aa-blocks', 'aa-woocommerce', 'aa-utilities', 'aa-forms' );
+		$css      = (string) preg_replace( '#/\*.*?\*/#s', '', $main_css );
+
+		$this->assertSame(
+			1,
+			preg_match( '/@layer\s+([\w\s,-]+);/', $css, $statement, PREG_OFFSET_CAPTURE ),
+			'main.css must declare the cascade-layer order in one @layer statement.'
+		);
+		$this->assertSame(
+			$expected,
+			array_map( 'trim', explode( ',', $statement[1][0] ) ),
+			'Layer order: aa-reset lowest, aa-forms the top aa-* layer (the form baseline beats the reset and every other theme layer).'
+		);
+
+		// A layer's position is fixed where it is first named, so nothing may
+		// name one before the statement: no @layer block and no @import (whose
+		// partial postcss-import inlines in place).
+		$before = substr( $css, 0, (int) $statement[0][1] );
+		$this->assertStringNotContainsString( '@import', $before, 'The @layer statement must precede every @import.' );
+		$this->assertStringNotContainsString( '@layer', $before, 'The @layer statement must be the first layer reference.' );
+
+		// Every imported partial may only use declared layers; an undeclared
+		// (or misspelled) one would be appended above aa-forms.
+		$this->assertGreaterThan( 0, preg_match_all( "/@import\s+'([^']+)'/", $css, $imports ) );
+		foreach ( $imports[1] as $import ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+			$partial = (string) file_get_contents( $theme . '/src/styles/' . $import );
+			$partial = (string) preg_replace( '#/\*.*?\*/#s', '', $partial );
+			preg_match_all( '/@layer\s+([\w\s,-]+)[;{]/', $partial, $layers );
+			foreach ( $layers[1] as $list ) {
+				foreach ( array_map( 'trim', explode( ',', $list ) ) as $layer ) {
+					$this->assertContains( $layer, $expected, "{$import} uses undeclared layer {$layer}." );
+				}
+			}
+		}
+	}
+
+	/**
+	 * The body-font token resolves from global styles and rejects anything
+	 * that could break out of the declaration.
+	 */
+	public function test_body_font_token() {
+		$this->assertSame( 'var(--wp--preset--font-family--space-grotesk)', Body_Font_Token::to_css_value( 'var:preset|font-family|space-grotesk' ) );
+		$this->assertSame( 'var(--wp--preset--font-family--bebas-neue)', Body_Font_Token::to_css_value( 'var(--wp--preset--font-family--bebas-neue)' ) );
+		$this->assertSame( "'Inter', Helvetica, sans-serif", Body_Font_Token::to_css_value( " 'Inter', Helvetica, sans-serif " ) );
+		$this->assertSame( '', Body_Font_Token::to_css_value( 'serif;}body{display:none' ) );
+		$this->assertSame( '', Body_Font_Token::to_css_value( "'Inter, sans-serif" ) );
+		$this->assertSame( '', Body_Font_Token::to_css_value( '' ) );
+		$this->assertSame( '', Body_Font_Token::to_css_value( 'var(--x)' ) );
+		$this->assertSame( '', Body_Font_Token::to_css_value( null ) );
+		$this->assertSame( '', Body_Font_Token::to_css_value( array( 'serif' ) ) );
+
+		// theme.json sets a body font, so the token is printed — once, even
+		// though enqueue_tokens() runs from several hooks.
+		do_action( 'wp_enqueue_scripts' );
+		Asset_Loader::enqueue_tokens();
+		$after = wp_styles()->get_data( Asset_Loader::TOKENS_HANDLE, 'after' );
+		$this->assertIsArray( $after );
+		$this->assertSame( array( ':root{--aa-font-body:var(--wp--preset--font-family--space-grotesk)}' ), array_values( array_filter( $after, fn( $css ) => str_contains( $css, Body_Font_Token::PROPERTY ) ) ) );
 	}
 
 	/**

@@ -9,7 +9,7 @@
  * WooCommerce ships deeply-specific unlayered CSS for `#reviews`
  * (e.g. `.woocommerce #reviews #comments ol.commentlist li .comment-text`), so
  * these rules are nested under the same `.woocommerce #reviews #comments
- * ol.commentlist` / `.woocommerce #reviews #respond` prefixes — postcss-nested
+ * ol.commentlist` / `.woocommerce #reviews #respond` prefixes — the build
  * flattens them back to that full depth, mirroring WC's specificity so our rules
  * win cleanly. They set structural/visual props only; body text uses
  * `inherit`/tokens so the editor-driven foreground colour still flows through.

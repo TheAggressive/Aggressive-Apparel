@@ -545,6 +545,9 @@
         "color": "color-mix(in oklch, var(--wp--preset--color--foreground) 15%, transparent)",
         "colorStrong": "color-mix(in oklch, var(--wp--preset--color--foreground) 30%, transparent)"
       },
+      "fontFamily": {
+        "mono": "'Courier New', courier, monospace"
+      },
       "fontWeights": {
         "bebasNeue": [400],
         "spaceGrotesk": [400, 500, 700]
@@ -1395,7 +1398,7 @@
           }
         },
         "typography": {
-          "fontFamily": "var(--font-mono)",
+          "fontFamily": "var:custom|font-family|mono",
           "fontSize": "var:preset|font-size|small",
           "lineHeight": "1.6"
         }
@@ -1420,7 +1423,7 @@
           }
         },
         "typography": {
-          "fontFamily": "var(--font-mono)",
+          "fontFamily": "var:custom|font-family|mono",
           "fontSize": "var:preset|font-size|small",
           "lineHeight": "1.6"
         }

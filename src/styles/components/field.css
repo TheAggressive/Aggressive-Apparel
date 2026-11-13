@@ -15,104 +15,104 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--aa-field-gap);
+}
 
-	&__label {
-		color: var(--aa-field-label-color);
-		font-family: var(--aa-field-font-family);
-		font-size: var(--aa-field-label-size);
-		font-weight: var(--aa-field-label-weight);
-		line-height: 1.3;
-		letter-spacing: var(--aa-field-label-tracking);
-		text-transform: var(--aa-field-label-transform);
+.aggressive-apparel-field__label {
+	color: var(--aa-field-label-color);
+	font-family: var(--aa-field-font-family);
+	font-size: var(--aa-field-label-size);
+	font-weight: var(--aa-field-label-weight);
+	line-height: 1.3;
+	letter-spacing: var(--aa-field-label-tracking);
+	text-transform: var(--aa-field-label-transform);
+}
+
+/* Text-like inputs only: checkboxes/radios carrying this class are drawn by
+ * the shared choice control in forms.css. */
+.aggressive-apparel-field__input:not([type='checkbox'], [type='radio']) {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: var(--aa-field-height);
+	padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
+	border: 0 solid transparent;
+	border-left-width: var(--aa-field-bar-width);
+	border-radius: var(--aa-field-radius);
+	background-color: var(--aa-field-bg);
+	color: var(--aa-field-text);
+	font-family: var(--aa-field-font-family);
+	font-size: var(--aa-field-font-size);
+	line-height: var(--aa-field-line-height);
+	transition:
+		border-color var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default);
+
+	&::placeholder {
+		color: var(--aa-field-placeholder);
+		opacity: 1;
 	}
 
-	/* Text-like inputs only: checkboxes/radios carrying this class are drawn by
-	 * the shared choice control in forms.css. */
-	&__input:not([type='checkbox'], [type='radio']) {
-		box-sizing: border-box;
-		width: 100%;
-		min-height: var(--aa-field-height);
-		padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
-		border: 0 solid transparent;
-		border-left-width: var(--aa-field-bar-width);
-		border-radius: var(--aa-field-radius);
-		background-color: var(--aa-field-bg);
-		color: var(--aa-field-text);
-		font-family: var(--aa-field-font-family);
-		font-size: var(--aa-field-font-size);
-		line-height: var(--aa-field-line-height);
-		transition:
-			border-color var(--aa-duration-fast) var(--aa-ease-default),
-			background-color var(--aa-duration-fast) var(--aa-ease-default);
-
-		&::placeholder {
-			color: var(--aa-field-placeholder);
-			opacity: 1;
-		}
-
-		&:hover:not(:focus, :disabled, [readonly]) {
-			background-color: var(--aa-field-bg-hover);
-		}
-
-		&:focus {
-			outline: 2px solid transparent;
-			border-left-color: var(--aa-field-bar-focus);
-		}
-
-		&:disabled {
-			opacity: 0.6;
-			cursor: not-allowed;
-		}
-
-		&:user-invalid {
-			border-left-color: var(--aa-field-bar-invalid);
-		}
-
-		&[aria-invalid='true'] {
-			border-left-color: var(--aa-field-bar-invalid);
-		}
+	&:hover:not(:focus, :disabled, [readonly]) {
+		background-color: var(--aa-field-bg-hover);
 	}
 
-	&__hint {
-		margin: 0;
-		font-size: var(--wp--preset--font-size--x-small);
-		line-height: 1.4;
-		color: var(--aa-color-foreground-muted);
+	&:focus {
+		outline: 2px solid transparent;
+		border-left-color: var(--aa-field-bar-focus);
 	}
 
-	&__error {
-		margin: 0;
-		font-size: var(--wp--preset--font-size--x-small);
-		font-weight: 500;
-		line-height: 1.4;
-		color: var(--aa-color-error-text);
-
-		&[hidden] {
-			display: none;
-		}
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
 	}
 
-	&--checkbox {
-		flex-direction: row;
-		align-items: flex-start;
-		gap: var(--aa-field-choice-gap);
-		color: var(--aa-color-foreground);
-		font-size: var(--wp--preset--font-size--x-small);
-		line-height: 1.4;
-		opacity: 0.85;
-		cursor: pointer;
-
-		/* Only placement here; the box itself is the shared drawn checkbox. The
-		 * flex gap spaces the text, so drop the baseline's choice margin. */
-		& input[type='checkbox'] {
-			margin-top: 0.0625rem;
-			margin-inline-end: 0;
-		}
-	}
-
-	&--error &__input:not([type='checkbox'], [type='radio']) {
+	&:user-invalid {
 		border-left-color: var(--aa-field-bar-invalid);
 	}
+
+	&[aria-invalid='true'] {
+		border-left-color: var(--aa-field-bar-invalid);
+	}
+}
+
+.aggressive-apparel-field__hint {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--x-small);
+	line-height: 1.4;
+	color: var(--aa-color-foreground-muted);
+}
+
+.aggressive-apparel-field__error {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 500;
+	line-height: 1.4;
+	color: var(--aa-color-error-text);
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.aggressive-apparel-field--checkbox {
+	flex-direction: row;
+	align-items: flex-start;
+	gap: var(--aa-field-choice-gap);
+	color: var(--aa-color-foreground);
+	font-size: var(--wp--preset--font-size--x-small);
+	line-height: 1.4;
+	opacity: 0.85;
+	cursor: pointer;
+
+	/* Only placement here; the box itself is the shared drawn checkbox. The
+	 * flex gap spaces the text, so drop the baseline's choice margin. */
+	& input[type='checkbox'] {
+		margin-top: 0.0625rem;
+		margin-inline-end: 0;
+	}
+}
+
+.aggressive-apparel-field--error .aggressive-apparel-field__input:not([type='checkbox'], [type='radio']) {
+	border-left-color: var(--aa-field-bar-invalid);
 }
 
 /* Standalone message blocks (success/error feedback). */
@@ -126,18 +126,18 @@
 	&[hidden] {
 		display: none;
 	}
+}
 
-	&--success {
-		background-color: var(--aa-color-success-bg);
-		color: var(--aa-color-success-text);
-		border: 1px solid var(--aa-color-success-border);
-	}
+.aggressive-apparel-message--success {
+	background-color: var(--aa-color-success-bg);
+	color: var(--aa-color-success-text);
+	border: 1px solid var(--aa-color-success-border);
+}
 
-	&--error {
-		background-color: var(--aa-color-error-bg);
-		color: var(--aa-color-error-text);
-		border: 1px solid var(--aa-color-error-border);
-	}
+.aggressive-apparel-message--error {
+	background-color: var(--aa-color-error-bg);
+	color: var(--aa-color-error-text);
+	border: 1px solid var(--aa-color-error-border);
 }
 
 @media (prefers-reduced-motion: reduce) {

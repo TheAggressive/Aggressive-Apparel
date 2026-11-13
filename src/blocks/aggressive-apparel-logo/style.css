@@ -29,94 +29,94 @@
   align-items: center;
   line-height: 1;
   color: var(--_logo-color);
+}
 
-  /* Inner wrapper. */
-  &__inner {
-    display: inline-flex;
-    align-items: center;
-  }
+/* Inner wrapper. */
+.aggressive-apparel-logo__inner {
+  display: inline-flex;
+  align-items: center;
+}
 
-  /* SVG base styles. */
-  &__svg {
-    fill: var(--_logo-color);
-    height: auto;
-    transition: fill var(--aa-duration-fast) var(--aa-ease-default);
-  }
+/* SVG base styles. */
+.aggressive-apparel-logo__svg {
+  fill: var(--_logo-color);
+  height: auto;
+  transition: fill var(--aa-duration-fast) var(--aa-ease-default);
+}
 
-  /**
-   * Breakpoint modifiers - responsive switching.
-   * Uses !important to override inline styles set on SVGs.
-   */
-  &[data-breakpoint="mobile"] {
+/**
+ * Breakpoint modifiers - responsive switching.
+ * Uses !important to override inline styles set on SVGs.
+ */
+.aggressive-apparel-logo[data-breakpoint="mobile"] {
 
-    @media (width <= 480px) {
+  @media (width <= 480px) {
 
-      .aggressive-apparel-logo__svg--large {
-        display: none !important;
-      }
+    .aggressive-apparel-logo__svg--large {
+      display: none !important;
+    }
 
-      .aggressive-apparel-logo__svg--small {
-        display: block !important;
-      }
+    .aggressive-apparel-logo__svg--small {
+      display: block !important;
     }
   }
+}
 
-  &[data-breakpoint="tablet"] {
+.aggressive-apparel-logo[data-breakpoint="tablet"] {
 
-    @media (width <= 768px) {
+  @media (width <= 768px) {
 
-      .aggressive-apparel-logo__svg--large {
-        display: none !important;
-      }
+    .aggressive-apparel-logo__svg--large {
+      display: none !important;
+    }
 
-      .aggressive-apparel-logo__svg--small {
-        display: block !important;
-      }
+    .aggressive-apparel-logo__svg--small {
+      display: block !important;
     }
   }
+}
 
-  &[data-breakpoint="desktop"] {
+.aggressive-apparel-logo[data-breakpoint="desktop"] {
 
-    @media (width <= 1024px) {
+  @media (width <= 1024px) {
 
-      .aggressive-apparel-logo__svg--large {
-        display: none !important;
-      }
+    .aggressive-apparel-logo__svg--large {
+      display: none !important;
+    }
 
-      .aggressive-apparel-logo__svg--small {
-        display: block !important;
-      }
+    .aggressive-apparel-logo__svg--small {
+      display: block !important;
     }
   }
+}
 
-  /**
-   * Link styles - uses !important to override WordPress core global link styles.
-   * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--accent) }
-   */
-  & > a {
-    display: inline-flex;
-    align-items: center;
+/**
+ * Link styles - uses !important to override WordPress core global link styles.
+ * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--accent) }
+ */
+.aggressive-apparel-logo > a {
+  display: inline-flex;
+  align-items: center;
+  color: var(--_logo-color) !important;
+  text-decoration: none !important;
+  transition: color var(--aa-duration-fast) var(--aa-ease-default);
+
+  &:visited {
     color: var(--_logo-color) !important;
-    text-decoration: none !important;
-    transition: color var(--aa-duration-fast) var(--aa-ease-default);
+  }
 
-    &:visited {
-      color: var(--_logo-color) !important;
+  &:hover,
+  &:focus {
+    color: var(--_logo-hover) !important;
+
+    .aggressive-apparel-logo__svg {
+      fill: var(--_logo-hover);
     }
+  }
 
-    &:hover,
-    &:focus {
-      color: var(--_logo-hover) !important;
-
-      .aggressive-apparel-logo__svg {
-        fill: var(--_logo-hover);
-      }
-    }
-
-    &:focus-visible {
-      outline: 2px solid currentcolor;
-      outline-offset: 4px;
-    }
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 4px;
   }
 }
 

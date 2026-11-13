@@ -1,33 +1,6 @@
 {
   "extends": ["stylelint-config-standard"],
   "rules": {
-    "at-rule-no-unknown": [
-      true,
-      {
-        "ignoreAtRules": [
-          "tailwind",
-          "apply",
-          "layer",
-          "variants",
-          "responsive",
-          "screen",
-          "theme",
-          "reference"
-        ]
-      }
-    ],
-    "no-invalid-position-at-import-rule": [
-      true,
-      {
-        "ignoreAtRules": ["reference"]
-      }
-    ],
-    "function-no-unknown": [
-      true,
-      {
-        "ignoreFunctions": ["theme"]
-      }
-    ],
     "import-notation": "string",
     "selector-class-pattern": null,
     "custom-property-pattern": null,

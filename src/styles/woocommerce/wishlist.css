@@ -24,11 +24,11 @@
 			opacity: 0;
 		}
 	}
+}
 
-	/* Large variant for single product. */
-	&--large {
-		margin-bottom: 0.5rem;
-	}
+/* Large variant for single product. */
+.aggressive-apparel-wishlist__toggle--large {
+	margin-bottom: 0.5rem;
 }
 
 .aggressive-apparel-wishlist__icon {

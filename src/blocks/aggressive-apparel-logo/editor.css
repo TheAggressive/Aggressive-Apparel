@@ -5,80 +5,77 @@
  * This file contains only editor-specific UI elements.
  */
 
-.aggressive-apparel-logo {
+/* SVG wrapper in editor preview. */
+.aggressive-apparel-logo__svg-wrapper {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 
-  /* SVG wrapper in editor preview. */
-  &__svg-wrapper {
-    display: inline-flex;
-    align-items: center;
-    line-height: 1;
-
-    svg {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
   }
+}
 
-  /* Preview mode toggle buttons. */
-  &__preview-toggle {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--aa-color-border-default);
+/* Preview mode toggle buttons. */
+.aggressive-apparel-logo__preview-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--aa-color-border-default);
 
-    span {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--aa-color-foreground);
-    }
-  }
-
-  /* Mode toggle button. */
-  &__mode-btn {
-    padding: 6px 12px;
+  span {
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--aa-color-foreground);
-    cursor: pointer;
-    background: var(--aa-color-neutral-bg);
-    border: 1px solid var(--aa-color-border-default);
-    border-radius: var(--aa-radius-control);
-    transition:
-      background-color var(--aa-duration-fast) var(--aa-ease-default),
-      border-color var(--aa-duration-fast) var(--aa-ease-default),
-      color var(--aa-duration-fast) var(--aa-ease-default);
+  }
+}
 
-    &:hover {
-      background: var(--aa-color-hover-default);
-    }
+/* Mode toggle button. */
+.aggressive-apparel-logo__mode-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--aa-color-foreground);
+  cursor: pointer;
+  background: var(--aa-color-neutral-bg);
+  border: 1px solid var(--aa-color-border-default);
+  border-radius: var(--aa-radius-control);
+  transition:
+    background-color var(--aa-duration-fast) var(--aa-ease-default),
+    border-color var(--aa-duration-fast) var(--aa-ease-default),
+    color var(--aa-duration-fast) var(--aa-ease-default);
 
-    &.is-active {
-      color: var(--aa-color-on-scrim);
-      background: var(--wp-admin-theme-color, var(--aa-color-info));
-      border-color: var(--wp-admin-theme-color, var(--aa-color-info));
-    }
+  &:hover {
+    background: var(--aa-color-hover-default);
   }
 
-  /* Size settings group. */
-  &__size-group {
-    padding: 12px;
-    margin-bottom: 16px;
-    background: var(--aa-color-neutral-bg);
-    border: 1px solid var(--aa-color-border-default);
-    border-radius: var(--aa-radius-control);
+  &.is-active {
+    color: var(--aa-color-on-scrim);
+    background: var(--wp-admin-theme-color, var(--aa-color-info));
+    border-color: var(--wp-admin-theme-color, var(--aa-color-info));
+  }
+}
 
-    h4 {
-      margin: 0 0 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--aa-color-foreground);
-    }
+/* Size settings group. */
+.aggressive-apparel-logo__size-group {
+  padding: 12px;
+  margin-bottom: 16px;
+  background: var(--aa-color-neutral-bg);
+  border: 1px solid var(--aa-color-border-default);
+  border-radius: var(--aa-radius-control);
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+  h4 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--aa-color-foreground);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
   }
 }

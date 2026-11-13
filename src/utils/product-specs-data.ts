@@ -35,8 +35,8 @@ export function getProductSpecsData(): ProductSpecsEditorData {
 /**
  * Join class names, dropping falsy parts.
  *
- * Used instead of `${base}${cond ? ' modifier' : ''}` template literals,
- * whose leading space the Tailwind Prettier plugin trims away.
+ * Used instead of `${base}${cond ? ' modifier' : ''}` template literals, so
+ * conditional modifiers never depend on a hand-placed leading space.
  */
 export function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' ');

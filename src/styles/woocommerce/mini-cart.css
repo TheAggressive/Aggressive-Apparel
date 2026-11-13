@@ -69,6 +69,7 @@
    Bounding box stays 1.5rem × 1.5rem at all times — no layout shift.
    WooCommerce injects colors inline so !important is required on bg/color. */
 .wc-block-mini-cart__badge {
+	/* stylelint-disable-next-line declaration-no-important -- race with WC .wc-block-mini-cart__badge{min-width:1.4285714286em} (0,1,0), bundle order varies */
 	min-width: 1.25rem !important;
 	width: 1.25rem;
 	height: 1.25rem;
@@ -76,8 +77,10 @@
 	left: 1.5rem;
 	top: 0.25rem;
 	border-radius: var(--aa-radius-full);
+	/* stylelint-disable declaration-no-important -- beats WooCommerce's inline badge colours: style="background:…" + data-wp-style--background-color/--color */
 	background-color: transparent !important;
 	color: transparent !important;
+	/* stylelint-enable declaration-no-important */
 	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 500;
 	line-height: 1;
@@ -111,8 +114,10 @@
 	/* Desktop only: fill circle and reveal count, hide dot + ping. */
 	@media (hover: hover) {
 		&:hover {
+			/* stylelint-disable declaration-no-important -- beats WooCommerce's inline badge colours: style="background:…" + data-wp-style--background-color/--color */
 			background-color: var(--aa-color-accent-fill) !important;
 			color: var(--aa-color-white) !important;
+			/* stylelint-enable declaration-no-important */
 			box-shadow: var(--aa-shadow-sm);
 			scale: 1.25;
 
@@ -130,8 +135,10 @@
 
 /* Keyboard focus: reveal badge count when the parent cart button is focused. */
 .wc-block-mini-cart__button:focus-visible .wc-block-mini-cart__badge {
+	/* stylelint-disable declaration-no-important -- beats WooCommerce's inline badge colours: style="background:…" + data-wp-style--background-color/--color */
 	background-color: var(--aa-color-accent-fill) !important;
 	color: var(--aa-color-white) !important;
+	/* stylelint-enable declaration-no-important */
 	scale: 1.25;
 
 	&::before {

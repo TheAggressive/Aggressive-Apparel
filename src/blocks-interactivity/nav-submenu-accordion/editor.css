@@ -61,5 +61,6 @@
 	.wp-block-aggressive-apparel-nav-submenu-accordion
 	.wp-block-aggressive-apparel-nav-link__link {
 	min-height: 44px;
+	/* stylelint-disable-next-line declaration-no-important -- beats navigation-panel/editor.css's own padding !important on top-level panel links */
 	padding: 0.625rem 1rem !important;
 }

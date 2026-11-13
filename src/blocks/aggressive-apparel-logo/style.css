@@ -51,10 +51,12 @@
 .aggressive-apparel-logo[data-breakpoint="mobile"] {
 	@media (width <= 480px) {
 		.aggressive-apparel-logo__svg--large {
+			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:block" on the large SVG */
 			display: none !important;
 		}
 
 		.aggressive-apparel-logo__svg--small {
+			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:none" on the small SVG */
 			display: block !important;
 		}
 	}
@@ -63,10 +65,12 @@
 .aggressive-apparel-logo[data-breakpoint="tablet"] {
 	@media (width <= 768px) {
 		.aggressive-apparel-logo__svg--large {
+			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:block" on the large SVG */
 			display: none !important;
 		}
 
 		.aggressive-apparel-logo__svg--small {
+			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:none" on the small SVG */
 			display: block !important;
 		}
 	}
@@ -75,10 +79,12 @@
 .aggressive-apparel-logo[data-breakpoint="desktop"] {
 	@media (width <= 1024px) {
 		.aggressive-apparel-logo__svg--large {
+			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:block" on the large SVG */
 			display: none !important;
 		}
 
 		.aggressive-apparel-logo__svg--small {
+			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:none" on the small SVG */
 			display: block !important;
 		}
 	}
@@ -98,11 +104,13 @@
 	transition: color var(--aa-duration-fast) var(--aa-ease-default);
 
 	&:visited {
+		/* stylelint-disable-next-line declaration-no-important -- beats editor-set ancestor link colours: .aa-has-adaptive-link a:not(.wp-element-button) and core .wp-elements-* links */
 		color: var(--_logo-color) !important;
 	}
 
 	&:hover,
 	&:focus {
+		/* stylelint-disable-next-line declaration-no-important -- beats editor-set ancestor hover colours: .aa-has-adaptive-link a:not(.wp-element-button):hover (0,3,1), core .wp-elements-* */
 		color: var(--_logo-hover) !important;
 
 		.aggressive-apparel-logo__svg {

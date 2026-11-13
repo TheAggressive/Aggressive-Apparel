@@ -27,6 +27,7 @@
 /* Hide below the WP medium breakpoint (< 782px). */
 .aa-hidden-mobile {
 	@media (--aa-wp-below-medium) {
+		/* stylelint-disable-next-line declaration-no-important -- utility contract: .aa-hidden-mobile must win over any block, editor or inline display value */
 		display: none !important;
 	}
 }
@@ -34,6 +35,7 @@
 /* Hide from the WP medium breakpoint up (>= 782px). */
 .aa-hidden-desktop {
 	@media (--aa-wp-medium-up) {
+		/* stylelint-disable-next-line declaration-no-important -- utility contract: .aa-hidden-desktop must win over any block, editor or inline display value */
 		display: none !important;
 	}
 }

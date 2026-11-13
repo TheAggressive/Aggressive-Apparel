@@ -678,6 +678,7 @@
 
 	[class*="aa-cs-anim-"] {
 		transition: none;
+		/* stylelint-disable-next-line declaration-no-important -- beats .aa-cs-anim-glitch:not(.aa-cs-loading){animation:aa-glitch-reveal} (0,2,0) under reduced motion */
 		animation: none !important;
 	}
 

@@ -390,9 +390,11 @@
 	}
 
 	.aggressive-apparel-quick-view__details > * {
+		/* stylelint-disable declaration-no-important -- UNVERIFIED: the only __details > * animation (qv-stagger-in) is already gated to prefers-reduced-motion: no-preference */
 		animation: none !important;
 		opacity: 1 !important;
 		transform: none !important;
+		/* stylelint-enable declaration-no-important */
 	}
 
 	.aggressive-apparel-quick-view__main-image img {

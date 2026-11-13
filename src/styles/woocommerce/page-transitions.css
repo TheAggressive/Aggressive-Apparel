@@ -208,14 +208,17 @@ body.is-navigating::after {
 /* ── Exclusions ───────────────────────────────────── */
 
 #wpadminbar {
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: nothing names #wpadminbar for view transitions (core's VT CSS is admin-only; checked plugins) */
 	view-transition-name: none !important;
 }
 
 body.woocommerce-checkout main.wp-block-group {
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: main.wp-block-group{view-transition-name:main-content} (0,1,1) is already outranked; no other source */
 	view-transition-name: none !important;
 }
 
 body.woocommerce-cart main.wp-block-group {
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: main.wp-block-group{view-transition-name:main-content} (0,1,1) is already outranked; no other source */
 	view-transition-name: none !important;
 }
 

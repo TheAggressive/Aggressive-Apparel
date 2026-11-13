@@ -60,7 +60,8 @@
 			{
 				"ignore": [ "consecutive-duplicates" ]
 			}
-		]
+		],
+		"declaration-no-important": true
 	},
 	"overrides": [
 		{
@@ -120,5 +121,7 @@
 				]
 			}
 		}
-	]
+	],
+	"reportDescriptionlessDisables": true,
+	"reportNeedlessDisables": true
 }

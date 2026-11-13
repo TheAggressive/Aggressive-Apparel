@@ -210,6 +210,7 @@
 
 		/* !important: woocommerce-smallscreen.css right-aligns every responsive
 		 * table cell with !important. */
+		/* stylelint-disable-next-line declaration-no-important -- beats woocommerce-smallscreen.css .woocommerce-page table.shop_table_responsive tr td{text-align:right!important} */
 		text-align: start !important;
 	}
 }

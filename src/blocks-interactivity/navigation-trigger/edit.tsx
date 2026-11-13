@@ -67,25 +67,45 @@ export default function Edit({
                 label: __('Hamburger', 'aggressive-apparel'),
                 value: 'hamburger',
               },
-              { label: __('Dots', 'aggressive-apparel'), value: 'dots' },
-              { label: __('Squeeze', 'aggressive-apparel'), value: 'squeeze' },
-              { label: __('Arrow', 'aggressive-apparel'), value: 'arrow' },
+              {
+                label: __('Dots', 'aggressive-apparel'),
+                value: 'dots',
+              },
+              {
+                label: __('Squeeze', 'aggressive-apparel'),
+                value: 'squeeze',
+              },
+              {
+                label: __('Arrow', 'aggressive-apparel'),
+                value: 'arrow',
+              },
               {
                 label: __('Collapse', 'aggressive-apparel'),
                 value: 'collapse',
               },
             ]}
             onChange={value =>
-              setAttributes({ iconStyle: value as TriggerIconStyle })
+              setAttributes({
+                iconStyle: value as TriggerIconStyle,
+              })
             }
           />
           <SelectControl
             label={__('Animation', 'aggressive-apparel')}
             value={animationType}
             options={[
-              { label: __('To X', 'aggressive-apparel'), value: 'to-x' },
-              { label: __('Spin', 'aggressive-apparel'), value: 'spin' },
-              { label: __('Squeeze', 'aggressive-apparel'), value: 'squeeze' },
+              {
+                label: __('To X', 'aggressive-apparel'),
+                value: 'to-x',
+              },
+              {
+                label: __('Spin', 'aggressive-apparel'),
+                value: 'spin',
+              },
+              {
+                label: __('Squeeze', 'aggressive-apparel'),
+                value: 'squeeze',
+              },
               {
                 label: __('Arrow Left', 'aggressive-apparel'),
                 value: 'arrow-left',
@@ -98,7 +118,10 @@ export default function Edit({
                 label: __('Collapse', 'aggressive-apparel'),
                 value: 'collapse',
               },
-              { label: __('None', 'aggressive-apparel'), value: 'none' },
+              {
+                label: __('None', 'aggressive-apparel'),
+                value: 'none',
+              },
             ]}
             onChange={value =>
               setAttributes({
@@ -131,7 +154,9 @@ export default function Edit({
             )}
             value={breakpoint}
             onChange={value =>
-              setAttributes({ breakpoint: parseInt(value ?? '', 10) || 1024 })
+              setAttributes({
+                breakpoint: parseInt(value ?? '', 10) || 1024,
+              })
             }
             min={320}
             max={1920}
@@ -151,7 +176,9 @@ export default function Edit({
             )}
             value={panelSlug}
             onChange={value =>
-              setAttributes({ panelSlug: value || 'mobile-nav' })
+              setAttributes({
+                panelSlug: value || 'mobile-nav',
+              })
             }
           />
         </PanelBody>

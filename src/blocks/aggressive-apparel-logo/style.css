@@ -19,139 +19,133 @@
  */
 
 .aggressive-apparel-logo {
-  --_logo-color: var(--logo-light-color, var(--aa-color-black));
-  --_logo-hover: var(--logo-light-hover, var(--aa-color-muted-50));
+	--_logo-color: var(--logo-light-color, var(--aa-color-black));
+	--_logo-hover: var(--logo-light-hover, var(--aa-color-muted-50));
 
-  /* Block-level but content-sized: WordPress centers `.aligncenter` with auto
-     inline margins, which compute to 0 on an inline-level box. */
-  display: flex;
-  width: fit-content;
-  align-items: center;
-  line-height: 1;
-  color: var(--_logo-color);
+	/* Block-level but content-sized: WordPress centers `.aligncenter` with auto
+	   inline margins, which compute to 0 on an inline-level box. */
+	display: flex;
+	width: fit-content;
+	align-items: center;
+	line-height: 1;
+	color: var(--_logo-color);
 }
 
 /* Inner wrapper. */
 .aggressive-apparel-logo__inner {
-  display: inline-flex;
-  align-items: center;
+	display: inline-flex;
+	align-items: center;
 }
 
 /* SVG base styles. */
 .aggressive-apparel-logo__svg {
-  fill: var(--_logo-color);
-  height: auto;
-  transition: fill var(--aa-duration-fast) var(--aa-ease-default);
+	fill: var(--_logo-color);
+	height: auto;
+	transition: fill var(--aa-duration-fast) var(--aa-ease-default);
 }
 
 /**
  * Breakpoint modifiers - responsive switching.
  * Uses !important to override inline styles set on SVGs.
  */
-.aggressive-apparel-logo[data-breakpoint="mobile"] {
+.aggressive-apparel-logo[data-breakpoint='mobile'] {
+	@media (width <= 480px) {
+		.aggressive-apparel-logo__svg--large {
+			display: none !important;
+		}
 
-  @media (width <= 480px) {
-
-    .aggressive-apparel-logo__svg--large {
-      display: none !important;
-    }
-
-    .aggressive-apparel-logo__svg--small {
-      display: block !important;
-    }
-  }
+		.aggressive-apparel-logo__svg--small {
+			display: block !important;
+		}
+	}
 }
 
-.aggressive-apparel-logo[data-breakpoint="tablet"] {
+.aggressive-apparel-logo[data-breakpoint='tablet'] {
+	@media (width <= 768px) {
+		.aggressive-apparel-logo__svg--large {
+			display: none !important;
+		}
 
-  @media (width <= 768px) {
-
-    .aggressive-apparel-logo__svg--large {
-      display: none !important;
-    }
-
-    .aggressive-apparel-logo__svg--small {
-      display: block !important;
-    }
-  }
+		.aggressive-apparel-logo__svg--small {
+			display: block !important;
+		}
+	}
 }
 
-.aggressive-apparel-logo[data-breakpoint="desktop"] {
+.aggressive-apparel-logo[data-breakpoint='desktop'] {
+	@media (width <= 1024px) {
+		.aggressive-apparel-logo__svg--large {
+			display: none !important;
+		}
 
-  @media (width <= 1024px) {
-
-    .aggressive-apparel-logo__svg--large {
-      display: none !important;
-    }
-
-    .aggressive-apparel-logo__svg--small {
-      display: block !important;
-    }
-  }
+		.aggressive-apparel-logo__svg--small {
+			display: block !important;
+		}
+	}
 }
 
 /**
- * Link styles - uses !important to override WordPress core global link styles.
- * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--accent) }
+ * Link styles. The resting colour wins on specificity over WordPress's global
+ * link colour (a:where(:not(.wp-element-button))). :visited and :hover/:focus
+ * keep !important: link-state colours from ancestors (global styles, adaptive
+ * link colours on the header group) outrank them otherwise.
  */
 .aggressive-apparel-logo > a {
-  display: inline-flex;
-  align-items: center;
-  color: var(--_logo-color) !important;
-  text-decoration: none !important;
-  transition: color var(--aa-duration-fast) var(--aa-ease-default);
+	display: inline-flex;
+	align-items: center;
+	color: var(--_logo-color);
+	text-decoration: none;
+	transition: color var(--aa-duration-fast) var(--aa-ease-default);
 
-  &:visited {
-    color: var(--_logo-color) !important;
-  }
+	&:visited {
+		color: var(--_logo-color) !important;
+	}
 
-  &:hover,
-  &:focus {
-    color: var(--_logo-hover) !important;
+	&:hover,
+	&:focus {
+		color: var(--_logo-hover) !important;
 
-    .aggressive-apparel-logo__svg {
-      fill: var(--_logo-hover);
-    }
-  }
+		.aggressive-apparel-logo__svg {
+			fill: var(--_logo-hover);
+		}
+	}
 
-  &:focus-visible {
-    outline: 2px solid currentcolor;
-    outline-offset: 4px;
-  }
+	&:focus-visible {
+		outline: 2px solid currentcolor;
+		outline-offset: 4px;
+	}
 }
 
 /* ── Dark mode: OS preference (only when no manual override is active) ── */
 
 @media (prefers-color-scheme: dark) {
-
-  :root:not([data-theme]) .aggressive-apparel-logo {
-    --_logo-color: var(--logo-dark-color, var(--aa-color-white));
-    --_logo-hover: var(--logo-dark-hover, var(--aa-color-foreground-muted));
-  }
+	:root:not([data-theme]) .aggressive-apparel-logo {
+		--_logo-color: var(--logo-dark-color, var(--aa-color-white));
+		--_logo-hover: var(--logo-dark-hover, var(--aa-color-foreground-muted));
+	}
 }
 
 /* ── Dark mode: manual toggle ────────────────────────────────────────── */
 
-:root[data-theme="dark"] .aggressive-apparel-logo,
+:root[data-theme='dark'] .aggressive-apparel-logo,
 html.is-dark-mode .aggressive-apparel-logo {
-  --_logo-color: var(--logo-dark-color, var(--aa-color-white));
-  --_logo-hover: var(--logo-dark-hover, var(--aa-color-foreground-muted));
+	--_logo-color: var(--logo-dark-color, var(--aa-color-white));
+	--_logo-hover: var(--logo-dark-hover, var(--aa-color-foreground-muted));
 }
 
 /* ── Light mode: manual override ─────────────────────────────────────── */
 
-:root[data-theme="light"] .aggressive-apparel-logo,
+:root[data-theme='light'] .aggressive-apparel-logo,
 html.is-light-mode .aggressive-apparel-logo {
-  --_logo-color: var(--logo-light-color, var(--aa-color-black));
-  --_logo-hover: var(--logo-light-hover, var(--aa-color-muted-50));
+	--_logo-color: var(--logo-light-color, var(--aa-color-black));
+	--_logo-hover: var(--logo-light-hover, var(--aa-color-muted-50));
 }
 
 /* ── Reduced motion ──────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-
-  .aggressive-apparel-logo > a,
-  .aggressive-apparel-logo__svg {
-    transition: none;
-  }
+	.aggressive-apparel-logo > a,
+	.aggressive-apparel-logo__svg {
+		transition: none;
+	}
 }

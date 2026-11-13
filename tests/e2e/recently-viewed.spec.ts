@@ -87,7 +87,11 @@ test('keeps failed responses hidden without page errors', async ({ page }) => {
     products.map(p => p.id)
   );
   await page.route('**/wc/store/v1/products?**', route =>
-    route.fulfill({ status: 503, contentType: 'application/json', body: '{}' })
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: '{}',
+    })
   );
   const response = page.waitForResponse(
     r => r.url().includes('/wc/store/v1/products?') && r.status() === 503

@@ -18,7 +18,9 @@ export function observeNativeWishlist(refresh: () => void): void {
   };
   document.addEventListener('aa:cards-rendered', observe);
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', observe, { once: true });
+    document.addEventListener('DOMContentLoaded', observe, {
+      once: true,
+    });
   } else {
     observe();
   }

@@ -159,7 +159,9 @@ export default function Edit({
                         attributes.endDateTime || new Date().toISOString()
                       }
                       onChange={(val: string | null) =>
-                        setAttributes({ endDateTime: val || '' })
+                        setAttributes({
+                          endDateTime: val || '',
+                        })
                       }
                       dateOrder='mdy'
                       is12Hour={true}
@@ -168,7 +170,11 @@ export default function Edit({
                       {attributes.endDateTime && (
                         <Button
                           variant='tertiary'
-                          onClick={() => setAttributes({ endDateTime: '' })}
+                          onClick={() =>
+                            setAttributes({
+                              endDateTime: '',
+                            })
+                          }
                         >
                           {__(
                             'Use product sale end date',

@@ -16,13 +16,13 @@
  */
 
 .wp-block-aggressive-apparel-nav-submenu-mega.is-editor-open
-  .wp-block-aggressive-apparel-nav-submenu__panel {
-  clip-path: inset(0 0 0 0);
-  visibility: visible;
-  pointer-events: auto;
+	.wp-block-aggressive-apparel-nav-submenu__panel {
+	clip-path: inset(0 0 0 0);
+	visibility: visible;
+	pointer-events: auto;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-mega.is-editor-open
-  .wp-block-aggressive-apparel-nav-submenu__arrow {
-  transform: rotate(180deg);
+	.wp-block-aggressive-apparel-nav-submenu__arrow {
+	transform: rotate(180deg);
 }

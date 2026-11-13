@@ -161,7 +161,10 @@ export default function GuideEditor({
     apiFetch({ path: `${config.guidesPath}/${guideId}` })
       .then(result => {
         const detail = result as GuideDetail;
-        setGuide({ ...detail, wording: readWording(detail.wording) });
+        setGuide({
+          ...detail,
+          wording: readWording(detail.wording),
+        });
       })
       .catch((failure: unknown) =>
         setError(
@@ -267,7 +270,9 @@ export default function GuideEditor({
             : values,
           hidden: guide.hidden,
           wording: guide.wording,
-          ...(added.length > 0 && { specItems: added.map(toStored) }),
+          ...(added.length > 0 && {
+            specItems: added.map(toStored),
+          }),
           categories: guide.categories,
           isDefault: guide.isDefault,
         },

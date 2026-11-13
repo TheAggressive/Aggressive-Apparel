@@ -39,8 +39,8 @@
 	line-height: 1.5;
 }
 
-.woocommerce_options_panel .aa-ps-product input[type="text"],
-.woocommerce_options_panel .aa-ps-product input[type="number"],
+.woocommerce_options_panel .aa-ps-product input[type='text'],
+.woocommerce_options_panel .aa-ps-product input[type='number'],
 .woocommerce_options_panel .aa-ps-product select {
 	float: none;
 	width: 100%;
@@ -52,7 +52,10 @@
 }
 
 /* Spacing the resets above take back, as the settings screen has it. */
-.woocommerce_options_panel .aa-ps-product .aa-ps-edit-panel__head + .aa-ps-help {
+.woocommerce_options_panel
+	.aa-ps-product
+	.aa-ps-edit-panel__head
+	+ .aa-ps-help {
 	margin: 4px 0 12px;
 }
 

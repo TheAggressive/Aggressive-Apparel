@@ -62,7 +62,10 @@
 
 /* Muted, full-width row of marks. */
 .aa-rating__track {
-	color: var(--aa-color-border-strong, color-mix(in oklch, currentColor 25%, transparent));
+	color: var(
+		--aa-color-border-strong,
+		color-mix(in oklch, currentColor 25%, transparent)
+	);
 }
 
 /* Adaptive accent marks, clipped to the rating % (width set inline by the renderer). */
@@ -92,16 +95,13 @@
  * ------------------------------------------------------------------------- */
 
 @keyframes aa-rating-fill-in {
-
 	from {
 		width: 0;
 	}
 }
 
 @media (prefers-reduced-motion: no-preference) {
-
 	@supports (animation-timeline: view()) {
-
 		.aa-rating__fill {
 			animation: aa-rating-fill-in linear both;
 			animation-timeline: view();

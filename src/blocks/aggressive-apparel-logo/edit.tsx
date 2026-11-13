@@ -126,13 +126,17 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
               {
                 value: lightColor,
                 onChange: (color: string | undefined) =>
-                  setAttributes({ lightColor: color || '#000000' }),
+                  setAttributes({
+                    lightColor: color || '#000000',
+                  }),
                 label: __('Color', 'aggressive-apparel'),
               },
               {
                 value: lightHoverColor,
                 onChange: (color: string | undefined) =>
-                  setAttributes({ lightHoverColor: color || '#333333' }),
+                  setAttributes({
+                    lightHoverColor: color || '#333333',
+                  }),
                 label: __('Hover Color', 'aggressive-apparel'),
               },
             ]}
@@ -150,13 +154,17 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
               {
                 value: darkColor,
                 onChange: (color: string | undefined) =>
-                  setAttributes({ darkColor: color || '#ffffff' }),
+                  setAttributes({
+                    darkColor: color || '#ffffff',
+                  }),
                 label: __('Color', 'aggressive-apparel'),
               },
               {
                 value: darkHoverColor,
                 onChange: (color: string | undefined) =>
-                  setAttributes({ darkHoverColor: color || '#cccccc' }),
+                  setAttributes({
+                    darkHoverColor: color || '#cccccc',
+                  }),
                 label: __('Hover Color', 'aggressive-apparel'),
               },
             ]}

@@ -36,7 +36,11 @@ it('keeps variation selections in the cart link and disables unavailable product
     variation_id: 13,
     is_purchasable: true,
     variation: [
-      { raw_attribute: 'attribute_size', attribute: 'Size', value: 'Large' },
+      {
+        raw_attribute: 'attribute_size',
+        attribute: 'Size',
+        value: 'Large',
+      },
     ],
   };
   const displayed = formatWishlistItem(item, {}, true, label);

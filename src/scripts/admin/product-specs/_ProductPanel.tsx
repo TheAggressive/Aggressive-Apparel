@@ -135,7 +135,12 @@ export default function ProductPanel({ data }: { data: PanelData }) {
                   label={here.name}
                   inherited={describeValue(here, item.default)}
                   existingOnly={!data.canCreate}
-                  onChange={next => setValues({ ...values, [item.key]: next })}
+                  onChange={next =>
+                    setValues({
+                      ...values,
+                      [item.key]: next,
+                    })
+                  }
                 />
               )}
             </SpecRow>

@@ -32,6 +32,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -132,40 +134,40 @@ final class Product_Specs_Registry {
 	private const LABEL_MAX = 60;
 
 	/**
-	 * Request-scoped cache.
-	 *
-	 * @var Registry|null
-	 */
-	private static ?array $cache = null;
-
-	/**
 	 * The registry: stored list, or the defaults.
 	 *
 	 * @return Registry
 	 */
 	public static function get(): array {
-		if ( null === self::$cache ) {
-			$stored = get_option( self::OPTION_KEY, null );
-			if ( is_array( $stored ) && Product_Specs_Guide_Upgrade::needed( $stored ) ) {
-				$stored = Product_Specs_Guide_Upgrade::run( $stored );
-			}
-			if ( is_array( $stored ) && isset( $stored['items'] ) ) {
-				$result      = self::validate( $stored );
-				self::$cache = array(
-					'items'           => $result['items'],
-					'hide_dimensions' => $result['hide_dimensions'],
-					'revision'        => absint( $stored['revision'] ?? 0 ),
-				);
-			} else {
-				self::$cache = array(
-					'items'           => self::defaults(),
-					'hide_dimensions' => false,
-					'revision'        => 0,
-				);
-			}
+		return Request_Cache::remember( 'product-specs-registry:registry', static fn(): array => self::load() );
+	}
+
+	/**
+	 * Read the registry from its option (upgrading and validating it), or the
+	 * defaults, uncached (see get()).
+	 *
+	 * @return Registry
+	 */
+	private static function load(): array {
+		$stored = get_option( self::OPTION_KEY, null );
+		if ( is_array( $stored ) && Product_Specs_Guide_Upgrade::needed( $stored ) ) {
+			$stored = Product_Specs_Guide_Upgrade::run( $stored );
+		}
+		if ( is_array( $stored ) && isset( $stored['items'] ) ) {
+			$result = self::validate( $stored );
+
+			return array(
+				'items'           => $result['items'],
+				'hide_dimensions' => $result['hide_dimensions'],
+				'revision'        => absint( $stored['revision'] ?? 0 ),
+			);
 		}
 
-		return self::$cache;
+		return array(
+			'items'           => self::defaults(),
+			'hide_dimensions' => false,
+			'revision'        => 0,
+		);
 	}
 
 	/**
@@ -260,7 +262,7 @@ final class Product_Specs_Registry {
 	 * Forget the request cache (after a save or in tests).
 	 */
 	public static function flush(): void {
-		self::$cache = null;
+		Request_Cache::forget( 'product-specs-registry:registry' );
 		Product_Specs::flush();
 	}
 

@@ -41,17 +41,18 @@
 	font-weight: bolder;
 }
 
-.aggressive-apparel-shipping-bar--complete .aggressive-apparel-shipping-bar__progress {
+.aggressive-apparel-shipping-bar--complete
+	.aggressive-apparel-shipping-bar__progress {
 	background-color: var(--shipping-bar-complete);
 }
 
-.aggressive-apparel-shipping-bar--complete .aggressive-apparel-shipping-bar__message {
+.aggressive-apparel-shipping-bar--complete
+	.aggressive-apparel-shipping-bar__message {
 	font-weight: 600;
 	color: var(--shipping-bar-complete);
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-shipping-bar__progress {
 		transition: none;
 	}

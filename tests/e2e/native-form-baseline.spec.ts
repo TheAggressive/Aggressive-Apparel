@@ -191,7 +191,10 @@ test.describe('native form baseline', () => {
       const supported = await page.evaluate(() =>
         CSS.supports('appearance', 'base-select')
       );
-      test.skip(!supported, 'Browser lacks appearance: base-select.');
+      expect(
+        supported,
+        'The pinned Chromium must support appearance: base-select; this test covers the customizable picker.'
+      ).toBe(true);
 
       await page.evaluate(() => {
         const host = document.createElement('div');

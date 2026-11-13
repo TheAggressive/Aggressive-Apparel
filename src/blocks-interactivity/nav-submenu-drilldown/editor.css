@@ -5,66 +5,70 @@
  */
 
 .wp-block-aggressive-apparel-nav-submenu-drilldown {
-  display: block;
-  width: 100%;
+	display: block;
+	width: 100%;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger {
-  width: 100%;
+	width: 100%;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-drilldown__link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 48px;
-  padding: 0.75rem 1.25rem;
-  font: inherit;
-  font-weight: 500;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	min-height: 48px;
+	padding: 0.75rem 1.25rem;
+	font: inherit;
+	font-weight: 500;
+	text-decoration: none;
+	background: none;
+	border: none;
+	cursor: pointer;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-drilldown__arrow svg {
-  width: 1rem;
-  height: 1rem;
-  opacity: 0.5;
+	width: 1rem;
+	height: 1rem;
+	opacity: 0.5;
 }
 
 /* In the editor, show the submenu expanded inline (no slide animation) */
 .wp-block-aggressive-apparel-nav-submenu-drilldown__panel {
-  display: block;
-  position: relative;
-  transform: none;
-  pointer-events: auto;
-  border: 1px dashed var(--wp--preset--color--border);
-  border-radius: 4px;
-  margin-block-start: 0.25rem;
+	display: block;
+	position: relative;
+	transform: none;
+	pointer-events: auto;
+	border: 1px dashed var(--wp--preset--color--border);
+	border-radius: 4px;
+	margin-block-start: 0.25rem;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-drilldown__back-button {
-  display: none; /* Hide back button in editor — not interactive */
+	display: none; /* Hide back button in editor — not interactive */
 }
 
 .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner {
-  list-style: none;
-  margin: 0;
-  padding: 0.5rem 0;
+	list-style: none;
+	margin: 0;
+	padding: 0.5rem 0;
 
-  /* Content-block preview metrics (navigation-panel/editor.css). */
-  /* stylelint-disable-next-line length-zero-no-unit -- feeds calc(); unitless 0 is invalid there */
-  --_aa-row-gap: var(--aa-nav-submenu-gap, 0px);
-  --_aa-flow-gap: var(--aa-nav-submenu-gap, var(--aa-nav-panel-gap, 0.5rem));
-  --_aa-inset-start: var(--aa-nav-submenu-inset, 3.25rem);
-  --_aa-inset-end: var(--aa-nav-panel-inset, 1.25rem);
-  --_aa-pad: var(--aa-nav-submenu-item-pad, 0.75rem);
+	/* Content-block preview metrics (navigation-panel/editor.css). */
+	/* stylelint-disable-next-line length-zero-no-unit -- feeds calc(); unitless 0 is invalid there */
+	--_aa-row-gap: var(--aa-nav-submenu-gap, 0px);
+	--_aa-flow-gap: var(--aa-nav-submenu-gap, var(--aa-nav-panel-gap, 0.5rem));
+	--_aa-inset-start: var(--aa-nav-submenu-inset, 3.25rem);
+	--_aa-inset-end: var(--aa-nav-panel-inset, 1.25rem);
+	--_aa-pad: var(--aa-nav-submenu-item-pad, 0.75rem);
 }
 
 /* Sub-items match the front end (overrides the panel's top-level row). */
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu-drilldown .wp-block-aggressive-apparel-nav-link__link {
-  min-height: 48px;
-  padding: var(--aa-nav-submenu-item-pad, 0.75rem) var(--aa-nav-panel-inset, 1.25rem) var(--aa-nav-submenu-item-pad, 0.75rem) var(--aa-nav-submenu-inset, 3.25rem) !important;
+.wp-block-aggressive-apparel-navigation-panel
+	.wp-block-aggressive-apparel-nav-submenu-drilldown
+	.wp-block-aggressive-apparel-nav-link__link {
+	min-height: 48px;
+	padding: var(--aa-nav-submenu-item-pad, 0.75rem)
+		var(--aa-nav-panel-inset, 1.25rem) var(--aa-nav-submenu-item-pad, 0.75rem)
+		var(--aa-nav-submenu-inset, 3.25rem) !important;
 }

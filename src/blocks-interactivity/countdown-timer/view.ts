@@ -135,7 +135,9 @@ store('aggressive-apparel/countdown-timer', {
           }
           if (ctx.dropPageUrl) {
             document.dispatchEvent(
-              new CustomEvent('aa:drop-live', { bubbles: false })
+              new CustomEvent('aa:drop-live', {
+                bubbles: false,
+              })
             );
 
             // Announce to screen readers before redirecting.

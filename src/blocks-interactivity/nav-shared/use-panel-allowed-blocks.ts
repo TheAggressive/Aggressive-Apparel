@@ -44,7 +44,9 @@ export function usePanelAllowedBlocks(
 ): string[] {
   const blockTypes = useSelect(
     select =>
-      select(blocksStore).getBlockTypes() as unknown as { name: string }[],
+      select(blocksStore).getBlockTypes() as unknown as {
+        name: string;
+      }[],
     []
   );
 

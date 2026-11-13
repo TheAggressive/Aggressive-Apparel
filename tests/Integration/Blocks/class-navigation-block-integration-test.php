@@ -1,0 +1,314 @@
+<?php
+/**
+ * Integration tests for the Aggressive Apparel Navigation block.
+ *
+ * Tests real WordPress functionality and interactions.
+ *
+ * @package Aggressive_Apparel\Tests\Integration\Blocks
+ * @since 1.0.0
+ */
+
+declare(strict_types=1);
+
+
+namespace Aggressive_Apparel\Tests\Integration\Blocks;
+
+use WP_UnitTestCase;
+
+/**
+ * Test navigation block integration with WordPress.
+ */
+class Navigation_Block_Integration_Test extends WP_UnitTestCase {
+	/**
+	 * Test navigation block renders correctly with inner blocks.
+	 */
+	public function test_navigation_block_with_inner_content(): void {
+		$inner_content = '<div class="inner-menu">Menu Items</div>';
+
+		$block_content = render_block(
+			array(
+				'blockName'    => 'aggressive-apparel/navigation',
+				'attrs'        => array(
+					'navId' => 'inner-content-test',
+				),
+				'innerContent' => array( $inner_content ),
+			)
+		);
+
+		$this->assertStringContainsString(
+			'wp-block-aggressive-apparel-navigation',
+			$block_content,
+			'Block should render with correct wrapper class'
+		);
+
+		$this->assertStringContainsString(
+			'inner-menu',
+			$block_content,
+			'Block should include inner content'
+		);
+	}
+
+	/**
+	 * Test navigation block exposes context for child blocks.
+	 */
+	public function test_navigation_block_exposes_child_context(): void {
+		$block_content = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(
+					'navId'      => 'child-context-test',
+					'breakpoint' => 768,
+					'openOn'     => 'click',
+				),
+			)
+		);
+
+		$this->assertStringContainsString(
+			'&quot;navId&quot;:&quot;child-context-test&quot;',
+			$block_content,
+			'Navigation context should include navId for child blocks'
+		);
+
+		$this->assertStringContainsString(
+			'&quot;breakpoint&quot;:768',
+			$block_content,
+			'Navigation context should include breakpoint for child blocks'
+		);
+
+		$this->assertStringContainsString(
+			'&quot;openOn&quot;:&quot;click&quot;',
+			$block_content,
+			'Navigation context should include openOn for child blocks'
+		);
+	}
+
+	/**
+	 * Test navigation block with different breakpoints.
+	 */
+	public function test_navigation_block_breakpoint_variations(): void {
+		$breakpoints = array( 480, 768, 1024, 1280 );
+
+		foreach ( $breakpoints as $breakpoint ) {
+			$block_content = render_block(
+				array(
+					'blockName' => 'aggressive-apparel/navigation',
+					'attrs'     => array(
+						'breakpoint' => $breakpoint,
+					),
+				)
+			);
+
+			$this->assertStringContainsString(
+				"&quot;breakpoint&quot;:{$breakpoint}",
+				$block_content,
+				"Context should include {$breakpoint} breakpoint"
+			);
+		}
+	}
+
+	/**
+	 * Test duplicated saved navigation IDs are safe at render time.
+	 */
+	public function test_navigation_block_duplicate_id_safety(): void {
+		$fixed_nav_id = 'integration-duplicate-test-nav';
+
+		$block_content_1 = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(
+					'navId' => $fixed_nav_id,
+				),
+			)
+		);
+
+		$block_content_2 = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(
+					'navId' => $fixed_nav_id,
+				),
+			)
+		);
+
+		$this->assertStringContainsString(
+			'id="integration-duplicate-test-nav"',
+			$block_content_1
+		);
+		$this->assertStringContainsString(
+			'id="integration-duplicate-test-nav-2"',
+			$block_content_2
+		);
+	}
+
+	/**
+	 * Test navigation block generates unique IDs when navId not provided.
+	 */
+	public function test_navigation_block_unique_id_generation(): void {
+		$block_content_1 = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(),
+			)
+		);
+
+		$block_content_2 = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(),
+			)
+		);
+
+		// Extract IDs using regex.
+		preg_match( '/id="(nav-\d+)"/', $block_content_1, $matches1 );
+		preg_match( '/id="(nav-\d+)"/', $block_content_2, $matches2 );
+
+		$this->assertNotEmpty( $matches1[1], 'First block should have an auto-generated ID' );
+		$this->assertNotEmpty( $matches2[1], 'Second block should have an auto-generated ID' );
+		$this->assertNotEquals(
+			$matches1[1],
+			$matches2[1],
+			'Each block should get a unique ID when navId not provided'
+		);
+	}
+
+	/**
+	 * Test navigation block aria-label escaping.
+	 */
+	public function test_navigation_block_aria_label_escaping(): void {
+		$block_content = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(
+					'ariaLabel' => 'Navigation with "quotes" & special <chars>',
+				),
+			)
+		);
+
+		// Should not contain unescaped special characters.
+		$this->assertStringNotContainsString(
+			'aria-label="Navigation with "quotes"',
+			$block_content,
+			'Quotes should be escaped in aria-label'
+		);
+
+		$this->assertStringContainsString(
+			'aria-label=',
+			$block_content,
+			'Block should still have aria-label attribute'
+		);
+	}
+
+	/**
+	 * Test navigation block with openOn variations.
+	 */
+	public function test_navigation_block_open_on_variations(): void {
+		$open_on_values = array( 'hover', 'click' );
+
+		foreach ( $open_on_values as $open_on ) {
+			$block_content = render_block(
+				array(
+					'blockName' => 'aggressive-apparel/navigation',
+					'attrs'     => array(
+						'openOn' => $open_on,
+					),
+				)
+			);
+
+			$this->assertStringContainsString(
+				"&quot;openOn&quot;:&quot;{$open_on}&quot;",
+				$block_content,
+				"Context should include openOn={$open_on}"
+			);
+		}
+	}
+
+	/**
+	 * Test navigation block context JSON structure.
+	 */
+	public function test_navigation_block_context_json_valid(): void {
+		$block_content = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(
+					'navId'      => 'json-test',
+					'breakpoint' => 1024,
+					'openOn'     => 'hover',
+				),
+			)
+		);
+
+		// Extract context JSON.
+		preg_match( '/data-wp-context="([^"]+)"/', $block_content, $matches );
+		$this->assertNotEmpty( $matches[1], 'Block should have context attribute' );
+
+		// Decode HTML entities and parse JSON.
+		$context_json = html_entity_decode( $matches[1], ENT_QUOTES );
+		$context      = json_decode( $context_json, true );
+
+		$this->assertIsArray( $context, 'Context should be valid JSON' );
+		$this->assertEquals( 'json-test', $context['navId'] );
+		$this->assertEquals( 1024, $context['breakpoint'] );
+		$this->assertEquals( 'hover', $context['openOn'] );
+
+		// Mutable state (isOpen, isMobile, activeSubmenuId, drillStack) is now
+		// in state._panels[navId] instead of context.
+		$this->assertArrayNotHasKey( 'isOpen', $context );
+		$this->assertArrayNotHasKey( 'isMobile', $context );
+	}
+
+	/**
+	 * Test navigation block announcer has correct ID format.
+	 */
+	public function test_navigation_block_announcer_id_format(): void {
+		$block_content = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(
+					'navId' => 'announcer-test',
+				),
+			)
+		);
+
+		$this->assertStringContainsString(
+			'id="navigation-announcer-announcer-test"',
+			$block_content,
+			'Announcer ID should follow format: navigation-announcer-{navId}'
+		);
+	}
+
+	/**
+	 * Test navigation block renders as semantic nav element.
+	 */
+	public function test_navigation_block_semantic_markup(): void {
+		$block_content = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(),
+			)
+		);
+
+		$this->assertMatchesRegularExpression(
+			'/<nav[^>]+>.*<\/nav>/s',
+			$block_content,
+			'Block should render as semantic <nav> element'
+		);
+	}
+
+	/**
+	 * Test navigation block Interactivity API namespace.
+	 */
+	public function test_navigation_block_interactivity_namespace(): void {
+		$block_content = render_block(
+			array(
+				'blockName' => 'aggressive-apparel/navigation',
+				'attrs'     => array(),
+			)
+		);
+
+		$this->assertStringContainsString(
+			'data-wp-interactive="aggressive-apparel/navigation"',
+			$block_content,
+			'Block should use correct Interactivity API namespace'
+		);
+	}
+}

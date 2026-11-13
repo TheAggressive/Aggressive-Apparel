@@ -117,7 +117,11 @@
 
 /* core/group — Frosted Glass */
 .is-style-frosted {
-	background-color: color-mix(in oklch, var(--aa-color-surface-elevated) 75%, transparent);
+	background-color: color-mix(
+		in oklch,
+		var(--aa-color-surface-elevated) 75%,
+		transparent
+	);
 	backdrop-filter: blur(16px) saturate(1.6);
 	border: 1px solid color-mix(in oklch, var(--aa-color-border) 50%, transparent);
 	border-radius: var(--aa-radius-card);
@@ -301,7 +305,6 @@
 
 /* Scroll-driven background shrink — Chrome 115+, Safari 18+ */
 @supports (animation-timeline: scroll()) {
-
 	.wp-block-cover.is-style-cinematic .wp-block-cover__image-background,
 	.wp-block-cover.is-style-cinematic .wp-block-cover__video-background {
 		animation: aa-cinematic-shrink linear both;
@@ -310,7 +313,6 @@
 	}
 
 	@keyframes aa-cinematic-shrink {
-
 		from {
 			transform: scale(1);
 			opacity: 1;
@@ -333,7 +335,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.wp-block-cover.is-style-cinematic .wp-block-cover__image-background,
 	.wp-block-cover.is-style-cinematic .wp-block-cover__video-background {
 		animation: none;

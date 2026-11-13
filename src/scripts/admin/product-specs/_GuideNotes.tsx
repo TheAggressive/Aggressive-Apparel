@@ -124,7 +124,9 @@ export default function GuideNotes({
 }: Props) {
   const pickDiagram = () => {
     const media = (
-      window as unknown as { wp?: { media?: (options: object) => MediaFrame } }
+      window as unknown as {
+        wp?: { media?: (options: object) => MediaFrame };
+      }
     ).wp?.media;
     if (!media) {
       return;
@@ -142,7 +144,10 @@ export default function GuideNotes({
         .first()
         .toJSON() as Attachment;
       onChange({
-        diagram: { id: image.id, url: image.sizes?.medium?.url ?? image.url },
+        diagram: {
+          id: image.id,
+          url: image.sizes?.medium?.url ?? image.url,
+        },
       });
     });
     frame.open();

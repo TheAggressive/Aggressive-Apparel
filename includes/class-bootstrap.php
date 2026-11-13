@@ -123,6 +123,7 @@ class Bootstrap {
 	 * Constructor
 	 */
 	private function __construct() {
+		Core\Request_Cache::register();
 		$this->container = new Service_Container();
 		$this->register_services();
 		$this->initialize_services();
@@ -138,7 +139,7 @@ class Bootstrap {
 		$this->container->register( 'theme_support', fn() => new Core\Theme_Support() );
 		$this->container->register( 'image_sizes', fn() => new Core\Image_Sizes() );
 		$this->container->register( 'content_width', fn() => new Core\Content_Width( 1200 ) );
-		$this->container->register( 'theme_updates', fn() => Core\Theme_Updates::get_instance() );
+		$this->container->register( 'theme_updates', fn() => new Core\Theme_Updates() );
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 		$this->container->register( 'theme_features', fn() => new Core\Theme_Features() );
 		$this->container->register( 'adaptive_colors', fn() => new Core\Adaptive_Colors() );

@@ -6,4 +6,8 @@ export default {
   // generated builds and isolated wp-env dependencies from becoming test input.
   roots: ['<rootDir>/src'],
   reporters: ['default', '<rootDir>/bin/ci/jest-no-skips-reporter.cjs'],
+  setupFilesAfterEnv: [
+    ...(jestConfig.setupFilesAfterEnv ?? []),
+    '<rootDir>/src/jest.setup-assertions.ts',
+  ],
 };

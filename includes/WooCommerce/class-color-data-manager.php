@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Core\Cache_Helper;
+use Aggressive_Apparel\Core\Request_Cache;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -239,13 +240,6 @@ class Color_Data_Manager {
 	private const SWATCH_CACHE_TTL = HOUR_IN_SECONDS;
 
 	/**
-	 * Per-request memo for get_safe_swatch_data().
-	 *
-	 * @var array<string, array{value: string, type: string, name: string}>|null
-	 */
-	private static ?array $swatch_data_memo = null;
-
-	/**
 	 * Get swatch data with defensive error handling.
 	 *
 	 * Wraps get_swatch_data() in a try-catch so callers like Quick_View
@@ -257,10 +251,16 @@ class Color_Data_Manager {
 	 * @return array<string, array{value: string, type: string, name: string}>
 	 */
 	public static function get_safe_swatch_data(): array {
-		if ( null !== self::$swatch_data_memo ) {
-			return self::$swatch_data_memo;
-		}
+		return Request_Cache::remember( 'color-data:swatch-data', static fn(): array => self::load_safe_swatch_data() );
+	}
 
+	/**
+	 * Load swatch data from its transient or rebuild it, uncached by the
+	 * request (see get_safe_swatch_data()).
+	 *
+	 * @return array<string, array{value: string, type: string, name: string}>
+	 */
+	private static function load_safe_swatch_data(): array {
 		/**
 		 * Swatch map from transient or rebuild.
 		 *
@@ -279,8 +279,7 @@ class Color_Data_Manager {
 			'is_array'
 		);
 
-		self::$swatch_data_memo = $data;
-		return self::$swatch_data_memo;
+		return $data;
 	}
 
 	/**
@@ -289,7 +288,7 @@ class Color_Data_Manager {
 	 * @return void
 	 */
 	public static function flush_swatch_data_memo(): void {
-		self::$swatch_data_memo = null;
+		Request_Cache::forget( 'color-data:swatch-data' );
 		delete_transient( self::SWATCH_TRANSIENT_KEY );
 	}
 

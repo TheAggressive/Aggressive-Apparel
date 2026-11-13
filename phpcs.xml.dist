@@ -10,8 +10,7 @@
 
     <!-- Check PHP compatibility -->
     <config name="testVersion" value="8.2-"/>
-    <!-- PHPCompatibility checks disabled due to tool version conflicts -->
-    <!-- <rule ref="PHPCompatibility"/> -->
+    <rule ref="PHPCompatibility"/>
 
     <!-- WordPress Coding Standards -->
     <rule ref="WordPress"/>
@@ -95,14 +94,6 @@
         <exclude-pattern>*/includes/Core/class-content-width.php</exclude-pattern>
     </rule>
 
-    <!--
-		Inline HTML templates (wishlist page shell, quick-view modal) intentionally
-		mix indentation with markup concatenation / PHP templates.
-	-->
-    <rule ref="Generic.WhiteSpace.ScopeIndent">
-        <exclude-pattern>*/includes/WooCommerce/class-wishlist.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-quick-view.php</exclude-pattern>
-    </rule>
 
     <!--
 		Late stylesheet fallback after wp_head: enqueue APIs cannot print a <link>.
@@ -112,14 +103,23 @@
     </rule>
 
     <!--
-		Theme + PSR-4: class-*.php filenames with namespaced classes.
-		Disable strict class↔filename matching; keep hyphenated theme paths.
+		Theme file naming: class-{class-name}.php (trait-… for traits), with
+		the class name matching the file, in includes/ and tests/ alike.
 	-->
     <rule ref="WordPress.Files.FileName">
         <properties>
-            <property name="strict_class_file_names" value="false"/>
+            <property name="strict_class_file_names" value="true"/>
             <property name="is_theme" value="true"/>
         </properties>
+    </rule>
+
+    <!--
+		Tests follow WPCS like the theme does. The WordPress VIP platform sniffs
+		police production runtime behaviour (remote fetches, caching, request
+		globals), which a test harness exercises on purpose.
+	-->
+    <rule ref="WordPressVIPMinimum">
+        <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
     <!-- File patterns to include -->
@@ -138,7 +138,6 @@
     <exclude-pattern>*/.claude/*</exclude-pattern>
     <exclude-pattern>*.min.js</exclude-pattern>
     <exclude-pattern>*.min.css</exclude-pattern>
-    <exclude-pattern>tests/*</exclude-pattern>
     <exclude-pattern>tests/coverage/*</exclude-pattern>
     <exclude-pattern>phpcs-report.txt</exclude-pattern>
     <exclude-pattern>stubs/*</exclude-pattern>

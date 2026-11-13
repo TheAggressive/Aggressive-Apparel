@@ -62,7 +62,9 @@ test.describe('Size chart — product page', () => {
     }) => {
       await page.goto(fixture?.permalink ?? '/');
       let dialog = await openGuide(page);
-      const centimetres = dialog.getByRole('button', { name: 'Centimetres' });
+      const centimetres = dialog.getByRole('button', {
+        name: 'Centimetres',
+      });
       const inches = dialog.getByRole('button', { name: 'Inches' });
 
       await expect(centimetres).toHaveAttribute('aria-pressed', 'true');

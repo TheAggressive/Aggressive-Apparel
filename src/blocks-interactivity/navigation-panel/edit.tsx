@@ -150,14 +150,19 @@ export default function Edit({
             )}
             value={panelSlug}
             onChange={value =>
-              setAttributes({ panelSlug: value || 'mobile-nav' })
+              setAttributes({
+                panelSlug: value || 'mobile-nav',
+              })
             }
           />
           <SelectControl
             label={__('Menu Style', 'aggressive-apparel')}
             value={menuStyle}
             options={[
-              { label: __('Side Panel', 'aggressive-apparel'), value: 'panel' },
+              {
+                label: __('Side Panel', 'aggressive-apparel'),
+                value: 'panel',
+              },
               {
                 label: __('Fullscreen Overlay', 'aggressive-apparel'),
                 value: 'fullscreen',
@@ -169,21 +174,41 @@ export default function Edit({
             label={__('Position', 'aggressive-apparel')}
             value={position}
             options={[
-              { label: __('Right', 'aggressive-apparel'), value: 'right' },
-              { label: __('Left', 'aggressive-apparel'), value: 'left' },
+              {
+                label: __('Right', 'aggressive-apparel'),
+                value: 'right',
+              },
+              {
+                label: __('Left', 'aggressive-apparel'),
+                value: 'left',
+              },
             ]}
             onChange={value =>
-              setAttributes({ position: value as PanelPosition })
+              setAttributes({
+                position: value as PanelPosition,
+              })
             }
           />
           <SelectControl
             label={__('Animation Style', 'aggressive-apparel')}
             value={animationStyle}
             options={[
-              { label: __('Slide', 'aggressive-apparel'), value: 'slide' },
-              { label: __('Push', 'aggressive-apparel'), value: 'push' },
-              { label: __('Reveal', 'aggressive-apparel'), value: 'reveal' },
-              { label: __('Fade', 'aggressive-apparel'), value: 'fade' },
+              {
+                label: __('Slide', 'aggressive-apparel'),
+                value: 'slide',
+              },
+              {
+                label: __('Push', 'aggressive-apparel'),
+                value: 'push',
+              },
+              {
+                label: __('Reveal', 'aggressive-apparel'),
+                value: 'reveal',
+              },
+              {
+                label: __('Fade', 'aggressive-apparel'),
+                value: 'fade',
+              },
             ]}
             onChange={value =>
               setAttributes({
@@ -195,7 +220,9 @@ export default function Edit({
             label={__('Panel Width', 'aggressive-apparel')}
             value={panelWidth}
             onChange={(value: string | undefined) =>
-              setAttributes({ panelWidth: value ?? 'min(320px, 85vw)' })
+              setAttributes({
+                panelWidth: value ?? 'min(320px, 85vw)',
+              })
             }
             units={[
               { value: 'px', label: 'px', default: 320 },
@@ -229,13 +256,19 @@ export default function Edit({
                   id: 'panelLinkHover',
                   label: __('Link Hover Text', 'aggressive-apparel'),
                   value: panelLinkHoverColor,
-                  onChange: v => setAttributes({ panelLinkHoverColor: v }),
+                  onChange: v =>
+                    setAttributes({
+                      panelLinkHoverColor: v,
+                    }),
                 },
                 {
                   id: 'panelLinkHoverBg',
                   label: __('Link Hover Background', 'aggressive-apparel'),
                   value: panelLinkHoverBg,
-                  onChange: v => setAttributes({ panelLinkHoverBg: v }),
+                  onChange: v =>
+                    setAttributes({
+                      panelLinkHoverBg: v,
+                    }),
                 },
                 {
                   id: 'panelIndicator',

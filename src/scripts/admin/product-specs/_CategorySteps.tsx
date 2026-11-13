@@ -156,7 +156,13 @@ export default function CategorySteps({
                     category.name
                   )}
                   onClick={() =>
-                    onChange([...rows, { category: category.id, thresholds }])
+                    onChange([
+                      ...rows,
+                      {
+                        category: category.id,
+                        thresholds,
+                      },
+                    ])
                   }
                 >
                   {__('Add', 'aggressive-apparel')}

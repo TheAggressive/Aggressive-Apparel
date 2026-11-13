@@ -315,7 +315,10 @@ export default function ImportBlank({
               // empty notes were left off.
               onChange={notes =>
                 onState({
-                  notes: { ...state.notes, [state.kind]: notes },
+                  notes: {
+                    ...state.notes,
+                    [state.kind]: notes,
+                  },
                   withNotes: true,
                 })
               }

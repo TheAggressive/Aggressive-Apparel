@@ -119,14 +119,14 @@
 	cursor: pointer;
 }
 
-.aa-fbt__checkbox input[type="checkbox"] {
+.aa-fbt__checkbox input[type='checkbox'] {
 	width: 1.25rem;
 	height: 1.25rem;
 	accent-color: var(--aa-color-accent);
 	cursor: pointer;
 }
 
-.aa-fbt__checkbox input[type="checkbox"]:disabled {
+.aa-fbt__checkbox input[type='checkbox']:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
@@ -184,7 +184,6 @@
  * ----------------------------------------------- */
 
 @container fbt (width < 640px) {
-
 	.aa-fbt__products {
 		flex-direction: column;
 	}
@@ -229,7 +228,6 @@
  * ----------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-fbt__add-all {
 		transition: none;
 	}

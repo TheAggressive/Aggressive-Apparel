@@ -70,7 +70,9 @@ describe('fetchVariations', () => {
   });
 
   it('lets an abort through so the stale open is dropped', async () => {
-    const abort = Object.assign(new Error('aborted'), { name: 'AbortError' });
+    const abort = Object.assign(new Error('aborted'), {
+      name: 'AbortError',
+    });
     window.fetch = jest.fn().mockRejectedValue(abort);
 
     await expect(fetchVariations('/products/', 7)).rejects.toBe(abort);
@@ -96,7 +98,10 @@ describe('buildVariations', () => {
     ]);
 
     expect(small.attributes[0].attribute).toBe('pa_size');
-    expect(small.prices).toEqual({ price: '1100', currency_minor_unit: 2 });
+    expect(small.prices).toEqual({
+      price: '1100',
+      currency_minor_unit: 2,
+    });
     expect(small.inStock).toBe(false);
     expect(small.image).toBe('https://example.com/11.jpg');
     expect(small.imageAlt).toBe('Tee 11');

@@ -147,8 +147,7 @@
 	font-size: 13px;
 }
 
-.aa-adaptive-color-channel__tabs
-	.components-tab-panel__tabs-item.is-active {
+.aa-adaptive-color-channel__tabs .components-tab-panel__tabs-item.is-active {
 	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
 	box-shadow: none;
 }
@@ -158,14 +157,12 @@
 }
 
 @media (hover: none) {
-
 	.aa-adaptive-color-channel__reset.components-button {
 		opacity: 1;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-adaptive-color-channel__reset.components-button {
 		transition: none;
 	}

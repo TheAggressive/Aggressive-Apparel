@@ -3,23 +3,13 @@ import {
   type AttributeFilterConfig,
   type ProductFiltersState,
 } from './types';
+import urlContract from './url-contract.json';
 
 /**
- * WooCommerce `orderby` values the server applies (mirrors
- * Catalog_Archive_Filters::SORTS).
+ * WooCommerce `orderby` values the server applies. url-contract.json is shared
+ * with Catalog_Archive_Filters::SORTS (checked in PHPUnit).
  */
-export const SORTS: ReadonlySet<string> = new Set([
-  'menu_order',
-  'date',
-  'popularity',
-  'rating',
-  'price',
-  'price-desc',
-  'title-asc',
-  'title-desc',
-  'featured',
-  'savings',
-]);
+export const SORTS: ReadonlySet<string> = new Set(urlContract.sorts);
 
 /** Apply a WooCommerce `orderby` value; '' or unknown resets to the default. */
 export function applySort(

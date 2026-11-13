@@ -69,7 +69,10 @@ store('aggressive-apparel/recently-viewed', {
       url.searchParams.set('per_page', String(displayIds.length));
 
       timer = setTimeout(() => controller.abort(), 10_000);
-      fetch(url.href, { mode: 'same-origin', signal: controller.signal })
+      fetch(url.href, {
+        mode: 'same-origin',
+        signal: controller.signal,
+      })
         .then((response: Response) => {
           if (!response.ok) throw new Error('Recently viewed request failed');
           return response.json();

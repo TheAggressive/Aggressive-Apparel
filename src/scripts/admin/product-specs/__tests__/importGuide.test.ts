@@ -109,7 +109,10 @@ describe('guideRequest', () => {
   it('sends values, the chart, its diagram, and every line as a rule', () => {
     const { data, summary } = request();
 
-    expect(data.specs).toEqual({ fabric: '100% cotton', label: 'Tear-away' });
+    expect(data.specs).toEqual({
+      fabric: '100% cotton',
+      label: 'Tear-away',
+    });
     expect(data.chart).toBe(chart);
     expect(data.diagramUrl).toBe(draft.diagrams.garment);
     expect(data.importRules).toEqual([

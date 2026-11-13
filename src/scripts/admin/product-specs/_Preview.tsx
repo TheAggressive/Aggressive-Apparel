@@ -44,7 +44,9 @@ export function Scale({ item, step }: { item: SpecItem; step: number }) {
       </div>
       <div
         className='aa-ps-scale__track'
-        style={{ gridTemplateColumns: `repeat(${item.steps.length}, 1fr)` }}
+        style={{
+          gridTemplateColumns: `repeat(${item.steps.length}, 1fr)`,
+        }}
       >
         {item.steps.map((_, i) => (
           <span key={i} className={i === step ? 'is-active' : undefined} />

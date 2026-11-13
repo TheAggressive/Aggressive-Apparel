@@ -67,9 +67,10 @@ test.describe('store-notices toasts', () => {
 
     try {
       await page.goto(url);
-      // Wait for the block region to hydrate so the bridge is active.
-      await page.waitForSelector('.aa-notices', { state: 'attached' });
-      await page.waitForTimeout(500);
+      // The bridge marks itself once it is capturing WooCommerce notices.
+      await expect(
+        page.locator('.aa-notices[data-aa-bridge="ready"]')
+      ).toBeAttached();
 
       // Use an ABSOLUTE same-origin URL, matching how WooCommerce actually
       // builds notice links (wc_get_cart_url() is absolute, not relative).
@@ -116,8 +117,9 @@ test.describe('store-notices toasts', () => {
 
     try {
       await page.goto(url);
-      await page.waitForSelector('.aa-notices', { state: 'attached' });
-      await page.waitForTimeout(500);
+      await expect(
+        page.locator('.aa-notices[data-aa-bridge="ready"]')
+      ).toBeAttached();
 
       await injectWooBanner(
         page,
@@ -158,8 +160,9 @@ test.describe('store-notices toasts', () => {
 
     try {
       await page.goto(url);
-      await page.waitForSelector('.aa-notices', { state: 'attached' });
-      await page.waitForTimeout(500);
+      await expect(
+        page.locator('.aa-notices[data-aa-bridge="ready"]')
+      ).toBeAttached();
 
       await injectWooBanner(page, 'is-success', 'Product added to your cart.');
 
@@ -197,7 +200,9 @@ test.describe('store-notices toasts', () => {
     });
 
     await expect(
-      page.locator('.aa-notices__message', { hasText: 'Shop overlay check.' })
+      page.locator('.aa-notices__message', {
+        hasText: 'Shop overlay check.',
+      })
     ).toBeVisible();
     await expect(region).toBeHidden();
     expect((await grid.boundingBox())?.y).toBe(before?.y);
@@ -228,7 +233,9 @@ test.describe('store-notices toasts', () => {
     });
 
     await expect(
-      page.locator('.aa-notices__message', { hasText: 'Filled in later.' })
+      page.locator('.aa-notices__message', {
+        hasText: 'Filled in later.',
+      })
     ).toBeVisible();
     await expect(region).toBeHidden();
   });

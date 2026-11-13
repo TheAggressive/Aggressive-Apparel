@@ -18,7 +18,9 @@ export default function Edit({
 }: Props): JSX.Element {
   const { imageRatio = '1/1', linkToProduct = true } = attributes;
 
-  const blockProps = useBlockProps({ className: 'aa-wl-item-image-preview' });
+  const blockProps = useBlockProps({
+    className: 'aa-wl-item-image-preview',
+  });
 
   return (
     <>
@@ -28,7 +30,10 @@ export default function Edit({
             label={__('Aspect Ratio', 'aggressive-apparel')}
             value={imageRatio}
             options={[
-              { label: __('Square (1:1)', 'aggressive-apparel'), value: '1/1' },
+              {
+                label: __('Square (1:1)', 'aggressive-apparel'),
+                value: '1/1',
+              },
               {
                 label: __('Portrait (3:4)', 'aggressive-apparel'),
                 value: '3/4',
@@ -37,7 +42,10 @@ export default function Edit({
                 label: __('Landscape (4:3)', 'aggressive-apparel'),
                 value: '4/3',
               },
-              { label: __('Wide (16:9)', 'aggressive-apparel'), value: '16/9' },
+              {
+                label: __('Wide (16:9)', 'aggressive-apparel'),
+                value: '16/9',
+              },
             ]}
             onChange={v => setAttributes({ imageRatio: v })}
             __next40pxDefaultSize

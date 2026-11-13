@@ -12,7 +12,7 @@
  * Every call into WooCommerce's `Internal` namespace goes through this class.
  * That namespace carries no compatibility promise, so the surface is kept
  * small, listed in stubs/woocommerce-stock-notifications.php, and checked
- * against the pinned WooCommerce by TestBackInStockNativeContract.
+ * against the pinned WooCommerce by Test_Back_In_Stock_Native_Contract.
  *
  * @package Aggressive_Apparel
  */

@@ -18,11 +18,7 @@
  * @package Aggressive_Apparel
  */
 
-:where(
-	.wp-element-button,
-	.wp-block-button__link,
-	.aggressive-apparel-button
-) {
+:where(.wp-element-button, .wp-block-button__link, .aggressive-apparel-button) {
 	box-sizing: border-box;
 	display: inline-flex;
 	align-items: center;
@@ -75,10 +71,10 @@
 }
 
 :where(
-	.wp-element-button,
-	.wp-block-button__link,
-	.aggressive-apparel-button
-):active:not(:disabled, [aria-disabled='true']) {
+		.wp-element-button,
+		.wp-block-button__link,
+		.aggressive-apparel-button
+	):active:not(:disabled, [aria-disabled='true']) {
 	transform: scale(0.98);
 }
 
@@ -234,11 +230,10 @@
 }
 
 @media (hover: hover) {
-
 	.aggressive-apparel-button.aggressive-apparel-button--elevated:hover:not(
-		:disabled,
-		[aria-disabled='true']
-	) {
+			:disabled,
+			[aria-disabled='true']
+		) {
 		box-shadow: var(--aa-shadow-lg);
 	}
 }
@@ -300,7 +295,6 @@
 }
 
 @media (hover: hover) {
-
 	:where(.aa-icon-button):hover:not(:disabled, [aria-disabled='true']) {
 		border-color: var(--aa-icon-button-hover-border);
 		background: var(--aa-icon-button-hover-background);
@@ -388,7 +382,7 @@
  * which the `isolation: isolate` context keeps above it).
  */
 :where(.aa-choice-pill:not(.is-color-swatch))::before {
-	content: "";
+	content: '';
 	position: absolute;
 	inset: 0;
 	z-index: -1;
@@ -403,20 +397,19 @@
 }
 
 @media (hover: hover) {
-
 	:where(.aa-choice-pill):hover:not(
-		:disabled,
-		[aria-disabled='true'],
-		.is-unavailable,
-		.is-color-swatch,
-		.is-selected,
-		.is-active,
-		.is-current,
-		[aria-pressed='true'],
-		[aria-selected='true'],
-		[aria-checked='true'],
-		[aria-expanded='true']
-	) {
+			:disabled,
+			[aria-disabled='true'],
+			.is-unavailable,
+			.is-color-swatch,
+			.is-selected,
+			.is-active,
+			.is-current,
+			[aria-pressed='true'],
+			[aria-selected='true'],
+			[aria-checked='true'],
+			[aria-expanded='true']
+		) {
 		color: var(--wp--custom--button--choice--selected-text);
 		box-shadow: inset 0 0 0 2px var(--wp--custom--button--choice--border);
 
@@ -443,14 +436,14 @@
 }
 
 :where(.aa-choice-pill:not(.is-color-swatch)):is(
-	.is-selected,
-	.is-active,
-	.is-current,
-	[aria-pressed='true'],
-	[aria-selected='true'],
-	[aria-checked='true'],
-	[aria-expanded='true']
-)::before {
+		.is-selected,
+		.is-active,
+		.is-current,
+		[aria-pressed='true'],
+		[aria-selected='true'],
+		[aria-checked='true'],
+		[aria-expanded='true']
+	)::before {
 	opacity: 1;
 	transform: scaleX(1);
 }
@@ -460,7 +453,11 @@
 	box-shadow: var(--aa-focus-ring);
 }
 
-:where(.aa-choice-pill):active:not(:disabled, [aria-disabled='true'], .is-unavailable) {
+:where(.aa-choice-pill):active:not(
+		:disabled,
+		[aria-disabled='true'],
+		.is-unavailable
+	) {
 	transform: scale(0.97);
 }
 
@@ -499,7 +496,6 @@
  * (product form, cart, checkout, mini-cart, sticky bar, quick view) reads as one
  * control. */
 @media (hover: hover) {
-
 	:where(.aa-stepper-button):hover:not(:disabled, [aria-disabled='true']) {
 		background: color-mix(in oklch, currentcolor 8%, transparent);
 	}
@@ -539,14 +535,12 @@
 }
 
 @keyframes aggressive-apparel-button-spin {
-
 	to {
 		transform: rotate(360deg);
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	:where(
 		.wp-element-button,
 		.wp-block-button__link,

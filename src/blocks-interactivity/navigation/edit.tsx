@@ -150,11 +150,19 @@ export default function Edit({
             help={__('How submenus open on desktop.', 'aggressive-apparel')}
             value={openOn}
             options={[
-              { label: __('Hover', 'aggressive-apparel'), value: 'hover' },
-              { label: __('Click', 'aggressive-apparel'), value: 'click' },
+              {
+                label: __('Hover', 'aggressive-apparel'),
+                value: 'hover',
+              },
+              {
+                label: __('Click', 'aggressive-apparel'),
+                value: 'click',
+              },
             ]}
             onChange={value =>
-              setAttributes({ openOn: value as 'hover' | 'click' })
+              setAttributes({
+                openOn: value as 'hover' | 'click',
+              })
             }
           />
         </PanelBody>
@@ -260,26 +268,38 @@ export default function Edit({
                   id: 'submenuBackground',
                   label: __('Background', 'aggressive-apparel'),
                   value: submenuBackgroundColor,
-                  onChange: v => setAttributes({ submenuBackgroundColor: v }),
+                  onChange: v =>
+                    setAttributes({
+                      submenuBackgroundColor: v,
+                    }),
                   allowGradient: true,
                 },
                 {
                   id: 'submenuText',
                   label: __('Text', 'aggressive-apparel'),
                   value: submenuTextColor,
-                  onChange: v => setAttributes({ submenuTextColor: v }),
+                  onChange: v =>
+                    setAttributes({
+                      submenuTextColor: v,
+                    }),
                 },
                 {
                   id: 'submenuLinkHover',
                   label: __('Link Hover Text', 'aggressive-apparel'),
                   value: submenuLinkHoverColor,
-                  onChange: v => setAttributes({ submenuLinkHoverColor: v }),
+                  onChange: v =>
+                    setAttributes({
+                      submenuLinkHoverColor: v,
+                    }),
                 },
                 {
                   id: 'submenuLinkHoverBg',
                   label: __('Link Hover Background', 'aggressive-apparel'),
                   value: submenuLinkHoverBg,
-                  onChange: v => setAttributes({ submenuLinkHoverBg: v }),
+                  onChange: v =>
+                    setAttributes({
+                      submenuLinkHoverBg: v,
+                    }),
                   allowGradient: true,
                 },
               ]}
@@ -326,13 +346,27 @@ export default function Edit({
             label={__('Border Style', 'aggressive-apparel')}
             value={submenuBorderStyle ?? 'solid'}
             options={[
-              { label: __('Solid', 'aggressive-apparel'), value: 'solid' },
-              { label: __('Dashed', 'aggressive-apparel'), value: 'dashed' },
-              { label: __('Dotted', 'aggressive-apparel'), value: 'dotted' },
-              { label: __('None', 'aggressive-apparel'), value: 'none' },
+              {
+                label: __('Solid', 'aggressive-apparel'),
+                value: 'solid',
+              },
+              {
+                label: __('Dashed', 'aggressive-apparel'),
+                value: 'dashed',
+              },
+              {
+                label: __('Dotted', 'aggressive-apparel'),
+                value: 'dotted',
+              },
+              {
+                label: __('None', 'aggressive-apparel'),
+                value: 'none',
+              },
             ]}
             onChange={value =>
-              setAttributes({ submenuBorderStyle: value as BorderStyle })
+              setAttributes({
+                submenuBorderStyle: value as BorderStyle,
+              })
             }
           />
           <div className='aa-adaptive-color-panel'>
@@ -349,7 +383,10 @@ export default function Edit({
                   id: 'submenuBorder',
                   label: __('Border Color', 'aggressive-apparel'),
                   value: submenuBorderColor,
-                  onChange: v => setAttributes({ submenuBorderColor: v }),
+                  onChange: v =>
+                    setAttributes({
+                      submenuBorderColor: v,
+                    }),
                 },
               ]}
             />

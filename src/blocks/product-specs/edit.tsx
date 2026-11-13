@@ -94,7 +94,10 @@ export default function Edit({
             label={__('Layout', 'aggressive-apparel')}
             value={layout}
             options={[
-              { label: __('Full scales', 'aggressive-apparel'), value: 'full' },
+              {
+                label: __('Full scales', 'aggressive-apparel'),
+                value: 'full',
+              },
               {
                 label: __('Compact cards', 'aggressive-apparel'),
                 value: 'compact',

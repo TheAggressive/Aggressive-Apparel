@@ -19,7 +19,6 @@
 	--aa-ps-control-height: 40px;
 }
 
-
 /* Normalize WordPress component labels and spacing inside the app. */
 .aa-ps .components-base-control {
 	margin-bottom: 0;
@@ -35,7 +34,12 @@
  * with a `for` inside a control (0,3,1) outranks it without naming the
  * components' internal classes. Toggle and checkbox labels keep their style.
  */
-.aa-ps .components-base-control label[for]:not(.components-toggle-control__label, .components-checkbox-control__label) {
+.aa-ps
+	.components-base-control
+	label[for]:not(
+		.components-toggle-control__label,
+		.components-checkbox-control__label
+	) {
 	color: #1e1e1e;
 	font-size: 13px;
 	font-weight: 500;
@@ -54,7 +58,6 @@
 	margin-top: 4px;
 }
 
-
 .aa-ps-help {
 	margin: 0;
 	color: var(--aa-ps-muted);
@@ -62,13 +65,11 @@
 	line-height: 1.5;
 }
 
-
 .aa-ps-help--notice {
 	margin-top: 8px;
 	padding-left: 8px;
 	border-left: 3px solid var(--aa-ps-border);
 }
-
 
 /* Shared native control (used where a component would add layout chrome). */
 .aa-ps-control {
@@ -76,7 +77,6 @@
 	min-height: var(--aa-ps-control-height);
 	margin: 0;
 }
-
 
 .aa-ps-eyebrow {
 	margin: 0 0 4px;
@@ -86,7 +86,6 @@
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
 }
-
 
 .aa-ps .components-notice {
 	margin: 0 0 var(--aa-ps-gap);

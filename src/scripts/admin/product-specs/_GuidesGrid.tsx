@@ -87,7 +87,10 @@ export default function GuidesGrid({
   }, [config.guidesPath, reload]);
 
   const edit = (id: number, key: string, value: string) =>
-    onEdits({ ...edits, [id]: { ...(edits[id] ?? {}), [key]: value } });
+    onEdits({
+      ...edits,
+      [id]: { ...(edits[id] ?? {}), [key]: value },
+    });
 
   const valueOf = (row: GuideRow, key: string) =>
     edits[row.id]?.[key] ?? row.values[key] ?? '';
@@ -252,7 +255,10 @@ export default function GuidesGrid({
             visibleSelected.reduce(
               (next, id) => ({
                 ...next,
-                [id]: { ...(next[id] ?? {}), [key]: value },
+                [id]: {
+                  ...(next[id] ?? {}),
+                  [key]: value,
+                },
               }),
               edits
             )

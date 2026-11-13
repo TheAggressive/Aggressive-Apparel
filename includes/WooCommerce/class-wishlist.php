@@ -16,6 +16,7 @@ namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
+use Aggressive_Apparel\Core\Request_Cache;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,15 +45,6 @@ class Wishlist {
 	 * @var string
 	 */
 	public const PAGE_SLUG = 'wishlist';
-
-	/**
-	 * Product IDs whose `aggressive-apparel/wishlist-button` blocks have rendered
-	 * during the current request. Used to avoid duplicating the automatic
-	 * single-product heart without suppressing buttons for other products.
-	 *
-	 * @var array<int, true>
-	 */
-	private static array $button_block_product_ids = array();
 
 	/**
 	 * Initialize hooks.
@@ -558,8 +550,10 @@ BLOCKS;
 	/**
 	 * Mark a Wishlist Button block as rendered for a product in this request.
 	 *
-	 * When no ID is provided, the current product context is resolved for
-	 * backward compatibility with existing integrations.
+	 * Recorded per product so the automatic single-product heart isn't
+	 * duplicated without suppressing buttons for other products. When no ID is
+	 * provided, the current product context is resolved for backward
+	 * compatibility with existing integrations.
 	 *
 	 * @param int $product_id Product ID, or 0 to resolve the current context.
 	 * @return void
@@ -567,7 +561,7 @@ BLOCKS;
 	public static function mark_button_block_rendered( int $product_id = 0 ): void {
 		$product_id = $product_id > 0 ? $product_id : self::get_current_product_id();
 		if ( $product_id > 0 ) {
-			self::$button_block_product_ids[ $product_id ] = true;
+			Request_Cache::set( 'wishlist:button-rendered:' . $product_id, true );
 		}
 	}
 
@@ -580,6 +574,6 @@ BLOCKS;
 	public static function has_button_block_rendered( int $product_id = 0 ): bool {
 		$product_id = $product_id > 0 ? $product_id : self::get_current_product_id();
 
-		return $product_id > 0 && isset( self::$button_block_product_ids[ $product_id ] );
+		return $product_id > 0 && true === Request_Cache::get( 'wishlist:button-rendered:' . $product_id, false );
 	}
 }

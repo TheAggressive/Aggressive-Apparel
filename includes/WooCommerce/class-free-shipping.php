@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Core\Cache_Helper;
+use Aggressive_Apparel\Core\Request_Cache;
 
 /**
  * Free-shipping progress for the blocks.
@@ -44,13 +45,6 @@ class Free_Shipping {
 	private const CACHE_TTL = DAY_IN_SECONDS;
 
 	/**
-	 * Request-local memo of the store-wide scan.
-	 *
-	 * @var float|null
-	 */
-	private static ?float $cached_threshold = null;
-
-	/**
 	 * Register shipping-settings invalidation hooks and the cart extension.
 	 *
 	 * Called from Bootstrap when WooCommerce is active.
@@ -73,7 +67,7 @@ class Free_Shipping {
 	 * @return void
 	 */
 	public static function flush_threshold_cache(): void {
-		self::$cached_threshold = null;
+		Request_Cache::forget( 'free-shipping:threshold' );
 		Free_Shipping_Rules::flush();
 		delete_transient( self::TRANSIENT_KEY );
 	}
@@ -146,23 +140,28 @@ class Free_Shipping {
 			return true;
 		}
 
-		if ( null === self::$cached_threshold ) {
-			/**
-			 * Lowest store-currency minimum across all zones, from transient or rebuild.
-			 *
-			 * @var float $detected
-			 */
-			$detected = Cache_Helper::remember(
-				self::TRANSIENT_KEY,
-				self::CACHE_TTL,
-				static fn(): float => Free_Shipping_Rules::get_lowest_configured_minimum(),
-				static fn( $cached ): bool => is_numeric( $cached )
-			);
+		return Request_Cache::remember( 'free-shipping:threshold', static fn(): float => self::detect_threshold() ) > 0;
+	}
 
-			self::$cached_threshold = (float) $detected;
-		}
+	/**
+	 * Lowest store-currency minimum across all zones, from transient or rebuild.
+	 *
+	 * @return float
+	 */
+	private static function detect_threshold(): float {
+		/**
+		 * Lowest store-currency minimum across all zones, from transient or rebuild.
+		 *
+		 * @var float $detected
+		 */
+		$detected = Cache_Helper::remember(
+			self::TRANSIENT_KEY,
+			self::CACHE_TTL,
+			static fn(): float => Free_Shipping_Rules::get_lowest_configured_minimum(),
+			static fn( $cached ): bool => is_numeric( $cached )
+		);
 
-		return self::$cached_threshold > 0;
+		return (float) $detected;
 	}
 
 	/**

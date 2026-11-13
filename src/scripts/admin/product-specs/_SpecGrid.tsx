@@ -186,7 +186,10 @@ export function BulkBar({ specs, count, onApply, onClear }: BulkProps) {
         label={__('Spec', 'aggressive-apparel')}
         hideLabelFromVision
         value={item.key}
-        options={specs.map(other => ({ value: other.key, label: other.name }))}
+        options={specs.map(other => ({
+          value: other.key,
+          label: other.name,
+        }))}
         onChange={next => {
           setKey(next);
           setValue('');

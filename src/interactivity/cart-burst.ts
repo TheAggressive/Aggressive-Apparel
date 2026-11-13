@@ -109,7 +109,9 @@ function playBurst(img: HTMLImageElement, cartBtn: HTMLElement): void {
 
   clone.setAttribute('aria-hidden', 'true');
   document.body.append(clone);
-  clone.addEventListener('animationend', () => clone.remove(), { once: true });
+  clone.addEventListener('animationend', () => clone.remove(), {
+    once: true,
+  });
 }
 
 function handleAddedToCart(e: Event): void {

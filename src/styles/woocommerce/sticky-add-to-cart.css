@@ -12,7 +12,6 @@
  * ----------------------------------------------- */
 
 .aa-sticky-cart {
-
 	/* Local fallback for drawer positioning; JS replaces it with the measured height. */
 	--aa-sticky-cart-height: 4rem;
 
@@ -373,7 +372,11 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: color-mix(in oklch, var(--aa-color-success) 12%, transparent);
+	background-color: color-mix(
+		in oklch,
+		var(--aa-color-success) 12%,
+		transparent
+	);
 	color: var(--aa-color-success);
 	border-radius: 50%;
 	flex-shrink: 0;
@@ -448,7 +451,6 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
  * ----------------------------------------------- */
 
 @media (width >= 768px) {
-
 	.aa-sticky-cart__drawer {
 		align-items: flex-end;
 		justify-content: flex-end;
@@ -479,7 +481,8 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 			transform 160ms var(--aa-ease-exit);
 	}
 
-	.aggressive-apparel-overlay.aa-sticky-cart__drawer.is-open .aa-sticky-cart__drawer-panel {
+	.aggressive-apparel-overlay.aa-sticky-cart__drawer.is-open
+		.aa-sticky-cart__drawer-panel {
 		opacity: 1;
 		transform: none;
 		transition:
@@ -490,9 +493,7 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 	/* Replace the sheet's off-screen starting point, or the first open would
 	   still start a full panel-height below. */
 	@supports selector(@starting-style) {
-
 		.aa-sticky-cart__drawer .aa-sticky-cart__drawer-panel {
-
 			@starting-style {
 				opacity: 0;
 				transform: translateY(0.75rem) scale(0.96);
@@ -501,9 +502,9 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-
 		.aa-sticky-cart__drawer .aa-sticky-cart__drawer-panel,
-		.aggressive-apparel-overlay.aa-sticky-cart__drawer.is-open .aa-sticky-cart__drawer-panel {
+		.aggressive-apparel-overlay.aa-sticky-cart__drawer.is-open
+			.aa-sticky-cart__drawer-panel {
 			transform: none;
 			transition: opacity var(--aa-duration-fast) linear;
 		}
@@ -519,7 +520,6 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
  * ----------------------------------------------- */
 
 @container sticky-cart (width < 640px) {
-
 	.aa-sticky-cart__inner {
 		flex-wrap: nowrap;
 		padding: 1.25rem 1.5rem;
@@ -543,7 +543,6 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 		flex-shrink: 0;
 		padding: 0.5rem 1rem;
 	}
-
 }
 
 /*
@@ -555,11 +554,8 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
  * with the decision-making information visible on screen.
  */
 @container sticky-cart (width < 520px) {
-
-	:is(
-		.aa-sticky-cart--dual-action,
-		.aa-sticky-cart--variable
-	) .aa-sticky-cart__inner {
+	:is(.aa-sticky-cart--dual-action, .aa-sticky-cart--variable)
+		.aa-sticky-cart__inner {
 		padding: 0.75rem 1rem;
 	}
 
@@ -574,10 +570,8 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 		width: 100%;
 	}
 
-	.aa-sticky-cart--dual-action :is(
-		.aa-sticky-cart__button,
-		.aa-sticky-cart__buy-now
-	) {
+	.aa-sticky-cart--dual-action
+		:is(.aa-sticky-cart__button, .aa-sticky-cart__buy-now) {
 		width: 100%;
 		min-width: 0;
 		padding-inline: 0.75rem;
@@ -634,13 +628,11 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 	}
 }
 
-
 /* -----------------------------------------------
  * Reduced motion
  * ----------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-sticky-cart,
 	.aa-sticky-cart.is-visible,
 	body.aa-bottom-nav-hidden .aa-sticky-cart {

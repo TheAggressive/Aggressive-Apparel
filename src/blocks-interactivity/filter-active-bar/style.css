@@ -128,7 +128,6 @@
 
 /* Mobile: hidden — users manage/clear filters via the filter drawer. */
 @media (width <= 767px) {
-
 	.aa-filter-active-bar {
 		display: none;
 	}
@@ -136,14 +135,12 @@
 
 /* Tablet: Clear All only — pills and overflow hidden to save header space. */
 @media (768px <= width <= 1023px) {
-
 	.aa-filter-active-bar__pills {
 		display: none;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-filter-active-bar__pill {
 		transition: none;
 	}

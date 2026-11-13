@@ -5,28 +5,28 @@
  */
 
 .aggressive-apparel-free-shipping-message {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  white-space: nowrap;
-  margin: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	white-space: nowrap;
+	margin: 0;
 }
 
 /* Relative weights, so the editor's font-weight setting stays the base. */
 .aggressive-apparel-free-shipping-message__amount {
-  font-weight: bolder;
-  font-variant-numeric: tabular-nums;
+	font-weight: bolder;
+	font-variant-numeric: tabular-nums;
 }
 
 .aggressive-apparel-free-shipping-message__emphasis {
-  font-weight: bolder;
+	font-weight: bolder;
 }
 
 .aggressive-apparel-free-shipping-message__icon {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  color: currentcolor;
-  line-height: 0;
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	color: currentcolor;
+	line-height: 0;
 }

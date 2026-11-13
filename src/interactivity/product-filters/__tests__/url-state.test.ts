@@ -255,13 +255,20 @@ describe('attribute and tag archives', () => {
   it('leaves the archive when its term is deselected or widened', () => {
     expect(
       buildFilterUrl(
-        state({ ...womens, selectedCollections: [], selectedColors: ['red'] }),
+        state({
+          ...womens,
+          selectedCollections: [],
+          selectedColors: ['red'],
+        }),
         []
       )
     ).toBe('/shop/?color=red');
     expect(
       buildFilterUrl(
-        state({ ...womens, selectedCollections: ['womens', 'mens'] }),
+        state({
+          ...womens,
+          selectedCollections: ['womens', 'mens'],
+        }),
         []
       )
     ).toBe('/shop/?collection=womens%2Cmens');

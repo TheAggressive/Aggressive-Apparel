@@ -128,7 +128,18 @@ test.describe('Product tabs — front end', () => {
     await second.click();
     await page.waitForTimeout(50);
     await second.click();
-    await page.waitForTimeout(700);
+    // Let the accordion's reveal transitions finish before comparing state to
+    // geometry (scoped: the page runs unrelated infinite animations).
+    await expect
+      .poll(() =>
+        accordion.evaluate(
+          (root: HTMLElement) =>
+            root
+              .getAnimations({ subtree: true })
+              .filter(animation => animation instanceof CSSTransition).length
+        )
+      )
+      .toBe(0);
 
     const mismatches = await accordion.evaluate(
       (root: HTMLElement) =>
@@ -155,12 +166,14 @@ test.describe('Product tabs — front end', () => {
       .locator('details > summary.aa-product-info__heading')
       .nth(1)
       .click();
-    await page.waitForTimeout(500);
 
-    const openCount = await accordion.evaluate(
-      (root: HTMLElement) => root.querySelectorAll('details[open]').length
-    );
-    expect(openCount).toBeGreaterThanOrEqual(2);
+    await expect
+      .poll(() =>
+        accordion.evaluate(
+          (root: HTMLElement) => root.querySelectorAll('details[open]').length
+        )
+      )
+      .toBeGreaterThanOrEqual(2);
   });
 
   test('accordion exclusive mode keeps one section open and its header on screen', async ({
@@ -191,9 +204,16 @@ test.describe('Product tabs — front end', () => {
       );
       await new Promise(resolve => requestAnimationFrame(resolve));
       last.click();
-      // Let the collapse and any nudge finish: how far it scrolls, and so how
-      // long that takes, depends on how long the section above it is.
-      await new Promise(resolve => setTimeout(resolve, 900));
+      // Let the collapse finish, then any nudge: wait out the accordion's
+      // transitions, then until the header holds still (a smooth scroll is not
+      // an Animation, so it is detected by position).
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      await Promise.all(
+        root
+          .getAnimations({ subtree: true })
+          .filter(animation => animation instanceof CSSTransition)
+          .map(transition => transition.finished.catch(() => undefined))
+      );
       let top = last.getBoundingClientRect().top;
       for (let settled = 0, i = 0; settled < 3 && i < 40; i++) {
         await new Promise(resolve => setTimeout(resolve, 100));

@@ -169,7 +169,11 @@ describe('parseCartTotals', () => {
       {
         totals: { total_items: '5000', currency_minor_unit: 2 },
         extensions: {
-          [FREE_SHIPPING_EXTENSION]: { threshold: 0, subtotal: 5000, rate: 1 },
+          [FREE_SHIPPING_EXTENSION]: {
+            threshold: 0,
+            subtotal: 5000,
+            rate: 1,
+          },
         },
       },
       75,
@@ -288,7 +292,11 @@ describe('formatFreeShippingMessage', () => {
 
     expect(formatFreeShippingMessage(ctx)).toBe('$50 Away from FREE Express!');
     expect(
-      formatFreeShippingMessage({ ...ctx, complete: true, remaining: 0 })
+      formatFreeShippingMessage({
+        ...ctx,
+        complete: true,
+        remaining: 0,
+      })
     ).toBe('FREE Express UNLOCKED!');
   });
 
@@ -307,7 +315,11 @@ describe('formatFreeShippingMessage', () => {
       '$50 pour la livraison GRATUITE'
     );
     expect(
-      formatFreeShippingMessage({ ...ctx, complete: true, remaining: 0 })
+      formatFreeShippingMessage({
+        ...ctx,
+        complete: true,
+        remaining: 0,
+      })
     ).toBe('Livraison GRATUITE DEBLOQUEE');
   });
 });
@@ -431,10 +443,18 @@ describe('cartFromMutationBody', () => {
 describe('progressPercent', () => {
   it('fills by cart total over threshold, capped at 100', () => {
     expect(
-      progressPercent({ threshold: 150, cartTotal: 66, complete: false })
+      progressPercent({
+        threshold: 150,
+        cartTotal: 66,
+        complete: false,
+      })
     ).toBeCloseTo(44);
     expect(
-      progressPercent({ threshold: 150, cartTotal: 200, complete: false })
+      progressPercent({
+        threshold: 150,
+        cartTotal: 200,
+        complete: false,
+      })
     ).toBe(100);
   });
 

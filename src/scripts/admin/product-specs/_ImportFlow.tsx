@@ -163,7 +163,11 @@ export default function ImportFlow({
               value: valueFor(attributeItem(attribute), fact.text),
               touched: false,
             }
-          : { target: fact.target, value: fact.value, touched: false };
+          : {
+              target: fact.target,
+              value: fact.value,
+              touched: false,
+            };
       }),
     };
   };
@@ -524,7 +528,10 @@ export default function ImportFlow({
           `.aa-ps-review ${STOP_TARGET[stop]}`
         )
       : null;
-    field?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
+    field?.scrollIntoView({
+      block: 'center',
+      behavior: scrollBehavior(),
+    });
     field?.focus({ preventScroll: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on a jump.
   }, [jump]);

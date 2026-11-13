@@ -89,7 +89,9 @@ describe('storeApiPost', () => {
       reply({
         status: 403,
         nonce: 'fresh',
-        body: { code: 'woocommerce_rest_cart_product_is_not_purchasable' },
+        body: {
+          code: 'woocommerce_rest_cart_product_is_not_purchasable',
+        },
       })
     );
     const { accessors } = nonceState('seeded');

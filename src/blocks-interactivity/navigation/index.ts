@@ -125,7 +125,10 @@ const ecommerceNavTemplate: InnerBlockTemplate[] = [
               ['core/heading', { level: 4, content: 'Men' }],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'T-Shirts', url: '/shop/men/t-shirts' },
+                {
+                  label: 'T-Shirts',
+                  url: '/shop/men/t-shirts',
+                },
               ],
               [
                 'aggressive-apparel/nav-link',
@@ -137,7 +140,10 @@ const ecommerceNavTemplate: InnerBlockTemplate[] = [
               ],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'Accessories', url: '/shop/men/accessories' },
+                {
+                  label: 'Accessories',
+                  url: '/shop/men/accessories',
+                },
               ],
             ],
           ],
@@ -148,19 +154,31 @@ const ecommerceNavTemplate: InnerBlockTemplate[] = [
               ['core/heading', { level: 4, content: 'Women' }],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'T-Shirts', url: '/shop/women/t-shirts' },
+                {
+                  label: 'T-Shirts',
+                  url: '/shop/women/t-shirts',
+                },
               ],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'Hoodies', url: '/shop/women/hoodies' },
+                {
+                  label: 'Hoodies',
+                  url: '/shop/women/hoodies',
+                },
               ],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'Leggings', url: '/shop/women/leggings' },
+                {
+                  label: 'Leggings',
+                  url: '/shop/women/leggings',
+                },
               ],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'Accessories', url: '/shop/women/accessories' },
+                {
+                  label: 'Accessories',
+                  url: '/shop/women/accessories',
+                },
               ],
             ],
           ],
@@ -171,15 +189,24 @@ const ecommerceNavTemplate: InnerBlockTemplate[] = [
               ['core/heading', { level: 4, content: 'Collections' }],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'New Arrivals', url: '/collections/new' },
+                {
+                  label: 'New Arrivals',
+                  url: '/collections/new',
+                },
               ],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'Best Sellers', url: '/collections/best-sellers' },
+                {
+                  label: 'Best Sellers',
+                  url: '/collections/best-sellers',
+                },
               ],
               [
                 'aggressive-apparel/nav-link',
-                { label: 'Limited Edition', url: '/collections/limited' },
+                {
+                  label: 'Limited Edition',
+                  url: '/collections/limited',
+                },
               ],
               [
                 'aggressive-apparel/nav-link',

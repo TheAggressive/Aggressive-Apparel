@@ -154,7 +154,9 @@ export default function Edit({
                 value={{ url }}
                 onChange={data => {
                   if (data && typeof data === 'object') {
-                    setAttributes({ url: data.url ?? '' });
+                    setAttributes({
+                      url: data.url ?? '',
+                    });
                   }
                 }}
                 onRemove={() => {

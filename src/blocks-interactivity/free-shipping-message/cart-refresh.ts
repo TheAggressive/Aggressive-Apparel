@@ -304,7 +304,9 @@ function patchXHRForCartMutations(): void {
     if (
       !this._aaCartUrl ||
       !this._aaCartMethod ||
-      !isCartMutationRequest(this._aaCartUrl, { method: this._aaCartMethod })
+      !isCartMutationRequest(this._aaCartUrl, {
+        method: this._aaCartMethod,
+      })
     ) {
       return nativeSend.apply(this, args);
     }

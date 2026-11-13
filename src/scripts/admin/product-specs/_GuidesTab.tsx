@@ -103,7 +103,11 @@ export default function GuidesTab({
   const refresh = async () => {
     setLoading(true);
     try {
-      onGuides((await apiFetch({ path: config.guidesPath })) as GuideSummary[]);
+      onGuides(
+        (await apiFetch({
+          path: config.guidesPath,
+        })) as GuideSummary[]
+      );
     } finally {
       setLoading(false);
     }

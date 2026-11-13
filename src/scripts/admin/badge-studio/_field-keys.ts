@@ -7,7 +7,7 @@
  * its own side of the wire.
  *
  * This file is the only place the key list is duplicated across languages, and
- * TestBadgeFieldTypes.php fails the build if it drifts from the registry. To
+ * Test_Badge_Field_Types.php fails the build if it drifts from the registry. To
  * regenerate after adding a field:
  *
  *   wp-env run cli --env-cwd=wp-content/themes/aggressive-apparel wp eval \

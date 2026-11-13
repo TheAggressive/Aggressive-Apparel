@@ -1,9 +1,0 @@
-/**
- * Grid / List View — styles moved to the block's style.css
- *
- * All toggle and list-view layout CSS now lives in
- * src/blocks-interactivity/grid-list-toggle/style.css so it is only
- * loaded on pages where the block is rendered.
- *
- * @package Aggressive_Apparel
- */

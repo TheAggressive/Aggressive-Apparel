@@ -46,7 +46,9 @@ type DarkModeToggleAttributes = {
   toggleBackgroundHoverColor?: string;
 };
 
-type ToggleStyle = CSSProperties & { [key: `--${string}`]: string | number };
+type ToggleStyle = CSSProperties & {
+  [key: `--${string}`]: string | number;
+};
 
 const COLOR_STYLE_VARIABLES = {
   iconColor: '--aa-dark-mode-toggle-icon-color',
@@ -214,9 +216,18 @@ export default function Edit({
             label={__('Size', 'aggressive-apparel')}
             value={size}
             options={[
-              { label: __('Small', 'aggressive-apparel'), value: 'small' },
-              { label: __('Medium', 'aggressive-apparel'), value: 'medium' },
-              { label: __('Large', 'aggressive-apparel'), value: 'large' },
+              {
+                label: __('Small', 'aggressive-apparel'),
+                value: 'small',
+              },
+              {
+                label: __('Medium', 'aggressive-apparel'),
+                value: 'medium',
+              },
+              {
+                label: __('Large', 'aggressive-apparel'),
+                value: 'large',
+              },
             ]}
             onChange={value =>
               setAttributes({
@@ -230,8 +241,14 @@ export default function Edit({
             label={__('Icon style', 'aggressive-apparel')}
             value={iconStyle}
             options={[
-              { label: __('Solid', 'aggressive-apparel'), value: 'solid' },
-              { label: __('Outline', 'aggressive-apparel'), value: 'outline' },
+              {
+                label: __('Solid', 'aggressive-apparel'),
+                value: 'solid',
+              },
+              {
+                label: __('Outline', 'aggressive-apparel'),
+                value: 'outline',
+              },
             ]}
             onChange={value =>
               setAttributes({
@@ -246,7 +263,9 @@ export default function Edit({
               label={__('Outline thickness', 'aggressive-apparel')}
               value={iconStrokeWidth}
               onChange={value =>
-                setAttributes({ iconStrokeWidth: value ?? 1.75 })
+                setAttributes({
+                  iconStrokeWidth: value ?? 1.75,
+                })
               }
               min={1}
               max={3}

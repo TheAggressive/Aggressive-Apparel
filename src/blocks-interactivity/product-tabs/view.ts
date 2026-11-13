@@ -104,10 +104,13 @@ function afterReveal(
  * Open or close one accordion panel via the CSS grid-rows reveal. The `open`
  * attribute drives semantics/a11y and content rendering; on collapse we keep it
  * until the transition finishes so the panel can animate before it's hidden.
+ *
+ * Resolves once the panel has reached its new size (immediately when there is
+ * nothing to animate). A move superseded by a later tap never resolves.
  */
-function setPanel(details: HTMLElement, open: boolean): void {
+function setPanel(details: HTMLElement, open: boolean): Promise<void> {
   const target = open ? 'open' : 'closed';
-  if (details.dataset.aaTarget === target) return;
+  if (details.dataset.aaTarget === target) return Promise.resolve();
   details.dataset.aaTarget = target;
 
   const reveal = getReveal(details);
@@ -117,9 +120,20 @@ function setPanel(details: HTMLElement, open: boolean): void {
     if (open) details.setAttribute('open', '');
     else details.removeAttribute('open');
     delete details.dataset.aaTarget;
-    return;
+    return Promise.resolve();
   }
 
+  return new Promise(resolve => {
+    animatePanel(details, reveal, open, resolve);
+  });
+}
+
+function animatePanel(
+  details: HTMLElement,
+  reveal: HTMLElement,
+  open: boolean,
+  settled: () => void
+): void {
   if (open) {
     details.setAttribute('open', '');
     // Force a paint at the collapsed size, then release to the open size so the
@@ -131,6 +145,7 @@ function setPanel(details: HTMLElement, open: boolean): void {
       if (details.dataset.aaTarget !== 'open') return;
       reveal.style.gridTemplateRows = '';
       delete details.dataset.aaTarget;
+      settled();
     });
   } else {
     reveal.style.gridTemplateRows = '1fr';
@@ -141,6 +156,7 @@ function setPanel(details: HTMLElement, open: boolean): void {
       details.removeAttribute('open');
       reveal.style.gridTemplateRows = '';
       delete details.dataset.aaTarget;
+      settled();
     });
   }
 }
@@ -148,11 +164,15 @@ function setPanel(details: HTMLElement, open: boolean): void {
 /**
  * Exclusive mode collapses a section above the tapped one, which pulls the
  * tapped header up. That's fine while it stays on screen; only if the collapse
- * pushes it off the top do we gently bring it back — a single scroll after the
- * transition settles, never a per-frame tug-of-war. If the reader starts
- * scrolling in that window we yield to them entirely.
+ * pushes it off the top do we gently bring it back — a single scroll once the
+ * collapses have actually finished (`settled`), never a per-frame tug-of-war
+ * and never a guess at how long they take. If the reader starts scrolling in
+ * that window we yield to them entirely.
  */
-function keepHeaderVisible(details: HTMLElement): void {
+function keepHeaderVisible(
+  details: HTMLElement,
+  settled: Promise<unknown>
+): void {
   const summary = details.querySelector('summary');
   if (!summary) return;
 
@@ -164,10 +184,7 @@ function keepHeaderVisible(details: HTMLElement): void {
   window.addEventListener('wheel', onUserScroll, options);
   window.addEventListener('touchmove', onUserScroll, options);
 
-  const reveal = getReveal(details);
-  const settleMs = (reveal ? revealDurationMs(reveal) : 250) + 30;
-
-  window.setTimeout(() => {
+  void settled.then(() => {
     window.removeEventListener('wheel', onUserScroll);
     window.removeEventListener('touchmove', onUserScroll);
     if (userScrolled) return;
@@ -177,7 +194,7 @@ function keepHeaderVisible(details: HTMLElement): void {
         behavior: prefersReducedMotion() ? 'auto' : 'smooth',
       });
     }
-  }, settleMs);
+  });
 }
 
 interface ProductTabsState {
@@ -242,19 +259,20 @@ export const productTabsStore = store<ProductTabsStore>(
         // Exclusive mode: opening one panel closes the others. Independent mode
         // (the default) leaves siblings untouched, so nothing shifts.
         const exclusive = !!root && root.hasAttribute('data-aa-exclusive');
+        const moves: Promise<void>[] = [];
         if (willOpen && exclusive && root) {
           for (const sibling of root.querySelectorAll('details')) {
             const panel = sibling as HTMLElement;
             if (panel !== details && isPanelOpen(panel)) {
-              setPanel(panel, false);
+              moves.push(setPanel(panel, false));
             }
           }
         }
 
-        setPanel(details, willOpen);
+        moves.push(setPanel(details, willOpen));
 
         if (willOpen && exclusive) {
-          keepHeaderVisible(details);
+          keepHeaderVisible(details, Promise.all(moves));
         }
       }),
 
@@ -348,7 +366,10 @@ export const productTabsStore = store<ProductTabsStore>(
         }
 
         requestAnimationFrame(() => {
-          target.scrollIntoView({ block: 'start', behavior: 'auto' });
+          target.scrollIntoView({
+            block: 'start',
+            behavior: 'auto',
+          });
         });
       },
 
@@ -364,7 +385,10 @@ export const productTabsStore = store<ProductTabsStore>(
         if (hashTarget) {
           state.activeSection = (hashTarget as HTMLElement).id;
           requestAnimationFrame(() => {
-            hashTarget.scrollIntoView({ block: 'start', behavior: 'auto' });
+            hashTarget.scrollIntoView({
+              block: 'start',
+              behavior: 'auto',
+            });
           });
         } else if (sections[0] && (sections[0] as HTMLElement).id) {
           state.activeSection = (sections[0] as HTMLElement).id;

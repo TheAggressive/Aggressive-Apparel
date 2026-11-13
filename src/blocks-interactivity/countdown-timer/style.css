@@ -122,7 +122,6 @@
 	.aggressive-apparel-countdown__segment {
 		gap: 0.08rem;
 	}
-
 }
 
 .aggressive-apparel-countdown--chips {
@@ -135,7 +134,8 @@
 
 	.aggressive-apparel-countdown__segment {
 		gap: 0.1rem;
-		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style)
+			var(--aa-countdown-border-color);
 		border-radius: var(--aa-countdown-radius);
 	}
 
@@ -156,7 +156,8 @@
 	gap: 0.45rem 0.75rem;
 	width: 100%;
 	margin: 0;
-	border-block: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border-block: var(--aa-countdown-border-width)
+		var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 }
 
 .aggressive-apparel-countdown--strip {
@@ -172,7 +173,8 @@
 	gap: 0.5rem 1rem;
 	width: 100%;
 	margin: 0.75rem 0;
-	border-block: calc(var(--aa-countdown-border-width) * 2) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border-block: calc(var(--aa-countdown-border-width) * 2)
+		var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 }
 
 .aggressive-apparel-countdown--pill {
@@ -184,13 +186,13 @@
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.35rem;
-	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style)
+		var(--aa-countdown-border-color);
 	border-radius: var(--aa-countdown-pill-radius);
 
 	.aggressive-apparel-countdown__segment {
 		gap: 0.08rem;
 	}
-
 }
 
 .aggressive-apparel-countdown--outline {
@@ -203,12 +205,14 @@
 	gap: 0;
 	width: min(100%, 34rem);
 	margin: 1rem 0;
-	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style)
+		var(--aa-countdown-border-color);
 
 	.aggressive-apparel-countdown__label {
 		grid-column: 1 / -1;
 		padding: 0.6rem 0.75rem;
-		border-bottom: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+		border-bottom: var(--aa-countdown-border-width)
+			var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 		text-align: center;
 	}
 
@@ -217,7 +221,8 @@
 		align-items: center;
 		justify-content: center;
 		min-height: 4rem;
-		border-right: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+		border-right: var(--aa-countdown-border-width)
+			var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 	}
 
 	.aggressive-apparel-countdown__segment:last-child {
@@ -256,7 +261,8 @@
 		justify-content: center;
 		min-width: 4.25rem;
 		min-height: 4rem;
-		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+		border: var(--aa-countdown-border-width) var(--aa-countdown-border-style)
+			var(--aa-countdown-border-color);
 		border-radius: var(--aa-countdown-radius);
 	}
 
@@ -283,7 +289,8 @@
 	width: min(100%, 48rem);
 	margin: 1.25rem 0;
 	padding-block: 0.75rem;
-	border-block: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border-block: var(--aa-countdown-border-width)
+		var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 
 	.aggressive-apparel-countdown__label {
 		align-self: center;
@@ -316,7 +323,8 @@
 	width: min(100%, 42rem);
 	margin: 1rem 0;
 	padding-left: 1rem;
-	border-left: calc(var(--aa-countdown-border-width) * 2) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border-left: calc(var(--aa-countdown-border-width) * 2)
+		var(--aa-countdown-border-style) var(--aa-countdown-border-color);
 
 	.aggressive-apparel-countdown__label {
 		grid-column: 1 / -1;
@@ -412,7 +420,8 @@
 
 	justify-content: center;
 	width: min(100%, 48rem);
-	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style) var(--aa-countdown-border-color);
+	border: var(--aa-countdown-border-width) var(--aa-countdown-border-style)
+		var(--aa-countdown-border-color);
 
 	.aggressive-apparel-countdown__label {
 		text-align: center;
@@ -428,7 +437,6 @@
 /* Expired state (view.ts toggles via context.isExpired): only the
    "Sale ended" label remains — zeroed segments would read as a live sale. */
 .aggressive-apparel-countdown--expired {
-
 	.aggressive-apparel-countdown__label {
 		color: currentcolor;
 	}
@@ -439,14 +447,14 @@
 }
 
 @media (width <= 600px) {
-
 	.aggressive-apparel-countdown--magazine,
 	.aggressive-apparel-countdown--hero-split {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 
 	.aggressive-apparel-countdown--magazine .aggressive-apparel-countdown__label,
-	.aggressive-apparel-countdown--hero-split .aggressive-apparel-countdown__label {
+	.aggressive-apparel-countdown--hero-split
+		.aggressive-apparel-countdown__label {
 		grid-column: 1 / -1;
 	}
 
@@ -454,8 +462,10 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	.aggressive-apparel-countdown--outline .aggressive-apparel-countdown__segment:nth-child(3),
-	.aggressive-apparel-countdown--outline .aggressive-apparel-countdown__segment:nth-child(5) {
+	.aggressive-apparel-countdown--outline
+		.aggressive-apparel-countdown__segment:nth-child(3),
+	.aggressive-apparel-countdown--outline
+		.aggressive-apparel-countdown__segment:nth-child(5) {
 		border-right: 0;
 	}
 }

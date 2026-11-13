@@ -11,7 +11,8 @@
 @import './_saved-for-later.css';
 
 /* Allow collection headings and their CTA to wrap when text is enlarged. */
-.wp-block-woocommerce-product-collection.is-style-commerce-grid > .wp-block-group.is-layout-flex {
+.wp-block-woocommerce-product-collection.is-style-commerce-grid
+	> .wp-block-group.is-layout-flex {
 	flex-wrap: wrap;
 }
 
@@ -40,7 +41,9 @@
 }
 
 .wp-block-woocommerce-product-template.is-style-commerce-cards > li,
-.wp-block-woocommerce-product-collection.is-style-commerce-grid .wp-block-woocommerce-product-template > li,
+.wp-block-woocommerce-product-collection.is-style-commerce-grid
+	.wp-block-woocommerce-product-template
+	> li,
 .is-style-commerce-cards .wc-block-grid__product {
 	padding: var(--aa-wc-product-card-padding);
 	border: 1px solid var(--aa-color-border-default);
@@ -55,9 +58,10 @@
 
 /* Hover devices only — on touch a tap leaves the card stuck lifted. */
 @media (hover: hover) and (pointer: fine) {
-
 	.wp-block-woocommerce-product-template.is-style-commerce-cards > li:hover,
-	.wp-block-woocommerce-product-collection.is-style-commerce-grid .wp-block-woocommerce-product-template > li:hover,
+	.wp-block-woocommerce-product-collection.is-style-commerce-grid
+		.wp-block-woocommerce-product-template
+		> li:hover,
 	.is-style-commerce-cards .wc-block-grid__product:hover {
 		border-color: var(--aa-color-border-input);
 		box-shadow: var(--aa-shadow-md);
@@ -73,7 +77,8 @@
 }
 
 .wp-block-woocommerce-product-image.is-style-product-frame,
-.wp-block-woocommerce-product-collection.is-style-commerce-grid .wp-block-woocommerce-product-image,
+.wp-block-woocommerce-product-collection.is-style-commerce-grid
+	.wp-block-woocommerce-product-image,
 .is-style-product-frame .wc-block-components-product-image {
 	border: 1px solid var(--aa-color-border-default);
 	box-shadow: var(--aa-shadow-sm);
@@ -101,9 +106,14 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-
-	.wp-block-woocommerce-product-template > li:hover .wp-block-post-featured-image img,
-	.wp-block-woocommerce-product-template > li:hover .wp-block-woocommerce-product-image img,
+	.wp-block-woocommerce-product-template
+		> li:hover
+		.wp-block-post-featured-image
+		img,
+	.wp-block-woocommerce-product-template
+		> li:hover
+		.wp-block-woocommerce-product-image
+		img,
 	.wc-block-grid__product:hover .wc-block-grid__product-image img {
 		transform: scale(1.03);
 	}
@@ -170,7 +180,7 @@
    every variation change) the price line collapses and the page below jumps.
    An empty inline-block keeps a line box, so the line holds its height. */
 :where(.wcpay-async-price:not(.wcpay-price-converted))::before {
-	content: "";
+	content: '';
 	display: inline-block;
 }
 
@@ -205,7 +215,8 @@
 }
 
 /* Ratings and sale/status badges. */
-.wp-block-woocommerce-product-rating .wc-block-components-product-rating__stars {
+.wp-block-woocommerce-product-rating
+	.wc-block-components-product-rating__stars {
 	color: inherit;
 }
 
@@ -213,7 +224,11 @@
 	color: var(--aa-color-warning);
 }
 
-:where(.wc-block-components-sale-badge, .wc-block-grid__product-onsale, .onsale) {
+:where(
+	.wc-block-components-sale-badge,
+	.wc-block-grid__product-onsale,
+	.onsale
+) {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -280,7 +295,6 @@
 .wp-block-woocommerce-add-to-cart-with-options,
 .wp-block-woocommerce-checkout,
 .wp-block-woocommerce-filled-mini-cart-contents-block {
-
 	.wc-block-components-quantity-selector {
 		display: inline-flex;
 		flex: 0 0 auto;
@@ -298,7 +312,8 @@
 		color: var(--aa-color-foreground);
 	}
 
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__input {
+	.wc-block-components-quantity-selector
+		.wc-block-components-quantity-selector__input {
 		order: 2;
 		width: 2.5rem;
 		padding: 0;
@@ -324,7 +339,8 @@
 		}
 	}
 
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button {
+	.wc-block-components-quantity-selector
+		.wc-block-components-quantity-selector__button {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -356,16 +372,18 @@
 		}
 	}
 
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--minus {
+	.wc-block-components-quantity-selector
+		.wc-block-components-quantity-selector__button--minus {
 		order: 1;
-    border-bottom-left-radius: var(--aa-radius-full);
-    border-top-left-radius: var(--aa-radius-full);
+		border-bottom-left-radius: var(--aa-radius-full);
+		border-top-left-radius: var(--aa-radius-full);
 	}
 
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--plus {
+	.wc-block-components-quantity-selector
+		.wc-block-components-quantity-selector__button--plus {
 		order: 3;
-    border-bottom-right-radius: var(--aa-radius-full);
-    border-top-right-radius: var(--aa-radius-full);
+		border-bottom-right-radius: var(--aa-radius-full);
+		border-top-right-radius: var(--aa-radius-full);
 	}
 }
 
@@ -381,7 +399,8 @@
 	border: 0;
 }
 
-.wp-block-add-to-cart-with-options-quantity-selector .wc-block-components-quantity-selector {
+.wp-block-add-to-cart-with-options-quantity-selector
+	.wc-block-components-quantity-selector {
 	height: auto;
 	min-height: 2.75rem;
 }
@@ -402,11 +421,15 @@
  * in WooCommerce's sticky mobile bar, which is the same button. The payment
  * note's lock is an ::after moved first (payment.css): WooCommerce draws the
  * step-number connector with the description's ::before. */
-.wp-block-woocommerce-cart .wc-block-cart__submit-button .wc-block-components-button__text::before,
+.wp-block-woocommerce-cart
+	.wc-block-cart__submit-button
+	.wc-block-components-button__text::before,
 .aa-cart-secure-note::before,
-.wp-block-woocommerce-checkout .wc-block-components-checkout-place-order-button__text::before,
-.wc-block-checkout__payment-method .wc-block-components-checkout-step__description::after {
-	content: "";
+.wp-block-woocommerce-checkout
+	.wc-block-components-checkout-place-order-button__text::before,
+.wc-block-checkout__payment-method
+	.wc-block-components-checkout-step__description::after {
+	content: '';
 	display: inline-block;
 	width: 1em;
 	height: 1em;
@@ -423,13 +446,14 @@
  * checked. WooCommerce paints a white disc and a black ::before dot with
  * unlayered (0,2,0)/(0,3,0) rules; the type selector outranks both. Size and
  * position stay WooCommerce's. */
-.wc-block-components-radio-control .wc-block-components-radio-control__input[type="radio"] {
+.wc-block-components-radio-control
+	.wc-block-components-radio-control__input[type='radio'] {
 	border: 1.5px solid var(--aa-color-foreground-muted);
 	background-color: var(--aa-field-bg);
 	cursor: pointer;
 	transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
 
-	&:hover:not(:checked, :disabled, [aria-disabled="true"]) {
+	&:hover:not(:checked, :disabled, [aria-disabled='true']) {
 		border-color: var(--aa-color-foreground);
 	}
 
@@ -463,7 +487,6 @@
 }
 
 @keyframes aa-radio-dot-in {
-
 	from {
 		scale: 0;
 	}
@@ -480,7 +503,8 @@
 
 /* WooCommerce prints each product's short description under the line item on
  * the cart and checkout. Hide it there (the mini-cart hides it in mini-cart.css). */
-:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout) .wc-block-components-product-metadata__description {
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout)
+	.wc-block-components-product-metadata__description {
 	display: none;
 }
 
@@ -488,7 +512,8 @@
  * calculated at checkout" note inherits that and reads as a warning. Set it
  * back to a quiet note — dimmed with opacity, not a colour, so it keeps the
  * summary's (editor-set) text color. */
-.wc-block-components-totals-footer-item .wc-block-components-totals-item__description {
+.wc-block-components-totals-footer-item
+	.wc-block-components-totals-item__description {
 	font-weight: 400;
 	text-transform: none;
 	letter-spacing: normal;
@@ -512,14 +537,21 @@
 }
 
 @container (min-width: 920px) {
-
-	.wp-block-woocommerce-checkout-order-summary-block .wc-block-components-checkout-order-summary__content {
+	.wp-block-woocommerce-checkout-order-summary-block
+		.wc-block-components-checkout-order-summary__content {
 		display: flex;
 		flex-direction: column;
 	}
 }
 
-:is(.wp-block-woocommerce-cart-order-summary-block, .wc-block-components-checkout-order-summary__content, .checkout-order-summary-block-fill) > .wc-block-components-totals-wrapper:has(> .wc-block-components-totals-footer-item) {
+:is(
+		.wp-block-woocommerce-cart-order-summary-block,
+		.wc-block-components-checkout-order-summary__content,
+		.checkout-order-summary-block-fill
+	)
+	> .wc-block-components-totals-wrapper:has(
+		> .wc-block-components-totals-footer-item
+	) {
 	order: 1;
 }
 
@@ -527,7 +559,14 @@
  * per-line "Save" badges show, so once it has rendered those are hidden (the
  * struck-through price still marks each sale item). Keyed on the line itself:
  * if the script never runs, the badges stay. Block-scoped :has(), not body. */
-:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout):has(.aa-cart-savings) :is(.wc-block-cart-item__total, .wc-block-components-order-summary-item__total-price) .wc-block-components-sale-badge {
+:is(.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout):has(
+		.aa-cart-savings
+	)
+	:is(
+		.wc-block-cart-item__total,
+		.wc-block-components-order-summary-item__total-price
+	)
+	.wc-block-components-sale-badge {
 	display: none;
 }
 
@@ -540,7 +579,6 @@
 
 /* Sale colour in a layer, so the editor and WooCommerce keep priority. */
 @layer aa-woocommerce {
-
 	.aa-cart-savings .wc-block-components-totals-item {
 		color: var(--aa-commerce-sale-text);
 	}
@@ -551,7 +589,6 @@
  * items or form keep the larger share. Below a 920px container WooCommerce
  * stacks the columns. */
 @container (min-width: 920px) {
-
 	:is(.wc-block-cart, .wc-block-checkout) .wc-block-components-sidebar {
 		flex-basis: clamp(360px, 44cqi, 600px);
 		width: clamp(360px, 44cqi, 600px);
@@ -574,7 +611,8 @@
  * style, reviews, product cards, mini-cart). Scoped to the parent block:
  * WooCommerce's own 5px radius on the summary block has the same specificity
  * and its stylesheet prints after ours. */
-.wp-block-woocommerce-checkout .wp-block-woocommerce-checkout-order-summary-block,
+.wp-block-woocommerce-checkout
+	.wp-block-woocommerce-checkout-order-summary-block,
 .wp-block-woocommerce-cart .wp-block-woocommerce-cart-order-summary-block {
 	border-radius: var(--aa-radius-card);
 	background-color: var(--aa-color-surface-elevated);
@@ -589,9 +627,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.wp-block-woocommerce-product-template.is-style-commerce-cards > li,
-	.wp-block-woocommerce-product-collection.is-style-commerce-grid .wp-block-woocommerce-product-template > li,
+	.wp-block-woocommerce-product-collection.is-style-commerce-grid
+		.wp-block-woocommerce-product-template
+		> li,
 	.is-style-commerce-cards .wc-block-grid__product,
 	.wp-block-woocommerce-product-image img,
 	.wc-block-components-product-image img,
@@ -605,12 +644,17 @@
 	}
 
 	.wp-block-woocommerce-product-template.is-style-commerce-cards > li:hover,
-	.wp-block-woocommerce-product-collection.is-style-commerce-grid .wp-block-woocommerce-product-template > li:hover,
+	.wp-block-woocommerce-product-collection.is-style-commerce-grid
+		.wp-block-woocommerce-product-template
+		> li:hover,
 	.is-style-commerce-cards .wc-block-grid__product:hover {
 		transform: none;
 	}
 
-	.wp-block-woocommerce-product-template > li:hover .wp-block-woocommerce-product-image img,
+	.wp-block-woocommerce-product-template
+		> li:hover
+		.wp-block-woocommerce-product-image
+		img,
 	.wc-block-grid__product:hover .wc-block-grid__product-image img {
 		transform: none;
 	}
@@ -621,7 +665,6 @@
 /* Narrow slot (< 200px) — hide non-essential meta, tighten spacing.
    Handles sidebar placements and very small grid columns. */
 @container product-card (width < 200px) {
-
 	.wp-block-woocommerce-product-rating,
 	.wc-block-components-product-rating {
 		display: none;
@@ -635,7 +678,6 @@
 
 /* Standard slot (200–320px) — compact button, tighter price. */
 @container product-card (200px <= width < 320px) {
-
 	.wp-block-woocommerce-product-button .wp-block-button__link,
 	.wc-block-grid__product-add-to-cart .wp-block-button__link {
 		padding-block: var(--wp--preset--spacing--2);
@@ -645,7 +687,6 @@
 
 /* Wide slot (>= 320px) — full padding and type scale. */
 @container product-card (width >= 320px) {
-
 	.wp-block-woocommerce-product-button .wp-block-button__link,
 	.wc-block-grid__product-add-to-cart .wp-block-button__link {
 		width: 100%;

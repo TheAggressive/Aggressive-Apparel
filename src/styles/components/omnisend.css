@@ -54,7 +54,6 @@
  * then sits in the space below the form; keep at least ~40px clear there.
  */
 @media (width > 600px) {
-
 	[id^='omnisend-embedded-v2-'] [class*='-content-inner'] {
 		overflow: visible;
 	}

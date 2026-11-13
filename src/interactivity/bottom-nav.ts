@@ -195,7 +195,9 @@ const { state, actions } = store<BottomNavStore>(
             });
           };
 
-          window.addEventListener('scroll', onScroll, { passive: true });
+          window.addEventListener('scroll', onScroll, {
+            passive: true,
+          });
         }
 
         // Cart count sync. The server-rendered count is baked into the

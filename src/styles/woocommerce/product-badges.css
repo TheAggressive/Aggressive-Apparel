@@ -101,7 +101,8 @@
 .aggressive-apparel-product-badge--custom {
 	background: var(--badge-bg, var(--aa-color-foreground));
 	color: var(--badge-text, var(--aa-color-surface));
-	border: var(--badge-border-width, 0) var(--badge-border-style, none) var(--badge-border-color, transparent);
+	border: var(--badge-border-width, 0) var(--badge-border-style, none)
+		var(--badge-border-color, transparent);
 	border-radius: var(--badge-radius, 0.25rem);
 	padding: var(--badge-padding, 0.2em 0.6em);
 	box-shadow: var(--badge-shadow, none);
@@ -113,7 +114,6 @@
  * cards, studio stage) do not clip the outer ring.
  */
 .aggressive-apparel-product-badge--layered {
-
 	&::before {
 		content: '';
 		position: absolute;
@@ -131,7 +131,6 @@
 }
 
 .aggressive-apparel-product-badge--shaped {
-
 	/* Silhouette edges eat into the box — pad content into the well. */
 	--badge-shape-inset-x: 0.65em;
 	--badge-shape-inset-y: 0.4em;
@@ -159,7 +158,6 @@
 }
 
 .aggressive-apparel-product-badge--shape-burst {
-
 	/* Lock to the path's 100×40 design so long labels don't squash spikes. */
 	--badge-shape-inset-x: 1.15em;
 	--badge-shape-inset-y: 0.7em;
@@ -180,7 +178,8 @@
 	--badge-shape-inset-x: 0.7em;
 	--badge-shape-inset-y: 0.35em;
 
-	padding-inline: calc(var(--badge-pad-x, 8px) + 0.95em) calc(var(--badge-pad-x, 8px) + 1.15em);
+	padding-inline: calc(var(--badge-pad-x, 8px) + 0.95em)
+		calc(var(--badge-pad-x, 8px) + 1.15em);
 }
 
 .aggressive-apparel-product-badge--shape-stamp-circle {
@@ -215,7 +214,8 @@
 	backdrop-filter: blur(var(--badge-glass-blur, 12px)) saturate(1.35);
 }
 
-.aggressive-apparel-product-badge--icon-only .aggressive-apparel-product-badge__content {
+.aggressive-apparel-product-badge--icon-only
+	.aggressive-apparel-product-badge__content {
 	gap: 0;
 }
 
@@ -255,7 +255,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-product-badge--glass {
 		backdrop-filter: none;
 	}
@@ -265,7 +264,6 @@
    the per-product limit are marked server-side; `zoom` scales a badge's own
    inline sizes without a transform (which would break glass blur). */
 @media (width < 600px) {
-
 	.aggressive-apparel-product-badge--hide-small {
 		display: none;
 	}

@@ -58,7 +58,7 @@
 
 	/* Caret pointing down toward the track. */
 	&::after {
-		content: "";
+		content: '';
 		position: absolute;
 		bottom: -3px;
 		left: 50%;
@@ -71,15 +71,15 @@
 
 .aa-product-filters__price-tooltip--min {
 	left: calc(
-		var(--pf-slider-thumb) / 2
-		+ var(--pf-min-pct) / 100 * (100% - var(--pf-slider-thumb))
+		var(--pf-slider-thumb) / 2 + var(--pf-min-pct) / 100 *
+			(100% - var(--pf-slider-thumb))
 	);
 }
 
 .aa-product-filters__price-tooltip--max {
 	left: calc(
-		var(--pf-slider-thumb) / 2
-		+ var(--pf-max-pct) / 100 * (100% - var(--pf-slider-thumb))
+		var(--pf-slider-thumb) / 2 + var(--pf-max-pct) / 100 *
+			(100% - var(--pf-slider-thumb))
 	);
 }
 
@@ -175,7 +175,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-product-filters__price-tooltip {
 		transition: none;
 	}

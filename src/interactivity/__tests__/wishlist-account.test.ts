@@ -19,7 +19,9 @@ function reply(body: unknown, status = 200, nonce = 'fresh'): Response {
   return {
     status,
     ok: status >= 200 && status < 300,
-    headers: { get: (name: string) => (name === 'Nonce' ? nonce : null) },
+    headers: {
+      get: (name: string) => (name === 'Nonce' ? nonce : null),
+    },
     json: async () => body,
   } as Response;
 }

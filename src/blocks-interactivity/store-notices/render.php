@@ -194,8 +194,8 @@ $aa_wrapper = get_block_wrapper_attributes(
 	 * toasts carry no live role themselves, which avoids double announcements.
 	 */
 	?>
-	<div class="aa-notices__sr" aria-live="polite" data-aa-live="polite"></div>
-	<div class="aa-notices__sr" aria-live="assertive" data-aa-live="assertive"></div>
+	<div class="aa-notices__sr screen-reader-text" aria-live="polite" data-aa-live="polite"></div>
+	<div class="aa-notices__sr screen-reader-text" aria-live="assertive" data-aa-live="assertive"></div>
 	<template
 		data-wp-each--notice="context.notices"
 		data-wp-each-key="context.notice.id"

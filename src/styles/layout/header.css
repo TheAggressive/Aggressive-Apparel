@@ -4,63 +4,62 @@
  * @package Aggressive_Apparel
  */
 .site-header__customer-links
-  .wp-block-woocommerce-customer-account
-  .wc-block-customer-account__account-icon {
-  transition: color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
+	.wp-block-woocommerce-customer-account
+	.wc-block-customer-account__account-icon {
+	transition: color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
 }
 
 .site-header__customer-links
-  .wp-block-woocommerce-customer-account
-  .wc-block-customer-account__link:is(:hover, :focus-visible)
-  .wc-block-customer-account__account-icon {
-  color: var(--aa-color-accent);
+	.wp-block-woocommerce-customer-account
+	.wc-block-customer-account__link:is(:hover, :focus-visible)
+	.wc-block-customer-account__account-icon {
+	color: var(--aa-color-accent);
 }
 
 @media (width <= 1000px) {
+	/* Enlarged text can make the three header items wider than one row. */
+	.site-header.is-layout-flex {
+		flex-wrap: wrap;
+	}
 
-    /* Enlarged text can make the three header items wider than one row. */
-    .site-header.is-layout-flex {
-        flex-wrap: wrap;
-    }
+	/* 2. Give all items equal width so the logo stays perfectly centered */
+	.site-header > * {
+		flex: 1;
+	}
 
-    /* 2. Give all items equal width so the logo stays perfectly centered */
-    .site-header > * {
-        flex: 1;
-    }
+	/* 3. Reorder: Cart (customer-links) to the far left */
+	.site-header__customer-links {
+		order: 1;
+		display: flex;
+		justify-content: flex-start !important;
 
-    /* 3. Reorder: Cart (customer-links) to the far left */
-    .site-header__customer-links {
-        order: 1;
-        display: flex;
-        justify-content: flex-start !important;
+		.wc-block-mini-cart__button .wc-block-mini-cart__icon {
+			width: 32px;
+			height: 32px;
+		}
 
-        .wc-block-mini-cart__button .wc-block-mini-cart__icon {
-          width: 32px;
-          height: 32px;
-        }
+		.wc-block-mini-cart__quantity-badge {
+			width: 32px;
+			height: 32px;
+		}
 
-        .wc-block-mini-cart__quantity-badge {
-          width: 32px;
-          height: 32px;
-        }
+		.wc-block-mini-cart__badge {
+			top: 0.35rem;
+			left: 2rem;
+		}
+	}
 
-        .wc-block-mini-cart__badge {
-          top: 0.35rem;
-          left: 2rem;
-        }
-    }
+	/* 4. Reorder: Logo to the center */
+	.site-header__aggressive-logo {
+		order: 2;
+		display: flex;
+		justify-content: center !important;
+	}
 
-    /* 4. Reorder: Logo to the center */
-    .site-header__aggressive-logo {
-        order: 2;
-        display: flex;
-        justify-content: center !important;
-    }
-
-    /* 5. Reorder: Menu to the far right */
-    .site-header__main-nav {
-        order: 3;
-        display: flex;
-        justify-content: flex-end !important;
-    }
+	/* 5. Reorder: Menu to the far right */
+	.site-header__main-nav {
+		order: 3;
+		display: flex;
+		justify-content: flex-end !important;
+	}
 }

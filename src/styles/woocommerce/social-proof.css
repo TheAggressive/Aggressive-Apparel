@@ -31,7 +31,6 @@
 }
 
 .aggressive-apparel-social-proof__link {
-
 	&:focus-visible {
 		outline: 2px solid currentcolor;
 		outline-offset: 2px;
@@ -57,14 +56,20 @@
 	visibility: hidden;
 	transform: translateY(20px);
 	opacity: 0;
-	transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
+	transition:
+		transform 0.3s ease,
+		opacity 0.3s ease,
+		visibility 0s linear 0.3s;
 
 	&.is-visible {
 		transform: translateY(0);
 		opacity: 1;
 		pointer-events: auto;
 		visibility: visible;
-		transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s;
+		transition:
+			transform 0.3s ease,
+			opacity 0.3s ease,
+			visibility 0s;
 	}
 
 	&[hidden] {
@@ -214,7 +219,6 @@
 }
 
 @media (width <= 480px) {
-
 	.aggressive-apparel-social-proof {
 		left: 0.75rem;
 		right: 0.75rem;
@@ -235,7 +239,6 @@
  * ----------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-social-proof {
 		transition: none;
 	}
@@ -253,16 +256,21 @@ body.aa-sticky-cart-visible .aggressive-apparel-social-proof {
 }
 
 body.has-bottom-nav.aa-sticky-cart-visible .aggressive-apparel-social-proof {
-	bottom: calc(1.5rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 6rem));
+	bottom: calc(
+		1.5rem + var(--aa-bottom-nav-height, 0px) +
+			var(--aa-sticky-cart-height, 6rem)
+	);
 }
 
 @media (width <= 480px) {
-
 	body.aa-sticky-cart-visible .aggressive-apparel-social-proof {
 		bottom: calc(0.75rem + var(--aa-sticky-cart-height, 6rem));
 	}
 
 	body.has-bottom-nav.aa-sticky-cart-visible .aggressive-apparel-social-proof {
-		bottom: calc(0.75rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 6rem));
+		bottom: calc(
+			0.75rem + var(--aa-bottom-nav-height, 0px) +
+				var(--aa-sticky-cart-height, 6rem)
+		);
 	}
 }

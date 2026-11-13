@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,13 +32,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * The store's product categories, per request.
  */
 final class Product_Categories {
-
-	/**
-	 * What's been read, and when terms last changed when it was.
-	 *
-	 * @var array{changed: string, terms: array<int, \WP_Term>, labels: array<int, string>, paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>}|null
-	 */
-	private static ?array $read = null;
 
 	/**
 	 * Every category, by name.
@@ -103,8 +98,14 @@ final class Product_Categories {
 	 */
 	private static function read(): array {
 		$changed = (string) wp_cache_get_last_changed( 'terms' );
-		if ( null !== self::$read && $changed === self::$read['changed'] ) {
-			return self::$read;
+		$read    = Request_Cache::get( 'product-categories:read' );
+		if ( is_array( $read ) && $changed === $read['changed'] ) {
+			/**
+			 * What read() stored for this request.
+			 *
+			 * @var array{changed: string, terms: array<int, \WP_Term>, labels: array<int, string>, paths: array<int, string>, ids: array<string, int>, guides: array<int, list<int>>} $read
+			 */
+			return $read;
 		}
 
 		$found = get_terms(
@@ -143,7 +144,7 @@ final class Product_Categories {
 			}
 		}
 
-		self::$read = array(
+		$read = array(
 			'changed' => $changed,
 			'terms'   => $terms,
 			'labels'  => $labels,
@@ -151,7 +152,8 @@ final class Product_Categories {
 			'ids'     => array_flip( $paths ),
 			'guides'  => $guides,
 		);
+		Request_Cache::set( 'product-categories:read', $read );
 
-		return self::$read;
+		return $read;
 	}
 }

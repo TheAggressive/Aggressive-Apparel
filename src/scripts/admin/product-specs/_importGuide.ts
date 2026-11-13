@@ -238,7 +238,10 @@ export function guideRequest({
           return { key: fact.key, target: target || 'skip' };
         }
         const attr = created[fact.key];
-        return { key: fact.key, target: attr ? savedKey(made, attr) : '' };
+        return {
+          key: fact.key,
+          target: attr ? savedKey(made, attr) : '',
+        };
       }),
     },
     used,

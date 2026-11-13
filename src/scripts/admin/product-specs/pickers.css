@@ -239,7 +239,7 @@
 }
 
 .aa-ps-scale.is-centered .aa-ps-scale__track::after {
-	content: "";
+	content: '';
 	position: absolute;
 	inset-block: -4px;
 	left: 50%;

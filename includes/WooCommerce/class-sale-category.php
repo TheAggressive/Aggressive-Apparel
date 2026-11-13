@@ -44,12 +44,6 @@ class Sale_Category {
 	/** One-time reconciliation version. */
 	private const SYNC_VERSION_OPTION = 'aggressive_apparel_sale_category_sync_version';
 
-	/** Reconciliation lock state. */
-	private const LOCK_OPTION = 'aggressive_apparel_sale_category_reconcile_lock';
-
-	/** Reconciliation progress and health state. */
-	private const STATUS_OPTION = 'aggressive_apparel_sale_category_status';
-
 	/** Current reconciliation version. */
 	private const SYNC_VERSION = '2';
 
@@ -61,9 +55,6 @@ class Sale_Category {
 
 	/** Maximum worker retry count. */
 	private const MAX_RETRIES = 3;
-
-	/** Reconciliation lock lifetime (six hours). */
-	private const LOCK_TTL = 21600;
 
 	/**
 	 * Product IDs queued during the current request.
@@ -85,6 +76,20 @@ class Sale_Category {
 	 * @var int|null
 	 */
 	private ?int $term_id = null;
+
+	/**
+	 * Rebuild lock and status bookkeeping.
+	 *
+	 * @var Sale_Category_Run
+	 */
+	private Sale_Category_Run $run;
+
+	/**
+	 * Set up collaborators.
+	 */
+	public function __construct() {
+		$this->run = new Sale_Category_Run();
+	}
 
 	/**
 	 * Register lifecycle hooks.
@@ -304,35 +309,14 @@ class Sale_Category {
 	 * @return bool Whether a new repair run was scheduled.
 	 */
 	public function schedule_reconciliation(): bool {
-		if ( ! $this->ensure_category() || $this->has_active_lock() ) {
+		if ( ! $this->ensure_category() || $this->run->is_active() ) {
 			return false;
 		}
 
-		$token = wp_generate_uuid4();
-		$lock  = array(
-			'token'      => $token,
-			'expires_at' => time() + self::LOCK_TTL,
-		);
-
-		if ( ! add_option( self::LOCK_OPTION, $lock, '', false ) ) {
+		$token = $this->run->start();
+		if ( null === $token ) {
 			return false;
 		}
-
-		update_option(
-			self::STATUS_OPTION,
-			array(
-				'state'      => 'scheduled',
-				'token'      => $token,
-				'started_at' => time(),
-				'updated_at' => time(),
-				'cursor'     => 0,
-				'checked'    => 0,
-				'changed'    => 0,
-				'failed'     => 0,
-				'last_error' => '',
-			),
-			false
-		);
 
 		if ( $this->enqueue_action( self::RECONCILE_BATCH_HOOK, array( 0, $token, 0 ), 0, true ) ) {
 			return true;
@@ -352,11 +336,11 @@ class Sale_Category {
 	 * @return void
 	 */
 	public function process_reconciliation_batch( int $cursor, string $token, int $attempt = 0 ): void {
-		if ( ! $this->owns_lock( $token ) ) {
+		if ( ! $this->run->owns( $token ) ) {
 			return;
 		}
 
-		$this->refresh_lock( $token );
+		$this->run->refresh( $token );
 
 		try {
 			$product_ids = $this->get_product_batch_after( $cursor );
@@ -373,22 +357,7 @@ class Sale_Category {
 				);
 			}
 
-			$status = $this->get_status();
-			update_option(
-				self::STATUS_OPTION,
-				array_merge(
-					$status,
-					array(
-						'state'      => 'running',
-						'updated_at' => time(),
-						'cursor'     => $next_cursor,
-						'checked'    => (int) ( $status['checked'] ?? 0 ) + count( $product_ids ),
-						'changed'    => (int) ( $status['changed'] ?? 0 ) + $result['changed'],
-						'failed'     => (int) ( $status['failed'] ?? 0 ) + count( $result['failed_ids'] ),
-					)
-				),
-				false
-			);
+			$this->run->record_batch( $next_cursor, count( $product_ids ), $result['changed'], count( $result['failed_ids'] ) );
 
 			if ( count( $product_ids ) < self::RECONCILE_BATCH_SIZE ) {
 				$this->finish_reconciliation( $token, 'complete' );
@@ -442,7 +411,7 @@ class Sale_Category {
 		$tools['aggressive_apparel_reconcile_sale_category'] = array(
 			'name'     => __( 'Sales category membership', 'aggressive-apparel' ),
 			'button'   => __( 'Schedule rebuild', 'aggressive-apparel' ),
-			'desc'     => __( 'Schedules a batched rebuild of the managed Sales category.', 'aggressive-apparel' ) . ' ' . $this->get_health_summary(),
+			'desc'     => __( 'Schedules a batched rebuild of the managed Sales category.', 'aggressive-apparel' ) . ' ' . $this->run->health_summary(),
 			'callback' => array( $this, 'run_debug_tool' ),
 		);
 
@@ -474,7 +443,7 @@ class Sale_Category {
 
 		wp_clear_scheduled_hook( self::PRODUCT_BATCH_HOOK );
 		wp_clear_scheduled_hook( self::RECONCILE_BATCH_HOOK );
-		delete_option( self::LOCK_OPTION );
+		$this->run->release();
 	}
 
 	/**
@@ -637,52 +606,6 @@ class Sale_Category {
 	}
 
 	/**
-	 * Determine whether an unexpired reconciliation owns the lock.
-	 *
-	 * @return bool Whether a repair is active.
-	 */
-	private function has_active_lock(): bool {
-		$lock = get_option( self::LOCK_OPTION );
-		if ( is_array( $lock ) && (int) ( $lock['expires_at'] ?? 0 ) > time() ) {
-			return true;
-		}
-
-		delete_option( self::LOCK_OPTION );
-		return false;
-	}
-
-	/**
-	 * Check lock ownership.
-	 *
-	 * @param string $token Run token.
-	 * @return bool Whether this worker owns the lock.
-	 */
-	private function owns_lock( string $token ): bool {
-		$lock = get_option( self::LOCK_OPTION );
-
-		return is_array( $lock )
-			&& hash_equals( (string) ( $lock['token'] ?? '' ), $token )
-			&& (int) ( $lock['expires_at'] ?? 0 ) > time();
-	}
-
-	/**
-	 * Refresh the reconciliation lock.
-	 *
-	 * @param string $token Run token.
-	 * @return void
-	 */
-	private function refresh_lock( string $token ): void {
-		update_option(
-			self::LOCK_OPTION,
-			array(
-				'token'      => $token,
-				'expires_at' => time() + self::LOCK_TTL,
-			),
-			false
-		);
-	}
-
-	/**
 	 * Handle a failed reconciliation batch with exponential retry.
 	 *
 	 * @param int        $cursor    Last successful cursor.
@@ -720,60 +643,9 @@ class Sale_Category {
 	 * @return void
 	 */
 	private function finish_reconciliation( string $token, string $state, string $error = '' ): void {
-		if ( ! $this->owns_lock( $token ) ) {
-			return;
-		}
-
-		$status = $this->get_status();
-		update_option(
-			self::STATUS_OPTION,
-			array_merge(
-				$status,
-				array(
-					'state'        => $state,
-					'updated_at'   => time(),
-					'completed_at' => time(),
-					'last_error'   => $error,
-				)
-			),
-			false
-		);
-
-		delete_option( self::LOCK_OPTION );
-
-		if ( 'complete' === $state ) {
+		if ( $this->run->finish( $token, $state, $error ) && 'complete' === $state ) {
 			update_option( self::SYNC_VERSION_OPTION, self::SYNC_VERSION, false );
 		}
-	}
-
-	/**
-	 * Get reconciliation status.
-	 *
-	 * @return array<string, mixed> Status data.
-	 */
-	private function get_status(): array {
-		$status = get_option( self::STATUS_OPTION, array() );
-
-		return is_array( $status ) ? $status : array();
-	}
-
-	/**
-	 * Human-readable health summary for WooCommerce Status > Tools.
-	 *
-	 * @return string Escaped status summary.
-	 */
-	private function get_health_summary(): string {
-		$status = $this->get_status();
-		if ( empty( $status ) ) {
-			return esc_html__( 'No rebuild has completed yet.', 'aggressive-apparel' );
-		}
-
-		$state   = sanitize_text_field( (string) ( $status['state'] ?? 'unknown' ) );
-		$checked = absint( $status['checked'] ?? 0 );
-		$changed = absint( $status['changed'] ?? 0 );
-
-		/* translators: 1: worker state, 2: products checked, 3: assignments changed. */
-		return esc_html( sprintf( __( 'Last state: %1$s. Checked: %2$d; changed: %3$d.', 'aggressive-apparel' ), $state, $checked, $changed ) );
 	}
 
 	/**

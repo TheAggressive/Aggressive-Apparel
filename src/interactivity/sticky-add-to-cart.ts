@@ -283,7 +283,10 @@ export const { state, actions } = store<StickyCartStore>(
         const wasDrawerOpen = state.isDrawerOpen;
 
         // Build the request body.
-        const body: CartAddBody = { id: itemId, quantity: state.quantity };
+        const body: CartAddBody = {
+          id: itemId,
+          quantity: state.quantity,
+        };
 
         // For variable products, include variation attributes so the
         // Store API can validate the selection.
@@ -375,7 +378,10 @@ export const { state, actions } = store<StickyCartStore>(
         state.isBuyingNow = true;
         state.hasError = false;
 
-        const body: CartAddBody = { id: itemId, quantity: state.quantity };
+        const body: CartAddBody = {
+          id: itemId,
+          quantity: state.quantity,
+        };
 
         if (state.productType === 'variable' && state.matchedVariationId) {
           body.variation = buildSelectedVariationPayload();
@@ -594,7 +600,9 @@ export const { state, actions } = store<StickyCartStore>(
         if (!attrName || !clickedValue) return;
 
         // Toggle: clicking the same option deselects it.
-        const newAttrs: Record<string, string> = { ...state.selectedAttrs };
+        const newAttrs: Record<string, string> = {
+          ...state.selectedAttrs,
+        };
         if (newAttrs[attrName] === clickedValue) {
           delete newAttrs[attrName];
         } else {

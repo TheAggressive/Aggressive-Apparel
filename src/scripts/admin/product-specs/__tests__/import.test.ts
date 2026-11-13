@@ -16,7 +16,10 @@ const attribute = (patch: Partial<ImportAttribute>): ImportAttribute => ({
 /* Mirrors Printful_Import::value_for() in PHP. */
 describe('valueFor', () => {
   it('reads g/m² from ounces or metric', () => {
-    const weight = { ...blankItem('number', ['Light', 'Heavy']), unit: 'g/m²' };
+    const weight = {
+      ...blankItem('number', ['Light', 'Heavy']),
+      unit: 'g/m²',
+    };
     expect(valueFor(weight, 'Fabric weight: 4.2 oz./yd.² (142 g/m²)')).toBe(
       '142'
     );
@@ -24,7 +27,9 @@ describe('valueFor', () => {
   });
 
   it('finds the step a line names', () => {
-    const fit = { ...blankItem('pick', ['Slim', 'Regular', 'Relaxed']) };
+    const fit = {
+      ...blankItem('pick', ['Slim', 'Regular', 'Relaxed']),
+    };
     expect(valueFor(fit, 'Relaxed fit for comfort')).toBe('2');
     expect(valueFor(fit, 'Pre-shrunk')).toBe('');
   });

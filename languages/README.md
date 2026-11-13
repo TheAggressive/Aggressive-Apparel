@@ -158,7 +158,7 @@ unconditionally, so a wrong filename looks exactly like success while every
 string falls through to English. The POT was current, the catalogs were valid
 and the placeholders matched the whole time.
 
-`tests/Integration/TestTranslationLoading.php` now asserts on `__()` output
+`tests/Integration/class-test-translation-loading.php` now asserts on `__()` output
 per locale. Verify translations that way — never from the return value of
 `load_theme_textdomain()`.
 

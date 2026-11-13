@@ -37,6 +37,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -45,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Holds store edits against Printful syncs.
  *
- * @phpstan-type Kept array<int, array<string, string>>
+ * @phpstan-type Kept array<string, string>
  */
 final class Printful_Sync_Guard {
 
@@ -106,13 +108,6 @@ final class Printful_Sync_Guard {
 	);
 
 	/**
-	 * Fields kept in this request, by product ID, until the save finishes.
-	 *
-	 * @var Kept
-	 */
-	private static array $kept = array();
-
-	/**
 	 * Register hooks.
 	 */
 	public function init(): void {
@@ -170,7 +165,8 @@ final class Printful_Sync_Guard {
 			$product->set_attributes( self::merged_attributes( $product->get_attributes(), $current->get_attributes(), $kept ) );
 		}
 
-		self::$kept[ $product->get_id() ] = $kept;
+		// Held for record_sync() until the save finishes.
+		Request_Cache::set( 'printful-sync-guard:kept:' . $product->get_id(), $kept );
 
 		return $product;
 	}
@@ -193,8 +189,13 @@ final class Printful_Sync_Guard {
 			return;
 		}
 
-		$kept = self::$kept[ $id ] ?? array();
-		unset( self::$kept[ $id ] );
+		/**
+		 * Fields hold_edits() kept for this product.
+		 *
+		 * @var Kept $kept
+		 */
+		$kept = Request_Cache::get( 'printful-sync-guard:kept:' . $id, array() );
+		Request_Cache::forget( 'printful-sync-guard:kept:' . $id );
 
 		// A new product is all Printful's, whatever the request happened to name.
 		$named  = $creating ? self::fields( $saved ) : self::named_fields( $saved, $request );

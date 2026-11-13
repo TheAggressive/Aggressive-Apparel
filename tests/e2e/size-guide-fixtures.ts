@@ -352,10 +352,10 @@ export function createSizeGuideFixture(
 ): SizeGuideFixture {
   try {
     const beginOutput = wpCli(['eval', BEGIN_TRANSACTION_PHP]);
-    const beginResult = parseResponse<{ ready?: boolean; error?: string }>(
-      beginOutput,
-      'Size Guide fixture transaction'
-    );
+    const beginResult = parseResponse<{
+      ready?: boolean;
+      error?: string;
+    }>(beginOutput, 'Size Guide fixture transaction');
 
     if (beginResult.error || !beginResult.ready) {
       throw new Error(

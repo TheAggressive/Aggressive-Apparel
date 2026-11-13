@@ -1,0 +1,67 @@
+<?php
+/**
+ * Search content-leakage test.
+ *
+ * The public search endpoint must never surface unpublished content. The
+ * enforcement is layered (the index, a post_status=publish query, and a
+ * post-hydration is_searchable_post recheck); this asserts the observable
+ * result: a draft sharing a search term with a published post is never
+ * returned.
+ *
+ * @package Aggressive_Apparel
+ */
+
+namespace Aggressive_Apparel\Tests\Security;
+
+use Aggressive_Apparel\Core\Search_Index;
+use Aggressive_Apparel\Core\Search_Results;
+use ReflectionClass;
+use WP_UnitTestCase;
+
+/**
+ * Search leakage test case.
+ */
+class Test_Search_Leakage extends WP_UnitTestCase {
+
+	/**
+	 * Search over an index containing a published and a draft post must return
+	 * only the published one.
+	 */
+	public function test_search_never_returns_unpublished_posts(): void {
+		$index = new Search_Index();
+		$index->maybe_install();
+
+		// A real index build runs asynchronously via Action Scheduler, which the
+		// unit environment does not execute. Flip the "ready" flag directly;
+		// option name/version are read via reflection to avoid magic strings.
+		$ref = new ReflectionClass( Search_Index::class );
+		update_option( (string) $ref->getConstant( 'INDEX_OPTION' ), $ref->getConstant( 'INDEX_VERSION' ), false );
+
+		$this->assertTrue( $index->is_ready(), 'The search index table must exist for the leakage checks to mean anything.' );
+
+		$token     = 'zzsearchleaktoken';
+		$published = self::factory()->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => "Alpha {$token} widget",
+			)
+		);
+		$draft     = self::factory()->post->create(
+			array(
+				'post_status' => 'draft',
+				'post_title'  => "Beta {$token} widget",
+			)
+		);
+
+		$index->sync_ids( array( $published, $draft ) );
+
+		$items = ( new Search_Results( $index ) )->posts( $token );
+		$ids   = array_map( static fn( array $item ): int => (int) $item['id'], $items );
+
+		// Control: the published post must be found, or "the draft is absent"
+		// would prove nothing about leakage.
+		$this->assertContains( $published, $ids, 'The published control post must be searchable.' );
+
+		$this->assertNotContains( $draft, $ids, 'Search returned an unpublished (draft) post — content leak.' );
+	}
+}

@@ -17,7 +17,10 @@ const fit: SpecItem = {
 describe('recordEdit and edited', () => {
   it('lays only the fields changed over the latest saved spec', () => {
     const edits = recordEdit({}, fit, { unit: 'cm' });
-    const renamedElsewhere = { ...fit, steps: ['Snug', 'Classic', 'Relaxed'] };
+    const renamedElsewhere = {
+      ...fit,
+      steps: ['Snug', 'Classic', 'Relaxed'],
+    };
 
     expect(edited(renamedElsewhere, edits)).toEqual({
       ...renamedElsewhere,
@@ -38,7 +41,10 @@ describe('recordEdit and edited', () => {
       unit: 'in',
     });
 
-    expect(edits.fit).toEqual({ patch: { unit: 'in' }, base: { unit: '' } });
+    expect(edits.fit).toEqual({
+      patch: { unit: 'in' },
+      base: { unit: '' },
+    });
   });
 });
 

@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * verdict — WC_Shipping_Free_Shipping::is_available(), including its filters
  * and anything multi-currency plugins change — never a re-implementation.
  * Only the *progress amount* (threshold and qualifying subtotal) is derived
- * here, and TestFreeShipping's parity cases pin it to WooCommerce's verdict so
+ * here, and Test_Free_Shipping's parity cases pin it to WooCommerce's verdict so
  * a behaviour change in a WooCommerce release fails CI instead of drifting.
  */
 final class Free_Shipping_Rules {
@@ -34,26 +36,23 @@ final class Free_Shipping_Rules {
 	private const MIN_AMOUNT_REQUIREMENTS = array( 'min_amount', 'either', 'both' );
 
 	/**
-	 * Request-local memo of each zone's enabled free-shipping methods, keyed by "zone id|currency".
-	 *
-	 * @var array<string, list<\WC_Shipping_Method>>
-	 */
-	private static array $zone_methods = array();
-
-	/**
-	 * Diagnostics already logged this request.
-	 *
-	 * @var array<string, true>
-	 */
-	private static array $logged = array();
-
-	/**
 	 * Drop request-local memos.
 	 *
 	 * @return void
 	 */
 	public static function flush(): void {
-		self::$zone_methods = array();
+		Request_Cache::set( 'free-shipping-rules:generation', (int) Request_Cache::get( 'free-shipping-rules:generation', 0 ) + 1 );
+	}
+
+	/**
+	 * Request-cache key for zone-method memos; flush() bumps the generation,
+	 * which drops them all at once.
+	 *
+	 * @param string $part Key suffix.
+	 * @return string
+	 */
+	private static function key( string $part ): string {
+		return 'free-shipping-rules:' . (int) Request_Cache::get( 'free-shipping-rules:generation', 0 ) . ':' . $part;
 	}
 
 	/**
@@ -277,16 +276,15 @@ final class Free_Shipping_Rules {
 		$currency = function_exists( 'get_woocommerce_currency' ) ? \get_woocommerce_currency() : '';
 		$memo_key = $zone->get_id() . '|' . $currency;
 
-		if ( ! isset( self::$zone_methods[ $memo_key ] ) ) {
-			self::$zone_methods[ $memo_key ] = array_values(
+		return Request_Cache::remember(
+			self::key( 'zone-methods:' . $memo_key ),
+			static fn(): array => array_values(
 				array_filter(
 					$zone->get_shipping_methods( true ),
 					static fn( $method ): bool => 'free_shipping' === $method->id
 				)
-			);
-		}
-
-		return self::$zone_methods[ $memo_key ];
+			)
+		);
 	}
 
 	/**
@@ -456,11 +454,11 @@ final class Free_Shipping_Rules {
 	 * @return void
 	 */
 	private static function log_once( string $key, string $message ): void {
-		if ( isset( self::$logged[ $key ] ) ) {
+		if ( Request_Cache::get( 'free-shipping-rules:logged:' . $key, false ) ) {
 			return;
 		}
 
-		self::$logged[ $key ] = true;
+		Request_Cache::set( 'free-shipping-rules:logged:' . $key, true );
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			aggressive_apparel_debug_log( $message );
 		}

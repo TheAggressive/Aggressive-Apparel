@@ -27,7 +27,8 @@
 .aa-product-specs__scale {
 	display: grid;
 	grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
-	gap: var(--wp--preset--spacing--2-5, 0.625rem) var(--wp--preset--spacing--8, 2rem);
+	gap: var(--wp--preset--spacing--2-5, 0.625rem)
+		var(--wp--preset--spacing--8, 2rem);
 	padding-block: var(--wp--preset--spacing--5, 1.25rem);
 	border-bottom: 1px solid var(--aa-product-specs-track);
 }
@@ -90,7 +91,7 @@
 
 /* Centered scales (fit): a tick marks the "true to size" middle. */
 .is-centered > .aa-product-specs__track::after {
-	content: "";
+	content: '';
 	position: absolute;
 	inset-block: -0.3rem;
 	left: 50%;
@@ -264,7 +265,8 @@
 	display: grid;
 	grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
 	gap: var(--wp--preset--spacing--2, 0.5rem) var(--wp--preset--spacing--4, 1rem);
-	padding: var(--wp--preset--spacing--3-5, 0.875rem) var(--wp--preset--spacing--4, 1rem);
+	padding: var(--wp--preset--spacing--3-5, 0.875rem)
+		var(--wp--preset--spacing--4, 1rem);
 }
 
 .aa-product-specs__detail:nth-child(odd) {
@@ -280,7 +282,6 @@
 }
 
 @media (width <= 480px) {
-
 	.aa-product-specs__scale,
 	.aa-product-specs__detail {
 		grid-template-columns: minmax(0, 1fr);

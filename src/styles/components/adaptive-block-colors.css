@@ -13,7 +13,6 @@
  */
 
 @layer aa-components {
-
 	.aa-has-adaptive-bg {
 		background: var(--aa-adaptive-bg);
 	}
@@ -81,7 +80,6 @@
  * token, not of :root.
  */
 @layer aa-components {
-
 	:where(.has-accent-background-color) {
 		--wp--preset--color--accent: var(--wp--preset--color--accent-fill);
 	}

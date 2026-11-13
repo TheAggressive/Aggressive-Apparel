@@ -51,3 +51,11 @@ export interface StoreApiProduct {
   price_html?: string;
   price?: string;
 }
+
+export interface LookbookI18n {
+  loading: string;
+  noProduct: string;
+  loadError: string;
+  viewProduct: string;
+  viewProductName: string;
+}

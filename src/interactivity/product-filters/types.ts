@@ -2,6 +2,7 @@ import type {
   InteractivityActions,
   InteractivityCallbacks,
 } from '../../../types/interactivity-shared';
+import urlContract from './url-contract.json';
 
 export interface DropdownContext {
   dropdownId: string;
@@ -51,26 +52,35 @@ export interface AttributeFilterConfig {
   selector: string;
 }
 
-export const ATTRIBUTE_FILTERS: readonly AttributeFilterConfig[] = [
-  {
-    taxonomy: 'pa_color',
-    urlParam: 'color',
+/** Per-filter UI wiring; the URL parameter comes from url-contract.json. */
+const ATTRIBUTE_UI: Record<
+  string,
+  Pick<AttributeFilterConfig, 'stateKey' | 'selector'>
+> = {
+  pa_color: {
     stateKey: 'selectedColors',
     selector: '.aa-product-filters__color-swatch',
   },
-  {
-    taxonomy: 'pa_size',
-    urlParam: 'size',
+  pa_size: {
     stateKey: 'selectedSizes',
     selector: '.aa-product-filters__size-chip',
   },
-  {
-    taxonomy: 'pa_collection',
-    urlParam: 'collection',
+  pa_collection: {
     stateKey: 'selectedCollections',
     selector: '.aa-product-filters__collection-chip',
   },
-];
+};
+
+/**
+ * Attribute filters, in URL-parameter order. url-contract.json is shared with
+ * the server (Catalog_Url_Filters::ATTRIBUTE_PARAMS, checked in PHPUnit).
+ */
+export const ATTRIBUTE_FILTERS: readonly AttributeFilterConfig[] =
+  Object.entries(urlContract.attributeParams).map(([urlParam, taxonomy]) => ({
+    taxonomy,
+    urlParam,
+    ...ATTRIBUTE_UI[taxonomy],
+  }));
 
 export interface ArchiveTerm {
   taxonomy: string;

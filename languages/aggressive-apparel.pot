@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.206.2\n"
+"Project-Id-Version: Aggressive Apparel 1.206.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-06T00:06:26+00:00\n"
+"POT-Creation-Date: 2026-11-13T20:48:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -90,7 +90,7 @@ msgid "PLP headers, filters, and browse recovery states."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:86
-#: includes/WooCommerce/class-feature-settings.php:420
+#: includes/WooCommerce/class-feature-catalog.php:56
 msgid "Product Page"
 msgstr ""
 
@@ -584,10 +584,10 @@ msgid "Appearance features that work with or without WooCommerce. More toggles c
 msgstr ""
 
 #: includes/Core/class-theme-features.php:225
-#: includes/WooCommerce/class-product-tabs-admin.php:607
-#: includes/WooCommerce/class-product-tabs-admin.php:615
-#: includes/WooCommerce/class-product-tabs-admin.php:850
-#: includes/WooCommerce/class-product-tabs-admin.php:864
+#: includes/WooCommerce/class-product-tabs-admin.php:568
+#: includes/WooCommerce/class-product-tabs-admin.php:582
+#: includes/WooCommerce/class-product-tabs-repeater.php:125
+#: includes/WooCommerce/class-product-tabs-repeater.php:133
 msgid "Enabled"
 msgstr ""
 
@@ -660,7 +660,7 @@ msgstr ""
 
 #: includes/Core/class-theme-support.php:299
 #: includes/WooCommerce/class-badge-studio-rest.php:90
-#: includes/WooCommerce/class-badge-system-defaults.php:29
+#: includes/WooCommerce/class-badge-system-defaults.php:31
 msgid "Badge"
 msgstr ""
 
@@ -735,12 +735,12 @@ msgid "Aggressive Apparel update package checksum verification failed."
 msgstr ""
 
 #. translators: 1: theme name, 2: current version, 3: new version
-#: includes/Core/class-theme-updates.php:545
+#: includes/Core/class-theme-updates.php:512
 #, php-format
 msgid "A new version of %1$s is available. You have version %2$s and the latest version is %3$s."
 msgstr ""
 
-#: includes/Core/class-theme-updates.php:567
+#: includes/Core/class-theme-updates.php:534
 msgid "Update now"
 msgstr ""
 
@@ -1088,7 +1088,7 @@ msgid "Product"
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock-privacy.php:120
-#: includes/WooCommerce/class-printful-sync-guard.php:519
+#: includes/WooCommerce/class-printful-sync-guard.php:520
 msgid "Status"
 msgstr ""
 
@@ -1286,13 +1286,13 @@ msgid "Border"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-admin-fields.php:174
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:479
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:472
 msgid "Type"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-admin-fields.php:175
-#: includes/WooCommerce/class-product-tabs-admin.php:772
-#: includes/WooCommerce/class-product-tabs-admin.php:859
+#: includes/WooCommerce/class-product-tabs-admin.php:577
+#: includes/WooCommerce/class-product-tabs-repeater.php:290
 msgid "Icon"
 msgstr ""
 
@@ -1388,7 +1388,7 @@ msgid "Unsaved"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-admin-fields.php:200
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:478
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:471
 msgid "Preview"
 msgstr ""
 
@@ -1397,7 +1397,7 @@ msgid "Update"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-admin-fields.php:202
-#: includes/WooCommerce/class-badge-system-defaults.php:31
+#: includes/WooCommerce/class-badge-system-defaults.php:33
 msgid "Add New Badge"
 msgstr ""
 
@@ -1431,8 +1431,8 @@ msgstr ""
 
 #: includes/WooCommerce/class-badge-rules-admin.php:50
 #: includes/WooCommerce/class-badge-rules-admin.php:111
-#: includes/WooCommerce/class-badge-system-defaults.php:134
-#: includes/WooCommerce/class-store-copy.php:197
+#: includes/WooCommerce/class-badge-system-defaults.php:136
+#: includes/WooCommerce/class-store-copy.php:182
 #: patterns/design-system-preview.php:145
 #: patterns/footer-columns.php:49
 #: patterns/mega-menu-panel.php:64
@@ -1440,7 +1440,7 @@ msgid "Sale"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-rules-admin.php:54
-#: includes/WooCommerce/class-badge-system-defaults.php:145
+#: includes/WooCommerce/class-badge-system-defaults.php:147
 #: patterns/design-system-preview.php:149
 msgid "New"
 msgstr ""
@@ -1452,7 +1452,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-badge-rules-admin.php:62
 #: includes/WooCommerce/class-badge-rules-admin.php:114
-#: includes/WooCommerce/class-badge-system-defaults.php:167
+#: includes/WooCommerce/class-badge-system-defaults.php:169
 msgid "Bestseller"
 msgstr ""
 
@@ -1540,40 +1540,40 @@ msgstr ""
 msgid "Tag"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:28
-#: includes/WooCommerce/class-feature-settings.php:445
+#: includes/WooCommerce/class-badge-system-defaults.php:30
+#: includes/WooCommerce/class-feature-catalog.php:81
 msgid "Product Badges"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:30
+#: includes/WooCommerce/class-badge-system-defaults.php:32
 msgid "Badges"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:32
+#: includes/WooCommerce/class-badge-system-defaults.php:34
 msgid "Edit Badge"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:33
+#: includes/WooCommerce/class-badge-system-defaults.php:35
 msgid "New Badge Name"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:34
+#: includes/WooCommerce/class-badge-system-defaults.php:36
 msgid "Search Badges"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:35
+#: includes/WooCommerce/class-badge-system-defaults.php:37
 msgid "No badges found."
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:36
+#: includes/WooCommerce/class-badge-system-defaults.php:38
 msgid "All Badges"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:37
+#: includes/WooCommerce/class-badge-system-defaults.php:39
 msgid "Back to Badges"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-system-defaults.php:156
+#: includes/WooCommerce/class-badge-system-defaults.php:158
 #: patterns/design-system-preview.php:153
 msgid "Low Stock"
 msgstr ""
@@ -1700,8 +1700,161 @@ msgstr ""
 msgid "All transactions are secure and encrypted."
 msgstr ""
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:511
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:504
 msgid "Custom"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:54
+msgid "Catalog & Browsing"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:55
+msgid "Store Copy"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:57
+msgid "Customer Engagement"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:58
+msgid "Mobile & UI"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:82
+msgid "Show \"Sale\", \"New\", \"Low Stock\", and \"Bestseller\" badges on product cards. Sale badge wording is set under Store Copy."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:86
+msgid "Smart Price Display"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:87
+msgid "Collapse variable price ranges to a single starting price (e.g. “From $34.99”) on shop cards and product pages, and add “Save X%” on sale items. Set the prefix under Store Copy → Variable Price Prefix."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:91
+msgid "Advanced Sorting Options"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:92
+msgid "Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:96
+msgid "Product Filters"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:97
+msgid "AJAX product filters with categories, color swatches, sizes, price range, and stock status."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:101
+msgid "Load More / Infinite Scroll"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:102
+msgid "Replace pagination with a Load More button or automatic infinite scroll."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:106
+msgid "Page Transitions"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:107
+msgid "Smooth crossfade between pages with product image morphing (Chrome/Safari)."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:111
+msgid "Catalog Hover Image"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:112
+msgid "Show the first gallery image on hover for products that have additional gallery photos."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:118
+msgid "Size Guides & Specs"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:119
+msgid "Size charts with an inch/cm switch, plus fit and fabric specs, managed on Products → Size & Specs and assigned to products or categories."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:123
+msgid "Sticky Add to Cart"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:124
+msgid "Fixed bar with product info and add-to-cart when main button scrolls out of view."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:128
+msgid "Stock Status"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:129
+msgid "Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:133
+#: includes/WooCommerce/class-store-copy.php:101
+msgid "Quick View"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:134
+msgid "Preview products in a modal from shop cards. Style and Wishlist pairing options appear when enabled."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:138
+#: includes/WooCommerce/class-frequently-bought-together.php:247
+msgid "Frequently Bought Together"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:139
+msgid "Show recommended products with checkboxes and combined add-to-cart on product pages."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:145
+#: includes/WooCommerce/class-mobile-bottom-nav.php:178
+#: includes/WooCommerce/class-mobile-bottom-nav.php:180
+#: includes/WooCommerce/class-wishlist.php:196
+msgid "Wishlist"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:146
+msgid "Save products for guests and sync signed-in wishlists with WooCommerce."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:150
+msgid "Social Proof Notifications"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:151
+msgid "Show recent purchase toast notifications to build urgency."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:155
+msgid "Back in Stock Notifications"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:156
+msgid "Show a signup form on out-of-stock products and sizes. The waitlist and emails are WooCommerce's own Back in Stock Notifications, which must be turned on."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:162
+msgid "Swatch Tooltips"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:163
+msgid "Show fabric name and composition on color swatch hover."
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:167
+msgid "Mobile Bottom Navigation"
+msgstr ""
+
+#: includes/WooCommerce/class-feature-catalog.php:168
+msgid "Fixed bottom bar on mobile with Home, Search, Cart, and Account."
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings-fields.php:140
@@ -2129,159 +2282,6 @@ msgstr ""
 msgid "none — this field cannot contain a placeholder"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:418
-msgid "Catalog & Browsing"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:419
-msgid "Store Copy"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:421
-msgid "Customer Engagement"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:422
-msgid "Mobile & UI"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:446
-msgid "Show \"Sale\", \"New\", \"Low Stock\", and \"Bestseller\" badges on product cards. Sale badge wording is set under Store Copy."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:450
-msgid "Smart Price Display"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:451
-msgid "Collapse variable price ranges to a single starting price (e.g. “From $34.99”) on shop cards and product pages, and add “Save X%” on sale items. Set the prefix under Store Copy → Variable Price Prefix."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:455
-msgid "Advanced Sorting Options"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:456
-msgid "Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:460
-msgid "Product Filters"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:461
-msgid "AJAX product filters with categories, color swatches, sizes, price range, and stock status."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:465
-msgid "Load More / Infinite Scroll"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:466
-msgid "Replace pagination with a Load More button or automatic infinite scroll."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:470
-msgid "Page Transitions"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:471
-msgid "Smooth crossfade between pages with product image morphing (Chrome/Safari)."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:475
-msgid "Catalog Hover Image"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:476
-msgid "Show the first gallery image on hover for products that have additional gallery photos."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:482
-msgid "Size Guides & Specs"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:483
-msgid "Size charts with an inch/cm switch, plus fit and fabric specs, managed on Products → Size & Specs and assigned to products or categories."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:487
-msgid "Sticky Add to Cart"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:488
-msgid "Fixed bar with product info and add-to-cart when main button scrolls out of view."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:492
-msgid "Stock Status"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:493
-msgid "Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:497
-#: includes/WooCommerce/class-store-copy.php:116
-msgid "Quick View"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:498
-msgid "Preview products in a modal from shop cards. Style and Wishlist pairing options appear when enabled."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:502
-#: includes/WooCommerce/class-frequently-bought-together.php:247
-msgid "Frequently Bought Together"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:503
-msgid "Show recommended products with checkboxes and combined add-to-cart on product pages."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:509
-#: includes/WooCommerce/class-mobile-bottom-nav.php:178
-#: includes/WooCommerce/class-mobile-bottom-nav.php:180
-#: includes/WooCommerce/class-wishlist.php:204
-msgid "Wishlist"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:510
-msgid "Save products for guests and sync signed-in wishlists with WooCommerce."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:514
-msgid "Social Proof Notifications"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:515
-msgid "Show recent purchase toast notifications to build urgency."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:519
-msgid "Back in Stock Notifications"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:520
-msgid "Show a signup form on out-of-stock products and sizes. The waitlist and emails are WooCommerce's own Back in Stock Notifications, which must be turned on."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:526
-msgid "Swatch Tooltips"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:527
-msgid "Show fabric name and composition on color swatch hover."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:531
-msgid "Mobile Bottom Navigation"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:532
-msgid "Fixed bottom bar on mobile with Home, Search, Cart, and Account."
-msgstr ""
-
 #. translators: %s: formatted amount the customer still has to spend to get free shipping. {em} and {em_end} wrap the highlighted phrase; keep both.
 #: includes/WooCommerce/class-free-shipping-message.php:79
 #, php-format
@@ -2531,61 +2531,61 @@ msgid "Printful didn’t answer (status %d). Try again in a moment."
 msgstr ""
 
 #. translators: 1: variation ID, 2: field name.
-#: includes/WooCommerce/class-printful-sync-guard.php:249
+#: includes/WooCommerce/class-printful-sync-guard.php:250
 #, php-format
 msgid "Variation #%1$d: %2$s"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:257
+#: includes/WooCommerce/class-printful-sync-guard.php:258
 msgid "Printful’s last sync wanted to change these, and your versions were kept:"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:259
+#: includes/WooCommerce/class-printful-sync-guard.php:260
 msgid "To take Printful’s version, set the field to that value and save. Later syncs then update it again."
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:515
+#: includes/WooCommerce/class-printful-sync-guard.php:516
 msgid "Title"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:516
+#: includes/WooCommerce/class-printful-sync-guard.php:517
 msgid "Slug"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:517
+#: includes/WooCommerce/class-printful-sync-guard.php:518
 msgid "Description"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:518
+#: includes/WooCommerce/class-printful-sync-guard.php:519
 msgid "Short description"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:520
+#: includes/WooCommerce/class-printful-sync-guard.php:521
 msgid "Regular price"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:521
+#: includes/WooCommerce/class-printful-sync-guard.php:522
 msgid "Sale price"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:522
+#: includes/WooCommerce/class-printful-sync-guard.php:523
 #: includes/WooCommerce/class-product-filter-renderer.php:133
 msgid "Categories"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:523
+#: includes/WooCommerce/class-printful-sync-guard.php:524
 msgid "Tags"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:524
+#: includes/WooCommerce/class-printful-sync-guard.php:525
 msgid "Main image"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:525
+#: includes/WooCommerce/class-printful-sync-guard.php:526
 msgid "Gallery"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-sync-guard.php:526
+#: includes/WooCommerce/class-printful-sync-guard.php:527
 msgid "Attributes"
 msgstr ""
 
@@ -2596,7 +2596,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:236
 #: includes/WooCommerce/class-quick-view-renderer.php:114
-#: includes/WooCommerce/class-store-copy.php:98
+#: includes/WooCommerce/class-store-copy.php:83
 #: patterns/design-system-preview.php:157
 msgid "Out of Stock"
 msgstr ""
@@ -2672,12 +2672,12 @@ msgid "Maximum price"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:240
-#: includes/WooCommerce/class-product-filters.php:319
+#: includes/WooCommerce/class-product-filters.php:312
 msgid "In stock"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:245
-#: includes/WooCommerce/class-product-filters.php:320
+#: includes/WooCommerce/class-product-filters.php:313
 msgid "On sale"
 msgstr ""
 
@@ -2686,71 +2686,71 @@ msgid "Filter by category"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:314
+#: includes/WooCommerce/class-product-filters.php:307
 #, php-format
 msgid "(%s filter applied)"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:316
+#: includes/WooCommerce/class-product-filters.php:309
 #, php-format
 msgid "(%s filters applied)"
 msgstr ""
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:318
+#: includes/WooCommerce/class-product-filters.php:311
 #, php-format
 msgid "Additional filters: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:321
+#: includes/WooCommerce/class-product-filters.php:314
 msgid "All filters cleared."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:322
+#: includes/WooCommerce/class-product-filters.php:315
 msgid "No products found."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:323
+#: includes/WooCommerce/class-product-filters.php:316
 msgid "1 product found."
 msgstr ""
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:325
+#: includes/WooCommerce/class-product-filters.php:318
 #, php-format
 msgid "%d products found."
 msgstr ""
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:327
+#: includes/WooCommerce/class-product-filters.php:320
 #, php-format
 msgid "Remove %s filter"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:395
-#: includes/WooCommerce/class-product-filters.php:486
+#: includes/WooCommerce/class-product-filters.php:388
+#: includes/WooCommerce/class-product-filters.php:479
 msgid "Product filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:404
+#: includes/WooCommerce/class-product-filters.php:397
 msgid "Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:409
+#: includes/WooCommerce/class-product-filters.php:402
 msgid "Close filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:434
+#: includes/WooCommerce/class-product-filters.php:427
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 msgid "Clear All"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:440
-#: includes/WooCommerce/class-product-filters.php:496
+#: includes/WooCommerce/class-product-filters.php:433
+#: includes/WooCommerce/class-product-filters.php:489
 msgid "View Results"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:500
+#: includes/WooCommerce/class-product-filters.php:493
 msgid "Clear All Filters"
 msgstr ""
 
@@ -2794,150 +2794,150 @@ msgstr ""
 msgid "(no title)"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:326
+#: includes/WooCommerce/class-product-specs-registry.php:328
 #: includes/WooCommerce/class-product-tabs-config.php:164
 #: includes/WooCommerce/class-product-tabs-config.php:165
 msgid "Fit"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:328
+#: includes/WooCommerce/class-product-specs-registry.php:330
 msgid "Snug"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:329
+#: includes/WooCommerce/class-product-specs-registry.php:331
 msgid "Fitted"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:330
+#: includes/WooCommerce/class-product-specs-registry.php:332
 #: patterns/size-fit-finder.php:36
 msgid "Regular"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:331
+#: includes/WooCommerce/class-product-specs-registry.php:333
 msgid "Relaxed"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:332
+#: includes/WooCommerce/class-product-specs-registry.php:334
 #: patterns/size-fit-finder.php:92
 #: patterns/size-guide-cards.php:91
 msgid "Oversized"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:336
+#: includes/WooCommerce/class-product-specs-registry.php:338
 msgid "Fitted by design. Size up if you want room."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:337
+#: includes/WooCommerce/class-product-specs-registry.php:339
 msgid "Runs a little small. Consider sizing up."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:338
+#: includes/WooCommerce/class-product-specs-registry.php:340
 msgid "True to size. Take your usual size."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:339
+#: includes/WooCommerce/class-product-specs-registry.php:341
 msgid "Relaxed cut. Size down for a closer fit."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:340
+#: includes/WooCommerce/class-product-specs-registry.php:342
 msgid "Oversized on purpose. Take your usual size."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:349
-msgid "Fabric weight"
-msgstr ""
-
 #: includes/WooCommerce/class-product-specs-registry.php:351
-#: includes/WooCommerce/class-product-specs-suggestions.php:198
-msgid "Lightweight"
-msgstr ""
-
-#: includes/WooCommerce/class-product-specs-registry.php:352
-#: includes/WooCommerce/class-product-specs-suggestions.php:198
-msgid "Light-midweight"
+msgid "Fabric weight"
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-registry.php:353
 #: includes/WooCommerce/class-product-specs-suggestions.php:198
-msgid "Midweight"
+msgid "Lightweight"
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-registry.php:354
 #: includes/WooCommerce/class-product-specs-suggestions.php:198
-msgid "Mid-heavyweight"
+msgid "Light-midweight"
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-registry.php:355
 #: includes/WooCommerce/class-product-specs-suggestions.php:198
-msgid "Heavyweight"
+msgid "Midweight"
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-registry.php:356
+#: includes/WooCommerce/class-product-specs-suggestions.php:198
+msgid "Mid-heavyweight"
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-registry.php:357
+#: includes/WooCommerce/class-product-specs-suggestions.php:198
+msgid "Heavyweight"
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-registry.php:359
 msgctxt "fabric weight scale, lightest end"
 msgid "Light"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:358
+#: includes/WooCommerce/class-product-specs-registry.php:360
 msgctxt "fabric weight scale, heaviest end"
 msgid "Heavy"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:369
+#: includes/WooCommerce/class-product-specs-registry.php:371
 msgid "Fabric"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:378
+#: includes/WooCommerce/class-product-specs-registry.php:380
 msgid "Construction"
 msgstr ""
 
 #. translators: %d: maximum number of spec items.
-#: includes/WooCommerce/class-product-specs-registry.php:403
+#: includes/WooCommerce/class-product-specs-registry.php:405
 #, php-format
 msgid "Keep it to %d items or fewer."
 msgstr ""
 
 #. translators: %d: item position in the list.
-#: includes/WooCommerce/class-product-specs-registry.php:411
+#: includes/WooCommerce/class-product-specs-registry.php:413
 #, php-format
 msgid "Item %d"
 msgstr ""
 
 #. translators: %s: item label.
-#: includes/WooCommerce/class-product-specs-registry.php:420
+#: includes/WooCommerce/class-product-specs-registry.php:422
 #, php-format
 msgid "%s needs a name."
 msgstr ""
 
 #. translators: %s: item name.
-#: includes/WooCommerce/class-product-specs-registry.php:425
+#: includes/WooCommerce/class-product-specs-registry.php:427
 #, php-format
 msgid "“%s” needs a different name."
 msgstr ""
 
 #. translators: %s: item name.
-#: includes/WooCommerce/class-product-specs-registry.php:430
+#: includes/WooCommerce/class-product-specs-registry.php:432
 #, php-format
 msgid "“%s” has the same key as another item. Rename one of them."
 msgstr ""
 
 #. translators: 1: minimum steps, 2: maximum steps.
-#: includes/WooCommerce/class-product-specs-registry.php:511
+#: includes/WooCommerce/class-product-specs-registry.php:513
 #, php-format
 msgid "give the scale between %1$d and %2$d step names."
 msgstr ""
 
 #. translators: %d: number of thresholds needed.
-#: includes/WooCommerce/class-product-specs-registry.php:517
+#: includes/WooCommerce/class-product-specs-registry.php:519
 #, php-format
 msgid "enter %d step boundaries, each higher than the one before."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:523
+#: includes/WooCommerce/class-product-specs-registry.php:525
 msgid "pick a different category for each set of category boundaries."
 msgstr ""
 
 #. translators: %d: number of thresholds needed.
-#: includes/WooCommerce/class-product-specs-registry.php:527
+#: includes/WooCommerce/class-product-specs-registry.php:529
 #, php-format
 msgid "each category needs %d boundaries, each higher than the one before."
 msgstr ""
@@ -3011,448 +3011,404 @@ msgid "Additional information"
 msgstr ""
 
 #. translators: %s: attribute name.
-#: includes/WooCommerce/class-product-specs-taxonomy.php:98
+#: includes/WooCommerce/class-product-specs-taxonomy.php:86
 #, php-format
 msgid "the “%s” attribute has values that aren’t steps of this scale. Pick another attribute, or let the spec create its own."
 msgstr ""
 
 #. translators: %s: spec name.
-#: includes/WooCommerce/class-product-specs-taxonomy.php:140
+#: includes/WooCommerce/class-product-specs-taxonomy.php:128
 #, php-format
 msgid "“%s” uses the same WooCommerce attribute as another spec."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-taxonomy.php:568
+#: includes/WooCommerce/class-product-specs-taxonomy.php:579
 msgid "WooCommerce is needed to save specs."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:144
+#: includes/WooCommerce/class-product-specs-transfer.php:115
 msgid "That isn’t a Size & Specs export file."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:147
+#: includes/WooCommerce/class-product-specs-transfer.php:118
 msgid "That file comes from a newer version of the theme. Update this site’s theme, then import it."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:253
+#: includes/WooCommerce/class-product-specs-transfer.php:224
 msgid "Shipping weight and dimensions will be hidden from Additional information."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:254
+#: includes/WooCommerce/class-product-specs-transfer.php:225
 msgid "Shipping weight and dimensions will show in Additional information again."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:262
+#: includes/WooCommerce/class-product-specs-transfer.php:233
 msgid "The file’s specs couldn’t be saved, so nothing was imported."
 msgstr ""
 
 #. translators: 1: size guide name, 2: error message.
-#: includes/WooCommerce/class-product-specs-transfer.php:345
+#: includes/WooCommerce/class-product-specs-transfer.php:316
 #, php-format
 msgid "“%1$s” couldn’t be saved: %2$s"
 msgstr ""
 
 #. translators: %s: size guide name.
-#: includes/WooCommerce/class-product-specs-transfer.php:361
+#: includes/WooCommerce/class-product-specs-transfer.php:332
 #, php-format
 msgid "“%s”: its diagram couldn’t be added, so the guide keeps the one it had."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-transfer.php:775
+#: includes/WooCommerce/class-product-specs-transfer.php:614
 #: includes/WooCommerce/class-size-guide-rest.php:605
 msgid "Untitled size guide"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:85
-#: includes/WooCommerce/class-product-tabs-admin.php:86
-#: includes/WooCommerce/class-product-tabs-admin.php:104
+#: includes/WooCommerce/class-product-tabs-admin.php:93
+#: includes/WooCommerce/class-product-tabs-admin.php:94
+#: includes/WooCommerce/class-product-tabs-admin.php:112
 msgid "Product Tabs"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:106
+#: includes/WooCommerce/class-product-tabs-admin.php:114
 msgid "Manage store-wide Product Details tabs and display behavior. Product-specific overrides still live on each product edit screen."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:113
+#: includes/WooCommerce/class-product-tabs-admin.php:121
 msgid "Display Style"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:114
+#: includes/WooCommerce/class-product-tabs-admin.php:122
 msgid "Global"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:119
+#: includes/WooCommerce/class-product-tabs-admin.php:127
 msgid "Product Info Display Style"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:127
+#: includes/WooCommerce/class-product-tabs-admin.php:135
 msgid "Default Built-In Tabs"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:128
+#: includes/WooCommerce/class-product-tabs-admin.php:136
 msgid "Fallbacks"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:152
+#: includes/WooCommerce/class-product-tabs-admin.php:160
 msgid "Global Custom Tabs"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:153
+#: includes/WooCommerce/class-product-tabs-admin.php:161
 msgid "No-code builder"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:158
+#: includes/WooCommerce/class-product-tabs-admin.php:166
 msgid "Save Product Tabs"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:189
+#: includes/WooCommerce/class-product-tabs-admin.php:197
 msgid "Default Care Instructions"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:190
+#: includes/WooCommerce/class-product-tabs-admin.php:198
 msgid "Shown when a product does not have its own Care Instructions value."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:194
+#: includes/WooCommerce/class-product-tabs-admin.php:202
 msgid "Shipping & Returns Tab"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:195
-#: includes/WooCommerce/class-product-tabs-admin.php:200
+#: includes/WooCommerce/class-product-tabs-admin.php:203
+#: includes/WooCommerce/class-product-tabs-admin.php:208
 msgid "Leave empty to hide this tab from Product Details."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:199
+#: includes/WooCommerce/class-product-tabs-admin.php:207
 msgid "Sustainability Tab"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:215
+#: includes/WooCommerce/class-product-tabs-admin.php:223
 msgid "Accordion — collapsible sections (recommended)"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:216
+#: includes/WooCommerce/class-product-tabs-admin.php:224
 msgid "Inline — all sections visible, no interaction"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:217
+#: includes/WooCommerce/class-product-tabs-admin.php:225
 msgid "Modern Tabs — pill-style tab navigation"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:218
+#: includes/WooCommerce/class-product-tabs-admin.php:226
 msgid "Scrollspy — sticky sidebar with scroll tracking"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:231
+#: includes/WooCommerce/class-product-tabs-admin.php:239
 msgid "Choose how product information is displayed on single product pages. Requires the Product Tabs Manager toggle to be enabled."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:273
+#: includes/WooCommerce/class-product-tabs-admin.php:281
 msgid "Add store-wide tabs that appear in Product Details for every product. Product-specific custom tabs can be added on each product edit screen."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:285
+#: includes/WooCommerce/class-product-tabs-admin.php:293
 msgid "Extra Product Tabs"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:309
+#: includes/WooCommerce/class-product-tabs-admin.php:317
 msgid "Product Content Defaults"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:310
+#: includes/WooCommerce/class-product-tabs-admin.php:318
 msgid "Product level"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:312
-#: includes/WooCommerce/class-product-tabs-admin.php:485
+#: includes/WooCommerce/class-product-tabs-admin.php:320
+#: includes/WooCommerce/class-product-tabs-admin.php:493
 #: includes/WooCommerce/class-product-tabs-config.php:247
 #: includes/WooCommerce/class-product-tabs.php:186
 msgid "Care Instructions"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:314
+#: includes/WooCommerce/class-product-tabs-admin.php:322
 msgid "Leave empty to use the global default from Products → Product Tabs."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:321
+#: includes/WooCommerce/class-product-tabs-admin.php:329
 msgid "Product-Specific Custom Tabs"
 msgstr ""
 
 #. translators: %d: number of saved product-specific tabs.
-#: includes/WooCommerce/class-product-tabs-admin.php:325
+#: includes/WooCommerce/class-product-tabs-admin.php:333
 #, php-format
 msgid "%d saved product-specific tab."
 msgid_plural "%d saved product-specific tabs."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:334
+#: includes/WooCommerce/class-product-tabs-admin.php:342
 msgid "These tabs appear only on this product and are added to the Product Details block."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:423
+#: includes/WooCommerce/class-product-tabs-admin.php:431
 msgid "Global Tab Overrides"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:424
+#: includes/WooCommerce/class-product-tabs-admin.php:432
 msgid "Optional"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:428
+#: includes/WooCommerce/class-product-tabs-admin.php:436
 msgid "No global custom tabs are configured yet. Add them in Products → Product Tabs."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:433
+#: includes/WooCommerce/class-product-tabs-admin.php:441
 msgid "Customize, append to, or hide global tabs for this product only."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:437
+#: includes/WooCommerce/class-product-tabs-admin.php:445
 msgid "Use global behavior"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:438
+#: includes/WooCommerce/class-product-tabs-admin.php:446
 msgid "Override content"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:439
+#: includes/WooCommerce/class-product-tabs-admin.php:447
 msgid "Append product content"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:440
+#: includes/WooCommerce/class-product-tabs-admin.php:448
 msgid "Hide on this product"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:455
+#: includes/WooCommerce/class-product-tabs-admin.php:463
 msgid "Product behavior"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:465
+#: includes/WooCommerce/class-product-tabs-admin.php:473
 msgid "Override / Append Content"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:465
+#: includes/WooCommerce/class-product-tabs-admin.php:473
 msgid "Shown only when this product overrides or appends to the global tab."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:492
-#: includes/WooCommerce/class-product-tabs-admin.php:549
+#: includes/WooCommerce/class-product-tabs-admin.php:500
 #: includes/WooCommerce/class-product-tabs-config.php:178
+#: includes/WooCommerce/class-product-tabs-repeater.php:67
 #: includes/WooCommerce/class-product-tabs.php:201
 msgid "Shipping & Returns"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:499
+#: includes/WooCommerce/class-product-tabs-admin.php:507
 #: includes/WooCommerce/class-product-tabs.php:217
 #: patterns/footer-columns.php:65
 msgid "Sustainability"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:543
-msgid "Add Blank Tab"
+#: includes/WooCommerce/class-product-tabs-admin.php:565
+msgid "Product Details"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:546
-msgid "Tab templates"
+#: includes/WooCommerce/class-product-tabs-admin.php:566
+msgid "Add content or layout items to preview the frontend output."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:547
-msgid "Quick templates"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:548
-#: includes/WooCommerce/class-product-tabs-admin.php:620
-#: includes/WooCommerce/class-product-tabs-admin.php:868
-#: includes/WooCommerce/class-product-tabs-config.php:159
-msgid "Size & Fit"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:550
-#: includes/WooCommerce/class-product-tabs-config.php:203
-#: patterns/footer-columns.php:84
-msgid "FAQ"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:551
-#: includes/WooCommerce/class-product-tabs-config.php:119
-msgid "Specs Table"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:552
-#: includes/WooCommerce/class-product-tabs-config.php:118
-msgid "Care Grid"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:557
-msgid "Tabs"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:560
-msgid "Custom tabs"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:561
-msgid "Select a tab to edit it. Drag or use arrows to reorder."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:597
-#: includes/WooCommerce/class-product-tabs-admin.php:849
+#: includes/WooCommerce/class-product-tabs-admin.php:567
+#: includes/WooCommerce/class-product-tabs-repeater.php:115
 msgid "Untitled tab"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:603
-msgid "Selected tab"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:607
-#: includes/WooCommerce/class-product-tabs-admin.php:851
+#: includes/WooCommerce/class-product-tabs-admin.php:569
+#: includes/WooCommerce/class-product-tabs-repeater.php:125
 #: patterns/design-system-preview.php:76
 msgid "Disabled"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:609
-#: includes/WooCommerce/class-product-tabs-admin.php:852
+#: includes/WooCommerce/class-product-tabs-admin.php:570
+#: includes/WooCommerce/class-product-tabs-repeater.php:127
 msgid "Ready"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:616
-#: includes/WooCommerce/class-product-tabs-admin.php:865
-msgid "Priority"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:617
-#: includes/WooCommerce/class-product-tabs-admin.php:866
-msgid "Remove Tab"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:620
-#: includes/WooCommerce/class-product-tabs-admin.php:867
-msgid "Tab Title"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:621
-#: includes/WooCommerce/class-product-tabs-admin.php:869
-msgid "Content Layout"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:631
-#: includes/WooCommerce/class-product-tabs-admin.php:870
-msgid "Content Source"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:643
-#: includes/WooCommerce/class-product-tabs-admin.php:871
-msgid "Product Meta Field"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:643
-#: includes/WooCommerce/class-product-tabs-admin.php:872
-msgid "Used only when Content Source is Product meta field."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:644
-#: includes/WooCommerce/class-product-tabs-admin.php:873
-msgid "Product Attribute"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:646
-#: includes/WooCommerce/class-product-tabs-admin.php:874
-msgid "Used only when Content Source is Product attribute."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:648
-#: includes/WooCommerce/class-product-tabs-admin.php:876
-msgid "Intro / Fallback Content"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:648
-#: includes/WooCommerce/class-product-tabs-admin.php:877
-msgid "For structured layouts, this appears above the generated layout. For rich text, this is the full tab content."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:710
-#: includes/WooCommerce/class-product-tabs-admin.php:875
-msgid "Select attribute…"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:745
-#: includes/WooCommerce/class-product-tabs-admin.php:878
-msgid "No-Code Layout Items"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:745
-#: includes/WooCommerce/class-product-tabs-admin.php:879
-msgid "Add the rows this layout will render. The theme handles the frontend markup and styling."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:753
-#: includes/WooCommerce/class-product-tabs-admin.php:880
-msgid "Add Layout Item"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:754
-#: includes/WooCommerce/class-product-tabs-admin.php:881
-msgid "Use these rows for cards, specs tables, FAQs, timelines, care grids, and icon lists. Leave them empty for rich text or custom HTML tabs."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:773
-#: includes/WooCommerce/class-product-tabs-admin.php:860
-msgid "Label / Question / Step"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:774
-#: includes/WooCommerce/class-product-tabs-admin.php:861
-msgid "Detail / Eyebrow"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:775
-#: includes/WooCommerce/class-product-tabs-admin.php:862
-msgid "Remove Item"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:777
-#: includes/WooCommerce/class-product-tabs-admin.php:863
-msgid "Text / Answer / Value"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:788
-#: includes/WooCommerce/class-product-tabs-admin.php:882
-msgid "Frontend Preview"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:788
-#: includes/WooCommerce/class-product-tabs-admin.php:883
-msgid "Updates as you edit. Custom HTML is shown as plain text in the preview for admin safety."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:847
-msgid "Product Details"
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:848
-msgid "Add content or layout items to preview the frontend output."
-msgstr ""
-
-#: includes/WooCommerce/class-product-tabs-admin.php:853
+#: includes/WooCommerce/class-product-tabs-admin.php:571
 msgid "Needs Attention"
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:854
+#: includes/WooCommerce/class-product-tabs-admin.php:572
 msgid "Add a tab title before saving."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:855
+#: includes/WooCommerce/class-product-tabs-admin.php:573
 msgid "Add a product meta key or switch the source to Manual."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:856
+#: includes/WooCommerce/class-product-tabs-admin.php:574
 msgid "Add a product attribute slug or switch the source to Manual."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:857
+#: includes/WooCommerce/class-product-tabs-admin.php:575
 msgid "This tab will not render until it has content or layout items."
 msgstr ""
 
-#: includes/WooCommerce/class-product-tabs-admin.php:858
+#: includes/WooCommerce/class-product-tabs-admin.php:576
 msgid "This layout needs intro/fallback content to render."
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:578
+#: includes/WooCommerce/class-product-tabs-repeater.php:291
+msgid "Label / Question / Step"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:579
+#: includes/WooCommerce/class-product-tabs-repeater.php:292
+msgid "Detail / Eyebrow"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:580
+#: includes/WooCommerce/class-product-tabs-repeater.php:293
+msgid "Remove Item"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:581
+#: includes/WooCommerce/class-product-tabs-repeater.php:295
+msgid "Text / Answer / Value"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:583
+#: includes/WooCommerce/class-product-tabs-repeater.php:134
+msgid "Priority"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:584
+#: includes/WooCommerce/class-product-tabs-repeater.php:135
+msgid "Remove Tab"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:585
+#: includes/WooCommerce/class-product-tabs-repeater.php:138
+msgid "Tab Title"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:586
+#: includes/WooCommerce/class-product-tabs-config.php:159
+#: includes/WooCommerce/class-product-tabs-repeater.php:66
+#: includes/WooCommerce/class-product-tabs-repeater.php:138
+msgid "Size & Fit"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:587
+#: includes/WooCommerce/class-product-tabs-repeater.php:139
+msgid "Content Layout"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:588
+#: includes/WooCommerce/class-product-tabs-repeater.php:149
+msgid "Content Source"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:589
+#: includes/WooCommerce/class-product-tabs-repeater.php:161
+msgid "Product Meta Field"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:590
+#: includes/WooCommerce/class-product-tabs-repeater.php:161
+msgid "Used only when Content Source is Product meta field."
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:591
+#: includes/WooCommerce/class-product-tabs-repeater.php:162
+msgid "Product Attribute"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:592
+#: includes/WooCommerce/class-product-tabs-repeater.php:164
+msgid "Used only when Content Source is Product attribute."
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:593
+#: includes/WooCommerce/class-product-tabs-repeater.php:228
+msgid "Select attribute…"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:594
+#: includes/WooCommerce/class-product-tabs-repeater.php:166
+msgid "Intro / Fallback Content"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:595
+#: includes/WooCommerce/class-product-tabs-repeater.php:166
+msgid "For structured layouts, this appears above the generated layout. For rich text, this is the full tab content."
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:596
+#: includes/WooCommerce/class-product-tabs-repeater.php:263
+msgid "No-Code Layout Items"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:597
+#: includes/WooCommerce/class-product-tabs-repeater.php:263
+msgid "Add the rows this layout will render. The theme handles the frontend markup and styling."
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:598
+#: includes/WooCommerce/class-product-tabs-repeater.php:271
+msgid "Add Layout Item"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:599
+#: includes/WooCommerce/class-product-tabs-repeater.php:272
+msgid "Use these rows for cards, specs tables, FAQs, timelines, care grids, and icon lists. Leave them empty for rich text or custom HTML tabs."
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:600
+#: includes/WooCommerce/class-product-tabs-repeater.php:306
+msgid "Frontend Preview"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-admin.php:601
+#: includes/WooCommerce/class-product-tabs-repeater.php:306
+msgid "Updates as you edit. Custom HTML is shown as plain text in the preview for admin safety."
 msgstr ""
 
 #: includes/WooCommerce/class-product-tabs-config.php:103
@@ -3473,6 +3429,16 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-tabs-config.php:117
 msgid "Feature Cards"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-config.php:118
+#: includes/WooCommerce/class-product-tabs-repeater.php:70
+msgid "Care Grid"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-config.php:119
+#: includes/WooCommerce/class-product-tabs-repeater.php:69
+msgid "Specs Table"
 msgstr ""
 
 #: includes/WooCommerce/class-product-tabs-config.php:120
@@ -3587,6 +3553,12 @@ msgstr ""
 msgid "Add return eligibility, condition requirements, and exchange details."
 msgstr ""
 
+#: includes/WooCommerce/class-product-tabs-config.php:203
+#: includes/WooCommerce/class-product-tabs-repeater.php:68
+#: patterns/footer-columns.php:84
+msgid "FAQ"
+msgstr ""
+
 #: includes/WooCommerce/class-product-tabs-config.php:209
 msgid "How does this fit?"
 msgstr ""
@@ -3683,10 +3655,38 @@ msgstr ""
 msgid "Product information"
 msgstr ""
 
+#: includes/WooCommerce/class-product-tabs-repeater.php:61
+msgid "Add Blank Tab"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-repeater.php:64
+msgid "Tab templates"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-repeater.php:65
+msgid "Quick templates"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-repeater.php:75
+msgid "Tabs"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-repeater.php:78
+msgid "Custom tabs"
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-repeater.php:79
+msgid "Select a tab to edit it. Drag or use arrows to reorder."
+msgstr ""
+
+#: includes/WooCommerce/class-product-tabs-repeater.php:121
+msgid "Selected tab"
+msgstr ""
+
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
 #: includes/WooCommerce/class-quick-view-card-actions.php:75
-#: includes/WooCommerce/class-wishlist.php:474
+#: includes/WooCommerce/class-wishlist.php:466
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -3800,38 +3800,38 @@ msgstr ""
 msgid "Rated %s out of 5"
 msgstr ""
 
-#: includes/WooCommerce/class-sale-category.php:166
-msgid "Sales"
-msgstr ""
-
-#: includes/WooCommerce/class-sale-category.php:443
-msgid "Sales category membership"
-msgstr ""
-
-#: includes/WooCommerce/class-sale-category.php:444
-msgid "Schedule rebuild"
-msgstr ""
-
-#: includes/WooCommerce/class-sale-category.php:445
-msgid "Schedules a batched rebuild of the managed Sales category."
-msgstr ""
-
-#: includes/WooCommerce/class-sale-category.php:459
-msgid "Sales category rebuild scheduled in the background."
-msgstr ""
-
-#: includes/WooCommerce/class-sale-category.php:462
-msgid "A Sales category rebuild is already running or could not be scheduled. Check WooCommerce logs for details."
-msgstr ""
-
-#: includes/WooCommerce/class-sale-category.php:768
+#: includes/WooCommerce/class-sale-category-run.php:203
 msgid "No rebuild has completed yet."
 msgstr ""
 
 #. translators: 1: worker state, 2: products checked, 3: assignments changed.
-#: includes/WooCommerce/class-sale-category.php:776
+#: includes/WooCommerce/class-sale-category-run.php:211
 #, php-format
 msgid "Last state: %1$s. Checked: %2$d; changed: %3$d."
+msgstr ""
+
+#: includes/WooCommerce/class-sale-category.php:171
+msgid "Sales"
+msgstr ""
+
+#: includes/WooCommerce/class-sale-category.php:412
+msgid "Sales category membership"
+msgstr ""
+
+#: includes/WooCommerce/class-sale-category.php:413
+msgid "Schedule rebuild"
+msgstr ""
+
+#: includes/WooCommerce/class-sale-category.php:414
+msgid "Schedules a batched rebuild of the managed Sales category."
+msgstr ""
+
+#: includes/WooCommerce/class-sale-category.php:428
+msgid "Sales category rebuild scheduled in the background."
+msgstr ""
+
+#: includes/WooCommerce/class-sale-category.php:431
+msgid "A Sales category rebuild is already running or could not be scheduled. Check WooCommerce logs for details."
 msgstr ""
 
 #: includes/WooCommerce/class-size-chart.php:205
@@ -4099,263 +4099,263 @@ msgstr ""
 msgid "Error adding to cart"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:85
+#: includes/WooCommerce/class-store-copy.php:70
 msgid "Variable Product Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:86
+#: includes/WooCommerce/class-store-copy.php:71
 msgid "Choose"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:87
+#: includes/WooCommerce/class-store-copy.php:72
 msgid "Button text for variable products on product cards, Quick View, and Sticky Cart before options are chosen."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:91
+#: includes/WooCommerce/class-store-copy.php:76
 msgid "Simple Product Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:92
+#: includes/WooCommerce/class-store-copy.php:77
 #: src/blocks-interactivity/wishlist-item-actions/render.php:20
 #: src/blocks-interactivity/wishlist-item-actions/render.php:22
 msgid "Add to Cart"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:93
+#: includes/WooCommerce/class-store-copy.php:78
 msgid "Product-card button text for simple products that can be added directly."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:97
+#: includes/WooCommerce/class-store-copy.php:82
 msgid "Out of Stock Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:99
+#: includes/WooCommerce/class-store-copy.php:84
 msgid "Button text shown when product-card or sticky-cart products are out of stock."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:103
+#: includes/WooCommerce/class-store-copy.php:88
 msgid "Filter Toggle Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:104
+#: includes/WooCommerce/class-store-copy.php:89
 #: src/blocks-interactivity/filter-toggle/render.php:56
 msgid "Filter"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:105
+#: includes/WooCommerce/class-store-copy.php:90
 msgid "Visible text for the automatic product-filter trigger and default Filter Toggle block label."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:109
+#: includes/WooCommerce/class-store-copy.php:94
 msgid "Load More Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:110
+#: includes/WooCommerce/class-store-copy.php:95
 msgid "Load More Products"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:111
+#: includes/WooCommerce/class-store-copy.php:96
 msgid "Button text for loading the next page of catalog products."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:115
+#: includes/WooCommerce/class-store-copy.php:100
 msgid "Quick View Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:117
+#: includes/WooCommerce/class-store-copy.php:102
 msgid "Label used by Quick View triggers on product cards."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:121
+#: includes/WooCommerce/class-store-copy.php:106
 msgid "Buy Now Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:122
+#: includes/WooCommerce/class-store-copy.php:107
 msgid "Buy Now"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:123
+#: includes/WooCommerce/class-store-copy.php:108
 msgid "Button text for checkout-forward purchase actions in Sticky Cart and Quick View."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:127
+#: includes/WooCommerce/class-store-copy.php:112
 msgid "View Cart Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:128
+#: includes/WooCommerce/class-store-copy.php:113
 msgid "View Cart"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:129
+#: includes/WooCommerce/class-store-copy.php:114
 msgid "Button text shown after an item is added to the cart."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:133
+#: includes/WooCommerce/class-store-copy.php:118
 msgid "Continue Shopping Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:134
+#: includes/WooCommerce/class-store-copy.php:119
 msgid "Continue Shopping"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:135
+#: includes/WooCommerce/class-store-copy.php:120
 msgid "Button text for closing post-cart panels and returning to browsing."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:139
+#: includes/WooCommerce/class-store-copy.php:124
 msgid "View Product Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:140
+#: includes/WooCommerce/class-store-copy.php:125
 msgid "View Full Product"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:141
+#: includes/WooCommerce/class-store-copy.php:126
 msgid "Link text for opening the full product page from custom overlays."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:145
+#: includes/WooCommerce/class-store-copy.php:130
 msgid "Back in Stock Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:146
+#: includes/WooCommerce/class-store-copy.php:131
 msgid "Notify Me"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:147
+#: includes/WooCommerce/class-store-copy.php:132
 msgid "Button and badge text for out-of-stock notification signups."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:151
+#: includes/WooCommerce/class-store-copy.php:136
 msgid "Wishlist Button Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:152
+#: includes/WooCommerce/class-store-copy.php:137
 #: src/blocks-interactivity/wishlist-button/render.php:64
 msgid "Add to Wishlist"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:153
+#: includes/WooCommerce/class-store-copy.php:138
 msgid "Accessible label and optional visible text for wishlist buttons."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:157
+#: includes/WooCommerce/class-store-copy.php:142
 msgid "Variable Price Prefix"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:158
-#: includes/WooCommerce/class-store-copy.php:163
+#: includes/WooCommerce/class-store-copy.php:143
+#: includes/WooCommerce/class-store-copy.php:148
 msgid "From"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:159
+#: includes/WooCommerce/class-store-copy.php:144
 msgid "Requires Smart Price Display. Word shown before the lowest price when a variable product’s range is collapsed to a single figure — e.g. “From $34.99”. Leave blank to show just the price with no prefix. The amount always uses your WooCommerce currency."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:160
+#: includes/WooCommerce/class-store-copy.php:145
 msgid "No prefix"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:164
+#: includes/WooCommerce/class-store-copy.php:149
 msgid "Starting at"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:165
+#: includes/WooCommerce/class-store-copy.php:150
 msgid "As low as"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:166
+#: includes/WooCommerce/class-store-copy.php:151
 msgid "Priced from"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:167
+#: includes/WooCommerce/class-store-copy.php:152
 msgid "Now from"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:173
-#: includes/WooCommerce/class-store-copy.php:179
+#: includes/WooCommerce/class-store-copy.php:158
+#: includes/WooCommerce/class-store-copy.php:164
 msgid "-{percent}%"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:174
+#: includes/WooCommerce/class-store-copy.php:159
 msgid "Sale Badge Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:175
+#: includes/WooCommerce/class-store-copy.php:160
 msgid "Requires Product Badges. Text on the automatic sale badge. Write {percent} where the discount number should go — “Save {percent}%” shows as “Save 20%”. Leave the token out for wording that never mentions a number, such as “Now on Sale”."
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:181
+#: includes/WooCommerce/class-store-copy.php:166
 msgid "{percent}% Off"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:183
-#: includes/WooCommerce/class-store-copy.php:204
-#: includes/WooCommerce/class-store-copy.php:212
+#: includes/WooCommerce/class-store-copy.php:168
+#: includes/WooCommerce/class-store-copy.php:189
+#: includes/WooCommerce/class-store-copy.php:197
 msgid "Save {percent}%"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:184
-#: includes/WooCommerce/class-store-copy.php:190
-#: includes/WooCommerce/class-store-copy.php:195
+#: includes/WooCommerce/class-store-copy.php:169
+#: includes/WooCommerce/class-store-copy.php:175
+#: includes/WooCommerce/class-store-copy.php:180
 msgid "On Sale"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:185
-#: includes/WooCommerce/class-store-copy.php:196
+#: includes/WooCommerce/class-store-copy.php:170
+#: includes/WooCommerce/class-store-copy.php:181
 msgid "Now on Sale"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:191
+#: includes/WooCommerce/class-store-copy.php:176
 msgid "Sale Badge Text (no discount)"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:192
+#: includes/WooCommerce/class-store-copy.php:177
 msgid "Fallback wording for products that are on sale but have no single discount figure — most often variable products whose variations are reduced by different amounts. Only used when Sale Badge Text asks for a percentage, so it cannot itself contain one."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:198
+#: includes/WooCommerce/class-store-copy.php:183
 msgid "Reduced"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:205
+#: includes/WooCommerce/class-store-copy.php:190
 msgid "Price Savings Text"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:206
+#: includes/WooCommerce/class-store-copy.php:191
 msgid "Note appended to the price of a reduced product. Uses the same {percent} token as the sale badge, so both can be worded the same way. Leave blank to show the price on its own. Products with no single discount figure never show this note."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:207
+#: includes/WooCommerce/class-store-copy.php:192
 msgid "No savings note"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:214
+#: includes/WooCommerce/class-store-copy.php:199
 msgid "{percent}% off"
 msgstr ""
 
 #. translators: {percent} is a literal token and must not be translated.
-#: includes/WooCommerce/class-store-copy.php:216
+#: includes/WooCommerce/class-store-copy.php:201
 msgid "You save {percent}%"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:221
+#: includes/WooCommerce/class-store-copy.php:206
 msgid "Free Shipping Message"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:223
+#: includes/WooCommerce/class-store-copy.php:208
 msgid "Shown by the Free Shipping Message and Free Shipping Bar blocks while the cart is below the free shipping threshold. Use {amount} for the amount still needed and put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:232
+#: includes/WooCommerce/class-store-copy.php:217
 msgid "Free Shipping Unlocked Message"
 msgstr ""
 
-#: includes/WooCommerce/class-store-copy.php:234
+#: includes/WooCommerce/class-store-copy.php:219
 msgid "Shown by the same blocks once the cart qualifies for free shipping. Put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
 msgstr ""
 
@@ -4381,26 +4381,26 @@ msgstr ""
 msgid "Applies to product cards, Quick View and the WooCommerce product-page button. Individual Wishlist Button blocks can override these icons."
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:311
+#: includes/WooCommerce/class-wishlist.php:303
 #: src/blocks-interactivity/wishlist-item-actions/render.php:33
 msgid "Remove from wishlist"
 msgstr ""
 
 #. translators: %s: Product name.
-#: includes/WooCommerce/class-wishlist.php:313
+#: includes/WooCommerce/class-wishlist.php:305
 #, php-format
 msgid "Remove %s from wishlist"
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:314
+#: includes/WooCommerce/class-wishlist.php:306
 msgid "Your wishlist could not be updated. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:315
+#: includes/WooCommerce/class-wishlist.php:307
 msgid "Choose options"
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:316
+#: includes/WooCommerce/class-wishlist.php:308
 #: patterns/stacked-feature-products.php:42
 #: patterns/stacked-feature-products.php:116
 #: src/blocks-interactivity/lookbook/render.php:129
@@ -4408,7 +4408,7 @@ msgstr ""
 msgid "View product"
 msgstr ""
 
-#: includes/WooCommerce/class-wishlist.php:317
+#: includes/WooCommerce/class-wishlist.php:309
 msgid "Saved on this device"
 msgstr ""
 

@@ -55,7 +55,8 @@
  * Outline thickness. stroke-width must be set here, not as an SVG
  * presentation attribute — var() is only valid in CSS property values.
  */
-.wp-block-aggressive-apparel-dark-mode-toggle.is-icon-style-outline .dark-mode-toggle__icon {
+.wp-block-aggressive-apparel-dark-mode-toggle.is-icon-style-outline
+	.dark-mode-toggle__icon {
 	stroke-width: var(--aa-dark-mode-toggle-icon-stroke-width);
 }
 
@@ -89,18 +90,19 @@ html[data-theme='dark'] .dark-mode-toggle__icon--sun,
 	letter-spacing: 0.04em;
 }
 
-.wp-block-aggressive-apparel-dark-mode-toggle.is-size-small .dark-mode-toggle__icons {
+.wp-block-aggressive-apparel-dark-mode-toggle.is-size-small
+	.dark-mode-toggle__icons {
 	width: 1rem;
 	height: 1rem;
 }
 
-.wp-block-aggressive-apparel-dark-mode-toggle.is-size-large .dark-mode-toggle__icons {
+.wp-block-aggressive-apparel-dark-mode-toggle.is-size-large
+	.dark-mode-toggle__icons {
 	width: 1.5rem;
 	height: 1.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.dark-mode-toggle__button,
 	.dark-mode-toggle__icon {
 		transition: none;

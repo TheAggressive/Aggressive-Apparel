@@ -90,7 +90,11 @@ export default function Edit({
             onChange={(val: string) => setAttributes({ displayStyle: val })}
           />
           <p
-            style={{ fontSize: '0.75rem', opacity: 0.7, margin: '0.5rem 0 0' }}
+            style={{
+              fontSize: '0.75rem',
+              opacity: 0.7,
+              margin: '0.5rem 0 0',
+            }}
           >
             {__(
               'The global default is set under Products → Product Tabs.',

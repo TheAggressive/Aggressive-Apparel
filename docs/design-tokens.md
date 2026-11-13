@@ -98,7 +98,9 @@ above the control.
   text-like inputs, `textarea`, checkbox/radio/range, file, color, raw `input`
   submit/reset/button, labels, fieldset/legend, output, autofill. Plus unlayered
   bridges for WooCommerce classic forms, select2 and the core Comments Form
-  block. `<button>` elements are NOT styled (editor-controlled).
+  block. `<button>` elements are NOT styled (editor-controlled). The entry is
+  three partials, imported in cascade order: `_forms-baseline.css` (layered),
+  `_forms-core.css` and `_forms-woocommerce.css` (unlayered).
 - **`components/forms-fluent-forms.css`** — the Fluent Forms "Inherit Theme
   Style" adapter (`.fluentform.ff-inherit-theme-style`): maps `--fluentform-*`,
   status messages, Choices.js multiselects (choice-pill chips, theme chevron,
@@ -106,13 +108,13 @@ above the control.
   `<body>`, so those rules are global and prefixed with `body` to beat
   flatpickr's equal-specificity CSS). Enqueued and added as an editor style
   only when `FLUENTFORM` is defined.
-- **Icons:** `--aa-icon-chevron|check|close|calendar` (defined in forms.css) are
+- **Icons:** `--aa-icon-chevron|check|close|calendar` (defined in `_forms-baseline.css`) are
   black SVG masks — paint them with `background-color` so they take any token
   colour.
 - **Button fallback tokens:** raw `input` submits and `.aggressive-apparel-button`
   variants read `--aa-button-*` (`settings.custom.button` typography/padding).
   `styles.elements.button` keeps literal values so Global Styles can edit them;
-  `TestStyles` fails if the two drift.
+  `Test_Styles` fails if the two drift.
 - **`<select>` paint** is `styles.elements.select` in theme.json (unlayered), so
   its states in forms.css are unlayered too. Where the browser supports
   `appearance: base-select`, the baseline also themes the open list
@@ -162,7 +164,9 @@ the mobile keyboard closed.
 
 Locked by `tests/e2e/native-form-baseline.spec.ts` (native + Fluent Forms
 computed result), `tests/e2e/checkout-field-contract.spec.ts` (checkout fields
-read the tokens, labels still float, focus/error bar), and `TestStyles`.
+read the tokens, labels still float, focus/error bar), and the compiled-CSS
+contracts in `src/styles/__tests__/css-contracts.test.ts` (layer order, the
+aa-forms baseline).
 
 ## Style Variations (FSE)
 

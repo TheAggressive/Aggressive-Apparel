@@ -147,9 +147,18 @@ export default function Edit({
             label={__('Swatch Shape', 'aggressive-apparel')}
             value={swatchShape}
             options={[
-              { label: __('Circle', 'aggressive-apparel'), value: 'circle' },
-              { label: __('Square', 'aggressive-apparel'), value: 'square' },
-              { label: __('Diamond', 'aggressive-apparel'), value: 'diamond' },
+              {
+                label: __('Circle', 'aggressive-apparel'),
+                value: 'circle',
+              },
+              {
+                label: __('Square', 'aggressive-apparel'),
+                value: 'square',
+              },
+              {
+                label: __('Diamond', 'aggressive-apparel'),
+                value: 'diamond',
+              },
             ]}
             onChange={value =>
               setAttributes({
@@ -171,12 +180,18 @@ export default function Edit({
                 label: __('X-Small (20 px)', 'aggressive-apparel'),
                 value: 'xs',
               },
-              { label: __('Small (28 px)', 'aggressive-apparel'), value: 'sm' },
+              {
+                label: __('Small (28 px)', 'aggressive-apparel'),
+                value: 'sm',
+              },
               {
                 label: __('Medium (32 px)', 'aggressive-apparel'),
                 value: 'md',
               },
-              { label: __('Large (44 px)', 'aggressive-apparel'), value: 'lg' },
+              {
+                label: __('Large (44 px)', 'aggressive-apparel'),
+                value: 'lg',
+              },
             ]}
             onChange={value =>
               setAttributes({
@@ -216,18 +231,30 @@ export default function Edit({
             label={__('Image Swap Animation', 'aggressive-apparel')}
             value={swatchTransition}
             options={[
-              { label: __('Fade', 'aggressive-apparel'), value: 'fade' },
-              { label: __('Blur', 'aggressive-apparel'), value: 'blur' },
+              {
+                label: __('Fade', 'aggressive-apparel'),
+                value: 'fade',
+              },
+              {
+                label: __('Blur', 'aggressive-apparel'),
+                value: 'blur',
+              },
               {
                 label: __('Blur + Zoom', 'aggressive-apparel'),
                 value: 'blur-zoom',
               },
-              { label: __('Zoom In', 'aggressive-apparel'), value: 'zoom-in' },
+              {
+                label: __('Zoom In', 'aggressive-apparel'),
+                value: 'zoom-in',
+              },
               {
                 label: __('Zoom Out', 'aggressive-apparel'),
                 value: 'zoom-out',
               },
-              { label: __('Elastic', 'aggressive-apparel'), value: 'elastic' },
+              {
+                label: __('Elastic', 'aggressive-apparel'),
+                value: 'elastic',
+              },
               {
                 label: __('Slide Up', 'aggressive-apparel'),
                 value: 'slide-up',
@@ -240,13 +267,34 @@ export default function Edit({
                 label: __('Slide Left', 'aggressive-apparel'),
                 value: 'slide-left',
               },
-              { label: __('Wipe', 'aggressive-apparel'), value: 'wipe' },
-              { label: __('Iris', 'aggressive-apparel'), value: 'iris' },
-              { label: __('Flip', 'aggressive-apparel'), value: 'flip' },
-              { label: __('Squeeze', 'aggressive-apparel'), value: 'squeeze' },
-              { label: __('Swing', 'aggressive-apparel'), value: 'swing' },
-              { label: __('Rotate', 'aggressive-apparel'), value: 'rotate' },
-              { label: __('Tilt', 'aggressive-apparel'), value: 'tilt' },
+              {
+                label: __('Wipe', 'aggressive-apparel'),
+                value: 'wipe',
+              },
+              {
+                label: __('Iris', 'aggressive-apparel'),
+                value: 'iris',
+              },
+              {
+                label: __('Flip', 'aggressive-apparel'),
+                value: 'flip',
+              },
+              {
+                label: __('Squeeze', 'aggressive-apparel'),
+                value: 'squeeze',
+              },
+              {
+                label: __('Swing', 'aggressive-apparel'),
+                value: 'swing',
+              },
+              {
+                label: __('Rotate', 'aggressive-apparel'),
+                value: 'rotate',
+              },
+              {
+                label: __('Tilt', 'aggressive-apparel'),
+                value: 'tilt',
+              },
               {
                 label: __('Desaturate', 'aggressive-apparel'),
                 value: 'desaturate',
@@ -255,11 +303,19 @@ export default function Edit({
                 label: __('Dissolve', 'aggressive-apparel'),
                 value: 'dissolve',
               },
-              { label: __('Flash', 'aggressive-apparel'), value: 'flash' },
-              { label: __('Glitch', 'aggressive-apparel'), value: 'glitch' },
+              {
+                label: __('Flash', 'aggressive-apparel'),
+                value: 'flash',
+              },
+              {
+                label: __('Glitch', 'aggressive-apparel'),
+                value: 'glitch',
+              },
             ]}
             onChange={value =>
-              setAttributes({ swatchTransition: value as SwatchTransition })
+              setAttributes({
+                swatchTransition: value as SwatchTransition,
+              })
             }
           />
 

@@ -103,7 +103,11 @@ describe('parseCatalogPage', () => {
     ).toEqual(expect.objectContaining({ nextUrl: '', allLoaded: true }));
     expect(
       parseCatalogPage(
-        page({ context: seed({ nextUrl: 'https://evil.test/shop/page/3/' }) }),
+        page({
+          context: seed({
+            nextUrl: 'https://evil.test/shop/page/3/',
+          }),
+        }),
         PAGE_URL,
         'a'
       )?.seed.nextUrl

@@ -197,6 +197,6 @@
 }
 
 .aa-store-copy-preview__value:empty::before {
-	content: "—";
+	content: '—';
 	color: #8c8f94;
 }

@@ -312,7 +312,10 @@ export function cartFromMutationBody(body: unknown): CartResponse | null {
   }
 
   for (let i = responses.length - 1; i >= 0; i--) {
-    const entry = responses[i] as { status?: number; body?: unknown } | null;
+    const entry = responses[i] as {
+      status?: number;
+      body?: unknown;
+    } | null;
     const status = entry?.status ?? 0;
     if (status >= 200 && status < 300 && isCart(entry?.body)) {
       return entry.body;

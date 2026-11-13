@@ -104,13 +104,6 @@ class Custom_Badge_Taxonomy {
 	private const SEED_VERSION = '1.0.0';
 
 	/**
-	 * Cached system badge data, keyed by badge_type.
-	 *
-	 * @var array<string, array<string, mixed>>|null
-	 */
-	private static ?array $system_badges_cache = null;
-
-	/**
 	 * Initialize hooks.
 	 *
 	 * @return void

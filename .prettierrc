@@ -14,7 +14,7 @@
     {
       "files": "*.css",
       "options": {
-        "disable": true
+        "useTabs": true
       }
     }
   ]

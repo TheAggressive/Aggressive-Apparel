@@ -20,9 +20,21 @@
 
 #reviews {
 	--aa-review-spine: 4px;
-	--aa-review-card-bg: color-mix(in oklch, var(--aa-color-foreground) 5%, var(--aa-color-surface));
-	--aa-review-card-bg-hover: color-mix(in oklch, var(--aa-color-foreground) 8%, var(--aa-color-surface));
-	--aa-review-reply-bg: color-mix(in oklch, var(--aa-color-foreground) 3%, var(--aa-color-surface));
+	--aa-review-card-bg: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 5%,
+		var(--aa-color-surface)
+	);
+	--aa-review-card-bg-hover: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 8%,
+		var(--aa-color-surface)
+	);
+	--aa-review-reply-bg: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 3%,
+		var(--aa-color-surface)
+	);
 
 	margin-block-start: var(--wp--preset--spacing--6);
 
@@ -72,15 +84,16 @@
 		width: 100%;
 		margin: 0;
 		padding: var(--wp--preset--spacing--6);
-		border-inline-start: var(--aa-review-spine) solid var(--aa-color-accent, var(--aa-color-accent));
+		border-inline-start: var(--aa-review-spine) solid
+			var(--aa-color-accent, var(--aa-color-accent));
 		border-radius: var(--aa-radius-card);
 		background-color: var(--aa-review-card-bg);
 		transition:
 			transform var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease),
-			background-color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
+			background-color var(--aa-duration-fast, 150ms)
+				var(--aa-ease-default, ease);
 
 		@media (hover: hover) {
-
 			&:hover {
 				transform: translateY(-2px);
 				background-color: var(--aa-review-card-bg-hover);
@@ -176,7 +189,11 @@
 
 		/* Muted, but held to 4.5:1 on the darker reply card too. */
 		& .woocommerce-review__published-date {
-			color: color-mix(in oklch, var(--aa-color-foreground-muted) 90%, var(--aa-color-foreground));
+			color: color-mix(
+				in oklch,
+				var(--aa-color-foreground-muted) 90%,
+				var(--aa-color-foreground)
+			);
 			font-size: var(--wp--preset--font-size--x-small);
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
@@ -244,7 +261,6 @@
 		background-color: var(--aa-review-reply-bg);
 
 		@media (hover: hover) {
-
 			&:hover {
 				border-inline-start-color: var(--aa-color-foreground-muted);
 			}
@@ -256,7 +272,7 @@
 	}
 
 	& .children .comment-text .description::before {
-		content: "Reply";
+		content: 'Reply';
 		display: block;
 		margin-block-end: var(--wp--preset--spacing--1);
 		color: var(--aa-color-foreground-muted);
@@ -271,7 +287,6 @@
 	 * --------------------------------------------------------------------- */
 
 	@media (width <= 600px) {
-
 		/* Keep the avatar inline with the content (a 2rem circle fits fine)
 		   rather than stacking it; tighten padding + gap for the narrow view. */
 		& li .comment_container {

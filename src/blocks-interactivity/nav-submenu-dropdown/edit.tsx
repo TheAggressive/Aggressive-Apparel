@@ -138,8 +138,14 @@ export default function Edit({
             )}
             value={openOn}
             options={[
-              { label: __('Hover', 'aggressive-apparel'), value: 'hover' },
-              { label: __('Click', 'aggressive-apparel'), value: 'click' },
+              {
+                label: __('Hover', 'aggressive-apparel'),
+                value: 'hover',
+              },
+              {
+                label: __('Click', 'aggressive-apparel'),
+                value: 'click',
+              },
             ]}
             onChange={value => setAttributes({ openOn: value as OpenTrigger })}
           />
@@ -197,7 +203,9 @@ export default function Edit({
                 value={{ url }}
                 onChange={data => {
                   if (data && typeof data === 'object') {
-                    setAttributes({ url: data.url ?? '' });
+                    setAttributes({
+                      url: data.url ?? '',
+                    });
                   }
                 }}
                 onRemove={() => {

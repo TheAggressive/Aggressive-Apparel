@@ -80,7 +80,10 @@ export function useWording(
   ) as [string | undefined, (value: string) => void, unknown];
   const canEditSite = useSelect(
     select =>
-      !!select(coreStore).canUser('update', { kind: 'root', name: 'site' }),
+      !!select(coreStore).canUser('update', {
+        kind: 'root',
+        name: 'site',
+      }),
     []
   );
 

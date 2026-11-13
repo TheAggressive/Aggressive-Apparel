@@ -157,7 +157,7 @@
 	cursor: pointer;
 }
 
-.aa-ps-chart-preview__units button[aria-pressed="true"] {
+.aa-ps-chart-preview__units button[aria-pressed='true'] {
 	background: #1e1e1e;
 	color: #fff;
 }

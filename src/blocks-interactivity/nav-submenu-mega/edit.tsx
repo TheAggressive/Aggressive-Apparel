@@ -93,7 +93,10 @@ export default function Edit({
     const measure = (): void => {
       const rect = el.getBoundingClientRect();
       const docWidth = el.ownerDocument.documentElement.clientWidth;
-      setMegaMetrics({ left: `${-rect.left}px`, width: `${docWidth}px` });
+      setMegaMetrics({
+        left: `${-rect.left}px`,
+        width: `${docWidth}px`,
+      });
     };
     measure();
     view?.addEventListener('resize', measure);
@@ -190,8 +193,14 @@ export default function Edit({
             )}
             value={openOn}
             options={[
-              { label: __('Hover', 'aggressive-apparel'), value: 'hover' },
-              { label: __('Click', 'aggressive-apparel'), value: 'click' },
+              {
+                label: __('Hover', 'aggressive-apparel'),
+                value: 'hover',
+              },
+              {
+                label: __('Click', 'aggressive-apparel'),
+                value: 'click',
+              },
             ]}
             onChange={value => setAttributes({ openOn: value as OpenTrigger })}
           />
@@ -248,7 +257,9 @@ export default function Edit({
                 value={{ url }}
                 onChange={data => {
                   if (data && typeof data === 'object') {
-                    setAttributes({ url: data.url ?? '' });
+                    setAttributes({
+                      url: data.url ?? '',
+                    });
                   }
                 }}
                 onRemove={() => {

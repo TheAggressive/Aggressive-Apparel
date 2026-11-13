@@ -37,7 +37,10 @@ function measure(label: string): ChartColumn {
 }
 
 function rows(sizes: string[], columns: number) {
-  return sizes.map(size => ({ size, values: Array(columns).fill('') }));
+  return sizes.map(size => ({
+    size,
+    values: Array(columns).fill(''),
+  }));
 }
 
 /** Starting points for a new guide. */
@@ -73,7 +76,11 @@ export function templates(): Template[] {
     },
     {
       name: __('Hats', 'aggressive-apparel'),
-      chart: { unit: 'in', columns: hats, rows: rows(['S/M', 'L/XL'], 1) },
+      chart: {
+        unit: 'in',
+        columns: hats,
+        rows: rows(['S/M', 'L/XL'], 1),
+      },
     },
     {
       name: __('Blank', 'aggressive-apparel'),
@@ -219,7 +226,10 @@ export function pasteGrid(
   const next: Chart = {
     unit: chart.unit,
     columns: chart.columns.map(item => ({ ...item })),
-    rows: chart.rows.map(item => ({ ...item, values: [...item.values] })),
+    rows: chart.rows.map(item => ({
+      ...item,
+      values: [...item.values],
+    })),
   };
 
   const header =
@@ -256,7 +266,10 @@ export function pasteGrid(
       return;
     }
     while (next.rows.length <= target) {
-      next.rows.push({ size: '', values: Array(next.columns.length).fill('') });
+      next.rows.push({
+        size: '',
+        values: Array(next.columns.length).fill(''),
+      });
     }
     line.forEach((cell, i) => {
       const col = column + i;

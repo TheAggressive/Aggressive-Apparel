@@ -242,7 +242,9 @@ test.describe('catalog pagination with JavaScript', () => {
     await page.keyboard.press('Enter');
 
     await expect
-      .poll(async () => (await cardIds(page)).length, { timeout: 15_000 })
+      .poll(async () => (await cardIds(page)).length, {
+        timeout: 15_000,
+      })
       .toBeGreaterThan(before.length);
     await expect(button).not.toHaveAttribute('aria-busy', 'true');
 
@@ -283,7 +285,9 @@ test.describe('catalog pagination with JavaScript', () => {
     expect((await continuation).status()).toBe(200);
 
     await expect
-      .poll(async () => (await cardIds(page)).length, { timeout: 15_000 })
+      .poll(async () => (await cardIds(page)).length, {
+        timeout: 15_000,
+      })
       .toBeGreaterThan(before.length);
     // Server pages 1 + 2, in order: nothing duplicated or skipped.
     expect(await cardIds(page)).toEqual([
@@ -330,7 +334,9 @@ test.describe('catalog pagination with JavaScript', () => {
       const before = (await cardIds(page)).length;
       await page.locator('.aa-load-more__btn').click();
       await expect
-        .poll(async () => (await cardIds(page)).length, { timeout: 15_000 })
+        .poll(async () => (await cardIds(page)).length, {
+          timeout: 15_000,
+        })
         .toBeGreaterThan(before);
 
       const cards = await page.evaluate(

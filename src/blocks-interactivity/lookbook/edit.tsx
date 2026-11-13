@@ -90,22 +90,32 @@ function getLookbookColorStyles({
   return {
     '--aa-lookbook-hotspot-size': `${hotspotSize || 32}px`,
     ...(hotspotBgColor
-      ? { '--aa-lookbook-hotspot-bg': normalizeColorValue(hotspotBgColor) }
+      ? {
+          '--aa-lookbook-hotspot-bg': normalizeColorValue(hotspotBgColor),
+        }
       : {}),
     ...(hotspotTextColor
-      ? { '--aa-lookbook-hotspot-color': normalizeColorValue(hotspotTextColor) }
+      ? {
+          '--aa-lookbook-hotspot-color': normalizeColorValue(hotspotTextColor),
+        }
       : {}),
     ...(cardBgColor
       ? { '--aa-lookbook-card-bg': normalizeColorValue(cardBgColor) }
       : {}),
     ...(cardTextColor
-      ? { '--aa-lookbook-card-text': normalizeColorValue(cardTextColor) }
+      ? {
+          '--aa-lookbook-card-text': normalizeColorValue(cardTextColor),
+        }
       : {}),
     ...(actionBgColor
-      ? { '--aa-lookbook-action-bg': normalizeColorValue(actionBgColor) }
+      ? {
+          '--aa-lookbook-action-bg': normalizeColorValue(actionBgColor),
+        }
       : {}),
     ...(actionIconColor
-      ? { '--aa-lookbook-action-color': normalizeColorValue(actionIconColor) }
+      ? {
+          '--aa-lookbook-action-color': normalizeColorValue(actionIconColor),
+        }
       : {}),
   } as CSSProperties;
 }
@@ -291,7 +301,10 @@ export default function Edit({
 
   const productSelectOptions = useMemo(
     () => [
-      { label: __('Select a product', 'aggressive-apparel'), value: '' },
+      {
+        label: __('Select a product', 'aggressive-apparel'),
+        value: '',
+      },
       ...Array.from(productOptionsById.values()),
     ],
     [productOptionsById]
@@ -509,7 +522,12 @@ export default function Edit({
                 padding: '0.5rem',
               }}
             >
-              <p style={{ margin: '0 0 0.5rem', fontWeight: 600 }}>
+              <p
+                style={{
+                  margin: '0 0 0.5rem',
+                  fontWeight: 600,
+                }}
+              >
                 {`#${index + 1}`}
               </p>
               <ComboboxControl
@@ -559,7 +577,9 @@ export default function Edit({
                 label={__('Horizontal position (%)', 'aggressive-apparel')}
                 value={hotspot.x}
                 onChange={value =>
-                  updateHotspot(index, { x: value ?? hotspot.x })
+                  updateHotspot(index, {
+                    x: value ?? hotspot.x,
+                  })
                 }
                 min={0}
                 max={100}
@@ -571,7 +591,9 @@ export default function Edit({
                 label={__('Vertical position (%)', 'aggressive-apparel')}
                 value={hotspot.y}
                 onChange={value =>
-                  updateHotspot(index, { y: value ?? hotspot.y })
+                  updateHotspot(index, {
+                    y: value ?? hotspot.y,
+                  })
                 }
                 min={0}
                 max={100}

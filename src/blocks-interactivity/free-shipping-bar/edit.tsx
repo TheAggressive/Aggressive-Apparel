@@ -44,7 +44,9 @@ export default function Edit({
             )}
             value={customThreshold === 0 ? '' : String(customThreshold)}
             onChange={(val: string) =>
-              setAttributes({ customThreshold: parseFloat(val) || 0 })
+              setAttributes({
+                customThreshold: parseFloat(val) || 0,
+              })
             }
             type='number'
             min={0}
@@ -55,7 +57,9 @@ export default function Edit({
         <div className='aggressive-apparel-shipping-bar__track'>
           <div
             className='aggressive-apparel-shipping-bar__progress'
-            style={{ width: wording.state === 'unlocked' ? '100%' : '60%' }}
+            style={{
+              width: wording.state === 'unlocked' ? '100%' : '60%',
+            }}
           />
         </div>
         <p className='aggressive-apparel-shipping-bar__message'>

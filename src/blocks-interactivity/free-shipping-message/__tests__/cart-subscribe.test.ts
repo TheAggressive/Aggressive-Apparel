@@ -212,7 +212,12 @@ describe('free-shipping cart subscriptions', () => {
   it('marks the bar complete when a free-shipping coupon unlocks it', async () => {
     document.cookie = 'woocommerce_items_in_cart=1';
     fetchMock.mockResolvedValue(
-      cartResponse({ threshold: 7500, subtotal: 1000, rate: 1, unlocked: true })
+      cartResponse({
+        threshold: 7500,
+        subtotal: 1000,
+        rate: 1,
+        unlocked: true,
+      })
     );
     const { subscribeFreeShippingBarCartRefresh } = loadModule();
     const ctx = barContext();
@@ -261,7 +266,9 @@ describe('free-shipping cart subscriptions', () => {
     expect(pendingReads).toHaveLength(1);
 
     // Address change lands while the first read is still in flight.
-    void window.fetch(`${REST_BASE}/cart/update-customer`, { method: 'POST' });
+    void window.fetch(`${REST_BASE}/cart/update-customer`, {
+      method: 'POST',
+    });
     await flushRefresh();
     expect(pendingReads).toHaveLength(2);
 
@@ -282,8 +289,16 @@ describe('free-shipping cart subscriptions', () => {
       fetchMock.mockImplementation((_input: string, init?: RequestInit) =>
         Promise.resolve(
           init?.method === 'POST'
-            ? cartResponse({ threshold: 7500, subtotal: 3000, rate: 1 })
-            : cartResponse({ threshold: 0, subtotal: 0, rate: 1 })
+            ? cartResponse({
+                threshold: 7500,
+                subtotal: 3000,
+                rate: 1,
+              })
+            : cartResponse({
+                threshold: 0,
+                subtotal: 0,
+                rate: 1,
+              })
         )
       );
       const { subscribeFreeShippingCartRefresh } = loadModule();
@@ -312,11 +327,19 @@ describe('free-shipping cart subscriptions', () => {
           responses: [
             {
               status: 200,
-              body: cartBody({ threshold: 7500, subtotal: 1000, rate: 1 }),
+              body: cartBody({
+                threshold: 7500,
+                subtotal: 1000,
+                rate: 1,
+              }),
             },
             {
               status: 200,
-              body: cartBody({ threshold: 7500, subtotal: 5000, rate: 1 }),
+              body: cartBody({
+                threshold: 7500,
+                subtotal: 5000,
+                rate: 1,
+              }),
             },
             {
               status: 400,
@@ -345,8 +368,12 @@ describe('free-shipping cart subscriptions', () => {
       const ctx = messageContext();
       unsubscribes.push(subscribeFreeShippingCartRefresh(ctx));
 
-      void window.fetch(`${REST_BASE}/cart/add-item`, { method: 'POST' });
-      void window.fetch(`${REST_BASE}/cart/remove-item`, { method: 'POST' });
+      void window.fetch(`${REST_BASE}/cart/add-item`, {
+        method: 'POST',
+      });
+      void window.fetch(`${REST_BASE}/cart/remove-item`, {
+        method: 'POST',
+      });
 
       posts[1](cartResponse({ threshold: 7500, subtotal: 1000, rate: 1 }));
       await flushMicrotasks();
@@ -361,7 +388,11 @@ describe('free-shipping cart subscriptions', () => {
         Promise.resolve(
           input.includes('wc-ajax')
             ? jsonResponse({ fragments: {}, cart_hash: 'abc' })
-            : cartResponse({ threshold: 7500, subtotal: 2000, rate: 1 })
+            : cartResponse({
+                threshold: 7500,
+                subtotal: 2000,
+                rate: 1,
+              })
         )
       );
       const { subscribeFreeShippingCartRefresh } = loadModule();

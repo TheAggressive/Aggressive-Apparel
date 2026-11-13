@@ -49,7 +49,10 @@ export default function ChartEditor({ chart, limits, onChange }: Props) {
     }
   });
 
-  const blankRow = () => ({ size: '', values: chart.columns.map(() => '') });
+  const blankRow = () => ({
+    size: '',
+    values: chart.columns.map(() => ''),
+  });
 
   const setCell = (row: number, column: number, value: string) =>
     onChange({
@@ -80,7 +83,10 @@ export default function ChartEditor({ chart, limits, onChange }: Props) {
     }
     const row =
       copyFrom !== undefined
-        ? { ...chart.rows[copyFrom], values: [...chart.rows[copyFrom].values] }
+        ? {
+            ...chart.rows[copyFrom],
+            values: [...chart.rows[copyFrom].values],
+          }
         : blankRow();
     const rows = [...chart.rows];
     rows.splice(at, 0, row);
@@ -163,11 +169,20 @@ export default function ChartEditor({ chart, limits, onChange }: Props) {
           label={__('Measurements entered in', 'aggressive-apparel')}
           value={chart.unit}
           options={[
-            { value: 'in', label: __('Inches', 'aggressive-apparel') },
-            { value: 'cm', label: __('Centimetres', 'aggressive-apparel') },
+            {
+              value: 'in',
+              label: __('Inches', 'aggressive-apparel'),
+            },
+            {
+              value: 'cm',
+              label: __('Centimetres', 'aggressive-apparel'),
+            },
           ]}
           onChange={unit =>
-            onChange({ ...chart, unit: unit === 'cm' ? 'cm' : 'in' })
+            onChange({
+              ...chart,
+              unit: unit === 'cm' ? 'cm' : 'in',
+            })
           }
           help={__(
             'Shoppers can switch between inches and centimetres.',
@@ -204,7 +219,9 @@ export default function ChartEditor({ chart, limits, onChange }: Props) {
                         c + 1
                       )}
                       onChange={event =>
-                        setColumn(c, { label: event.target.value })
+                        setColumn(c, {
+                          label: event.target.value,
+                        })
                       }
                     />
                     <DropdownMenu

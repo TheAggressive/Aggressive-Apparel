@@ -19,7 +19,8 @@
 }
 
 /* Phase 1 close: fade and slide the panel off-screen; is-open keeps the scrim up. */
-.aggressive-apparel-size-guide__overlay.is-open.is-closing .aggressive-apparel-panel--guide {
+.aggressive-apparel-size-guide__overlay.is-open.is-closing
+	.aggressive-apparel-panel--guide {
 	opacity: 0;
 	transform: translateY(calc(100% + 2rem));
 	transition:
@@ -28,7 +29,8 @@
 }
 
 /* Phase 2 close: keep panel off-screen, hide it, fade the scrim. */
-.aggressive-apparel-size-guide__overlay.is-backdrop-closing .aggressive-apparel-panel--guide {
+.aggressive-apparel-size-guide__overlay.is-backdrop-closing
+	.aggressive-apparel-panel--guide {
 	transform: translateY(calc(100% + 2rem));
 	opacity: 0;
 	visibility: hidden;
@@ -39,25 +41,27 @@
 /* Must beat .aggressive-apparel-overlay.is-open .aggressive-apparel-overlay__backdrop
  * while is-open stays true through the close sequence. Do not clear background-color
  * here — it is not in --aa-transition-overlay and would snap off instantly. */
-.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing .aggressive-apparel-overlay__backdrop {
+.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing
+	.aggressive-apparel-overlay__backdrop {
 	opacity: 0;
 	transition: var(--aa-size-guide-exit-transition);
 }
 
 @supports (backdrop-filter: blur(1px)) {
-
-	.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing .aggressive-apparel-overlay__backdrop {
+	.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing
+		.aggressive-apparel-overlay__backdrop {
 		backdrop-filter: blur(0);
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-	.aggressive-apparel-size-guide__overlay.is-open.is-closing .aggressive-apparel-panel--guide {
+	.aggressive-apparel-size-guide__overlay.is-open.is-closing
+		.aggressive-apparel-panel--guide {
 		transition: none;
 	}
 
-	.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing .aggressive-apparel-overlay__backdrop {
+	.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing
+		.aggressive-apparel-overlay__backdrop {
 		transition: none;
 	}
 }
@@ -73,8 +77,10 @@
 	gap: 0.75rem;
 	margin-bottom: 0;
 	min-height: var(--aa-compact-action-height);
-	padding: var(--aa-compact-action-padding-block) var(--aa-compact-action-padding-inline);
-	border: var(--aa-compact-action-border-width) solid var(--wp--custom--button--secondary--border);
+	padding: var(--aa-compact-action-padding-block)
+		var(--aa-compact-action-padding-inline);
+	border: var(--aa-compact-action-border-width) solid
+		var(--wp--custom--button--secondary--border);
 	border-radius: var(--aa-radius-button);
 	background: var(--wp--custom--button--secondary--background);
 	color: var(--wp--custom--button--secondary--text);
@@ -255,9 +261,9 @@
 		white-space: normal;
 	}
 
-  thead {
-    border: none;
-  }
+	thead {
+		border: none;
+	}
 
 	thead th {
 		color: var(--aa-color-accent);
@@ -275,7 +281,11 @@
 	}
 
 	tbody tr:nth-child(even) td {
-		background-color: color-mix(in oklch, var(--aa-color-foreground) 4%, transparent);
+		background-color: color-mix(
+			in oklch,
+			var(--aa-color-foreground) 4%,
+			transparent
+		);
 	}
 
 	tbody tr:last-child th,
@@ -284,7 +294,11 @@
 	}
 
 	tbody tr:hover td {
-		background-color: color-mix(in oklch, var(--aa-color-foreground) 7%, transparent);
+		background-color: color-mix(
+			in oklch,
+			var(--aa-color-foreground) 7%,
+			transparent
+		);
 	}
 }
 
@@ -292,8 +306,18 @@
  * Beat WooCommerce `.woocommerce div.product form.cart table td { padding-left: inherit }`
  * (0,3,4) which zeros td inline-start padding when the guide sits inside form.cart.
  */
-.woocommerce div.product form.cart .aggressive-apparel-size-guide__body table th,
-.woocommerce div.product form.cart .aggressive-apparel-size-guide__body table td {
+.woocommerce
+	div.product
+	form.cart
+	.aggressive-apparel-size-guide__body
+	table
+	th,
+.woocommerce
+	div.product
+	form.cart
+	.aggressive-apparel-size-guide__body
+	table
+	td {
 	padding: var(--aa-size-guide-cell-padding, 0.7rem 1.25rem);
 }
 
@@ -302,7 +326,6 @@
  * ----------------------------------------------- */
 
 @media (width <= 480px) {
-
 	.aggressive-apparel-size-guide__modal.aggressive-apparel-panel--guide {
 		width: min(95vw, 100%);
 		min-width: 0;
@@ -316,13 +339,13 @@
 
 /* Opacity-only open fade — works for any row count. */
 @media (prefers-reduced-motion: no-preference) {
-
-	.aggressive-apparel-size-guide__overlay.is-open .aggressive-apparel-size-guide__body table {
+	.aggressive-apparel-size-guide__overlay.is-open
+		.aggressive-apparel-size-guide__body
+		table {
 		animation: sg-table-in 0.3s ease both;
 	}
 
 	@keyframes sg-table-in {
-
 		from {
 			opacity: 0;
 		}
@@ -343,8 +366,8 @@
 	gap: 0.75rem;
 }
 
-.aa-size-chart[data-unit="in"] .aa-size-chart__v[data-show="cm"],
-.aa-size-chart[data-unit="cm"] .aa-size-chart__v[data-show="in"] {
+.aa-size-chart[data-unit='in'] .aa-size-chart__v[data-show='cm'],
+.aa-size-chart[data-unit='cm'] .aa-size-chart__v[data-show='in'] {
 	display: none;
 }
 
@@ -373,7 +396,7 @@
 		color var(--aa-duration-fast) var(--aa-ease-default);
 }
 
-.aa-size-chart__unit-button[aria-pressed="true"] {
+.aa-size-chart__unit-button[aria-pressed='true'] {
 	background: var(--aa-color-foreground);
 	color: var(--aa-color-surface);
 }
@@ -416,17 +439,41 @@
 	white-space: nowrap;
 }
 
-.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr:nth-child(even) th {
-	background: color-mix(in oklch, var(--aa-color-foreground) 4%, var(--aa-color-surface));
+.aggressive-apparel-size-guide__body
+	.aa-size-chart__table
+	tbody
+	tr:nth-child(even)
+	th {
+	background: color-mix(
+		in oklch,
+		var(--aa-color-foreground) 4%,
+		var(--aa-color-surface)
+	);
 }
 
-.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr.is-selected th,
-.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr.is-selected td {
-	background: color-mix(in oklch, var(--aa-color-accent) 14%, var(--aa-color-surface));
+.aggressive-apparel-size-guide__body
+	.aa-size-chart__table
+	tbody
+	tr.is-selected
+	th,
+.aggressive-apparel-size-guide__body
+	.aa-size-chart__table
+	tbody
+	tr.is-selected
+	td {
+	background: color-mix(
+		in oklch,
+		var(--aa-color-accent) 14%,
+		var(--aa-color-surface)
+	);
 	color: var(--aa-color-foreground);
 }
 
-.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr.is-selected th {
+.aggressive-apparel-size-guide__body
+	.aa-size-chart__table
+	tbody
+	tr.is-selected
+	th {
 	box-shadow: inset 3px 0 0 var(--aa-color-accent);
 }
 

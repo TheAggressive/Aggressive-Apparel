@@ -35,7 +35,9 @@ export default function Edit({
   const { icon, iconSize, label, isDecorative } = attributes;
 
   // Text alignment comes from native `typography.textAlign` support.
-  const blockProps = useBlockProps({ className: 'aggressive-apparel-icon' });
+  const blockProps = useBlockProps({
+    className: 'aggressive-apparel-icon',
+  });
 
   const showLabelNotice = !isDecorative && !label.trim();
 

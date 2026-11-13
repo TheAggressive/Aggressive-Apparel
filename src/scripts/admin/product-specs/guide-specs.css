@@ -141,7 +141,6 @@
 }
 
 @media (width <= 782px) {
-
 	/* The value takes its own line under the name and actions. */
 	.aa-ps-spec-row {
 		grid-template-columns: minmax(0, 1fr) auto;

@@ -63,7 +63,6 @@
 }
 
 @container wishlist (width < 340px) {
-
 	.aa-wishlist-page__grid {
 		grid-template-columns: minmax(0, 1fr);
 	}
@@ -74,14 +73,15 @@
 }
 
 @container wishlist (width >= 640px) {
-
 	.aa-wishlist-page__grid {
-		grid-template-columns: repeat(var(--aa-wl-columns-tablet, 2), minmax(0, 1fr));
+		grid-template-columns: repeat(
+			var(--aa-wl-columns-tablet, 2),
+			minmax(0, 1fr)
+		);
 	}
 }
 
 @container wishlist (width >= 900px) {
-
 	.aa-wishlist-page__grid {
 		grid-template-columns: repeat(var(--aa-wl-columns, 4), minmax(0, 1fr));
 	}
@@ -210,7 +210,8 @@
 }
 
 /* The visible chip is smaller than its unchanged touch target. */
-.aa-wishlist-page__card .aa-wl-item-actions__remove:not(.aa-wl-item-actions__remove--labeled) {
+.aa-wishlist-page__card
+	.aa-wl-item-actions__remove:not(.aa-wl-item-actions__remove--labeled) {
 	--aa-icon-button-background: transparent;
 	--aa-icon-button-border: transparent;
 	--aa-icon-button-color: var(--aa-color-foreground);
@@ -226,7 +227,7 @@
 		border: 1px solid var(--aa-color-border-default);
 		border-radius: inherit;
 		background: var(--aa-color-surface);
-		content: "";
+		content: '';
 		pointer-events: none;
 	}
 
@@ -238,7 +239,6 @@
 }
 
 @container wishlist-card (width < 240px) {
-
 	.aa-wl-item-name,
 	.aa-wl-item-price,
 	.aa-wl-item-actions {
@@ -251,7 +251,6 @@
 }
 
 @container wishlist-card (width < 180px) {
-
 	.aa-wl-item-actions__view svg {
 		display: none;
 	}
@@ -322,7 +321,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-wishlist-page__card,
 	.aa-wl-item-image__img {
 		transition: none;

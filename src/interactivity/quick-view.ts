@@ -266,7 +266,10 @@ export const { state, actions } = store<QuickViewStore>(
         const images = state.productImages;
         const index = state.activeImageIndex;
         if (images.length === 0) {
-          return { src: state.productImage, alt: state.productImageAlt };
+          return {
+            src: state.productImage,
+            alt: state.productImageAlt,
+          };
         }
         return images[index] || images[0] || { src: '', alt: '' };
       },
@@ -486,7 +489,9 @@ export const { state, actions } = store<QuickViewStore>(
        * Replaces data-wp-bind--src which Breeze's DOMDocument mangles.
        */
       syncCurrentImage(): void {
-        const { ref } = getElement() as { ref: HTMLImageElement | null };
+        const { ref } = getElement() as {
+          ref: HTMLImageElement | null;
+        };
         if (!ref) return;
         const img = state.currentImage;
         ref.src = img.src || '';
@@ -499,7 +504,9 @@ export const { state, actions } = store<QuickViewStore>(
        */
       syncThumbnail(): void {
         const ctx = getContext<QuickViewContext>();
-        const { ref } = getElement() as { ref: HTMLImageElement | null };
+        const { ref } = getElement() as {
+          ref: HTMLImageElement | null;
+        };
         const item = ctx.item as GalleryImage | undefined;
         if (!ref || !item) return;
         ref.src = item.thumbnail || '';

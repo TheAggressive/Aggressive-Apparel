@@ -127,7 +127,9 @@ export default function Edit({
               },
             ]}
             onChange={value =>
-              setAttributes({ animationStyle: value as AnimationStyle })
+              setAttributes({
+                animationStyle: value as AnimationStyle,
+              })
             }
           />
           <ToggleControl
@@ -173,7 +175,9 @@ export default function Edit({
                 value={{ url }}
                 onChange={data => {
                   if (data && typeof data === 'object') {
-                    setAttributes({ url: data.url ?? '' });
+                    setAttributes({
+                      url: data.url ?? '',
+                    });
                   }
                 }}
                 onRemove={() => {

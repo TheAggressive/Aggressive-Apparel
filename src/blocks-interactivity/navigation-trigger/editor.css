@@ -9,15 +9,15 @@
  */
 
 .aa-nav-trigger--editor {
-  display: flex !important;
-  align-items: center;
-  gap: 6px;
-  padding: 0.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: inherit;
-  min-width: 44px;
-  min-height: 44px;
-  justify-content: center;
+	display: flex !important;
+	align-items: center;
+	gap: 6px;
+	padding: 0.5rem;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: inherit;
+	min-width: 44px;
+	min-height: 44px;
+	justify-content: center;
 }

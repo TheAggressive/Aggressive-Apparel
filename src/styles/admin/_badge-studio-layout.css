@@ -14,8 +14,8 @@
  * at the top-left while the placeholder sinks.
  */
 body.taxonomy-aa_product_badge .aa-badge-studio__search {
-	display: flex !important;
-	align-items: center !important;
+	display: flex;
+	align-items: center;
 	gap: 10px;
 	box-sizing: border-box;
 	min-height: 40px;
@@ -44,10 +44,10 @@ body.taxonomy-aa_product_badge .aa-badge-studio__search input[type='search'] {
 	max-height: none;
 	margin: 0;
 	padding: 0;
-	border: 0 !important;
+	border: 0;
 	border-radius: 0;
-	background: transparent !important;
-	box-shadow: none !important;
+	background: transparent;
+	box-shadow: none;
 	outline: none;
 	font: inherit;
 	font-size: 13px;
@@ -274,7 +274,9 @@ body.taxonomy-aa_product_badge
 }
 
 .aa-badge-studio__preset-chip--layered {
-	box-shadow: 0 0 0 2px #fff, 0 0 0 3px #111;
+	box-shadow:
+		0 0 0 2px #fff,
+		0 0 0 3px #111;
 }
 
 .aa-badge-studio__preset-chip--stamp {
@@ -519,7 +521,6 @@ body.taxonomy-aa_product_badge
 }
 
 .aa-badge-studio__stage-scale {
-
 	/* Prefer zoom over transform so glass backdrop-filter keeps a real backdrop. */
 	transform-origin: center center;
 }

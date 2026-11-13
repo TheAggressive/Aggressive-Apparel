@@ -12,7 +12,9 @@ for (const route of ['/', '/shop/']) {
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(route, { waitUntil: 'networkidle' });
-    await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
+    await page.addStyleTag({
+      content: 'html { font-size: 200% !important; }',
+    });
     await page.evaluate(() => document.fonts.ready);
     await expect
       .poll(() =>

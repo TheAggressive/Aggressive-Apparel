@@ -21,7 +21,6 @@
  */
 
 .wc-block-checkout__payment-method {
-
 	.wc-block-components-radio-control {
 		display: flex;
 		flex-direction: column;
@@ -30,7 +29,8 @@
 
 	/* No shared frame or separators between cards. */
 	.wc-block-components-radio-control--highlight-checked::after,
-	.wc-block-components-radio-control--highlight-checked .wc-block-components-radio-control-accordion-option::after {
+	.wc-block-components-radio-control--highlight-checked
+		.wc-block-components-radio-control-accordion-option::after {
 		content: none;
 	}
 
@@ -46,7 +46,6 @@
 
 		/* Real hover only: on touch screens a tap would leave it stuck on. */
 		@media (hover: hover) and (pointer: fine) {
-
 			&:hover {
 				border-color: color-mix(in srgb, currentcolor 75%, transparent);
 			}
@@ -62,7 +61,8 @@
 	/* Selected card: its 1px border in the text color, in place of WooCommerce's
 	 * inset ring and 4px radius; the accent check badge carries the brand
 	 * color. */
-	.wc-block-components-radio-control--highlight-checked .wc-block-components-radio-control-accordion-option--checked-option-highlighted {
+	.wc-block-components-radio-control--highlight-checked
+		.wc-block-components-radio-control-accordion-option--checked-option-highlighted {
 		border-color: currentcolor;
 		border-radius: var(--aa-radius-lg);
 		background-color: color-mix(in srgb, currentcolor 6%, transparent);
@@ -77,7 +77,8 @@
 		color: inherit;
 
 		@media (prefers-reduced-motion: no-preference) {
-			transition: padding-inline-start var(--aa-duration-normal) var(--aa-ease-spring);
+			transition: padding-inline-start var(--aa-duration-normal)
+				var(--aa-ease-spring);
 		}
 
 		&.wc-block-components-radio-control__option-checked {
@@ -86,7 +87,7 @@
 
 		/* The check badge: an accent disc with a white check that springs in. */
 		&::before {
-			content: "";
+			content: '';
 			position: absolute;
 			inset-block-start: 50%;
 			inset-inline-start: 16px;
@@ -94,7 +95,9 @@
 			height: 1.25rem;
 			margin-block-start: -0.625rem;
 			border-radius: 50%;
-			background: var(--aa-color-accent-fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='2.5 6.5 5 9 9.5 3.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 0.75rem no-repeat;
+			background: var(--aa-color-accent-fill)
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='2.5 6.5 5 9 9.5 3.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+				center / 0.75rem no-repeat;
 			opacity: 0;
 			scale: 0;
 
@@ -113,7 +116,8 @@
 
 	/* The native radio, invisible and stretched over the header: the whole
 	 * header is its hit area, and it keeps focus, arrow keys and its label. */
-	.wc-block-components-radio-control .wc-block-components-radio-control__input[type="radio"] {
+	.wc-block-components-radio-control
+		.wc-block-components-radio-control__input[type='radio'] {
 		inset: 0;
 		width: 100%;
 		height: 100%;
@@ -186,10 +190,9 @@
 /* Forced colors repaint the borders and badge in system colors, so selected
  * and unselected cards would look alike: show the native radios instead. */
 @media (forced-colors: active) {
-
 	.wc-block-checkout__payment-method {
-
-		.wc-block-components-radio-control .wc-block-components-radio-control__input[type="radio"] {
+		.wc-block-components-radio-control
+			.wc-block-components-radio-control__input[type='radio'] {
 			appearance: auto;
 			inset-block: 50% auto;
 			inset-inline: 16px auto;

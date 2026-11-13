@@ -57,7 +57,9 @@ export default function Edit({
             )}
             value={customThreshold === 0 ? '' : String(customThreshold)}
             onChange={value =>
-              setAttributes({ customThreshold: parseFloat(value) || 0 })
+              setAttributes({
+                customThreshold: parseFloat(value) || 0,
+              })
             }
             type='number'
             min={0}

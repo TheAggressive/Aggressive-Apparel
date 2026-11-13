@@ -24,6 +24,7 @@
     "rule-empty-line-before": [
       "always",
       {
+        "except": ["first-nested"],
         "ignore": ["after-comment"]
       }
     ],
@@ -43,13 +44,14 @@
     "comment-empty-line-before": [
       "always",
       {
+        "except": ["first-nested"],
         "ignore": ["stylelint-commands"]
       }
     ],
     "at-rule-empty-line-before": [
       "always",
       {
-        "except": ["blockless-after-blockless"],
+        "except": ["blockless-after-blockless", "first-nested"],
         "ignore": ["after-comment"]
       }
     ],

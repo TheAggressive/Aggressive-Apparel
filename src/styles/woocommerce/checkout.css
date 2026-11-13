@@ -26,55 +26,62 @@
  * wrappers — pin an explicit resting weight here so they match. */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
-  color: var(--aa-field-label-color);
-  font-weight: var(--aa-field-label-weight);
-  text-transform: var(--aa-field-label-transform);
-  letter-spacing: var(--aa-field-label-tracking);
+	color: var(--aa-field-label-color);
+	font-weight: var(--aa-field-label-weight);
+	text-transform: var(--aa-field-label-transform);
+	letter-spacing: var(--aa-field-label-tracking);
 
-  /* !important: WC sizes the select label at 13px with the same specificity as
-   * this rule, so without it the base size is a load-order tie (selects end up
-   * a hair different from text inputs). Pin both to the label size. */
-  font-size: var(--aa-field-label-size) !important;
+	/* !important: WC sizes the select label at 13px with the same specificity as
+	 * this rule, so without it the base size is a load-order tie (selects end up
+	 * a hair different from text inputs). Pin both to the label size. */
+	font-size: var(--aa-field-label-size);
 }
 
 /* Express payment title */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-express-payment--checkout .wc-block-components-express-payment__title {
-  font-size: var(--wp--preset--font-size--xxx-large);
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-express-payment--checkout
+	.wc-block-components-express-payment__title {
+	font-size: var(--wp--preset--font-size--xxx-large);
 }
 
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-express-payment-continue-rule {
-  font-size: var(--wp--preset--font-size--medium);
-  margin: var(--wp--preset--spacing--8) 0 var(--wp--preset--spacing--8);
-  text-transform: capitalize;
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-express-payment-continue-rule {
+	font-size: var(--wp--preset--font-size--medium);
+	margin: var(--wp--preset--spacing--8) 0 var(--wp--preset--spacing--8);
+	text-transform: capitalize;
 }
 
 /* Active weight (label floated up): text inputs once focused or filled (WC adds
  * .is-active), AND all selects — a select always has a value, so its label is
  * always floated, including on page load. */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input.is-active label,
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input:focus-within label,
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-text-input.is-active
+	label,
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-text-input:focus-within
+	label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
-  scale: 0.85;
-  transform-origin: top left; /* select label has no origin -> drifts right */
+	scale: 0.85;
+	transform-origin: top left; /* select label has no origin -> drifts right */
 
-  /* WC also shrinks the *text-input* floated label with `transform: scale(.82)`,
-   * which selects don't get — so their floated labels ended up larger. Strip
-   * that extra transform so both float at the same `scale(0.85)` size. (No-op on
-   * selects, which have no transform.) */
-  transform: none !important;
+	/* WC also shrinks the *text-input* floated label with `transform: scale(.82)`,
+	 * which selects don't get — so their floated labels ended up larger. Strip
+	 * that extra transform so both float at the same `scale(0.85)` size. (No-op on
+	 * selects, which have no transform.) */
+	transform: none !important;
 }
 
 /* Links inside checkbox labels (terms, privacy) — underlined, so they're not
  * told apart from the label by colour alone (WCAG 1.4.1). */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkbox__label a {
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
 }
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need
  * the adaptive light colour to be readable. */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkbox__label {
-  color: var(--aa-color-foreground);
+	color: var(--aa-color-foreground);
 }
 
 /* Step headings ("Contact information", "Shipping address", …) — WC sets these
@@ -82,28 +89,33 @@
  * The payment step is excluded: its heading sits above provider-rendered
  * (iframe) payment methods and the large size looks out of place there. */
 :is(.wc-block-checkout, .wc-block-cart)
-  .wc-block-components-checkout-step:not(.wp-block-woocommerce-checkout-payment-block)
-  .wc-block-components-checkout-step__title, .wc-block-components-title {
-  font-size: var(--wp--preset--font-size--xx-large) !important;
-  line-height: 1.2 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--wp--preset--color--foreground);
+	.wc-block-components-checkout-step:not(
+		.wp-block-woocommerce-checkout-payment-block
+	)
+	.wc-block-components-checkout-step__title,
+.wc-block-components-title {
+	font-size: var(--wp--preset--font-size--xx-large) !important;
+	line-height: 1.2 !important;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--wp--preset--color--foreground);
 }
 
 /* Order-summary step title. Spelled out rather than nested: nesting under a
  * selector list compiles to :is(), which would lift the lighter selector to
  * the heavier one's specificity. */
 :is(.wc-block-checkout, .wc-block-cart)
-  .wc-block-components-checkout-step:not(.wp-block-woocommerce-checkout-payment-block)
-  .wc-block-components-checkout-step__title::before,
+	.wc-block-components-checkout-step:not(
+		.wp-block-woocommerce-checkout-payment-block
+	)
+	.wc-block-components-checkout-step__title::before,
 .wc-block-components-title::before {
-  color: var(--aa-color-accent);
+	color: var(--aa-color-accent);
 }
 
 /* Order-summary step */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkout-step {
-  margin-bottom: var(--wp--preset--spacing--12);
+	margin-bottom: var(--wp--preset--spacing--12);
 }
 
 /* Order-summary line-item quantity badge — adaptive so the count reads in both
@@ -112,54 +124,63 @@
  * which disappears on our light-mode elevated surface — so recolour both the
  * badge and the number span. */
 .wc-block-components-order-summary
-  .wc-block-components-order-summary-item__quantity {
-  background: var(--aa-color-surface-elevated);
-  border: 1px solid var(--aa-color-border);
-  color: var(--aa-color-foreground);
+	.wc-block-components-order-summary-item__quantity {
+	background: var(--aa-color-surface-elevated);
+	border: 1px solid var(--aa-color-border);
+	color: var(--aa-color-foreground);
 }
 
 /* Order-summary thumbnails — WooCommerce's 48px reads small in the wider
  * summary column; 64px fills it and makes variants easier to tell apart.
  * Two-column layout only: stacked on mobile, the details column needs the room. */
 @container (min-width: 920px) {
+	.wc-block-checkout
+		.wc-block-components-order-summary
+		.wc-block-components-order-summary-item__image {
+		width: 4rem;
+	}
 
-  .wc-block-checkout .wc-block-components-order-summary .wc-block-components-order-summary-item__image {
-    width: 4rem;
-  }
-
-  .wc-block-checkout .wc-block-components-order-summary .wc-block-components-order-summary-item__image > img {
-    width: 4rem;
-    max-width: 4rem;
-  }
+	.wc-block-checkout
+		.wc-block-components-order-summary
+		.wc-block-components-order-summary-item__image
+		> img {
+		width: 4rem;
+		max-width: 4rem;
+	}
 }
 
 /* Order-summary line-item quantity number */
 .wc-block-components-order-summary
-  .wc-block-components-order-summary-item__quantity span {
-  color: var(--aa-color-foreground);
+	.wc-block-components-order-summary-item__quantity
+	span {
+	color: var(--aa-color-foreground);
 }
 
 /* Order-summary panel — drop WooCommerce's border. */
 .wp-block-woocommerce-checkout-order-summary-block {
-  border: none !important;
+	border: none !important;
 }
 
 /* Order-summary heading ("Order summary") — uppercase to match the step headings. */
 .wc-block-components-checkout-order-summary__title {
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
 }
 
 /* Terms and conditions */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-checkout__terms {
-  margin: calc(var(--wp--preset--spacing--12) * -0.5) 0 var(--wp--preset--spacing--14);
-  text-align: center;
+	margin: calc(var(--wp--preset--spacing--12) * -0.5) 0
+		var(--wp--preset--spacing--14);
+	text-align: center;
 }
 
 /* Express payment event buttons */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-express-payment__event-buttons>li>div {
-  border-radius: var(--aa-radius-full);
-  overflow: hidden;
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-express-payment__event-buttons
+	> li
+	> div {
+	border-radius: var(--aa-radius-full);
+	overflow: hidden;
 }
 
 /* ---- Mobile collapsed order summary ---------------------------------------
@@ -168,47 +189,46 @@
  * collapsed — and drop "Order summary" to a quiet uppercase eyebrow, with a
  * comfortable tap target. !important overrides WC's deep title selectors. */
 @media (width <= 781px) {
+	.wp-block-woocommerce-checkout-order-summary-block {
+		margin-bottom: var(--wp--preset--spacing--8);
+	}
 
-  .wp-block-woocommerce-checkout-order-summary-block {
-    margin-bottom: var(--wp--preset--spacing--8);
-  }
+	/* Order-summary title */
+	.wc-block-components-checkout-order-summary__title {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-height: 2.75rem;
+		padding: 0 !important;
+		margin-top: 0 !important;
 
-  /* Order-summary title */
-  .wc-block-components-checkout-order-summary__title {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 2.75rem;
-    padding: 0 !important;
-    margin-top: 0 !important;
+		/* Drop WC's top + bottom hairlines on the collapsed header. */
+		border-block: none !important;
+	}
 
-    /* Drop WC's top + bottom hairlines on the collapsed header. */
-    border-block: none !important;
-  }
+	/* "Order summary" → quiet eyebrow. */
+	.wc-block-components-checkout-order-summary__title-text {
+		flex-grow: 1;
+		color: var(--aa-color-foreground-muted);
+		font-size: var(--wp--preset--font-size--small) !important;
+		font-weight: 700 !important;
+		letter-spacing: 0.1em;
+	}
 
-  /* "Order summary" → quiet eyebrow. */
-  .wc-block-components-checkout-order-summary__title-text {
-    flex-grow: 1;
-    color: var(--aa-color-foreground-muted);
-    font-size: var(--wp--preset--font-size--small) !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.1em;
-  }
+	/* The total → the hero. */
+	.wc-block-components-checkout-order-summary__title-price {
+		color: var(--aa-color-foreground);
+		font-size: var(--wp--preset--font-size--large);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+	}
 
-  /* The total → the hero. */
-  .wc-block-components-checkout-order-summary__title-price {
-    color: var(--aa-color-foreground);
-    font-size: var(--wp--preset--font-size--large) !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.01em;
-  }
-
-  /* Chevron toggle — clear, muted affordance. */
-  .wc-block-components-checkout-order-summary__title-open-close {
-    display: inline-flex;
-    align-items: center;
-    color: var(--aa-color-foreground-muted);
-  }
+	/* Chevron toggle — clear, muted affordance. */
+	.wc-block-components-checkout-order-summary__title-open-close {
+		display: inline-flex;
+		align-items: center;
+		color: var(--aa-color-foreground-muted);
+	}
 }
 
 /* ---- Field treatment ------------------------------------------------------
@@ -223,35 +243,37 @@
 :is(.wc-block-checkout, .wc-block-cart) textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
-  border: none !important;
-  border-radius: var(--aa-field-radius) !important;
-  outline: none !important;
-  box-shadow: none !important;
-  color: var(--aa-field-text) !important;
-  transition: border-color var(--aa-duration-fast) var(--aa-ease-default) !important;
+	border: none !important;
+	border-radius: var(--aa-field-radius) !important;
+	outline: none !important;
+	box-shadow: none !important;
+	color: var(--aa-field-text) !important;
+	transition: border-color var(--aa-duration-fast) var(--aa-ease-default) !important;
 }
 
 /* The native <select> stays transparent so the tinted container shows through. */
 .wc-blocks-components-select .wc-blocks-components-select__select {
-  background: transparent !important;
+	background: transparent !important;
 }
 
 /* The native dropdown (option list) is OS-rendered and was falling back to a
  * white popup — white-on-white with the light value text. Give the options an
  * explicit dark surface so they're readable. */
 .wc-blocks-components-select .wc-blocks-components-select__select option {
-  background-color: var(--aa-color-surface-elevated);
-  color: var(--aa-color-foreground);
+	background-color: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground);
 }
 
 /* Dropdown chevron — adaptive so it shows on the dark field. */
 .wc-blocks-components-select .wc-blocks-components-select__expand {
-  fill: var(--aa-color-foreground-muted) !important;
+	fill: var(--aa-color-foreground-muted) !important;
 }
 
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input::placeholder,
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-text-input
+	input::placeholder,
 :is(.wc-block-checkout, .wc-block-cart) textarea::placeholder {
-  color: var(--aa-field-placeholder) !important;
+	color: var(--aa-field-placeholder) !important;
 }
 
 /* Reserved transparent 3px left bar + dark translucent fill that adapts to the
@@ -260,38 +282,45 @@
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
 :is(.wc-block-checkout, .wc-block-cart) textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container {
-  border-left: var(--aa-field-bar-width) solid transparent !important;
-  background: var(--aa-field-bg) !important;
+	border-left: var(--aa-field-bar-width) solid transparent !important;
+	background: var(--aa-field-bg) !important;
 }
 
 /* Text inputs need right room for the curve (selects keep their chevron space). */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input {
-  padding-right: 1.5rem !important;
+	padding-right: 1.5rem !important;
 }
 
 /* Accent left bar ONLY on focus (not on filled fields at rest). */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input:focus,
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-text-input
+	input:focus,
 :is(.wc-block-checkout, .wc-block-cart) textarea:focus,
-.wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
-  border-left-color: var(--aa-field-bar-focus) !important;
-  outline: 2px solid transparent !important;
+.wc-blocks-components-select:focus-within
+	.wc-blocks-components-select__container {
+	border-left-color: var(--aa-field-bar-focus) !important;
+	outline: 2px solid transparent !important;
 }
 
 /* Validation — WC flags the wrapper with .has-error after a failed submit or
  * blur; the left bar turns error (WC's red border is stripped above). */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input.has-error input,
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-text-input.has-error
+	input,
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-textarea.has-error,
 .wc-blocks-components-select.has-error .wc-blocks-components-select__container {
-  border-left-color: var(--aa-field-bar-invalid) !important;
+	border-left-color: var(--aa-field-bar-invalid) !important;
 }
 
 /* Sale badge — space the amount from its "Save" label. Scoped to the badge:
  * on every money amount it also indented line totals and the first price. */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-sale-badge .wc-block-components-formatted-money-amount {
-  margin-left: var(--wp--preset--spacing--2);
+:is(.wc-block-checkout, .wc-block-cart)
+	.wc-block-components-sale-badge
+	.wc-block-components-formatted-money-amount {
+	margin-left: var(--wp--preset--spacing--2);
 }
 
 /* Cart item quantity */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-cart-item__quantity {
-margin-top: var(--wp--preset--spacing--2);
+	margin-top: var(--wp--preset--spacing--2);
 }

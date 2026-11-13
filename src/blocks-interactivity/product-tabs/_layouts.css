@@ -1,0 +1,358 @@
+/*
+ * Product Tabs — Shared rules and the four layouts (accordion, inline, modern tabs, scrollspy).
+ *
+ * Partial of style.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ===================================================================
+ * Shared
+ * =================================================================== */
+
+.aa-product-info {
+	--aa-pi-border: color-mix(in oklch, currentcolor 15%, transparent);
+	--aa-pi-radius: 0.5rem;
+	--aa-pi-gap: 1.5rem;
+	--aa-pi-heading-size: 1rem;
+
+	/* Inline is the only layout whose heading is a standalone section title, so
+	   it gets its own larger, overridable size knob. */
+	--aa-pi-heading-size-inline: var(--wp--preset--font-size--xx-large);
+	--aa-pi-accent: var(--aa-color-accent);
+
+	container-type: inline-size;
+	container-name: product-info;
+	width: 100%;
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: inherit;
+}
+
+/* Base heading color. Editor-set `--aa-pi-heading-color` overrides the theme
+ * text color; the accent (active/open) states win via higher specificity. */
+.aa-product-info__heading {
+	color: var(--aa-pi-heading-color, inherit);
+}
+
+.aa-product-info__content {
+	padding: var(--aa-pi-gap) 0;
+	overflow-wrap: break-word;
+}
+
+.aa-product-info__content > *:first-child {
+	margin-top: 0;
+}
+
+.aa-product-info__content > *:last-child {
+	margin-bottom: 0;
+}
+
+/* ===================================================================
+ * Accordion
+ * =================================================================== */
+
+.aa-product-info--accordion .aa-product-info__section {
+	border-bottom: 1px solid var(--aa-pi-border);
+
+	/* Breathing room when exclusive mode scrolls a freshly opened header up. */
+	scroll-margin-top: 1rem;
+}
+
+.aa-product-info--accordion .aa-product-info__section:first-child {
+	border-top: 1px solid var(--aa-pi-border);
+}
+
+.aa-product-info--accordion .aa-product-info__heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem 0;
+	min-height: 2.75rem;
+	font-size: var(--aa-pi-heading-size);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	cursor: pointer;
+	list-style: none;
+	user-select: none;
+	transition: color 0.2s ease;
+}
+
+.aa-product-info--accordion .aa-product-info__heading::-webkit-details-marker,
+.aa-product-info--accordion .aa-product-info__heading::marker {
+	display: none;
+	content: '';
+}
+
+.aa-product-info--accordion .aa-product-info__heading:hover {
+	color: var(--aa-pi-accent);
+}
+
+/* Highlight the open section's heading in the accent color. `[open]` lingers
+ * through the collapse animation, so `[data-aa-target="closed"]` flips the
+ * chrome back the instant the header is tapped (see the view module). */
+.aa-product-info--accordion details[open] > .aa-product-info__heading {
+	color: var(--aa-pi-accent);
+}
+
+.aa-product-info--accordion
+	details[data-aa-target='closed']
+	> .aa-product-info__heading {
+	color: inherit;
+}
+
+.aa-product-info--accordion .aa-product-info__heading:focus-visible {
+	outline: 2px solid var(--aa-pi-accent);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+.aa-product-info--accordion .aa-product-info__chevron {
+	flex-shrink: 0;
+	transition: transform 0.2s ease;
+}
+
+.aa-product-info--accordion
+	details[open]
+	> .aa-product-info__heading
+	.aa-product-info__chevron {
+	transform: rotate(180deg);
+}
+
+.aa-product-info--accordion
+	details[data-aa-target='closed']
+	> .aa-product-info__heading
+	.aa-product-info__chevron {
+	transform: none;
+}
+
+/* Panel reveal: the height transition is a pure CSS grid animation (0fr → 1fr),
+ * so rapid taps reverse smoothly instead of stacking JS animations. The view
+ * module toggles the `open` attribute and, for the collapse, delays its removal
+ * until the transition ends. */
+.aa-product-info--accordion .aa-product-info__reveal {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.25s ease;
+}
+
+.aa-product-info--accordion details[open] .aa-product-info__reveal {
+	grid-template-rows: 1fr;
+}
+
+/* Clip wrapper is the grid item: min-height:0 + overflow:hidden let the 0fr
+ * track truly collapse to zero. The content's padding lives one level in so it
+ * doesn't keep the track open (a padded grid item never shrinks past its
+ * padding). */
+.aa-product-info--accordion .aa-product-info__reveal-inner {
+	min-height: 0;
+	overflow: hidden;
+}
+
+.aa-product-info--accordion .aa-product-info__content {
+	padding: 0 0 1.5rem;
+}
+
+/* ===================================================================
+ * Inline Sections
+ * =================================================================== */
+
+.aa-product-info--inline .aa-product-info__section {
+	padding-bottom: var(--aa-pi-gap);
+	margin-bottom: var(--aa-pi-gap);
+	border-bottom: 1px solid var(--aa-pi-border);
+}
+
+.aa-product-info--inline .aa-product-info__section:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.aa-product-info--inline .aa-product-info__heading {
+	font-size: var(--aa-pi-heading-size-inline);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	margin: 0 0 1rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid var(--aa-pi-accent);
+	display: inline-block;
+}
+
+.aa-product-info--inline .aa-product-info__content {
+	padding: 0;
+}
+
+/* ===================================================================
+ * Modern Tabs
+ * =================================================================== */
+
+.aa-product-info--modern-tabs .aa-product-info__tab-nav {
+	display: flex;
+	gap: 0.25rem;
+	border-bottom: 1px solid var(--aa-pi-border);
+	overflow-x: auto;
+	scrollbar-width: none;
+	-webkit-overflow-scrolling: touch;
+}
+
+.aa-product-info--modern-tabs .aa-product-info__tab-nav::-webkit-scrollbar {
+	display: none;
+}
+
+.aa-product-info--modern-tabs .aa-product-info__tab-nav [role='tab'] {
+	position: relative;
+	padding: 0.875rem 1.25rem;
+	min-height: 2.75rem;
+	font-size: var(--aa-pi-heading-size);
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	color: var(--aa-pi-heading-color, inherit);
+	cursor: pointer;
+	opacity: 0.6;
+	transition:
+		opacity 0.15s ease,
+		color 0.15s ease;
+}
+
+.aa-product-info--modern-tabs .aa-product-info__tab-nav [role='tab']:hover {
+	opacity: 0.85;
+}
+
+.aa-product-info--modern-tabs .aa-product-info__tab-nav [role='tab'].is-active {
+	opacity: 1;
+	color: var(--aa-pi-accent);
+}
+
+.aa-product-info--modern-tabs
+	.aa-product-info__tab-nav
+	[role='tab'].is-active::after {
+	content: '';
+	position: absolute;
+	bottom: -1px;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: var(--aa-pi-accent);
+}
+
+.aa-product-info--modern-tabs
+	.aa-product-info__tab-nav
+	[role='tab']:focus-visible {
+	outline: 2px solid var(--aa-pi-accent);
+	outline-offset: -2px;
+	border-radius: 2px;
+}
+
+.aa-product-info--modern-tabs .aa-product-info__tab-panel {
+	animation: aa-pi-fade-in 0.15s ease;
+}
+
+.aa-product-info--modern-tabs .aa-product-info__tab-panel[hidden] {
+	display: none;
+}
+
+@keyframes aa-pi-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* ===================================================================
+ * Scrollspy
+ * =================================================================== */
+
+.aa-product-info--scrollspy .aa-product-info__layout {
+	display: grid;
+	grid-template-columns: 12rem 1fr;
+	gap: 2rem;
+	align-items: start;
+}
+
+/* Let the content column shrink below its intrinsic width so wide tables /
+ * long text wrap instead of forcing the 1fr track to overflow the block. */
+.aa-product-info--scrollspy .aa-product-info__main {
+	min-width: 0;
+}
+
+.aa-product-info--scrollspy .aa-product-info__sidebar {
+	position: sticky;
+	top: 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	border-right: 1px solid var(--aa-pi-border);
+	padding-right: 1.5rem;
+}
+
+.aa-product-info--scrollspy .aa-product-info__nav-link {
+	display: flex;
+	padding: 0.625rem 0;
+	min-height: 2.75rem;
+	align-items: center;
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	text-decoration: none;
+	color: inherit;
+	opacity: 0.6;
+	transition:
+		opacity 0.15s ease,
+		color 0.15s ease;
+	border-left: 2px solid transparent;
+	margin-left: -1px;
+	padding-left: 1rem;
+}
+
+.aa-product-info--scrollspy .aa-product-info__nav-link:hover {
+	opacity: 0.8;
+}
+
+.aa-product-info--scrollspy .aa-product-info__nav-link.is-active {
+	opacity: 1;
+	color: var(--aa-pi-accent);
+	border-left-color: var(--aa-pi-accent);
+}
+
+.aa-product-info--scrollspy .aa-product-info__nav-link:focus-visible {
+	outline: 2px solid var(--aa-pi-accent);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+.aa-product-info--scrollspy .aa-product-info__section {
+	padding-bottom: var(--aa-pi-gap);
+	margin-bottom: var(--aa-pi-gap);
+	border-bottom: 1px solid var(--aa-pi-border);
+}
+
+.aa-product-info--scrollspy .aa-product-info__section:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+}
+
+.aa-product-info--scrollspy .aa-product-info__heading {
+	font-size: var(--aa-pi-heading-size);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	margin: 0 0 1rem;
+}
+
+.aa-product-info--scrollspy .aa-product-info__content {
+	padding: 0;
+}

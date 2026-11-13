@@ -7,7 +7,8 @@
  */
 
 .wp-block-aggressive-apparel-filter-active-bar .aa-filter-active-bar__pill,
-.wp-block-aggressive-apparel-filter-active-bar .aa-filter-active-bar__clear-all {
+.wp-block-aggressive-apparel-filter-active-bar
+	.aa-filter-active-bar__clear-all {
 	pointer-events: none;
 }
 

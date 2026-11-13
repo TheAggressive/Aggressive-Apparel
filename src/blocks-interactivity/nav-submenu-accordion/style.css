@@ -8,171 +8,174 @@
  */
 
 .wp-block-aggressive-apparel-nav-submenu-accordion {
-  display: block;
-  width: 100%;
+	display: block;
+	width: 100%;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-accordion__trigger {
-  width: 100%;
+	width: 100%;
 }
 
 /* Trigger link or button */
 .wp-block-aggressive-apparel-nav-submenu-accordion__link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--wp--preset--spacing--2, 0.5rem);
-  width: 100%;
-  min-height: 56px;
-  padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
-  color: inherit;
-  font: inherit;
-  font-weight: 400;
-  text-decoration: none;
-  background: none;
-  border: none;
-  border-radius: var(--aa-radius-md);
-  cursor: pointer;
-  text-align: left;
-  text-transform: none;
-  letter-spacing: normal;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    color var(--aa-nav-transition-fast, 150ms ease),
-    background-color var(--aa-nav-transition-fast, 150ms ease);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wp--preset--spacing--2, 0.5rem);
+	width: 100%;
+	min-height: 56px;
+	padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
+	color: inherit;
+	font: inherit;
+	font-weight: 400;
+	text-decoration: none;
+	background: none;
+	border: none;
+	border-radius: var(--aa-radius-md);
+	cursor: pointer;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	-webkit-tap-highlight-color: transparent;
+	transition:
+		color var(--aa-nav-transition-fast, 150ms ease),
+		background-color var(--aa-nav-transition-fast, 150ms ease);
 
-  &:hover,
-  &:focus {
-    color: var(--panel-link-hover-color, var(--_text-strong, inherit));
-    background: var(--panel-link-hover-bg, var(--_item-hover, transparent));
-  }
+	&:hover,
+	&:focus {
+		color: var(--panel-link-hover-color, var(--_text-strong, inherit));
+		background: var(--panel-link-hover-bg, var(--_item-hover, transparent));
+	}
 
-  &:focus-visible {
-    outline: 2px solid var(--aa-nav-focus-color, currentcolor);
-    outline-offset: 2px;
-  }
+	&:focus-visible {
+		outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+		outline-offset: 2px;
+	}
 }
 
 /* Chevron arrow — rotates 180° when open */
 .wp-block-aggressive-apparel-nav-submenu-accordion__arrow {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  color: var(--aa-color-muted-50, currentcolor);
-  transition:
-    color var(--aa-nav-transition-fast, 150ms ease),
-    transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	color: var(--aa-color-muted-50, currentcolor);
+	transition:
+		color var(--aa-nav-transition-fast, 150ms ease),
+		transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
 
-  & svg {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
+	& svg {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
 }
 
-.wp-block-aggressive-apparel-nav-submenu-accordion.is-open .wp-block-aggressive-apparel-nav-submenu-accordion__link {
-  color: var(--_text-strong, inherit);
-  background: var(--_item-current, var(--aa-color-hover-subtle));
+.wp-block-aggressive-apparel-nav-submenu-accordion.is-open
+	.wp-block-aggressive-apparel-nav-submenu-accordion__link {
+	color: var(--_text-strong, inherit);
+	background: var(--_item-current, var(--aa-color-hover-subtle));
 }
 
-.wp-block-aggressive-apparel-nav-submenu-accordion.is-open .wp-block-aggressive-apparel-nav-submenu-accordion__arrow {
-  color: var(--_accent-muted, var(--aa-color-accent));
-  transform: rotate(180deg);
+.wp-block-aggressive-apparel-nav-submenu-accordion.is-open
+	.wp-block-aggressive-apparel-nav-submenu-accordion__arrow {
+	color: var(--_accent-muted, var(--aa-color-accent));
+	transform: rotate(180deg);
 }
 
 /* Grid-collapse panel. grid-template-rows: 0fr collapses the single child
    to 0 height; 1fr expands it. overflow: hidden clips during transition. */
 .wp-block-aggressive-apparel-nav-submenu-accordion__panel {
-  display: grid;
-  grid-template-rows: 0fr;
-  overflow: hidden;
-  transition: grid-template-rows 350ms cubic-bezier(0.22, 1, 0.36, 1);
+	display: grid;
+	grid-template-rows: 0fr;
+	overflow: hidden;
+	transition: grid-template-rows 350ms cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Prevent the hidden attribute from fighting display: grid */
-  &[hidden] {
-    display: grid;
-  }
+	/* Prevent the hidden attribute from fighting display: grid */
+	&[hidden] {
+		display: grid;
+	}
 }
 
-.wp-block-aggressive-apparel-nav-submenu-accordion.is-open .wp-block-aggressive-apparel-nav-submenu-accordion__panel {
-  grid-template-rows: 1fr;
+.wp-block-aggressive-apparel-nav-submenu-accordion.is-open
+	.wp-block-aggressive-apparel-nav-submenu-accordion__panel {
+	grid-template-rows: 1fr;
 }
 
 /* Single grid child — must have min-height: 0 for the collapse to work */
 .wp-block-aggressive-apparel-nav-submenu-accordion__panel-content {
-  min-height: 0;
-  overflow: hidden;
+	min-height: 0;
+	overflow: hidden;
 }
 
 /* One box around every list and content section; rows inside are spaced by
    the accordion's Block spacing (none by default). */
 .wp-block-aggressive-apparel-nav-submenu-accordion__panel-sections {
-  display: grid;
-  gap: var(--aa-nav-submenu-gap, 0);
-  margin: 0.25rem 0 0.5rem;
-  padding: 0.5rem 0 0.5rem 1rem;
-  background: var(--accordion-content-bg, var(--aa-color-hover-subtle));
-  border-inline-start: 1px solid var(--_accent-muted, var(--aa-color-accent));
-  border-radius: 0 var(--aa-radius-md) var(--aa-radius-md) 0;
+	display: grid;
+	gap: var(--aa-nav-submenu-gap, 0);
+	margin: 0.25rem 0 0.5rem;
+	padding: 0.5rem 0 0.5rem 1rem;
+	background: var(--accordion-content-bg, var(--aa-color-hover-subtle));
+	border-inline-start: 1px solid var(--_accent-muted, var(--aa-color-accent));
+	border-radius: 0 var(--aa-radius-md) var(--aa-radius-md) 0;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner {
-  display: grid;
-  gap: var(--aa-nav-submenu-gap, 0);
-  list-style: none;
-  margin: 0;
-  padding: 0;
+	display: grid;
+	gap: var(--aa-nav-submenu-gap, 0);
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 /* Content section, aligned with the sub-item text (see navigation-panel). */
 .wp-block-aggressive-apparel-nav-submenu-accordion__panel-section {
-  padding: 0.625rem 1rem;
+	padding: 0.625rem 1rem;
 }
 
 .wp-block-aggressive-apparel-nav-submenu-accordion__view-all {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0.625rem 1rem;
-  color: inherit;
-  font: inherit;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-  border-radius: var(--aa-radius-sm);
+	display: flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0.625rem 1rem;
+	color: inherit;
+	font: inherit;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+	border-radius: var(--aa-radius-sm);
 
-  &:hover,
-  &:focus {
-    color: var(--panel-link-hover-color, inherit);
-    background: var(--panel-link-hover-bg, transparent);
-  }
+	&:hover,
+	&:focus {
+		color: var(--panel-link-hover-color, inherit);
+		background: var(--panel-link-hover-bg, transparent);
+	}
 
-  &:focus-visible {
-    outline: 2px solid var(--aa-nav-focus-color, currentcolor);
-    outline-offset: 2px;
-  }
+	&:focus-visible {
+		outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+		outline-offset: 2px;
+	}
 }
 
 /* Sub-items (nav-link blocks inside the accordion) */
-.wp-block-aggressive-apparel-nav-submenu-accordion .wp-block-aggressive-apparel-nav-link__link {
-  font-size: inherit;
-  font-weight: 400;
-  min-height: 44px;
-  padding: 0.625rem 1rem;
-  color: var(--aa-color-foreground-muted, inherit);
-  border-radius: var(--aa-radius-sm);
+.wp-block-aggressive-apparel-nav-submenu-accordion
+	.wp-block-aggressive-apparel-nav-link__link {
+	font-size: inherit;
+	font-weight: 400;
+	min-height: 44px;
+	padding: 0.625rem 1rem;
+	color: var(--aa-color-foreground-muted, inherit);
+	border-radius: var(--aa-radius-sm);
 
-  &:hover,
-  &:focus {
-    color: var(--aa-color-foreground, inherit);
-  }
+	&:hover,
+	&:focus {
+		color: var(--aa-color-foreground, inherit);
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.wp-block-aggressive-apparel-nav-submenu-accordion__arrow {
+		transition: none;
+	}
 
-  .wp-block-aggressive-apparel-nav-submenu-accordion__arrow {
-    transition: none;
-  }
-
-  .wp-block-aggressive-apparel-nav-submenu-accordion__panel {
-    transition: none;
-  }
+	.wp-block-aggressive-apparel-nav-submenu-accordion__panel {
+		transition: none;
+	}
 }

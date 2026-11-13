@@ -15,6 +15,7 @@ namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
+use Aggressive_Apparel\Core\Request_Cache;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -57,14 +58,6 @@ class Product_Filters {
 	private Product_Filter_Renderer $renderer;
 
 	/**
-	 * Active layout for the current request, cached statically so it can be
-	 * exposed via `get_active_layout()` without re-querying options.
-	 *
-	 * @var string|null
-	 */
-	private static ?string $active_layout = null;
-
-	/**
 	 * Whether CSS/JS/state were already prepared for this request.
 	 *
 	 * @var bool
@@ -88,8 +81,8 @@ class Product_Filters {
 	 * @return void
 	 */
 	public function init(): void {
-		$this->layout        = $this->get_layout();
-		self::$active_layout = $this->layout;
+		$this->layout = $this->get_layout();
+		Request_Cache::set( 'product-filters:active-layout', $this->layout );
 
 		// Register script module early so it's included in the wp_head import map.
 		// Enqueuing happens later in ensure_assets() when we know we're on a shop page.
@@ -623,15 +616,18 @@ class Product_Filters {
 	 * @return string One of `drawer`, `sidebar`, `horizontal`.
 	 */
 	public static function get_active_layout(): string {
-		if ( null !== self::$active_layout ) {
-			return self::$active_layout;
-		}
+		return Request_Cache::remember( 'product-filters:active-layout', static fn(): string => self::resolve_active_layout() );
+	}
 
+	/**
+	 * Resolve the active layout from settings, uncached.
+	 *
+	 * @return string One of `drawer`, `sidebar`, `horizontal`.
+	 */
+	private static function resolve_active_layout(): string {
 		$layout = Feature_Settings::get_filter_layout();
 		$valid  = array( 'drawer', 'sidebar', 'horizontal' );
 
-		self::$active_layout = in_array( $layout, $valid, true ) ? $layout : 'drawer';
-
-		return self::$active_layout;
+		return in_array( $layout, $valid, true ) ? $layout : 'drawer';
 	}
 }

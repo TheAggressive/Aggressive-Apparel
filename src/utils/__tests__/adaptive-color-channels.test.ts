@@ -139,7 +139,10 @@ describe('adaptive-color-channels', () => {
       const payload = buildAdaptiveStylePayload(
         {
           adaptiveColors: {
-            overlay: { light: 'rgba(0,0,0,.2)', dark: 'rgba(0,0,0,.6)' },
+            overlay: {
+              light: 'rgba(0,0,0,.2)',
+              dark: 'rgba(0,0,0,.6)',
+            },
           },
         },
         channels

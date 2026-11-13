@@ -55,7 +55,10 @@ describe('fetchPageHtml', () => {
       );
 
       expect(error).toBeInstanceOf(PageLoadError);
-      expect(error).toMatchObject({ retryable: true, retryAfter: '3' });
+      expect(error).toMatchObject({
+        retryable: true,
+        retryAfter: '3',
+      });
     }
   );
 
@@ -76,7 +79,10 @@ describe('fetchPageHtml', () => {
       fetchPageHtml(URL, new AbortController().signal)
     );
 
-    expect(error).toMatchObject({ name: 'PageLoadError', retryable: true });
+    expect(error).toMatchObject({
+      name: 'PageLoadError',
+      retryable: true,
+    });
   });
 
   it('abandons a request that hangs, and marks it worth retrying', async () => {

@@ -199,10 +199,7 @@ test.describe('Load More', () => {
     // features must listen at the document level (see docs/woocommerce.md).
     await page.goto('/shop/');
     const actions = `${CARDS} .aggressive-apparel-quick-view__trigger`;
-    test.skip(
-      !process.env.CI && (await page.locator(actions).count()) === 0,
-      "This site's catalog template places no card actions."
-    );
+    await expect(page.locator(actions).first()).toBeAttached();
 
     const firstPage = (await gridIds(page)).length;
     await page.locator('.aa-load-more__btn').click();

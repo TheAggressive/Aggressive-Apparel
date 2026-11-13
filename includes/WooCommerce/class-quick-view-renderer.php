@@ -591,7 +591,7 @@ class Quick_View_Renderer {
 
 			<!-- Screen reader announcements. -->
 			<div
-				class="aggressive-apparel-quick-view__announcer"
+				class="aggressive-apparel-quick-view__announcer screen-reader-text"
 				role="status"
 				aria-live="polite"
 				aria-atomic="true"

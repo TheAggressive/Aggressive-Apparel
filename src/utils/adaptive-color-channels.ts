@@ -120,12 +120,18 @@ export interface BlockAttributesLike {
       link?: {
         color?: { text?: string; [key: string]: unknown };
         /** Native WordPress link hover: style.elements.link[':hover'].color.text */
-        ':hover'?: { color?: { text?: string; [key: string]: unknown } };
+        ':hover'?: {
+          color?: { text?: string; [key: string]: unknown };
+        };
         [key: string]: unknown;
       };
       heading?: { color?: { text?: string; [key: string]: unknown } };
       button?: {
-        color?: { text?: string; background?: string; [key: string]: unknown };
+        color?: {
+          text?: string;
+          background?: string;
+          [key: string]: unknown;
+        };
       };
       caption?: { color?: { text?: string; [key: string]: unknown } };
       [key: string]: unknown;
@@ -267,9 +273,13 @@ function clearElementColor(
   const elements = style?.elements ? { ...style.elements } : undefined;
 
   if (elements?.[element]) {
-    const nextElement = { ...(elements[element] as Record<string, unknown>) };
+    const nextElement = {
+      ...(elements[element] as Record<string, unknown>),
+    };
     if (nextElement.color && typeof nextElement.color === 'object') {
-      const color = { ...(nextElement.color as Record<string, unknown>) };
+      const color = {
+        ...(nextElement.color as Record<string, unknown>),
+      };
       delete color.text;
       delete color.background;
       if (Object.keys(color).length === 0) {

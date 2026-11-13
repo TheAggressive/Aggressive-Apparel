@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -95,21 +97,6 @@ final class Product_Specs {
 	private const WATCHED_OPTIONS = array( Product_Specs_Registry::OPTION_KEY, Feature_Settings::OPTION_KEY );
 
 	/**
-	 * Resolved specs per product, for this request.
-	 *
-	 * @var array<int, Resolved>
-	 */
-	private static array $memo = array();
-
-	/**
-	 * Where each product stands (context()), for this request; cleared with
-	 * $memo.
-	 *
-	 * @var array<int, array{scope: list<int>, guide: GuideValues, items: list<Item>}>
-	 */
-	private static array $contexts = array();
-
-	/**
 	 * Resolve every applicable spec item for a product.
 	 *
 	 * Resolved once per request (the block, the Additional information rows,
@@ -122,19 +109,26 @@ final class Product_Specs {
 	 */
 	public static function for_product( int $product_id ): array {
 		self::watch();
-		if ( ! isset( self::$memo[ $product_id ] ) ) {
-			self::$memo[ $product_id ] = self::resolve( $product_id );
-		}
 
-		return self::$memo[ $product_id ];
+		return Request_Cache::remember( self::key( 'memo:' . $product_id ), static fn(): array => self::resolve( $product_id ) );
 	}
 
 	/**
 	 * Forget every resolved product.
 	 */
 	public static function flush(): void {
-		self::$memo     = array();
-		self::$contexts = array();
+		Request_Cache::set( 'product-specs:generation', (int) Request_Cache::get( 'product-specs:generation', 0 ) + 1 );
+	}
+
+	/**
+	 * Request-cache key for resolved products and their contexts; flush()
+	 * bumps the generation, which drops them all at once.
+	 *
+	 * @param string $part Key suffix.
+	 * @return string
+	 */
+	private static function key( string $part ): string {
+		return 'product-specs:' . (int) Request_Cache::get( 'product-specs:generation', 0 ) . ':' . $part;
 	}
 
 	/**
@@ -239,17 +233,24 @@ final class Product_Specs {
 	 */
 	private static function context( int $product_id ): array {
 		self::watch();
-		if ( isset( self::$contexts[ $product_id ] ) ) {
-			return self::$contexts[ $product_id ];
-		}
 
+		return Request_Cache::remember( self::key( 'context:' . $product_id ), static fn(): array => self::build_context( $product_id ) );
+	}
+
+	/**
+	 * Work out where a product stands, uncached (see context()).
+	 *
+	 * @param int $product_id Product ID.
+	 * @return array{scope: list<int>, guide: GuideValues, items: list<Item>}
+	 */
+	private static function build_context( int $product_id ): array {
 		$categories = self::category_ids( $product_id );
 		$scope      = $categories;
 		foreach ( $categories as $term_id ) {
 			$scope = array_merge( $scope, array_map( 'intval', get_ancestors( $term_id, 'product_cat', 'taxonomy' ) ) );
 		}
 
-		self::$contexts[ $product_id ] = array(
+		return array(
 			'scope' => array_values( $scope ),
 			'guide' => self::guide_values( Size_Guide::resolved( $product_id )['id'] ),
 			'items' => array_values(
@@ -259,8 +260,6 @@ final class Product_Specs {
 				)
 			),
 		);
-
-		return self::$contexts[ $product_id ];
 	}
 
 	/**

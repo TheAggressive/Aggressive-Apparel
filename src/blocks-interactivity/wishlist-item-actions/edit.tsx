@@ -29,7 +29,9 @@ export default function Edit({
     removeLabel = '',
   } = attributes;
 
-  const blockProps = useBlockProps({ className: 'aa-wl-item-actions-preview' });
+  const blockProps = useBlockProps({
+    className: 'aa-wl-item-actions-preview',
+  });
 
   return (
     <>

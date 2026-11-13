@@ -14,7 +14,6 @@
  */
 
 @layer aa-reset {
-
 	*,
 	::before,
 	::after,
@@ -190,8 +189,8 @@
 	/* Safari < 17 renders a color-mix() placeholder colour incorrectly; it
 	 * keeps the UA colour instead (the first condition excludes Safari, the
 	 * second re-admits 17+). */
-	@supports (not (-webkit-appearance: -apple-pay-button)) or (contain-intrinsic-size: 1px) {
-
+	@supports (not (-webkit-appearance: -apple-pay-button)) or
+		(contain-intrinsic-size: 1px) {
 		::placeholder {
 			color: color-mix(in oklab, currentcolor 50%, transparent);
 		}

@@ -14,16 +14,10 @@ jest.mock(
   { virtual: true }
 );
 
-import {
-  __testing,
-  fetchProduct,
-  formatPrice,
-  renderMessage,
-  renderProduct,
-  safeUrl,
-  supportsHoverInteraction,
-} from '../view';
-import type { LookbookI18n } from '../view';
+import { __testing, supportsHoverInteraction } from '../view';
+import { fetchProduct, formatPrice, safeUrl } from '../product';
+import { renderMessage, renderProduct } from '../popover';
+import type { LookbookI18n } from '../types';
 
 const mockFetchProduct = (product: unknown, ok = true) =>
   Promise.resolve({

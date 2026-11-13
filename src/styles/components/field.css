@@ -111,7 +111,8 @@
 	}
 }
 
-.aggressive-apparel-field--error .aggressive-apparel-field__input:not([type='checkbox'], [type='radio']) {
+.aggressive-apparel-field--error
+	.aggressive-apparel-field__input:not([type='checkbox'], [type='radio']) {
 	border-left-color: var(--aa-field-bar-invalid);
 }
 
@@ -141,7 +142,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-field__input {
 		transition: none;
 	}

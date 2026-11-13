@@ -30,7 +30,10 @@ type StoreNoticesAttributes = {
 };
 
 const BADGE_POSITION_OPTIONS = [
-  { label: __('Bottom right', 'aggressive-apparel'), value: 'bottom-right' },
+  {
+    label: __('Bottom right', 'aggressive-apparel'),
+    value: 'bottom-right',
+  },
   { label: __('Top right', 'aggressive-apparel'), value: 'top-right' },
 ];
 
@@ -38,8 +41,14 @@ const POSITION_OPTIONS = [
   { label: __('Top right', 'aggressive-apparel'), value: 'top-right' },
   { label: __('Top center', 'aggressive-apparel'), value: 'top-center' },
   { label: __('Top left', 'aggressive-apparel'), value: 'top-left' },
-  { label: __('Bottom right', 'aggressive-apparel'), value: 'bottom-right' },
-  { label: __('Bottom center', 'aggressive-apparel'), value: 'bottom-center' },
+  {
+    label: __('Bottom right', 'aggressive-apparel'),
+    value: 'bottom-right',
+  },
+  {
+    label: __('Bottom center', 'aggressive-apparel'),
+    value: 'bottom-center',
+  },
   { label: __('Bottom left', 'aggressive-apparel'), value: 'bottom-left' },
 ];
 
@@ -57,7 +66,9 @@ export default function Edit({
     badgePosition,
   } = attributes;
 
-  const blockProps = useBlockProps({ className: 'aa-notices-editor-preview' });
+  const blockProps = useBlockProps({
+    className: 'aa-notices-editor-preview',
+  });
 
   return (
     <>
@@ -98,7 +109,13 @@ export default function Edit({
           />
         </PanelBody>
         <PanelBody title={__('Auto-dismiss', 'aggressive-apparel')}>
-          <p style={{ marginTop: 0, fontSize: '12px', opacity: 0.75 }}>
+          <p
+            style={{
+              marginTop: 0,
+              fontSize: '12px',
+              opacity: 0.75,
+            }}
+          >
             {__(
               'Time in milliseconds before a toast auto-dismisses. Set to 0 to keep it until manually closed.',
               'aggressive-apparel'

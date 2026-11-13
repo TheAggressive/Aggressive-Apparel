@@ -159,7 +159,6 @@
 	max-width: none;
 }
 
-
 .aa-ps-line__source {
 	display: flex;
 	flex-direction: column;
@@ -346,7 +345,6 @@
 }
 
 @media (width <= 782px) {
-
 	.aa-ps-review {
 		grid-template-columns: minmax(0, 1fr);
 	}

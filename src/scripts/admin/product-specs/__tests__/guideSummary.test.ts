@@ -75,7 +75,10 @@ describe('moveSpecKey', () => {
   it('moves a spec’s switch and wording to its new key', () => {
     expect(moveSpecKey(kept, 'closer', 'closure')).toEqual({
       hidden: ['fit', 'closure'],
-      wording: { fit: { title: 'Tee fit' }, closure: { title: 'Fastener' } },
+      wording: {
+        fit: { title: 'Tee fit' },
+        closure: { title: 'Fastener' },
+      },
     });
   });
 
@@ -95,7 +98,10 @@ describe('specValue', () => {
       value: 'Nylon',
       from: 'guide',
     });
-    expect(specValue(fabric, {})).toEqual({ value: 'Cotton', from: 'default' });
+    expect(specValue(fabric, {})).toEqual({
+      value: 'Cotton',
+      from: 'default',
+    });
     expect(specValue(spec('lining'), { lining: '' })).toEqual({
       value: '',
       from: '',

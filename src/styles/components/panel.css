@@ -116,9 +116,7 @@
 }
 
 @supports selector(@starting-style) {
-
 	.aggressive-apparel-panel {
-
 		@starting-style {
 			opacity: 0;
 			transform: scale(0.95) translateY(20px);
@@ -126,7 +124,6 @@
 	}
 
 	.aggressive-apparel-panel--guide {
-
 		@starting-style {
 			opacity: 0;
 			transform: translateY(20px);
@@ -134,21 +131,18 @@
 	}
 
 	.aggressive-apparel-panel--drawer-left {
-
 		@starting-style {
 			transform: translateX(-100%);
 		}
 	}
 
 	.aggressive-apparel-panel--drawer-bottom {
-
 		@starting-style {
 			transform: translateY(100%);
 		}
 	}
 
 	.aggressive-apparel-panel--search-bar {
-
 		@starting-style {
 			opacity: 0;
 			transform: translateY(-10px);
@@ -157,7 +151,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aggressive-apparel-panel {
 		transition: none;
 		transform: none;

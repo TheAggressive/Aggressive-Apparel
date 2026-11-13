@@ -12,7 +12,7 @@ const limits = { rows: 40, columns: 12 };
 
 /*
  * The editor preview must match the product page, so these mirror
- * TestSizeChart::test_numbers() and ::test_convert() in PHP.
+ * Test_Size_Chart::test_numbers() and ::test_convert() in PHP.
  */
 describe('numbers', () => {
   it.each([
@@ -41,7 +41,7 @@ describe('convert', () => {
   });
 });
 
-/* Mirrors TestSizeChart::test_display_inches() in PHP. */
+/* Mirrors Test_Size_Chart::test_display_inches() in PHP. */
 describe('displayInches', () => {
   it.each([
     ['18.90', '18 ⅞'],

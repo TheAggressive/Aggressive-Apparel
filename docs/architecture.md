@@ -198,6 +198,28 @@ pnpm test:e2e:ci        # pinned native release parity (no Docker)
 - Native disposable MySQL/Core fixtures for PHPUnit
 - wp-env only for CI release parity
 
+### What the suites guarantee
+
+- **No empty or skipped tests.** PHPUnit fails on risky, skipped and incomplete
+  tests; Jest requires an assertion in every test (`src/jest.setup-assertions.ts`);
+  both suites and Playwright have no-skip reporters. Environment prerequisites
+  (WooCommerce, the build) fail the run in the bootstrap instead of skipping.
+- **CSS is tested as shipped.** `src/styles/__tests__/css-contracts.test.ts`
+  compiles stylesheets through the real PostCSS pipeline and asserts selectors,
+  values, `!important` and cascade layers — plus the browser floor (prefixes,
+  unlowered `light-dark()`/`@layer`). Never assert on stylesheet source text.
+- **Render regressions are caught in the browser:**
+  - `tests/e2e/layout-invariants.spec.ts` — key pages at phone/desktop, logged
+    in and out: no sideways scroll, WCAG 2.5.8 target sizes (spacing exception
+    included), no sized image collapsing to 0px.
+  - `tests/e2e/component-styles.spec.ts` — computed paint of the theme's
+    components in light and dark mode against a committed JSON snapshot. After
+    an intended change, review the diff and re-record with
+    `pnpm test:e2e tests/e2e/component-styles.spec.ts --update-snapshots`.
+- **No fixed sleeps in e2e.** Wait on a condition (an attribute, focus, a
+  finished `CSSTransition`, `expect.poll`), never `waitForTimeout`, except to
+  model a user's cadence (e.g. rapid taps).
+
 Reusable marketing blocks (animate-on-scroll, parallax, modal, card flip, horizontal scroll, hero carousel, ticker, split story, copyright) live in the **Aggressive Blocks** plugin (`wp-content/plugins/aggressive-blocks`).
 
 **E2E** (`tests/e2e/`) covers browser behavior unit tests can't for theme-owned
@@ -315,6 +337,7 @@ Located in `patterns/` (83 files). Prefer the Site Editor / pattern inserter ove
 
 1. Create class(es) in `includes/WooCommerce/`
 2. Add a feature definition in `Feature_Settings::get_feature_definitions()`
+   (the `Feature_Catalog` trait)
 3. Map the feature key → class(es) in `Enhancements` (feature map)
 4. Gate hooks/assets with `Feature_Settings::is_enabled()` so disabled features load nothing
 

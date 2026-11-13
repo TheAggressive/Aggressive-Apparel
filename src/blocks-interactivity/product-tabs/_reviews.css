@@ -1,0 +1,131 @@
+/*
+ * Product Tabs — WooCommerce reviews inside the tabs: star ratings and the comment list.
+ *
+ * Partial of style.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ===================================================================
+ * WooCommerce Reviews — star ratings & comment list
+ * =================================================================== */
+
+.aa-product-info .star-rating {
+	overflow: hidden;
+	position: relative;
+	height: 1em;
+	line-height: 1;
+	font-size: 1em;
+	width: 5.4em;
+	font-family: WooCommerce, sans-serif;
+}
+
+.aa-product-info .star-rating::before {
+	content: 'SSSSS';
+	opacity: 0.25;
+	float: left;
+	top: 0;
+	left: 0;
+	position: absolute;
+}
+
+.aa-product-info .star-rating span {
+	overflow: hidden;
+	float: left;
+	top: 0;
+	left: 0;
+	position: absolute;
+	padding-top: 1.5em;
+}
+
+.aa-product-info .star-rating span::before {
+	content: 'SSSSS';
+	top: 0;
+	position: absolute;
+	left: 0;
+}
+
+.aa-product-info .woocommerce-product-rating {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	line-height: 2;
+}
+
+.aa-product-info .woocommerce-product-rating .star-rating {
+	float: none;
+}
+
+.aa-product-info .woocommerce-review-link {
+	font-size: var(--wp--preset--font-size--small);
+}
+
+.aa-product-info .commentlist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.aa-product-info .commentlist li {
+	margin-bottom: var(--aa-pi-gap);
+	padding-bottom: var(--aa-pi-gap);
+	border-bottom: 1px solid var(--aa-pi-border);
+}
+
+.aa-product-info .commentlist li:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.aa-product-info .commentlist .comment_container {
+	display: flex;
+	gap: 1rem;
+}
+
+.aa-product-info .commentlist .comment_container > img {
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.aa-product-info .commentlist .comment-text .star-rating {
+	margin-bottom: 0.5em;
+}
+
+.aa-product-info .commentlist .comment-text .meta {
+	font-size: var(--wp--preset--font-size--small);
+	margin-bottom: 0.5em;
+}
+
+.aa-product-info .comment-form-rating .stars {
+	display: inline-flex;
+	gap: 0.25em;
+	margin-bottom: 0.5em;
+}
+
+.aa-product-info .comment-form-rating .stars a {
+	text-decoration: none;
+	font-family: WooCommerce, sans-serif;
+}
+
+.aa-product-info .comment-form-rating .stars a::before {
+	content: 'S';
+}
+
+.aa-product-info .comment-form-rating .stars a.active::before,
+.aa-product-info .comment-form-rating .stars a:hover::before {
+	content: 'S';
+	opacity: 1;
+}
+
+.aa-product-info .comment-form label {
+	display: block;
+	margin-bottom: 0.25em;
+}
+
+.aa-product-info .comment-form textarea,
+.aa-product-info .comment-form input[type='text'],
+.aa-product-info .comment-form input[type='email'] {
+	width: 100%;
+	max-width: 100%;
+}

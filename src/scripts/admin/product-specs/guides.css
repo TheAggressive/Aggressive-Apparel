@@ -161,7 +161,6 @@
 }
 
 @media (width <= 782px) {
-
 	.aa-ps-apply {
 		grid-template-columns: 1fr;
 	}
@@ -451,7 +450,6 @@
 }
 
 @media (width <= 1100px) {
-
 	.aa-ps-guide-parts {
 		grid-template-columns: 1fr;
 	}

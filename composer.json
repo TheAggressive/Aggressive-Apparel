@@ -33,9 +33,9 @@
     ]
   },
   "autoload-dev": {
-    "psr-4": {
-      "Aggressive_Apparel\\Tests\\": "tests/"
-    }
+    "classmap": [
+      "tests/"
+    ]
   },
   "scripts": {
     "test": "phpunit",

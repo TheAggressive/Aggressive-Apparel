@@ -236,19 +236,27 @@ export default function ImportFact({
             label={__('Kind', 'aggressive-apparel')}
             value={attribute.kind}
             options={[
-              { value: 'text', label: __('Text', 'aggressive-apparel') },
+              {
+                value: 'text',
+                label: __('Text', 'aggressive-apparel'),
+              },
               {
                 value: 'multiple',
                 label: __('Several values', 'aggressive-apparel'),
               },
-              { value: 'pick', label: __('Scale', 'aggressive-apparel') },
+              {
+                value: 'pick',
+                label: __('Scale', 'aggressive-apparel'),
+              },
               {
                 value: 'number',
                 label: __('Number on a scale', 'aggressive-apparel'),
               },
             ]}
             onChange={kind =>
-              onAttribute({ kind: kind as ImportAttribute['kind'] })
+              onAttribute({
+                kind: kind as ImportAttribute['kind'],
+              })
             }
             __next40pxDefaultSize
             __nextHasNoMarginBottom

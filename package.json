@@ -30,7 +30,10 @@
   "//": "lint-staged runs the SAME fixers as format:fix and lint:js:fix, but only over staged files. The whole-tree versions still run in ci:frontend, so coverage is unchanged — this only stops a one-line commit paying a whole-tree toll.",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,json,yml,yaml}": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore",
-    "src/**/*.css": "stylelint --fix",
+    "src/**/*.css": [
+      "prettier --write --ignore-path .gitignore --ignore-path .prettierignore",
+      "stylelint --fix"
+    ],
     "{src,bin}/**/*.{js,jsx,ts,tsx,mjs}": "eslint --fix"
   },
   "devDependencies": {
@@ -95,6 +98,7 @@
     "postcss": "^8.5.26",
     "postcss-import": "^17.0.1",
     "postcss-lightningcss": "^1.1.1",
+    "postcss-selector-parser": "^7.1.4",
     "prettier": "^3.9.6",
     "react": "^19.2.8",
     "semantic-release": "^25.0.9",
@@ -128,8 +132,8 @@
     "start": "wp-scripts start",
     "// 🎨 FORMAT SCRIPTS": "_",
     "format": "pnpm format:fix",
-    "format:fix": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" && pnpm format:css:fix",
-    "format:check": "prettier --check --ignore-path .gitignore --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" && pnpm format:css:check",
+    "format:fix": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" \"./src/**/*.css\" && pnpm format:css:fix",
+    "format:check": "prettier --check --ignore-path .gitignore --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" \"./src/**/*.css\" && pnpm format:css:check",
     "format:css:fix": "stylelint 'src/**/*.css' --fix",
     "format:css:check": "stylelint 'src/**/*.css'",
     "// 🔍 LINT SCRIPTS": "_",
@@ -149,8 +153,8 @@
     "// 🧪 TESTING SCRIPTS": "_",
     "pretest": "pnpm run build:icons",
     "test": "pnpm run test:js && pnpm run test:tools && pnpm run test:php",
-    "test:js": "wp-scripts test-unit-js --passWithNoTests",
-    "test:tools": "node bin/lib/icon-build.test.mjs && node bin/ci/contracts.test.mjs && node --test bin/ci/dependency-compat.test.mjs bin/ci/classify-changes.test.mjs bin/ci/pr-policy.test.mjs bin/ci/release-summary.test.mjs bin/release/verify-package.test.mjs bin/check-design-system-css.test.mjs bin/check-external-assets.test.mjs bin/check-file-length.test.mjs bin/check-shell.test.mjs bin/i18n/validate-po.test.mjs bin/i18n/lint-placeholders.test.mjs bin/i18n/keep-mt-flags.test.mjs bin/release/verify-assets.test.mjs bin/wp-env/check.test.mjs",
+    "test:js": "wp-scripts test-unit-js",
+    "test:tools": "node --test 'bin/**/*.test.mjs'",
     "test:js:watch": "wp-scripts test-unit-js --watch",
     "test:php": "bash bin/local/phpunit.sh --testdox",
     "test:unit": "bash bin/local/phpunit.sh --testsuite=unit --testdox",

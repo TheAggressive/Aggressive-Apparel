@@ -42,8 +42,12 @@
 
 	/* The artwork scales independently from its WCAG-safe card target. Keeping
 	   12px between neighboring visuals makes the colors read as one selector. */
-	width: calc(var(--aa-card-swatch-visual-size) + var(--wp--preset--spacing--3));
-	height: calc(var(--aa-card-swatch-visual-size) + var(--wp--preset--spacing--3));
+	width: calc(
+		var(--aa-card-swatch-visual-size) + var(--wp--preset--spacing--3)
+	);
+	height: calc(
+		var(--aa-card-swatch-visual-size) + var(--wp--preset--spacing--3)
+	);
 	min-width: var(--aa-card-swatch-min);
 	min-height: var(--aa-card-swatch-min);
 	padding: 0;
@@ -56,7 +60,7 @@
 }
 
 .aa-product-color-swatches__swatch::before {
-	content: "";
+	content: '';
 	display: block;
 	width: var(--aa-card-swatch-visual-size);
 	height: var(--aa-card-swatch-visual-size);
@@ -147,7 +151,6 @@
  * the standard 44px target.
  */
 @container product-card (width < 11rem) {
-
 	.aa-product-color-swatches {
 		gap: 0;
 	}
@@ -172,8 +175,7 @@
 		--aa-card-swatch-visual-size: 1.75rem;
 	}
 
-	.aa-product-color-swatches
-		.aa-product-color-swatches__overflow {
+	.aa-product-color-swatches .aa-product-color-swatches__overflow {
 		min-width: var(--aa-card-swatch-dense-min);
 		height: var(--aa-card-swatch-dense-min);
 		padding-inline: var(--wp--preset--spacing--1);
@@ -184,20 +186,16 @@
 		min-height: var(--aa-card-swatch-dense-min);
 	}
 
-	.aa-product-color-swatches__swatch.is-hidden-standard:not(
-			.is-hidden-dense
-		) {
+	.aa-product-color-swatches__swatch.is-hidden-standard:not(.is-hidden-dense) {
 		display: grid;
 	}
 
 	.aa-product-color-swatches__swatch.is-hidden-dense,
-	.aa-product-color-swatches
-		.aa-product-color-swatches__overflow--standard {
+	.aa-product-color-swatches .aa-product-color-swatches__overflow--standard {
 		display: none;
 	}
 
-	.aa-product-color-swatches
-		.aa-product-color-swatches__overflow--dense {
+	.aa-product-color-swatches .aa-product-color-swatches__overflow--dense {
 		display: inline-flex;
 	}
 }
@@ -297,7 +295,8 @@
 }
 
 .has-tooltips .aa-product-color-swatches__swatch[data-tooltip]:hover::after,
-.has-tooltips .aa-product-color-swatches__swatch[data-tooltip]:focus-visible::after {
+.has-tooltips
+	.aa-product-color-swatches__swatch[data-tooltip]:focus-visible::after {
 	opacity: 1;
 	scale: 1;
 }
@@ -329,8 +328,8 @@
 .aa-cs-anim-blur {
 	transition:
 		opacity 0.5s ease,
-		filter  0.5s ease,
-		scale   0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+		filter 0.5s ease,
+		scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .aa-cs-anim-blur.aa-cs-loading {
@@ -344,7 +343,7 @@
 .aa-cs-anim-zoom-in {
 	transition:
 		opacity 0.45s ease,
-		scale   0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+		scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .aa-cs-anim-zoom-in.aa-cs-loading {
@@ -357,7 +356,7 @@
 .aa-cs-anim-zoom-out {
 	transition:
 		opacity 0.45s ease,
-		scale   0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+		scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .aa-cs-anim-zoom-out.aa-cs-loading {
@@ -369,7 +368,7 @@
 /* 5. Slide Up — new image rises into place */
 .aa-cs-anim-slide-up {
 	transition:
-		opacity   0.4s ease,
+		opacity 0.4s ease,
 		translate 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -382,7 +381,7 @@
 /* 6. Slide Down — new image falls into place */
 .aa-cs-anim-slide-down {
 	transition:
-		opacity   0.4s ease,
+		opacity 0.4s ease,
 		translate 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -395,7 +394,7 @@
 /* 7. Slide Left — new image sweeps in from the right */
 .aa-cs-anim-slide-left {
 	transition:
-		opacity   0.4s ease,
+		opacity 0.4s ease,
 		translate 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -422,8 +421,8 @@
 .aa-cs-anim-blur-zoom {
 	transition:
 		opacity 0.55s ease,
-		filter  0.55s ease,
-		scale   0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+		filter 0.55s ease,
+		scale 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .aa-cs-anim-blur-zoom.aa-cs-loading {
@@ -437,7 +436,7 @@
 .aa-cs-anim-flash {
 	transition:
 		opacity 0.35s ease,
-		filter  0.55s ease;
+		filter 0.55s ease;
 }
 
 .aa-cs-anim-flash.aa-cs-loading {
@@ -449,7 +448,9 @@
 /* 11. Wipe — curtain sweeps left to right via clip-path */
 .aa-cs-anim-wipe {
 	clip-path: inset(0 0 0 0);
-	transition: clip-path 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+	transition:
+		clip-path 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+		opacity 0.2s ease;
 }
 
 .aa-cs-anim-wipe.aa-cs-loading {
@@ -461,7 +462,9 @@
 /* 12. Squeeze — genuine 3D flip on the horizontal axis */
 .aa-cs-anim-squeeze {
 	backface-visibility: hidden;
-	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease;
+	transition:
+		transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 0.15s ease;
 }
 
 .aa-cs-anim-squeeze.aa-cs-loading {
@@ -474,7 +477,7 @@
 .aa-cs-anim-rotate {
 	transition:
 		transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-		opacity   0.4s ease;
+		opacity 0.4s ease;
 }
 
 .aa-cs-anim-rotate.aa-cs-loading {
@@ -488,8 +491,8 @@
 	backface-visibility: hidden;
 	transition:
 		transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-		scale     0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-		opacity   0.35s ease;
+		scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+		opacity 0.35s ease;
 }
 
 .aa-cs-anim-tilt.aa-cs-loading {
@@ -501,7 +504,9 @@
 
 /* 15. Desaturate — color drains during load, then floods back */
 .aa-cs-anim-desaturate {
-	transition: filter 0.6s ease, opacity 0.35s ease;
+	transition:
+		filter 0.6s ease,
+		opacity 0.35s ease;
 }
 
 .aa-cs-anim-desaturate.aa-cs-loading {
@@ -513,7 +518,7 @@
 /* 16. Elastic — zoom-in with spring overshoot past natural size */
 .aa-cs-anim-elastic {
 	transition:
-		scale   0.55s cubic-bezier(0.34, 1.8, 0.64, 1),
+		scale 0.55s cubic-bezier(0.34, 1.8, 0.64, 1),
 		opacity 0.35s ease;
 }
 
@@ -526,7 +531,6 @@
 /* 17. Glitch — keyframe-driven distortion: color shifts, spatial jitter, then settle */
 
 @keyframes aa-glitch-reveal {
-
 	0% {
 		opacity: 0;
 		transform: translate(-8px, 0) skewX(-6deg);
@@ -601,7 +605,9 @@
 /* 18. Iris — circular reveal expanding from the image center */
 .aa-cs-anim-iris {
 	clip-path: circle(150% at 50% 50%);
-	transition: clip-path 0.55s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+	transition:
+		clip-path 0.55s cubic-bezier(0.25, 1, 0.5, 1),
+		opacity 0.2s ease;
 }
 
 .aa-cs-anim-iris.aa-cs-loading {
@@ -612,7 +618,9 @@
 
 /* 19. Dissolve — overexposed contrast burst that clears to the new image */
 .aa-cs-anim-dissolve {
-	transition: filter 0.5s ease, opacity 0.4s ease;
+	transition:
+		filter 0.5s ease,
+		opacity 0.4s ease;
 }
 
 .aa-cs-anim-dissolve.aa-cs-loading {
@@ -635,7 +643,6 @@
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-
 	.aa-product-color-swatches__swatch,
 	.aa-product-color-swatches__swatch::before {
 		transition: none;
@@ -667,12 +674,12 @@
 		transition: none;
 	}
 
-	[class*="aa-cs-anim-"] {
+	[class*='aa-cs-anim-'] {
 		transition: none;
 		animation: none !important;
 	}
 
-	[class*="aa-cs-anim-"].aa-cs-loading {
+	[class*='aa-cs-anim-'].aa-cs-loading {
 		opacity: 0;
 		filter: none;
 		scale: 1;
@@ -688,7 +695,6 @@
  * information, so keep the author color on the fill only.
  */
 @media (forced-colors: active) {
-
 	.aa-product-color-swatches__swatch::before {
 		forced-color-adjust: none;
 	}

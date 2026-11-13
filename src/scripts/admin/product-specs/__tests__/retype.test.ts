@@ -122,13 +122,20 @@ describe('retype', () => {
 describe('convertValue', () => {
   it('matches whole step names including non-Latin names', () => {
     const text = spec({});
-    const pick = { ...text, type: 'pick' as const, steps: ['小', '中', '大'] };
+    const pick = {
+      ...text,
+      type: 'pick' as const,
+      steps: ['小', '中', '大'],
+    };
     expect(convertValue(text, pick, '中')).toBe('1');
     expect(convertValue(text, pick, '中 cotton')).toBe('');
   });
 
   it('keeps exact text and falls back to unitless number parsing as the server does', () => {
-    const pick = spec({ type: 'pick', steps: ['soft (washed)', 'Regular'] });
+    const pick = spec({
+      type: 'pick',
+      steps: ['soft (washed)', 'Regular'],
+    });
     expect(convertValue(pick, spec({}), '0')).toBe('soft (washed)');
     expect(
       convertValue(spec({}), spec({ type: 'number', unit: 'g/m²' }), '180')

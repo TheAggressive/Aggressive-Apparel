@@ -216,6 +216,9 @@ export default [
     files: [
       'src/**/*.test.{js,jsx,ts,tsx}',
       'src/**/__tests__/**/*.{js,jsx,ts,tsx}',
+      // Test support code: helpers under testing/ and the Jest setup file.
+      'src/**/testing/**/*.{js,jsx,ts,tsx}',
+      'src/jest.setup-*.{js,ts}',
     ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -234,6 +237,7 @@ export default [
         // Node / Jest CJS runtime (path resolution in source locks, etc.)
         __dirname: 'readonly',
         process: 'readonly',
+        require: 'readonly',
         // Jest globals
         describe: 'readonly',
         it: 'readonly',

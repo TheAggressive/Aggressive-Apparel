@@ -10,7 +10,6 @@
 
 /* Header mini-cart replaces the bottom-nav cart link on mobile. */
 @media (width < 1024px) {
-
 	/* body.aa-has-mini-cart is set once by bottom-nav.ts (body-level
 	   :has() on body would re-scan the document on every DOM mutation). */
 	body.aa-has-mini-cart .aa-bottom-nav__item--cart {
@@ -23,7 +22,8 @@
 }
 
 /* Notice banners inside the mini-cart drawer. */
-.wp-block-woocommerce-filled-mini-cart-contents-block .wc-block-components-notices {
+.wp-block-woocommerce-filled-mini-cart-contents-block
+	.wc-block-components-notices {
 	display: none;
 	flex-direction: column;
 	gap: var(--wp--preset--spacing--3);
@@ -90,7 +90,7 @@
 
 	/* Visible 0.5rem notification dot, centered inside the bounding box. */
 	&::before {
-		content: "";
+		content: '';
 		position: absolute;
 		inset: calc(50% - 0.25rem);
 		border-radius: 50%;
@@ -100,7 +100,7 @@
 
 	/* Ping ring — fills the bounding box and scales outward. */
 	&::after {
-		content: "";
+		content: '';
 		position: absolute;
 		inset: 0;
 		border-radius: 50%;
@@ -110,7 +110,6 @@
 
 	/* Desktop only: fill circle and reveal count, hide dot + ping. */
 	@media (hover: hover) {
-
 		&:hover {
 			background-color: var(--aa-color-accent-fill) !important;
 			color: var(--aa-color-white) !important;
@@ -146,27 +145,25 @@
 }
 
 @starting-style {
-
 	.wc-block-mini-cart__badge {
 		scale: 0;
 	}
 }
 
 @keyframes aa-badge-ping {
-
 	0% {
 		transform: scale(1);
 		opacity: 0.6;
 	}
 
-	80%, 100% {
+	80%,
+	100% {
 		transform: scale(1.5);
 		opacity: 0;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.wc-block-mini-cart__badge {
 		transition: none;
 	}
@@ -197,7 +194,6 @@
 .wc-block-mini-cart__drawer
 	.wc-block-mini-cart__footer
 	.wc-block-mini-cart__footer-actions {
-
 	/* Stack full width on narrow screens. WooCommerce 11.3.0 dropped its own
 	 * column breakpoint for flex-wrap, but its min-width: min-content lets the
 	 * labels break onto three lines before the row ever wraps. */
@@ -251,7 +247,6 @@
 }
 
 @media (hover: hover) {
-
 	.wc-block-mini-cart__drawer
 		.wc-block-mini-cart__footer
 		.wc-block-mini-cart__footer-actions
@@ -280,7 +275,6 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 .wp-block-woocommerce-filled-mini-cart-contents-block {
-
 	/* Hide the "Product / Details / Total" table header — self-evident in context. */
 	.wc-block-cart-items thead {
 		display: none;
@@ -306,8 +300,8 @@
 		column-gap: 0;
 		align-items: start;
 		padding-block: var(--wp--preset--spacing--5);
-		padding-left: 1rem !important;
-		padding-right: 1rem !important;
+		padding-left: 1rem;
+		padding-right: 1rem;
 		border: 0;
 		border-bottom: 1px solid var(--aa-color-border-subtle);
 		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
@@ -383,8 +377,10 @@
 	   short description WooCommerce prints the full one as raw HTML, which no
 	   clamp contains. The iAPI drawer wraps it in a <div> (hidden too, or it
 	   leaves a gap); the React drawer doesn't. */
-	.wc-block-components-product-metadata > .wc-block-components-product-metadata__description,
-	.wc-block-components-product-metadata > :has(> .wc-block-components-product-metadata__description) {
+	.wc-block-components-product-metadata
+		> .wc-block-components-product-metadata__description,
+	.wc-block-components-product-metadata
+		> :has(> .wc-block-components-product-metadata__description) {
 		display: none;
 	}
 
@@ -457,7 +453,6 @@
 
 	/* Per-item prices (below name) */
 	.wc-block-cart-item__prices {
-
 		.wc-block-components-product-price {
 			font-size: var(--wp--preset--font-size--small);
 			font-weight: 700;
@@ -521,7 +516,6 @@
 
 	/* ── Line total column ── */
 	.wc-block-cart-item__total {
-
 		.wc-block-cart-item__total-price-and-sale-badge-wrapper {
 			gap: 0.25rem;
 		}
@@ -538,9 +532,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.wp-block-woocommerce-filled-mini-cart-contents-block {
-
 		.wc-block-cart-items__row,
 		.wc-block-cart-item__remove-link {
 			transition: none;

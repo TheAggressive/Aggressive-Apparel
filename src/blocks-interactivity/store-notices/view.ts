@@ -204,7 +204,10 @@ const BRIDGE_SOURCES: Array<{ selector: string; type: NoticeType }> = [
     type: 'success',
   },
   { selector: '.wc-block-components-notice-banner.is-info', type: 'notice' },
-  { selector: '.wc-block-components-notice-banner.is-warning', type: 'notice' },
+  {
+    selector: '.wc-block-components-notice-banner.is-warning',
+    type: 'notice',
+  },
   { selector: '.woocommerce-error', type: 'error' },
   { selector: '.woocommerce-message', type: 'success' },
   { selector: '.woocommerce-info', type: 'notice' },
@@ -428,6 +431,8 @@ export const storeNoticesStore = store('aggressive-apparel/store-notices', {
       const { ref } = getElement();
       if (ctx.captureBlockNotices && ref) {
         startBridge(ctx, ref as HTMLElement);
+        // Observable "capturing" state (tests and debugging wait on it).
+        ref.setAttribute('data-aa-bridge', 'ready');
       }
     },
 

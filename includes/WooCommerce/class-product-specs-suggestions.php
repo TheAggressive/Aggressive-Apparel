@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Request_Cache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -47,13 +49,6 @@ final class Product_Specs_Suggestions {
 	 * @var string
 	 */
 	private const CACHE_KEY = 'aa_spec_attribute_scan';
-
-	/**
-	 * The scan, once read this request.
-	 *
-	 * @var array<string, array{products: int, values: array<string, int>}>|null
-	 */
-	private static ?array $scan = null;
 
 	/**
 	 * Attributes in use that no spec reads yet, most used first.
@@ -105,7 +100,7 @@ final class Product_Specs_Suggestions {
 	 * Forget the attribute scan (a product or attribute changed).
 	 */
 	public static function flush(): void {
-		self::$scan = null;
+		Request_Cache::forget( 'product-specs-suggestions:scan' );
 		delete_transient( self::CACHE_KEY );
 	}
 
@@ -130,10 +125,16 @@ final class Product_Specs_Suggestions {
 	 * @return array<string, array{products: int, values: array<string, int>}>
 	 */
 	private static function scan(): array {
-		if ( null !== self::$scan ) {
-			return self::$scan;
-		}
+		return Request_Cache::remember( 'product-specs-suggestions:scan', static fn(): array => self::read_scan() );
+	}
 
+	/**
+	 * Read the scan from its transient, or run and store it, uncached by the
+	 * request (see scan()).
+	 *
+	 * @return array<string, array{products: int, values: array<string, int>}>
+	 */
+	private static function read_scan(): array {
 		$cached = get_transient( self::CACHE_KEY );
 		if ( is_array( $cached ) ) {
 			$scan = array();
@@ -145,15 +146,14 @@ final class Product_Specs_Suggestions {
 					);
 				}
 			}
-			self::$scan = $scan;
 
 			return $scan;
 		}
 
-		self::$scan = self::global_attributes() + self::custom_attributes();
-		set_transient( self::CACHE_KEY, self::$scan, 12 * HOUR_IN_SECONDS );
+		$scan = self::global_attributes() + self::custom_attributes();
+		set_transient( self::CACHE_KEY, $scan, 12 * HOUR_IN_SECONDS );
 
-		return self::$scan;
+		return $scan;
 	}
 
 	/**

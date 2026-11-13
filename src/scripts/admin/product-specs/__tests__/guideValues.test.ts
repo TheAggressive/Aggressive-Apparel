@@ -22,8 +22,12 @@ describe('guide values across spec changes', () => {
 
   it('restores an unreadable value when a type change is discarded', () => {
     const saved = { fit: '1' };
-    expect(guideValues(saved, [pick], [number], {})).toEqual({ fit: '' });
-    expect(guideValues(saved, [pick], [pick], {})).toEqual({ fit: '1' });
+    expect(guideValues(saved, [pick], [number], {})).toEqual({
+      fit: '',
+    });
+    expect(guideValues(saved, [pick], [pick], {})).toEqual({
+      fit: '1',
+    });
     expect(saved).toEqual({ fit: '1' });
   });
 

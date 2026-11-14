@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-11-14T18:43:10+00:00\n"
+"POT-Creation-Date: 2026-11-14T21:07:47+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -788,12 +788,6 @@ msgstr "Finde deinen Weg…"
 #, aa-mt
 msgid "Too many requests. Please slow down."
 msgstr "Zu viele Anfragen. Bitte etwas langsamer."
-
-#. translators: %s: lowest price in a variable product's range.
-#: includes/Core/class-search-results.php:270
-#, php-format, aa-mt
-msgid "From %s"
-msgstr "Aus %s"
 
 #: includes/Core/class-security-hardening.php:168
 #, aa-mt
@@ -1942,7 +1936,7 @@ msgstr "Verkleinern"
 #: includes/WooCommerce/class-badge-rules-admin.php:47
 #: includes/WooCommerce/class-badge-rules-admin.php:105
 #: includes/WooCommerce/class-size-guide.php:219
-#: includes/WooCommerce/class-sticky-add-to-cart.php:297
+#: includes/WooCommerce/class-sticky-add-to-cart.php:311
 #, aa-mt
 msgid "Close"
 msgstr "Schließen"
@@ -3324,7 +3318,7 @@ msgid "%s UNLOCKED!"
 msgstr "%s FREIGEGEBEN!"
 
 #: includes/WooCommerce/class-frequently-bought-together.php:175
-#: includes/WooCommerce/class-quick-view-renderer.php:104
+#: includes/WooCommerce/class-quick-view-renderer.php:108
 #, aa-mt
 msgid "Adding…"
 msgstr "Weiter…"
@@ -3710,13 +3704,13 @@ msgid "Attributes"
 msgstr "Attribute"
 
 #: includes/WooCommerce/class-product-filter-data.php:224
-#: includes/WooCommerce/class-quick-view-renderer.php:115
+#: includes/WooCommerce/class-quick-view-renderer.php:119
 #, aa-mt
 msgid "In Stock"
 msgstr "Auf Lager"
 
 #: includes/WooCommerce/class-product-filter-data.php:228
-#: includes/WooCommerce/class-quick-view-renderer.php:114
+#: includes/WooCommerce/class-quick-view-renderer.php:118
 #: includes/WooCommerce/class-store-copy.php:83
 #: patterns/design-system-preview.php:157
 #, aa-mt
@@ -5218,7 +5212,7 @@ msgstr "Registerkarte „Ausgewählt“"
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
 #: includes/WooCommerce/class-quick-view-card-actions.php:75
-#: includes/WooCommerce/class-wishlist.php:466
+#: includes/WooCommerce/class-wishlist.php:467
 #, php-format, aa-mt
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
@@ -5235,113 +5229,113 @@ msgstr "Produktmaßnahmen"
 msgid "Product actions: %s"
 msgstr "Produktaktionen: %s"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:105
+#: includes/WooCommerce/class-quick-view-renderer.php:109
 #, aa-mt
 msgid "✓ Added!"
 msgstr "✓ Hinzugefügt!"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:109
-#: includes/WooCommerce/class-sticky-add-to-cart.php:132
+#: includes/WooCommerce/class-quick-view-renderer.php:113
+#: includes/WooCommerce/class-sticky-add-to-cart.php:134
 #, aa-mt
 msgid "Redirecting…"
 msgstr "Weiterleitung…"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:113
-#: includes/WooCommerce/class-quick-view-renderer.php:637
-#: includes/WooCommerce/class-sticky-add-to-cart.php:135
-#: includes/WooCommerce/class-sticky-add-to-cart.php:424
+#: includes/WooCommerce/class-quick-view-renderer.php:117
+#: includes/WooCommerce/class-quick-view-renderer.php:663
+#: includes/WooCommerce/class-sticky-add-to-cart.php:137
+#: includes/WooCommerce/class-sticky-add-to-cart.php:438
 #, aa-mt
 msgid "Added to cart!"
 msgstr "In den Warenkorb gelegt!"
 
 #. translators: %d: remaining stock quantity.
-#: includes/WooCommerce/class-quick-view-renderer.php:117
+#: includes/WooCommerce/class-quick-view-renderer.php:121
 #, php-format, aa-mt
 msgid "Only %d left!"
 msgstr "Nur noch %d verfügbar!"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:118
+#: includes/WooCommerce/class-quick-view-renderer.php:122
 #, aa-mt
 msgid "Product added to cart successfully"
 msgstr "Das Produkt wurde erfolgreich in den Warenkorb gelegt"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:119
+#: includes/WooCommerce/class-quick-view-renderer.php:123
 #, aa-mt
 msgid "Could not add to cart."
 msgstr "Konnte nicht in den Warenkorb gelegt werden."
 
 #. translators: %s: error message from the cart API.
-#: includes/WooCommerce/class-quick-view-renderer.php:121
+#: includes/WooCommerce/class-quick-view-renderer.php:125
 #, php-format, aa-mt
 msgid "Error: %s"
 msgstr "Fehler: %s"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:122
-#: includes/WooCommerce/class-sticky-add-to-cart.php:138
+#: includes/WooCommerce/class-quick-view-renderer.php:126
+#: includes/WooCommerce/class-sticky-add-to-cart.php:140
 #: patterns/design-system-preview.php:118
 #, aa-mt
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:151
+#: includes/WooCommerce/class-quick-view-renderer.php:155
 #, aa-mt
 msgid "Close quick view"
 msgstr "Schnellansicht schließen"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:211
+#: includes/WooCommerce/class-quick-view-renderer.php:224
 #, aa-mt
 msgid "Scroll thumbnails left"
 msgstr "Miniaturansichten nach links scrollen"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:231
-#: includes/WooCommerce/class-quick-view-renderer.php:276
+#: includes/WooCommerce/class-quick-view-renderer.php:244
+#: includes/WooCommerce/class-quick-view-renderer.php:289
 #, aa-mt
 msgid "View image"
 msgstr "Bild anzeigen"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:249
+#: includes/WooCommerce/class-quick-view-renderer.php:262
 #, aa-mt
 msgid "Scroll thumbnails right"
 msgstr "Miniaturansichten nach rechts scrollen"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:341
-#: includes/WooCommerce/class-quick-view-renderer.php:524
-#: includes/WooCommerce/class-sticky-add-to-cart.php:197
-#: includes/WooCommerce/class-sticky-add-to-cart.php:368
+#: includes/WooCommerce/class-quick-view-renderer.php:361
+#: includes/WooCommerce/class-quick-view-renderer.php:550
+#: includes/WooCommerce/class-sticky-add-to-cart.php:205
+#: includes/WooCommerce/class-sticky-add-to-cart.php:382
 #, aa-mt
 msgid "Decrease quantity"
 msgstr "Menge verringern"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:349
-#: includes/WooCommerce/class-quick-view-renderer.php:532
-#: includes/WooCommerce/class-sticky-add-to-cart.php:206
-#: includes/WooCommerce/class-sticky-add-to-cart.php:377
+#: includes/WooCommerce/class-quick-view-renderer.php:369
+#: includes/WooCommerce/class-quick-view-renderer.php:558
+#: includes/WooCommerce/class-sticky-add-to-cart.php:214
+#: includes/WooCommerce/class-sticky-add-to-cart.php:391
 #, aa-mt
 msgid "Quantity"
 msgstr "Anzahl"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:355
-#: includes/WooCommerce/class-quick-view-renderer.php:538
-#: includes/WooCommerce/class-sticky-add-to-cart.php:212
-#: includes/WooCommerce/class-sticky-add-to-cart.php:383
+#: includes/WooCommerce/class-quick-view-renderer.php:375
+#: includes/WooCommerce/class-quick-view-renderer.php:564
+#: includes/WooCommerce/class-sticky-add-to-cart.php:220
+#: includes/WooCommerce/class-sticky-add-to-cart.php:397
 #, aa-mt
 msgid "Increase quantity"
 msgstr "Menge erhöhen"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:423
-#: includes/WooCommerce/class-sticky-add-to-cart.php:266
+#: includes/WooCommerce/class-quick-view-renderer.php:443
+#: includes/WooCommerce/class-sticky-add-to-cart.php:274
 #, aa-mt
 msgid "Select product options"
 msgstr "Produktoptionen auswählen"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:586
+#: includes/WooCommerce/class-quick-view-renderer.php:612
 #, aa-mt
 msgid "Could not load product details. Please try again."
 msgstr ""
 "Die Produktdetails konnten nicht geladen werden. Bitte versuchen Sie es "
 "erneut."
 
-#: includes/WooCommerce/class-quick-view-renderer.php:624
+#: includes/WooCommerce/class-quick-view-renderer.php:650
 #, aa-mt
 msgid "Close cart confirmation"
 msgstr "Bestätigung zum Schließen des Warenkorbs"
@@ -5758,12 +5752,12 @@ msgstr "Vorschau „Social Proof“: EIN"
 msgid "Click to manage Social Proof settings"
 msgstr "Klicken Sie hier, um die Einstellungen für „Social Proof“ zu verwalten"
 
-#: includes/WooCommerce/class-sticky-add-to-cart.php:136
+#: includes/WooCommerce/class-sticky-add-to-cart.php:138
 #, aa-mt
 msgid "Added to cart"
 msgstr "In den Warenkorb gelegt"
 
-#: includes/WooCommerce/class-sticky-add-to-cart.php:137
+#: includes/WooCommerce/class-sticky-add-to-cart.php:139
 #, aa-mt
 msgid "Error adding to cart"
 msgstr "Fehler beim Hinzufügen zum Warenkorb"
@@ -6227,22 +6221,7 @@ msgstr ""
 "Deine Wunschliste konnte nicht aktualisiert werden. Bitte versuche es erneut."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-wishlist.php:307
-#, aa-mt
-msgid "Choose options"
-msgstr "Optionen auswählen"
-
-#: includes/WooCommerce/class-wishlist.php:308
-#: patterns/stacked-feature-products.php:42
-#: patterns/stacked-feature-products.php:116
-#: src/blocks-interactivity/lookbook/render.php:129
-#: src/blocks-interactivity/wishlist-item-actions/render.php:39
-#, aa-mt
-msgid "View product"
-msgstr "Produkt anzeigen"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-wishlist.php:309
+#: includes/WooCommerce/class-wishlist.php:310
 #, aa-mt
 msgid "Saved on this device"
 msgstr "Auf diesem Gerät gespeichert"
@@ -10306,6 +10285,12 @@ msgstr ""
 "wichtigsten Artikel. Halten Sie den Text kurz – in diesem Abschnitt kommt es "
 "auf das Tempo an, nicht auf die Dichte."
 
+#: patterns/stacked-feature-products.php:42
+#: patterns/stacked-feature-products.php:116
+#, aa-mt
+msgid "View product"
+msgstr "Produkt anzeigen"
+
 #: patterns/stacked-feature-products.php:102
 #, aa-mt
 msgid "Core staple"
@@ -11071,30 +11056,30 @@ msgstr "Tabellenansicht"
 msgid "List view"
 msgstr "Listenansicht"
 
-#: src/blocks-interactivity/lookbook/render.php:126
+#: src/blocks-interactivity/lookbook/render.php:130
 #, aa-mt
 msgid "Loading product."
 msgstr "Produkt wird geladen."
 
-#: src/blocks-interactivity/lookbook/render.php:127
+#: src/blocks-interactivity/lookbook/render.php:131
 #, aa-mt
 msgid "No product selected."
 msgstr "Es wurde kein Produkt ausgewählt."
 
-#: src/blocks-interactivity/lookbook/render.php:128
+#: src/blocks-interactivity/lookbook/render.php:132
 #, aa-mt
 msgid "Product could not be loaded."
 msgstr "Das Produkt konnte nicht geladen werden."
 
 #. translators: %s: product name.
-#: src/blocks-interactivity/lookbook/render.php:131
-#: src/blocks-interactivity/lookbook/render.php:243
+#: src/blocks-interactivity/lookbook/render.php:135
+#: src/blocks-interactivity/lookbook/render.php:247
 #, php-format, aa-mt
 msgid "View product: %s"
 msgstr "Produkt anzeigen: %s"
 
 #. translators: %d: hotspot number.
-#: src/blocks-interactivity/lookbook/render.php:248
+#: src/blocks-interactivity/lookbook/render.php:252
 #, php-format, aa-mt
 msgid "View product %d"
 msgstr "Produkt anzeigen %d"
@@ -11182,7 +11167,7 @@ msgstr "Farboptionen für %s"
 msgid "View in %s"
 msgstr "In %s anzeigen"
 
-#: src/blocks-interactivity/recently-viewed/render.php:24
+#: src/blocks-interactivity/recently-viewed/render.php:27
 #, aa-mt
 msgid "Recently Viewed"
 msgstr "Zuletzt angesehen"
@@ -11249,12 +11234,6 @@ msgstr ""
 #, aa-mt
 msgid "Explore the collection"
 msgstr "Entdecken Sie die Kollektion"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: src/blocks-interactivity/wishlist/render.php:154
-#, aa-mt
-msgid "Continue shopping"
-msgstr "Weiter einkaufen"
 
 #: src/blocks/dark-mode-toggle/render.php:31
 #: src/blocks/dark-mode-toggle/render.php:36
@@ -13269,3 +13248,13 @@ msgstr "Rubrik: Leitartikel „Dark“"
 msgctxt "Style variation name"
 msgid "Section: Surface"
 msgstr "Abschnitt: Oberfläche"
+
+#, php-format
+#~ msgid "From %s"
+#~ msgstr "Aus %s"
+
+#~ msgid "Choose options"
+#~ msgstr "Optionen auswählen"
+
+#~ msgid "Continue shopping"
+#~ msgstr "Weiter einkaufen"

@@ -341,6 +341,11 @@ export const { state, actions } = store< QuickViewStore >(
 				return saleBadgeText();
 			},
 
+			/** Whether the sale badge has nothing to show. */
+			get hasNoSaleBadge(): boolean {
+				return ! saleBadgeText();
+			},
+
 			/**
 			 * Stock status helpers.
 			 */

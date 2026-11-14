@@ -33,6 +33,34 @@ import type {
 } from './types';
 import { state, actions, getLabel, saleBadgeText } from '../quick-view';
 
+/**
+ * Write the sale badge text into its slot — never over the whole badge, which
+ * may carry a Badge Studio shape and icon — and keep an icon-only design's
+ * accessible name in step.
+ *
+ * @param root Element containing the badge.
+ */
+function syncSaleBadge( root: ParentNode ): void {
+	const badge = root.querySelector< HTMLElement >(
+		'.aggressive-apparel-quick-view__sale-badge'
+	);
+	if ( ! badge ) {
+		return;
+	}
+
+	const text = saleBadgeText();
+	badge.hidden = ! text;
+
+	const slot = badge.querySelector(
+		'.aggressive-apparel-quick-view__sale-badge-text'
+	);
+	if ( slot ) {
+		slot.textContent = text;
+	}
+
+	badge.querySelector( '[role="img"]' )?.setAttribute( 'aria-label', text );
+}
+
 export function getStockInfo( product: StoreApiProduct ): StockInfo {
 	const lowThreshold = 3;
 	const isInStock = product.is_in_stock !== false;
@@ -113,14 +141,7 @@ export function syncPriceDOM(): void {
 			el.hidden = ! state.productOnSale;
 		} );
 	// Sale badge — data-wp-text has the same reactivity issue as prices.
-	const badge = modal.querySelector< HTMLElement >(
-		'.aggressive-apparel-quick-view__sale-badge'
-	);
-	if ( badge ) {
-		const text = saleBadgeText();
-		badge.hidden = ! text;
-		badge.textContent = text;
-	}
+	syncSaleBadge( modal );
 }
 
 /**
@@ -277,12 +298,7 @@ export function populateModalDOM(): void {
 	}
 
 	// Sale badge.
-	const badge = q( '.aggressive-apparel-quick-view__sale-badge' );
-	if ( badge ) {
-		const text = saleBadgeText();
-		badge.hidden = ! text;
-		badge.textContent = text;
-	}
+	syncSaleBadge( modal );
 
 	// Product link.
 	const link = q< HTMLAnchorElement >(

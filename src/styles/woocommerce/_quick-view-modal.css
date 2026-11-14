@@ -159,8 +159,10 @@
 	}
 }
 
-/* Sale badge on image. */
-.aggressive-apparel-quick-view__sale-badge {
+/* Sale badge on image. With Product Badges' Sale rule on, the badge is the
+   Badge Studio design, placed by .aggressive-apparel-product-badge__wrapper;
+   this default chip is only for when WooCommerce owns the sale flash. */
+.aggressive-apparel-quick-view__sale-badge--default {
 	position: absolute;
 	top: 0.75rem;
 	left: 0.75rem;

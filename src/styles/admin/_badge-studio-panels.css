@@ -274,16 +274,17 @@
 	margin-top: 16px;
 }
 
-.aa-badge-rules__actions .button,
-.aa-badge-rules__save {
+/* .wp-core-ui (on the admin body) lifts these above core's
+   .wp-core-ui .button-primary (0,2,0) and its :hover/:focus/:active (0,3,0). */
+.wp-core-ui .aa-badge-rules__actions .button,
+.wp-core-ui .aa-badge-rules__save {
 	appearance: none;
 	min-height: 36px;
 	margin: 0;
 	border: 0;
 	border-radius: 8px;
 	padding: 9px 18px;
-	/* stylelint-disable-next-line declaration-no-important -- beats core buttons.css .wp-core-ui .button-primary{background} and its :hover/:focus (0,3,0) */
-	background: var(--aa-studio-accent) !important;
+	background: var(--aa-studio-accent);
 	color: #fff;
 	box-shadow: none;
 	font-family: var(--aa-studio-font);
@@ -293,14 +294,11 @@
 	text-shadow: none;
 }
 
-.aa-badge-rules__actions .button:hover,
-.aa-badge-rules__actions .button:focus,
-.aa-badge-rules__save:hover,
-.aa-badge-rules__save:focus {
+.wp-core-ui .aa-badge-rules__actions .button:is(:hover, :focus, :active),
+.wp-core-ui .aa-badge-rules__save:is(:hover, :focus, :active) {
 	background: #4636d6;
 	color: #fff;
-	/* stylelint-disable-next-line declaration-no-important -- beats core buttons.css .wp-core-ui .button-primary:hover/:focus{border-color} (0,3,0) */
-	border-color: transparent !important;
+	border-color: transparent;
 	box-shadow: none;
 }
 

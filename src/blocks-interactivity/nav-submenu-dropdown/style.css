@@ -194,14 +194,4 @@
 	.wp-block-aggressive-apparel-nav-submenu-dropdown {
 		--submenu-transition: 0ms;
 	}
-
-	.wp-block-aggressive-apparel-nav-submenu-dropdown
-		.wp-block-aggressive-apparel-nav-submenu__panel-inner
-		> * {
-		/* stylelint-disable declaration-no-important -- UNVERIFIED: reduced-motion kill-switch; no animation, opacity or transform rule on __panel-inner > * found */
-		animation: none !important;
-		opacity: 1 !important;
-		transform: none !important;
-		/* stylelint-enable declaration-no-important */
-	}
 }

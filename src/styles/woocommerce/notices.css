@@ -342,7 +342,7 @@
 		.wc-forward {
 		width: 100%;
 		float: none;
-		/* stylelint-disable-next-line declaration-no-important -- beats this file's desktop margin:0!important above (itself against WC .wc-forward{margin:0 0 0 20px}) */
+		/* stylelint-disable-next-line declaration-no-important -- race with WC …__content .wc-forward{margin:0 0 0 20px} (0,3,0), so it must also outrank the desktop margin:0!important above */
 		margin: var(--wp--preset--spacing--3) 0 0 !important;
 	}
 }

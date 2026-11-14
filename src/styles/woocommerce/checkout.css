@@ -285,8 +285,7 @@
 	.wc-block-components-text-input
 	input::placeholder,
 :is(.wc-block-checkout, .wc-block-cart) textarea::placeholder {
-	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: WC only sets .wc-block-components-textarea::placeholder (0,1,1), which this rule already outranks */
-	color: var(--aa-field-placeholder) !important;
+	color: var(--aa-field-placeholder);
 }
 
 /* Reserved transparent 3px left bar + dark translucent fill that adapts to the

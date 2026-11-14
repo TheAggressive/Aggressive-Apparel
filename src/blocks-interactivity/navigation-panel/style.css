@@ -232,11 +232,12 @@
 }
 
 /* When search is open (see nav-shared/overlay-coordination SEARCH_OPEN_BODY_CLASS),
- * the nav stays mounted but must not intercept taps. */
-body.has-search-modal-open .aa-nav__panel-overlay,
+ * the nav stays mounted but must not intercept taps. At (0,3,1) these outrank
+ * .aa-nav-panel__portal.is-open .aa-nav__panel-overlay (0,3,0) here and the
+ * critical CSS's .aa-nav__panel--{variant}.is-open (0,2,0). */
+body.has-search-modal-open .aa-nav-panel__portal .aa-nav__panel-overlay,
 body.has-search-modal-open .aa-nav__panel.is-open {
-	/* stylelint-disable-next-line declaration-no-important -- beats .aa-nav-panel__portal.is-open .aa-nav__panel-overlay{pointer-events:auto} (0,3,0), also in wp_footer critical CSS */
-	pointer-events: none !important;
+	pointer-events: none;
 }
 
 /* ========================================
@@ -668,15 +669,6 @@ body.has-search-modal-open .aa-nav__panel.is-open {
 		translate: none !important;
 		animation: none !important;
 		/* stylelint-enable declaration-no-important */
-	}
-
-	/* Disable View Transitions */
-	@supports (view-transition-name: none) {
-		.aa-nav-panel__portal,
-		.aa-nav__panel {
-			/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: nothing assigns a view-transition-name here (checked theme CSS/PHP, wp-includes, plugins) */
-			view-transition-name: none !important;
-		}
 	}
 }
 

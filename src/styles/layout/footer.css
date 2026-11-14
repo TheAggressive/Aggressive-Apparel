@@ -4,7 +4,7 @@
  * @package Aggressive_Apparel
  */
 .site-footer__email-list--form {
-	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: .site-footer__email-list* is not in theme parts/patterns or the local DB; no source found */
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: editor-applied class, not in the theme or the local DB; presumably beats a core/group inline padding style */
 	padding-inline: clamp(1.5rem, 6vw, 6rem) !important;
 }
 
@@ -15,7 +15,7 @@
 
 	.site-footer__email-list--image,
 	.site-footer__email-list--form {
-		/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: .site-footer__email-list* is not in theme parts/patterns or the local DB; no source found */
+		/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: editor-applied class, not in the theme or the local DB; presumably beats core/column's inline flex-basis (Width setting) */
 		flex-basis: 100% !important;
 	}
 }

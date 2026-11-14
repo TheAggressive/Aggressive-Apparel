@@ -193,7 +193,10 @@
 		--navigation-transition: 0ms;
 	}
 
-	.wp-block-aggressive-apparel-navigation *,
+	/* The indicator is exempt: it drops its transition outright below.
+	   :where() keeps the selector at (0,1,0), so the panel's own
+	   kill-switches still outrank it. */
+	.wp-block-aggressive-apparel-navigation :where(:not(.aa-nav__indicator)),
 	.wp-block-aggressive-apparel-navigation *::before,
 	.wp-block-aggressive-apparel-navigation *::after {
 		/* stylelint-disable declaration-no-important -- reduced-motion kill-switch: outranks the nav blocks' own higher-specificity transition/animation rules */
@@ -205,14 +208,6 @@
 
 	/* Indicator snaps instantly */
 	.aa-nav__indicator {
-		/* stylelint-disable-next-line declaration-no-important -- beats the kill-switch above (.wp-block-aggressive-apparel-navigation *{transition-duration:0.01ms!important}) */
-		transition: none !important;
-	}
-
-	@supports (view-transition-name: none) {
-		.wp-block-aggressive-apparel-navigation {
-			/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: nothing assigns a view-transition-name here (checked theme CSS/PHP, wp-includes, plugins) */
-			view-transition-name: none !important;
-		}
+		transition: none;
 	}
 }

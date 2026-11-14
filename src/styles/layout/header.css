@@ -55,8 +55,7 @@
 	.site-header__aggressive-logo {
 		order: 2;
 		display: flex;
-		/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: the logo block has no layout support; no justify-content source found */
-		justify-content: center !important;
+		justify-content: center;
 	}
 
 	/* 5. Reorder: Menu to the far right */

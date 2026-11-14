@@ -321,7 +321,7 @@
 	.aggressive-apparel-quick-view.is-open
 		.aggressive-apparel-quick-view__details
 		> * {
-		animation: qv-stagger-in 0.4s ease both;
+		animation: aa-qv-stagger-in 0.4s ease both;
 		animation-delay: calc(var(--stagger-index, 0) * 60ms);
 	}
 
@@ -349,7 +349,7 @@
 		--stagger-index: 5;
 	}
 
-	@keyframes qv-stagger-in {
+	@keyframes aa-qv-stagger-in {
 		from {
 			opacity: 0;
 			transform: translateY(12px);
@@ -362,10 +362,10 @@
 	}
 
 	.aggressive-apparel-quick-view__add-to-cart.is-success {
-		animation: qv-cart-success 0.4s ease;
+		animation: aa-qv-cart-success 0.4s ease;
 	}
 
-	@keyframes qv-cart-success {
+	@keyframes aa-qv-cart-success {
 		0% {
 			transform: scale(1);
 		}
@@ -390,7 +390,7 @@
 	}
 
 	.aggressive-apparel-quick-view__details > * {
-		/* stylelint-disable declaration-no-important -- UNVERIFIED: the only __details > * animation (qv-stagger-in) is already gated to prefers-reduced-motion: no-preference */
+		/* stylelint-disable declaration-no-important -- UNVERIFIED: the only __details > * animation (aa-qv-stagger-in) is already gated to prefers-reduced-motion: no-preference */
 		animation: none !important;
 		opacity: 1 !important;
 		transform: none !important;

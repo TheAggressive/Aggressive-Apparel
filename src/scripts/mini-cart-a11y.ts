@@ -9,6 +9,9 @@
  */
 
 const DRAWER_SELECTOR = '.wc-block-mini-cart__drawer';
+// Broader than utils/focusable.ts on purpose: it must also catch disabled
+// controls (they can enable while the drawer is closed) and restore the
+// tabindex it parked under data-aa-mini-cart-tabindex.
 const FOCUSABLE_SELECTOR =
 	'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [data-aa-mini-cart-tabindex]';
 const drawerObservers = new WeakMap< HTMLElement, MutationObserver >();

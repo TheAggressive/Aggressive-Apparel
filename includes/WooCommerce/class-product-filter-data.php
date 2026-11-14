@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Cache_Helper;
+
 defined( 'ABSPATH' ) || exit;
 
 /** Loads and caches the taxonomy, attribute, and price data used by filters. */
@@ -30,30 +32,29 @@ final class Product_Filter_Data {
 			return $this->data;
 		}
 
-		$cached = get_transient( self::CACHE_KEY );
-		if ( is_array( $cached ) && isset( $cached['colorTerms'], $cached['collectionTerms'] ) ) {
-			$this->data = $cached;
-			return $cached;
-		}
-
-		$default_price = array(
-			'min' => 0,
-			'max' => 0,
+		$data = Cache_Helper::remember(
+			self::CACHE_KEY,
+			self::CACHE_TTL,
+			fn(): array => array(
+				'categories'      => $this->safely( array( $this, 'categories' ) ),
+				'colorTerms'      => $this->safely( array( $this, 'colors' ) ),
+				'sizeTerms'       => $this->safely( array( $this, 'sizes' ) ),
+				'collectionTerms' => $this->safely( array( $this, 'collections' ) ),
+				'priceRange'      => $this->safely(
+					array( $this, 'price_range' ),
+					array(
+						'min' => 0,
+						'max' => 0,
+					)
+				),
+				'stockStatuses'   => $this->stock_statuses(),
+			),
+			static fn( $cached ): bool => is_array( $cached ) && isset( $cached['colorTerms'], $cached['collectionTerms'] )
 		);
 
-		$data = array(
-			'categories'      => $this->safely( array( $this, 'categories' ) ),
-			'colorTerms'      => $this->safely( array( $this, 'colors' ) ),
-			'sizeTerms'       => $this->safely( array( $this, 'sizes' ) ),
-			'collectionTerms' => $this->safely( array( $this, 'collections' ) ),
-			'priceRange'      => $this->safely( array( $this, 'price_range' ), $default_price ),
-			'stockStatuses'   => $this->stock_statuses(),
-		);
+		$this->data = is_array( $data ) ? $data : array();
 
-		set_transient( self::CACHE_KEY, $data, self::CACHE_TTL );
-		$this->data = $data;
-
-		return $data;
+		return $this->data;
 	}
 
 	/** Invalidate persistent and request-local data. */

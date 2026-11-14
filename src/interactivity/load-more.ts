@@ -51,6 +51,7 @@ import {
 	savedCatalog,
 	type SavedCatalog,
 } from './load-more/history';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface LoadMoreState {
 	mode: LoadMoreSeed[ 'mode' ];
@@ -427,7 +428,7 @@ function setupIntersectionObserver(): void {
 	);
 	if ( ! sentinel ) return;
 
-	if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
+	if ( prefersReducedMotion() ) {
 		state.mode = 'load_more';
 		return;
 	}

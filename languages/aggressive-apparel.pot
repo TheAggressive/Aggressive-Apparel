@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T07:24:57+00:00\n"
+"POT-Creation-Date: 2026-11-14T07:27:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2520,12 +2520,12 @@ msgstr ""
 msgid "(complete)"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-catalog.php:218
+#: includes/WooCommerce/class-printful-catalog.php:217
 msgid "Printful has no size chart for that product."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: includes/WooCommerce/class-printful-catalog.php:220
+#: includes/WooCommerce/class-printful-catalog.php:219
 #, php-format
 msgid "Printful didn’t answer (status %d). Try again in a moment."
 msgstr ""
@@ -2589,19 +2589,19 @@ msgstr ""
 msgid "Attributes"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-data.php:223
+#: includes/WooCommerce/class-product-filter-data.php:224
 #: includes/WooCommerce/class-quick-view-renderer.php:115
 msgid "In Stock"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-data.php:227
+#: includes/WooCommerce/class-product-filter-data.php:228
 #: includes/WooCommerce/class-quick-view-renderer.php:114
 #: includes/WooCommerce/class-store-copy.php:83
 #: patterns/design-system-preview.php:157
 msgid "Out of Stock"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-data.php:231
+#: includes/WooCommerce/class-product-filter-data.php:232
 msgid "On Backorder"
 msgstr ""
 
@@ -4079,15 +4079,15 @@ msgstr ""
 msgid "Shows top-selling catalogue products backed by WooCommerce total sales counts (honest bestseller cues). Quieter than live purchase notices."
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:205
+#: includes/WooCommerce/class-social-proof.php:206
 msgid "Dismiss"
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:234
+#: includes/WooCommerce/class-social-proof.php:235
 msgid "Social Proof preview: ON"
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:237
+#: includes/WooCommerce/class-social-proof.php:238
 msgid "Click to manage Social Proof settings"
 msgstr ""
 

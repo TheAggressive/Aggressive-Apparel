@@ -18,6 +18,8 @@
  * @package Aggressive_Apparel
  */
 
+import { REDUCED_MOTION_QUERY } from '../utils/motion';
+
 const PAYMENT_OPTIONS_LIST =
 	'.wc-block-checkout__payment-method .wc-block-components-radio-control';
 
@@ -146,7 +148,7 @@ export function watchPaymentOptions( doc: Document = document ): () => void {
 		if (
 			! list ||
 			typeof view.Element.prototype.animate !== 'function' ||
-			view.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches
+			view.matchMedia?.( REDUCED_MOTION_QUERY ).matches
 		) {
 			return;
 		}

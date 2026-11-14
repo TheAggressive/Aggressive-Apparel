@@ -453,3 +453,74 @@ describe( 'browser floor (postcss.config.cjs targets)', () => {
 		).toEqual( [] );
 	} );
 } );
+
+describe( 'keyframes', () => {
+	/** Theme keyframe names: document-global, so namespaced to avoid plugins. */
+	const THEME_NAME = /^(aa|aggressive-apparel)-[a-z0-9-]+$/;
+
+	/** Every compiled stylesheet entry (partials are inlined into these). */
+	const entries = ( require( 'node:fs' ) as typeof import( 'node:fs' ) )
+		.readdirSync( 'src', { recursive: true, encoding: 'utf8' } )
+		.filter(
+			( file ) =>
+				file.endsWith( '.css' ) &&
+				! ( require( 'node:path' ) as typeof import( 'node:path' ) )
+					.basename( file )
+					.startsWith( '_' ) &&
+				! file.includes( '__tests__' )
+		)
+		.map( ( file ) => `src/${ file }` )
+		.sort();
+
+	let sheets: Array< [ string, CompiledCss ] >;
+	let shared: Set< string >;
+
+	beforeAll( async () => {
+		sheets = await Promise.all(
+			entries.map( async ( file ): Promise< [ string, CompiledCss ] > => [
+				file,
+				await CompiledCss.load( file ),
+			] )
+		);
+		shared = new Set(
+			(
+				await CompiledCss.load( 'src/styles/base/tokens.css' )
+			).keyframes()
+		);
+	} );
+
+	it( 'namespaces every keyframe the theme declares', () => {
+		const unprefixed = sheets.flatMap( ( [ file, css ] ) =>
+			css
+				.keyframes()
+				.filter( ( name ) => ! THEME_NAME.test( name ) )
+				.map( ( name ) => `${ file }: @keyframes ${ name }` )
+		);
+
+		expect( entries.length ).toBeGreaterThan( 50 );
+		expect( unprefixed ).toEqual( [] );
+	} );
+
+	it( 'declares each theme animation in its own sheet or the shared tokens sheet', () => {
+		const missing = sheets.flatMap( ( [ file, css ] ) => {
+			const local = new Set( css.keyframes() );
+			return css
+				.all()
+				.filter(
+					( d ) =>
+						d.prop === 'animation' || d.prop === 'animation-name'
+				)
+				.flatMap( ( d ) => d.value.split( /[\s,]+/ ) )
+				.filter(
+					( token ) =>
+						THEME_NAME.test( token ) &&
+						! local.has( token ) &&
+						! shared.has( token )
+				)
+				.map( ( token ) => `${ file }: ${ token }` );
+		} );
+
+		expect( shared ).toContain( 'aa-spin' );
+		expect( [ ...new Set( missing ) ] ).toEqual( [] );
+	} );
+} );

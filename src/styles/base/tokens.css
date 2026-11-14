@@ -66,6 +66,19 @@
 	initial-value: 0.5;
 }
 
+/* ============================================================
+ * Shared keyframes
+ *
+ * Keyframe names are document-global, so every theme spinner shares
+ * one definition, here because this sheet loads before all others.
+ * ============================================================ */
+
+@keyframes aa-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
 :root {
 	/* Adaptive semantic colors (light-dark() injected by Adaptive_Colors). */
 	--aa-color-surface: var(--wp--preset--color--surface);

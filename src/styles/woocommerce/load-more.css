@@ -100,7 +100,7 @@
 		color-mix(in oklch, var(--aa-color-surface) 35%, transparent);
 	border-top-color: var(--aa-color-surface);
 	border-radius: 50%;
-	animation: aa-load-more-spin 0.6s linear infinite;
+	animation: aa-spin 0.6s linear infinite;
 	animation-play-state: paused;
 }
 
@@ -201,13 +201,7 @@
 		color-mix(in oklch, var(--aa-color-foreground) 20%, transparent);
 	border-top-color: var(--aa-color-accent);
 	border-radius: 50%;
-	animation: aa-load-more-spin 0.6s linear infinite;
-}
-
-@keyframes aa-load-more-spin {
-	to {
-		transform: rotate(360deg);
-	}
+	animation: aa-spin 0.6s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

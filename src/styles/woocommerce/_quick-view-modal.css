@@ -63,7 +63,7 @@
 		color-mix(in oklch, currentcolor 8%, transparent) 75%
 	);
 	background-size: 200% 100%;
-	animation: skeleton-shimmer 1.5s ease-in-out infinite;
+	animation: aa-qv-skeleton-shimmer 1.5s ease-in-out infinite;
 	border-radius: 0.25rem;
 }
 
@@ -95,7 +95,7 @@
 	}
 }
 
-@keyframes skeleton-shimmer {
+@keyframes aa-qv-skeleton-shimmer {
 	0% {
 		background-position: 200% 0;
 	}
@@ -336,7 +336,7 @@
 
 	& .aggressive-apparel-quick-view__stock-dot {
 		background-color: var(--quick-view-stock-low);
-		animation: pulse 2s ease-in-out infinite;
+		animation: aa-qv-pulse 2s ease-in-out infinite;
 	}
 }
 
@@ -352,7 +352,7 @@
 	}
 }
 
-@keyframes pulse {
+@keyframes aa-qv-pulse {
 	0%,
 	100% {
 		opacity: 1;

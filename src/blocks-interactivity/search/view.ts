@@ -28,6 +28,7 @@ import {
 import { escapeHtml, MIN_QUERY_CHARS as MIN_CHARS, renderItem } from './markup';
 import type { SearchResultItem, SearchResultType } from './markup';
 import { fetchSearch } from './request';
+import { prefersReducedMotion } from '../../utils/motion';
 
 type SearchErrorCode =
 	'' | 'rate_limited' | 'server_error' | 'network' | 'invalid_response';
@@ -279,13 +280,6 @@ let typeTimer: ReturnType< typeof setTimeout > | null = null;
 let phraseIndex = 0;
 let charIndex = 0;
 let erasing = false;
-
-function prefersReducedMotion(): boolean {
-	return (
-		typeof window.matchMedia === 'function' &&
-		window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches
-	);
-}
 
 function stopTypewriter(): void {
 	if ( typeTimer ) {

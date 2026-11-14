@@ -347,10 +347,10 @@
 	.aggressive-apparel-size-guide__overlay.is-open
 		.aggressive-apparel-size-guide__body
 		table {
-		animation: sg-table-in 0.3s ease both;
+		animation: aa-sg-table-in 0.3s ease both;
 	}
 
-	@keyframes sg-table-in {
+	@keyframes aa-sg-table-in {
 		from {
 			opacity: 0;
 		}

@@ -108,21 +108,7 @@ export function safeQuerySelectorAll< T extends HTMLElement = HTMLElement >(
 // Reduced Motion
 // ============================================================================
 
-let _prefersReducedMotion: boolean | null = null;
-
-/**
- * Check if the user prefers reduced motion.
- */
-export function prefersReducedMotion(): boolean {
-	if ( _prefersReducedMotion === null ) {
-		const mql = window.matchMedia( '(prefers-reduced-motion: reduce)' );
-		_prefersReducedMotion = mql.matches;
-		mql.addEventListener( 'change', ( e ) => {
-			_prefersReducedMotion = e.matches;
-		} );
-	}
-	return _prefersReducedMotion;
-}
+export { prefersReducedMotion } from '../../utils/motion';
 
 /**
  * Watch whether the viewport is below a breakpoint (the shared

@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Cache_Helper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -177,17 +179,14 @@ final class Printful_Catalog {
 	 * @return mixed|\WP_Error
 	 */
 	private static function cached( string $key, string $path ) {
-		$cached = get_transient( $key );
-		if ( false !== $cached ) {
-			return $cached;
-		}
-
-		$result = self::get( $path );
-		if ( ! is_wp_error( $result ) ) {
-			set_transient( $key, $result, self::TTL );
-		}
-
-		return $result;
+		// API errors are returned but never cached, so the next request retries.
+		return Cache_Helper::remember(
+			$key,
+			self::TTL,
+			static fn() => self::get( $path ),
+			null,
+			static fn( $result ): bool => ! is_wp_error( $result )
+		);
 	}
 
 	/**

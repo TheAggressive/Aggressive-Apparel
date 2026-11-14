@@ -14,12 +14,7 @@ import { store, getContext } from '@wordpress/interactivity';
 import { fadeImage } from './view';
 import type { GalleryImage, QuickViewContext, QuickViewStore } from './types';
 import { state, actions } from '../quick-view';
-
-// Cached media query — avoids re-creating MediaQueryList on every call.
-const prefersReducedMotion: MediaQueryList | { matches: false } =
-	typeof window !== 'undefined'
-		? window.matchMedia( '(prefers-reduced-motion: reduce)' )
-		: { matches: false };
+import { scrollBehavior } from '../../utils/motion';
 
 /* Touch swipe tracking for mobile gallery. */
 let touchStartX = 0;
@@ -50,7 +45,7 @@ store< QuickViewStore >( 'aggressive-apparel/quick-view', {
 			const step = 64; // 3.5rem thumb + 0.5rem gap.
 			strip.scrollBy( {
 				left: dir * step,
-				behavior: prefersReducedMotion.matches ? 'auto' : 'smooth',
+				behavior: scrollBehavior(),
 			} );
 		},
 

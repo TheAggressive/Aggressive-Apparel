@@ -6,11 +6,11 @@ Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.
 
 ## Features
 
-- **Full Site Editing** — 13 templates, 83 block patterns, complete `theme.json` configuration
+- **Full Site Editing** — 20 templates, 83 block patterns, complete `theme.json` configuration
 - **WooCommerce integration** — product gallery, color swatches, and custom shop/cart/checkout templates
 - **Design system tokens** — `theme.json` as source of truth with a compiled `--aa-*` alias layer
 - **17 store enhancements** — premium features behind toggle flags; disabled features load zero hooks or assets
-- **46 custom blocks** — 37 Interactivity API registrations + 9 standard-build registrations (both totals include locked child blocks)
+- **34 custom blocks** — 28 Interactivity API registrations + 6 standard-build registrations (both totals include child blocks); the reusable marketing blocks live in the companion **Aggressive Blocks** plugin
 - **Interactivity API** — client-side reactivity without a separate JavaScript framework
 - **Automatic updates** — GitHub release-based update system with ETag caching and SHA-256 package verification
 - **Accessible** — WCAG 2.2 AA compliance targets, 44px touch targets, `prefers-reduced-motion` support
@@ -24,12 +24,12 @@ Features are managed under **Appearance → Store Enhancements** and default to 
 
 Appearance features that work without WooCommerce (**Adaptive Colors**, and future Core toggles) live under **Appearance → Theme Features**.
 
-A separate **Store Copy** tab controls storefront microcopy (button labels, filter text, wishlist copy, free-shipping messages, and similar strings).
+A separate **Store Copy** tab controls storefront microcopy (button labels, filter text, wishlist copy, sale badge and savings wording, free-shipping messages, and similar strings). Every surface that shows a product — cards, Quick View, the sticky bar, Wishlist, Recently Viewed, Lookbook, and search — reads the same wording, badges, and price rules (see [`docs/woocommerce.md`](docs/woocommerce.md#one-product-described-the-same-everywhere)).
 
 | Feature                    | Section                     | Description                                                                                                                  |
 | -------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Product Badges             | Catalog                     | Sale, new, low stock, and bestseller badges on product cards                                                                 |
-| Smart Price Display        | Catalog                     | Single “From” price for variable products on cards and product pages, plus savings display                                   |
+| Product Badges             | Catalog                     | Sale, new, low stock, bestseller, and custom Badge Studio badges on cards, Quick View, Wishlist, and Recently Viewed         |
+| Smart Price Display        | Catalog                     | Single “From” price for variable products plus a savings note, wherever a product price is shown                             |
 | Advanced Sorting           | Catalog                     | Featured, biggest savings, and A–Z / Z–A sort options                                                                        |
 | Product Filters            | Catalog                     | AJAX filters (categories, swatches, sizes, price, stock). Place `filter-toggle` and `filter-active-bar` blocks in templates. |
 | Load More                  | Catalog                     | Load More button or infinite scroll instead of pagination                                                                    |
@@ -37,7 +37,7 @@ A separate **Store Copy** tab controls storefront microcopy (button labels, filt
 | Catalog Hover Image        | Catalog                     | Show the first gallery image on product-card hover                                                                           |
 | Size Guide                 | Product                     | Reusable guides assignable to products or categories and rendered through a placeable product block                          |
 | Sticky Add to Cart         | Product                     | Fixed bar when the main add-to-cart scrolls out of view                                                                      |
-| Stock Status               | Product                     | Availability indicator in Quick View                                                                                         |
+| Stock Status               | Product                     | Availability indicator in Quick View (low stock uses the Badge Studio Low Stock threshold)                                   |
 | Quick View                 | Product                     | Product modal with add-to-cart from archives                                                                                 |
 | Frequently Bought Together | Product                     | Bundling with combined add-to-cart on product pages                                                                          |
 | Wishlist                   | Engagement                  | Customizable icons; guest browser saves and WooCommerce account wishlists                                                    |
@@ -89,7 +89,7 @@ pnpm test:e2e
 | `pnpm lint:files`           | Enforce source-file length budgets                                    |
 | `pnpm lint:fix`             | Auto-fix formatting and lint issues                                   |
 | `pnpm lint:css`             | Stylelint + design-system CSS checks                                  |
-| `pnpm analyse:php`          | PHPStan (level 6)                                                     |
+| `pnpm analyse:php`          | PHPStan (level 8, no baseline)                                        |
 | `pnpm qa`                   | Docker-free local checks, native PHPUnit, and Studio browser tests    |
 | `pnpm qa:ci`                | Optional containerized rehearsal of every required Actions check      |
 | `pnpm ci:verify`            | Canonical containerized release-parity implementation                 |
@@ -187,13 +187,13 @@ aggressive-apparel/
 ├── parts/                    # Template parts (header, footer)
 ├── patterns/                 # Block patterns (83)
 ├── src/
-│   ├── blocks/               # Standard blocks (9, incl. 2 split-story columns)
-│   ├── blocks-interactivity/ # Interactivity API blocks (37, incl. 2 card-flip faces)
+│   ├── blocks/               # Standard blocks (6)
+│   ├── blocks-interactivity/ # Interactivity API blocks (28, incl. nav and wishlist children)
 │   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores, etc.)
 │   ├── icons/                # Brand SVG sources (built to build/icons/)
 │   ├── scripts/              # Admin, editor, and theme JS/TS
 │   └── styles/               # Theme CSS (native CSS, PostCSS + Lightning CSS)
-├── templates/                # FSE templates (13 HTML + emails/)
+├── templates/                # FSE templates (20 HTML + myaccount/)
 └── tests/                    # PHPUnit test suites
 ```
 
@@ -216,7 +216,7 @@ functions.php → Bootstrap (singleton)
 
 Blocks auto-register from `build/blocks/` and `build/blocks-interactivity/`.
 
-**Standard-build blocks (7 top-level):** `aggressive-apparel-logo`, `dark-mode-toggle`, `copyright`, `icon`, `product-rating`, `size-guide`, `split-story` (with locked `split-story-media` / `split-story-content` column child blocks)
+**Standard-build blocks (6):** `aggressive-apparel-logo`, `dark-mode-toggle`, `icon`, `product-rating`, `product-specs`, `size-guide`
 
 **Navigation — desktop (`aggressive-apparel/navigation` store):**
 
@@ -243,7 +243,7 @@ Blocks auto-register from `build/blocks/` and `build/blocks-interactivity/`.
 
 **Free shipping:** `free-shipping-bar` (progress bar), `free-shipping-message` (inline copy with live cart updates). Threshold comes from WooCommerce free-shipping zones or the `aggressive_apparel_free_shipping_threshold` filter.
 
-**Content & layout:** `parallax`, `animate-on-scroll`, `lookbook`, `ticker`, `modal`, `card-flip`, `horizontal-scroll`, `hero-carousel`
+**Content:** `lookbook`. The reusable marketing blocks (`parallax`, `animate-on-scroll`, `ticker`, `modal`, `card-flip`, `horizontal-scroll`, `hero-carousel`, `split-story`, `copyright`) are owned by the **Aggressive Blocks** plugin (`aggressive-blocks/*`); theme patterns still place them.
 
 Product filter blocks are **template-placed only** — add `filter-toggle` and `filter-active-bar` on shop, category, and tag archives (or use the `shop-archive-header` pattern). Each block ships its own frontend CSS and connects to the shared `aggressive-apparel/product-filters` Interactivity store.
 
@@ -251,7 +251,7 @@ The `size-guide` block renders its accessible modal only in product context when
 
 The `store-notices` block replaces WooCommerce’s standard notice block in theme templates with dismissible, auto-expiring toast notifications. It supports configurable placement, visibility limits and durations, plus optional capture of Cart and Checkout block notices.
 
-Blocks such as `product-tabs`, `search`, `store-notices`, `modal` (supports exit-intent and scroll-depth triggers), and free-shipping blocks are placed in templates rather than controlled by store-enhancement toggles. The portaled full-screen search supports scoped All, Products, Articles, and Pages tabs when those content types are available.
+Blocks such as `product-tabs`, `search`, `store-notices`, and free-shipping blocks are placed in templates rather than controlled by store-enhancement toggles. The portaled full-screen search supports scoped All, Products, Articles, and Pages tabs when those content types are available.
 
 `product-tabs` replaces WooCommerce's native Product Details with four selectable layouts — **accordion** (independent by default, or one-open-at-a-time), **inline**, **modern tabs**, and **scrollspy** — animated with CSS (grid-rows reveal, sticky mobile rails) rather than per-frame JavaScript. The editor exposes heading font size, heading text color, and accent color (stored as portable palette references); the default layout is set globally under **Products → Product Tabs** and is overridable per placement.
 
@@ -261,7 +261,7 @@ Blocks such as `product-tabs`, `search`, `store-notices`, `modal` (supports exit
 
 Two icon libraries:
 
-- **UI icons** (41) — `Icons::get()` / `Icons::render()` for navigation, actions, and status glyphs
+- **UI icons** (32) — `Icons::get()` / `Icons::render()` for navigation, actions, and status glyphs
 - **Brand icons** (42) — lazy-loaded from `build/icons/` via `Brand_Icons`; use the `icon` block or `Icons::get('slug')` after build
 
 Color swatches are WooCommerce's own "Color / image" attribute; `Color_Data_Manager` and `Color_Block_Swatch_Manager` supply the theme's surfaces and styling hooks (see [docs/woocommerce.md](docs/woocommerce.md#color-swatch-system)).
@@ -280,7 +280,7 @@ PHP tests use disposable native MySQL/Core fixtures, browser tests use WordPress
 | PHP performance       | Load-time and resource-usage benchmarks                                  |
 | Playwright end-to-end | Editor/frontend behavior, responsive commerce UI, overlays, and checkout |
 
-**Tools:** PHPUnit 9.6, Playwright, PHPStan level 6, PHPCS (WordPress standards), ESLint, Stylelint, Jest (via wp-scripts)
+**Tools:** PHPUnit 9.6, Playwright, PHPStan level 8, PHPCS (WordPress standards), ESLint, Stylelint, Jest (via wp-scripts)
 
 Target a single test file or method:
 
@@ -307,9 +307,9 @@ and, only when a run requests it, → plan → final package → clean-install a
 - **Packaging runs alongside the tests** on a release run; the publish job is what waits for PHP and E2E. A release run has its own concurrency group, so a later push to master cannot replace it while it is queued
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits
 - **Git hooks** (Husky) — split so commits stay fast:
-  - `pre-commit`: `lint-staged` runs Prettier, Stylelint, and ESLint autofixes only on staged files
-  - `commit-msg`: commitlint (Conventional Commits)
-  - `pre-push`: `pnpm qa:fast` — Docker-free frontend, build, PHP, and unit checks
+    - `pre-commit`: `lint-staged` runs Prettier, Stylelint, and ESLint autofixes only on staged files
+    - `commit-msg`: commitlint (Conventional Commits)
+    - `pre-push`: `pnpm qa:fast` — Docker-free frontend, build, PHP, and unit checks
 
 ### Versioning
 

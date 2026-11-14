@@ -65,3 +65,66 @@ it( 'rejects executable URLs and replaces stale nodes when products change', () 
 	expect( root.querySelector( 'img' ) ).toBeNull();
 	expect( root.querySelector( 'a' ) ).not.toBeNull();
 } );
+
+it( "renders the card's badges and prices a reduced product like the card", () => {
+	const root = document.createElement( 'div' );
+	renderProducts(
+		root,
+		[
+			{
+				...product,
+				prices: {
+					...product.prices,
+					price: '2000',
+					regular_price: '2500',
+					sale_price: '2000',
+				},
+				extensions: {
+					'aggressive-apparel/badges': {
+						html: '<div class="aggressive-apparel-product-badge__wrapper"><span class="aggressive-apparel-product-badge">20% Off</span></div>',
+					},
+					'aggressive-apparel/pricing': { savings: 'Save 20%' },
+				},
+			},
+		],
+		{}
+	);
+
+	const media = root.querySelector(
+		'.aggressive-apparel-recently-viewed__media'
+	)!;
+	expect(
+		media.querySelector( '.aggressive-apparel-product-badge' )!.textContent
+	).toBe( '20% Off' );
+	const price = root.querySelector(
+		'.aggressive-apparel-recently-viewed__price'
+	)!;
+	expect( price.querySelector( 'del' )!.textContent ).toBe( '$25.00' );
+	expect(
+		price.querySelector( '.aggressive-apparel-price-save' )!.textContent
+	).toBe( 'Save 20%' );
+	expect( price.textContent ).toBe( '$25.00 $20.00 Save 20%' );
+} );
+
+it( 'shows a variable product\'s Smart Price Display "From" price', () => {
+	const root = document.createElement( 'div' );
+	renderProducts(
+		root,
+		[
+			{
+				...product,
+				type: 'variable',
+				prices: {
+					...product.prices,
+					price: '1200',
+					price_range: { min_amount: '1200', max_amount: '1500' },
+				},
+			},
+		],
+		{ collapseVariablePrice: true, priceStartingPrefix: 'From' }
+	);
+	expect(
+		root.querySelector( '.aggressive-apparel-recently-viewed__price' )!
+			.textContent
+	).toBe( 'From $12.00' );
+} );

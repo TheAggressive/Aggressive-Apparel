@@ -343,7 +343,9 @@ export const { state, actions } = store< QuickViewStore >(
 
 			/** Whether the sale badge has nothing to show. */
 			get hasNoSaleBadge(): boolean {
-				return ! saleBadgeText();
+				// The product's Badge Studio sale badge, when it has one,
+				// replaces this default chip.
+				return state.themeSaleBadge || ! saleBadgeText();
 			},
 
 			/**

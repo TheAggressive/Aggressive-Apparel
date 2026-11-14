@@ -21,6 +21,8 @@ export interface SearchResultItem {
 	thumbnail?: string;
 	price?: string;
 	onSale?: boolean;
+	/** Sale pill wording — the store's sale badge text, with the discount. */
+	saleLabel?: string;
 	excerpt?: string;
 	date?: string;
 }
@@ -100,8 +102,10 @@ export function renderItem(
 
 	if ( type === 'product' ) {
 		const media = renderThumb( item.thumbnail );
-		const sale = item.onSale
-			? `<span class="aa-search__badge">Sale</span>`
+		const sale = item.saleLabel
+			? `<span class="aa-search__badge">${ escapeHtml(
+					item.saleLabel
+				) }</span>`
 			: '';
 		const price = item.price
 			? `<span class="aa-search__price">${ escapeHtml( item.price ) }</span>`

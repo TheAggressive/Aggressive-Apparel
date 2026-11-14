@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
+use Aggressive_Apparel\Tests\Support\Creates_Variable_Products;
 use Aggressive_Apparel\WooCommerce\Advanced_Sorting;
 use Aggressive_Apparel\WooCommerce\Catalog_Archive_Filters;
 use Aggressive_Apparel\WooCommerce\Product_Collection_Query;
@@ -22,6 +23,7 @@ use WP_UnitTestCase;
  * ordering args (the main query), and combine with every catalog filter.
  */
 class Test_Advanced_Sorting extends WP_UnitTestCase {
+	use Creates_Variable_Products;
 
 	/**
 	 * Sorting service under test.
@@ -81,34 +83,6 @@ class Test_Advanced_Sorting extends WP_UnitTestCase {
 		$product->set_catalog_visibility( 'visible' );
 
 		return (int) $product->save();
-	}
-
-	/**
-	 * Create a published variable product; prices live on its variations.
-	 *
-	 * @param list<array{0: float, 1: float}> $prices Per variation: regular, sale (0 = none).
-	 * @return int Product ID.
-	 */
-	private function create_variable_product( array $prices ): int {
-		$product = new \WC_Product_Variable();
-		$product->set_name( 'Sorted variable ' . wp_generate_password( 6, false ) );
-		$product->set_status( 'publish' );
-		$product->set_catalog_visibility( 'visible' );
-		$product_id = (int) $product->save();
-
-		foreach ( $prices as $price ) {
-			$variation = new \WC_Product_Variation();
-			$variation->set_parent_id( $product_id );
-			$variation->set_regular_price( (string) $price[0] );
-			if ( $price[1] > 0 ) {
-				$variation->set_sale_price( (string) $price[1] );
-			}
-			$variation->set_status( 'publish' );
-			$variation->save();
-		}
-		\WC_Product_Variable::sync( $product_id );
-
-		return $product_id;
 	}
 
 	/**

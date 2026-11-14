@@ -121,6 +121,11 @@
 	overflow: hidden;
 }
 
+/* Anchors the Badge Studio badges (absolutely placed wrappers). */
+.aa-wl-item-image {
+	position: relative;
+}
+
 .aa-wl-item-image__img {
 	display: block;
 	width: 100%;
@@ -163,6 +168,15 @@
 
 .aa-wl-item-price__text {
 	color: color-mix(in oklch, currentcolor 75%, transparent);
+}
+
+.aa-wl-item-price__regular {
+	margin-inline-end: 0.35em;
+	color: color-mix(in oklch, currentcolor 55%, transparent);
+}
+
+.aa-wl-item-price__save {
+	margin-inline-start: 0.35em;
 }
 
 .aa-wl-item-price__storage {

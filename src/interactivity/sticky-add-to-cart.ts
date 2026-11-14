@@ -8,11 +8,6 @@
  * @since 1.18.0
  */
 
-import type {
-	InteractivityActions,
-	InteractivityCallbacks,
-} from '../../types/interactivity-shared';
-
 import { getElement, store, withSyncEvent } from '@wordpress/interactivity';
 import { unlockScroll } from '@aggressive-apparel/scroll-lock';
 import {
@@ -21,84 +16,19 @@ import {
 	closeOverlay,
 } from '@aggressive-apparel/use-overlay';
 import { matchVariation, storeApiPost } from '@aggressive-apparel/helpers';
-import type { Variation } from '@aggressive-apparel/helpers';
 import {
 	buildSelectedVariationPayload,
 	hasSelectedRequiredAttributes,
 	readFormAttributes,
 	restoreInlineProperty,
+	setFormAttribute,
 	syncDrawerOptions,
 } from './sticky-add-to-cart/dom';
-
-interface StickyCartState {
-	isVisible: boolean;
-	isAdding: boolean;
-	isBuyingNow: boolean;
-	isSuccess: boolean;
-	hasError: boolean;
-	isDrawerOpen: boolean;
-	isInStock: boolean;
-	productType: string;
-	productId: number;
-	matchedVariationId: number;
-	quantity: number;
-	selectedAttrs: Record< string, string >;
-	attributes: ProductAttribute[];
-	variations: Variation[];
-	displayPrice: string;
-	regularPrice: string;
-	originalPrice: string;
-	originalRegularPrice: string;
-	drawerImage: string;
-	drawerImageAlt: string;
-	originalDrawerImage: string;
-	originalDrawerImageAlt: string;
-	drawerView: string;
-	cartApiUrl: string;
-	checkoutUrl: string;
-	nonce: string;
-	announcement: string;
-	i18n: StickyCartLabels;
-	_syncing: boolean;
-	readonly ariaHidden: string;
-	readonly isVariable: boolean;
-	readonly isAddDisabled: boolean;
-	readonly buttonText: string;
-	readonly isDrawerAddDisabled: boolean;
-	readonly isOnSale: boolean;
-	readonly drawerButtonText: string;
-	readonly buyNowLabel: string;
-	readonly viewCartLabel: string;
-	readonly continueShoppingLabel: string;
-	readonly addedToCartMessage: string;
-	readonly hideDrawerHeader: boolean;
-	readonly hideDrawerSelection: boolean;
-	readonly hideDrawerSuccess: boolean;
-}
-
-interface StickyCartLabels {
-	addToCartText?: string;
-	outOfStockButtonText?: string;
-	variableButtonText?: string;
-	buyNowText?: string;
-	redirectingText?: string;
-	viewCartText?: string;
-	continueShoppingText?: string;
-	addedToCartMessage?: string;
-	addedSuccessAnnounce?: string;
-	addToCartErrorAnnounce?: string;
-	unavailableLabel?: string;
-}
-
-interface CartAddBody {
-	id: number;
-	quantity: number;
-	variation?: Array< { attribute: string; value: string } >;
-}
-
-interface ProductAttribute {
-	name: string;
-}
+import type {
+	CartAddBody,
+	StickyCartLabels,
+	StickyCartStore,
+} from './sticky-add-to-cart/types';
 
 /**
  * Resolve server-provided copy with a local fallback for cached markup.
@@ -151,12 +81,6 @@ export function shouldShowStickyCart(
 		entry.boundingClientRect.height > 0 &&
 		entry.boundingClientRect.bottom <= 0
 	);
-}
-
-interface StickyCartStore {
-	state: StickyCartState;
-	actions: InteractivityActions;
-	callbacks: InteractivityCallbacks;
 }
 
 /** Store API nonce accessors for storeApiPost (read at request time). */
@@ -471,39 +395,28 @@ export const { state, actions } = store< StickyCartStore >(
 
 			matchVariation(): void {
 				const selected = state.selectedAttrs;
-				const activeKeys = Object.keys( selected ).filter(
-					( k: string ) => selected[ k ]
-				);
+				const match = Object.values( selected ).some( Boolean )
+					? matchVariation( state.variations, selected )
+					: null;
 
-				if ( activeKeys.length === 0 ) {
-					state.matchedVariationId = 0;
-					state.drawerImage = state.originalDrawerImage;
-					state.drawerImageAlt = state.originalDrawerImageAlt;
-					return;
-				}
-
-				const match = matchVariation( state.variations, selected );
-
-				if ( match ) {
-					state.matchedVariationId = match.id;
-					state.displayPrice = ( match.price as string ) || '';
-					state.regularPrice = ( match.regularPrice as string ) || '';
-
-					// Swap drawer image if the variation has its own image.
-					if ( match.image ) {
-						state.drawerImage = match.image as string;
-						state.drawerImageAlt =
-							( match.imageAlt as string ) ||
-							state.originalDrawerImageAlt;
-					}
-				} else {
-					state.matchedVariationId = 0;
-					state.displayPrice = state.originalPrice;
-					state.regularPrice = state.originalRegularPrice || '';
-
-					// Restore original product image.
-					state.drawerImage = state.originalDrawerImage;
-					state.drawerImageAlt = state.originalDrawerImageAlt;
+				// A matched variation shows its own price, savings note and
+				// image (when it has one); otherwise the product's return.
+				state.matchedVariationId = match?.id ?? 0;
+				state.displayPrice = match
+					? ( match.price as string ) || ''
+					: state.originalPrice;
+				state.regularPrice = match
+					? ( match.regularPrice as string ) || ''
+					: state.originalRegularPrice || '';
+				state.savingsText = match
+					? ( match.savings as string ) || ''
+					: state.originalSavingsText || '';
+				if ( ! match || match.image ) {
+					state.drawerImage =
+						( match?.image as string ) || state.originalDrawerImage;
+					state.drawerImageAlt =
+						( match?.imageAlt as string ) ||
+						state.originalDrawerImageAlt;
 				}
 			},
 
@@ -513,33 +426,11 @@ export const { state, actions } = store< StickyCartStore >(
 			syncToMainForm( attrName: string, attrValue: string ): void {
 				if ( state._syncing ) return;
 				state._syncing = true;
-
 				const form =
 					document.querySelector< HTMLElement >( FORM_SELECTORS );
 				if ( form ) {
-					// Try select dropdown first (classic WC + block dropdown).
-					const sel = form.querySelector< HTMLSelectElement >(
-						`select[data-attribute_name="${ attrName }"], select[name="${ attrName }"]`
-					);
-					if ( sel ) {
-						sel.value = attrValue;
-						sel.dispatchEvent(
-							new Event( 'change', { bubbles: true } )
-						);
-					} else {
-						// Try radio pill input (block-based form).
-						const radio = form.querySelector< HTMLInputElement >(
-							`input[name="${ attrName }"][value="${ attrValue }"]`
-						);
-						if ( radio ) {
-							radio.checked = true;
-							radio.dispatchEvent(
-								new Event( 'change', { bubbles: true } )
-							);
-						}
-					}
+					setFormAttribute( form, attrName, attrValue );
 				}
-
 				state._syncing = false;
 			},
 

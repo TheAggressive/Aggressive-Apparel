@@ -1,13 +1,13 @@
 /**
  * Lookbook Block — product data.
  *
- * Price/URL formatting and the cached Store API product fetch.
+ * URL helpers and the cached Store API product fetch (prices are formatted
+ * by describeProductPrice in interactivity/helpers).
  *
  * @package Aggressive_Apparel
  */
 
-import { formatMinorAmount } from '../../utils/store-api-money';
-import type { StoreApiPrices, StoreApiProduct } from './types';
+import type { StoreApiProduct } from './types';
 
 const productCache = new Map< string, StoreApiProduct >();
 const productRequestCache = new Map< string, Promise< StoreApiProduct > >();
@@ -16,10 +16,6 @@ export function stripTags( value: string ): string {
 	const template = document.createElement( 'template' );
 	template.innerHTML = value;
 	return template.content.textContent ?? '';
-}
-
-export function formatPrice( prices?: StoreApiPrices ): string {
-	return prices?.price ? formatMinorAmount( prices.price, prices ) : '';
 }
 
 export function safeUrl( value: string | undefined, fallback = '#' ): string {

@@ -1,8 +1,8 @@
 /** Shared formatting for account and browser wishlist items. */
 import {
 	decodeEntities,
-	formatMinorAmount,
-	formatVariablePriceRange,
+	describeProductPrice,
+	productBadgesHtml,
 } from '@aggressive-apparel/helpers';
 import type { WishlistProduct } from './account';
 
@@ -28,6 +28,12 @@ export interface WishlistDisplayItem {
 	name: string;
 	image: string;
 	price: string;
+	/** Struck-out regular price while on sale, else ''. */
+	regularPrice: string;
+	/** Smart Price Display savings note, else ''. */
+	savings: string;
+	/** The product card's Badge Studio badges (trusted server markup). */
+	badgesHtml: string;
 	permalink: string;
 	addToCartUrl: string;
 }
@@ -45,15 +51,9 @@ export function formatWishlistItem(
 	account: boolean,
 	getWishlistLabel: ( key: keyof WishlistI18n, fallback: string ) => string
 ): WishlistDisplayItem {
-	const fromPrice =
-		priceCfg.collapseVariablePrice &&
-		product.type === 'variable' &&
-		product.prices
-			? formatVariablePriceRange( product.prices, {
-					collapse: true,
-					prefix: priceCfg.priceStartingPrefix ?? 'From',
-				} )
-			: null;
+	// Priced exactly as the product card: "From $X" or the range for variable
+	// products, the struck regular price on sale, and the savings note.
+	const price = describeProductPrice( product, priceCfg );
 
 	let addToCartUrl = product.add_to_cart?.url || product.permalink || '';
 	if ( product.key && product.is_purchasable && product.permalink ) {
@@ -111,11 +111,10 @@ export function formatWishlistItem(
 			product.images && product.images.length > 0
 				? product.images[ 0 ].src
 				: '',
-		price:
-			fromPrice ??
-			( product.prices
-				? formatMinorAmount( product.prices.price, product.prices )
-				: '' ),
+		price: price.current,
+		regularPrice: price.regular,
+		savings: price.savings,
+		badgesHtml: productBadgesHtml( product ),
 		permalink: product.permalink || '#',
 		addToCartUrl,
 	};

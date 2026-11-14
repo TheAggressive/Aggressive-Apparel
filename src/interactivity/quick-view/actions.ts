@@ -389,6 +389,7 @@ store< QuickViewStore >( 'aggressive-apparel/quick-view', {
 
 			if ( matched ) {
 				state.matchedVariationId = matched.id;
+				state.savingsText = matched.savings;
 
 				// Update price from the variation's own pricing data.
 				const { prices } = matched;
@@ -430,6 +431,7 @@ store< QuickViewStore >( 'aggressive-apparel/quick-view', {
 				);
 			} else {
 				state.matchedVariationId = 0;
+				state.savingsText = state.baseSavingsText;
 
 				// Restore range price when no variation is matched.
 				if ( state.productPriceRange ) {

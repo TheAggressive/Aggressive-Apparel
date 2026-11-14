@@ -11,6 +11,10 @@ declare( strict_types=1 );
 
 namespace Aggressive_Apparel\Core;
 
+use Aggressive_Apparel\WooCommerce\Feature_Settings;
+use Aggressive_Apparel\WooCommerce\Price_Display;
+use Aggressive_Apparel\WooCommerce\Sale_Pricing;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -98,6 +102,7 @@ class Search_Results {
 					'thumbnail' => $thumb ? $thumb : '',
 					'price'     => $this->format_product_price( $product ),
 					'onSale'    => $product->is_on_sale(),
+					'saleLabel' => $this->sale_label( $product ),
 				);
 
 				++$item_count;
@@ -262,18 +267,42 @@ class Search_Results {
 	 * @return string
 	 */
 	private function format_product_price( \WC_Product $product ): string {
+		// Smart Price Display's "From $X" (with the store's own prefix), exactly
+		// as the product card shows it.
+		$collapsed = class_exists( Price_Display::class ) ? Price_Display::from_price_text( $product ) : null;
+		if ( null !== $collapsed ) {
+			return $collapsed;
+		}
+
 		if ( $product instanceof \WC_Product_Variable ) {
-			$min  = (float) $product->get_variation_price( 'min', true );
-			$max  = (float) $product->get_variation_price( 'max', true );
-			$html = $min !== $max
-				/* translators: %s: lowest price in a variable product's range. */
-				? sprintf( __( 'From %s', 'aggressive-apparel' ), wc_price( $min ) )
-				: wc_price( $min );
+			// Otherwise the card's native range ("$12.00 – $15.00").
+			$min  = (string) $product->get_variation_price( 'min', true );
+			$max  = (string) $product->get_variation_price( 'max', true );
+			$html = (float) $min !== (float) $max ? wc_format_price_range( $min, $max ) : wc_price( (float) $min );
 		} else {
 			$html = wc_price( (float) wc_get_price_to_display( $product ) );
 		}
 
 		return $this->clean_text( $html );
+	}
+
+	/**
+	 * The sale pill's wording — the card's sale badge text (Store Copy → Sale
+	 * Badge Text, with this product's discount), or '' when not on sale.
+	 *
+	 * @param \WC_Product $product Product.
+	 * @return string Plain text.
+	 */
+	private function sale_label( \WC_Product $product ): string {
+		if ( ! $product->is_on_sale() || ! class_exists( Sale_Pricing::class ) ) {
+			return '';
+		}
+
+		return Sale_Pricing::format_text(
+			Feature_Settings::get_sale_badge_text(),
+			Feature_Settings::get_sale_badge_no_discount_text(),
+			Sale_Pricing::get_discount_percentage( $product ),
+		);
 	}
 
 	/**

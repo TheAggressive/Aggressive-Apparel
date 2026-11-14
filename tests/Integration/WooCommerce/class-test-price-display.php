@@ -369,4 +369,32 @@ class Test_Price_Display extends WP_UnitTestCase {
 
 		$this->assertStringNotContainsString( 'aggressive-apparel-price-save', $html );
 	}
+
+	/**
+	 * The plain-text savings note is the one source for every surface: the
+	 * card's note, the sticky bar, and the Store API (client-rendered prices).
+	 *
+	 * @return void
+	 */
+	public function test_savings_text_is_shared_and_gated(): void {
+		$product = new \WC_Product_Simple();
+		$product->set_regular_price( '100.00' );
+		$product->set_sale_price( '80.00' );
+		$product->save();
+
+		$this->assertSame( 'Save 20%', Price_Display::savings_text( $product ) );
+		$this->assertStringContainsString(
+			'>Save 20%<',
+			$this->price_display->format_price_html( $product->get_price_html(), $product ),
+			'The card note renders the same text'
+		);
+
+		$full = new \WC_Product_Simple();
+		$full->set_regular_price( '100.00' );
+		$full->save();
+		$this->assertSame( '', Price_Display::savings_text( $full ), 'No note at full price' );
+
+		delete_option( Feature_Settings::OPTION_KEY );
+		$this->assertSame( '', Price_Display::savings_text( $product ), 'No note while Smart Price Display is off' );
+	}
 }

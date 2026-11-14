@@ -47,6 +47,9 @@ export interface StoreApiProduct {
 	prices?: StoreApiPrices;
 	price_html?: string;
 	price?: string;
+	type?: string;
+	/** Theme Store API data (savings note); see utils/product-extensions. */
+	extensions?: Record< string, unknown > | null;
 }
 
 export interface LookbookI18n {

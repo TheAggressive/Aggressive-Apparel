@@ -7,6 +7,7 @@
  * @since 1.17.0
  */
 
+import type { PriceDisplayConfig } from '../../interactivity/helpers';
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import type { LookbookHotspot, LookbookI18n, StoreApiProduct } from './types';
 import { fetchProduct } from './product';
@@ -25,6 +26,8 @@ interface LookbookContext {
 	openOnHover: boolean;
 	hotspots: LookbookHotspot[];
 	i18n?: Partial< LookbookI18n >;
+	/** Smart Price Display, so prices read as on the product card. */
+	priceConfig?: PriceDisplayConfig;
 }
 
 const DEFAULT_I18N: LookbookI18n = {
@@ -333,7 +336,13 @@ function activateHotspot(
 	fetchProduct( hotspot.productId, ctx.restBase )
 		.then( ( data: StoreApiProduct ) => {
 			if ( ctx.activeHotspot === index ) {
-				renderProduct( root, data, i18n, consumeFocus() );
+				renderProduct(
+					root,
+					data,
+					i18n,
+					consumeFocus(),
+					ctx.priceConfig
+				);
 			}
 		} )
 		.catch( () => {

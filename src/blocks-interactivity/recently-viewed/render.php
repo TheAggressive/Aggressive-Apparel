@@ -14,6 +14,9 @@
 
 declare(strict_types=1);
 
+use Aggressive_Apparel\WooCommerce\Price_Display;
+use Aggressive_Apparel\WooCommerce\Product_Badges;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -37,8 +40,13 @@ $context = (string) wp_json_encode(
 		'products'         => array(),
 		'loaded'           => false,
 		'restBase'         => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+		// Smart Price Display, so prices read as they do on the product card.
+		'priceConfig'      => Price_Display::interactivity_price_config(),
 	)
 );
+
+// The products' Badge Studio badges render client-side; load their styles.
+Product_Badges::enqueue_style();
 ?>
 <section
 	<?php

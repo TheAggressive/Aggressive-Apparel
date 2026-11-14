@@ -37,6 +37,48 @@ class Price_Display {
 	 */
 	public function init(): void {
 		add_filter( 'woocommerce_get_price_html', array( $this, 'format_price_html' ), 20, 2 );
+
+		// Client-rendered prices (Quick View, Wishlist, Recently Viewed,
+		// Lookbook) show the same savings note the cards do.
+		add_action( 'init', array( $this, 'register_store_api_data' ) );
+	}
+
+	/**
+	 * Store API product-data namespace carrying the savings note.
+	 */
+	public const STORE_API_NAMESPACE = 'aggressive-apparel/pricing';
+
+	/**
+	 * Add each product's savings note to the Store API product response.
+	 *
+	 * @return void
+	 */
+	public function register_store_api_data(): void {
+		Store_Api_Extension::register_product_data(
+			self::STORE_API_NAMESPACE,
+			static fn( \WC_Product $product ): array => array( 'savings' => self::savings_text( $product ) )
+		);
+	}
+
+	/**
+	 * The savings note for a reduced product ("Save 20%"), or '' when Smart
+	 * Price Display is off, the product isn't on sale, or the wording needs a
+	 * discount figure the product can't supply. The one source for the note
+	 * on cards, the sticky bar and every client-rendered price.
+	 *
+	 * @param \WC_Product $product Product or variation.
+	 * @return string Plain text.
+	 */
+	public static function savings_text( \WC_Product $product ): string {
+		if ( ! Feature_Settings::is_enabled( 'price_display' ) || ! $product->is_on_sale() ) {
+			return '';
+		}
+
+		return Sale_Pricing::format_text(
+			Feature_Settings::get_price_savings_text(),
+			'',
+			Sale_Pricing::get_discount_percentage( $product ),
+		);
 	}
 
 	/**
@@ -56,22 +98,15 @@ class Price_Display {
 			$price = $collapsed;
 		}
 
-		// Append the savings line on sale items. An empty fallback means a
-		// product with no single discount figure gets no savings line at all —
-		// the sale badge already says it is reduced.
-		if ( $product->is_on_sale() ) {
-			$savings = Sale_Pricing::format_text(
-				Feature_Settings::get_price_savings_text(),
-				'',
-				Sale_Pricing::get_discount_percentage( $product ),
+		// Append the savings line on sale items. A product with no single
+		// discount figure gets no savings line at all — the sale badge already
+		// says it is reduced.
+		$savings = self::savings_text( $product );
+		if ( '' !== $savings ) {
+			$price .= sprintf(
+				' <span class="aggressive-apparel-price-save">%s</span>',
+				esc_html( $savings ),
 			);
-
-			if ( '' !== $savings ) {
-				$price .= sprintf(
-					' <span class="aggressive-apparel-price-save">%s</span>',
-					esc_html( $savings ),
-				);
-			}
 		}
 
 		return $price;

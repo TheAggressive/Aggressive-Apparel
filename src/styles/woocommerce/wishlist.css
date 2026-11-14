@@ -71,11 +71,11 @@
 @media (prefers-reduced-motion: no-preference) {
 	.aggressive-apparel-wishlist__toggle.is-beating
 		.aggressive-apparel-wishlist__icon {
-		animation: wishlist-heartbeat 0.8s ease-in-out;
+		animation: aa-wishlist-heartbeat 0.8s ease-in-out;
 		transform-origin: center;
 	}
 
-	@keyframes wishlist-heartbeat {
+	@keyframes aa-wishlist-heartbeat {
 		0% {
 			transform: scale(1);
 		}

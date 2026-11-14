@@ -15,6 +15,7 @@ import {
 	resolveColorScheme,
 	storeColorScheme,
 } from '../../utils/color-scheme-storage';
+import { prefersReducedMotion } from '../../utils/motion';
 
 interface DarkModeState {
 	isDark: boolean;
@@ -140,7 +141,7 @@ class DarkModeToggle {
 		const canAnimate =
 			animate &&
 			typeof document.startViewTransition === 'function' &&
-			! window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+			! prefersReducedMotion();
 
 		if ( canAnimate ) {
 			document.startViewTransition( run );

@@ -229,11 +229,7 @@ export function joinValues( values: string[] ): string {
 }
 
 /** Smooth scrolling, unless the user prefers less motion. */
-export function scrollBehavior(): ScrollBehavior {
-	return window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches
-		? 'auto'
-		: 'smooth';
-}
+export { scrollBehavior } from '../../../utils/motion';
 
 /** A stored value as people read it ('' for none). */
 export function describeValue( item: SpecItem, value: string ): string {

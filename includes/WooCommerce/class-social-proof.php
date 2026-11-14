@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Assets\Asset_Loader;
+use Aggressive_Apparel\Core\Cache_Helper;
 use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
@@ -263,13 +264,14 @@ class Social_Proof {
 		}
 
 		// Cached mixed pool (the expensive part — wc_get_orders / etc.).
-		$mixed = get_transient( self::TRANSIENT_KEY );
-		if ( ! is_array( $mixed ) ) {
-			$mixed = $this->build_mixed_pool();
-			if ( ! empty( $mixed ) ) {
-				set_transient( self::TRANSIENT_KEY, $mixed, self::CACHE_TTL );
-			}
-		}
+		// An empty pool is not stored, so new orders surface on the next request.
+		$mixed = Cache_Helper::remember(
+			self::TRANSIENT_KEY,
+			self::CACHE_TTL,
+			fn(): array => $this->build_mixed_pool(),
+			'is_array',
+			static fn( array $pool ): bool => array() !== $pool
+		);
 
 		foreach ( $mixed as $item ) {
 			$queue[] = $item;

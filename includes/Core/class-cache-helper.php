@@ -25,21 +25,23 @@ class Cache_Helper {
 	 * Return a cached value or build, cache, and return it.
 	 *
 	 * Reads a transient. When the cached value is considered valid it is
-	 * returned as-is; otherwise the builder is invoked, its result is stored
-	 * under the given key for the given TTL, and that result is returned.
+	 * returned as-is; otherwise the builder is invoked and its result returned,
+	 * stored under the given key for the given TTL unless `$should_store`
+	 * rejects it (a WP_Error, or an empty result worth retrying next request).
 	 *
 	 * When no validator is supplied the default freshness check is a strict
 	 * `false !== $cached` (mirroring the Transients API "not found" sentinel).
 	 * Supply a validator for value-shape checks such as `is_array` or
 	 * `is_string`.
 	 *
-	 * @param string        $key      Transient key.
-	 * @param int           $ttl      Time to live in seconds.
-	 * @param callable      $builder  Callback returning the fresh value.
-	 * @param callable|null $is_valid Optional validator for the cached value.
+	 * @param string        $key          Transient key.
+	 * @param int           $ttl          Time to live in seconds.
+	 * @param callable      $builder      Callback returning the fresh value.
+	 * @param callable|null $is_valid     Optional validator for the cached value.
+	 * @param callable|null $should_store Optional predicate deciding whether to store the fresh value.
 	 * @return mixed The cached or freshly built value.
 	 */
-	public static function remember( string $key, int $ttl, callable $builder, ?callable $is_valid = null ) {
+	public static function remember( string $key, int $ttl, callable $builder, ?callable $is_valid = null, ?callable $should_store = null ) {
 		$cached = get_transient( $key );
 
 		$fresh = null !== $is_valid ? (bool) $is_valid( $cached ) : ( false !== $cached );
@@ -49,7 +51,9 @@ class Cache_Helper {
 		}
 
 		$value = $builder();
-		set_transient( $key, $value, $ttl );
+		if ( null === $should_store || $should_store( $value ) ) {
+			set_transient( $key, $value, $ttl );
+		}
 
 		return $value;
 	}

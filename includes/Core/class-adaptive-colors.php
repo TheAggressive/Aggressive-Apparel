@@ -107,24 +107,24 @@ class Adaptive_Colors {
 
 		// Cache the extracted pairs keyed on the file's mtime so the ~38 KB
 		// theme.json read + json_decode runs once per edit, not per request.
-		$cache_key = 'aggressive_apparel_adaptive_pairs_' . (string) filemtime( $theme_json_path );
-		$cached    = get_transient( $cache_key );
+		// An unreadable theme.json yields null and is not stored.
+		$pairs = Cache_Helper::remember(
+			'aggressive_apparel_adaptive_pairs_' . (string) filemtime( $theme_json_path ),
+			WEEK_IN_SECONDS,
+			function () use ( $theme_json_path ): ?array {
+				$data = wp_json_file_decode( $theme_json_path, array( 'associative' => true ) );
 
-		if ( is_array( $cached ) ) {
-			$this->pairs = $cached;
-			return;
+				return is_array( $data )
+					? $this->extract_pairs( $data['settings']['custom']['adaptiveColors'] ?? array() )
+					: null;
+			},
+			'is_array',
+			'is_array'
+		);
+
+		if ( is_array( $pairs ) ) {
+			$this->pairs = $pairs;
 		}
-
-		$data = wp_json_file_decode( $theme_json_path, array( 'associative' => true ) );
-		if ( ! is_array( $data ) ) {
-			return;
-		}
-
-		$colors = $data['settings']['custom']['adaptiveColors'] ?? array();
-
-		$this->pairs = $this->extract_pairs( $colors );
-
-		set_transient( $cache_key, $this->pairs, WEEK_IN_SECONDS );
 	}
 
 	/**

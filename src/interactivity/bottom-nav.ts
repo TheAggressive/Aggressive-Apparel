@@ -18,6 +18,7 @@ import {
 	activateOverlayFocus,
 	closeOverlay,
 } from '@aggressive-apparel/use-overlay';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface JQueryLike {
 	on( events: string, handler: () => void ): void;
@@ -40,6 +41,7 @@ interface CartApiResponse {
 }
 
 let focusTrapCleanup: ( () => void ) | null = null;
+let cartCountRequest = 0;
 let searchTrigger: HTMLElement | null = null;
 
 function getSearchOverlay(): HTMLElement | null {
@@ -141,16 +143,33 @@ const { state, actions } = store< BottomNavStore >(
 			},
 
 			refreshCartCount(): void {
+				// Cart events can fire in quick succession; only the newest
+				// request may write, so a slow older response never wins.
+				const seq = ++cartCountRequest;
 				fetch( state.cartApiUrl, {
 					credentials: 'same-origin',
 					headers: { 'Content-Type': 'application/json' },
 				} )
-					.then( ( res: Response ) => res.json() )
-					.then( ( cart: CartApiResponse ) => {
-						state.cartCount = cart.items_count ?? 0;
+					.then( ( res: Response ) => {
+						if ( ! res.ok ) {
+							throw new Error( `HTTP ${ res.status }` );
+						}
+						return res.json();
+					} )
+					.then( ( cart: CartApiResponse | null ) => {
+						const count = cart?.items_count;
+						if (
+							seq === cartCountRequest &&
+							typeof count === 'number' &&
+							Number.isInteger( count ) &&
+							count >= 0
+						) {
+							state.cartCount = count;
+						}
 					} )
 					.catch( () => {
-						// Silently fail — count stays stale.
+						// Keep the last known count: a failed refresh is not an
+						// empty cart.
 					} );
 			},
 		},
@@ -166,11 +185,7 @@ const { state, actions } = store< BottomNavStore >(
 				}
 
 				// Scroll-aware show/hide.
-				const prefersReducedMotion = window.matchMedia(
-					'(prefers-reduced-motion: reduce)'
-				).matches;
-
-				if ( ! prefersReducedMotion ) {
+				if ( ! prefersReducedMotion() ) {
 					let lastScrollY: number = window.scrollY;
 					let ticking = false;
 

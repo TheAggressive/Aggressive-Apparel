@@ -80,18 +80,19 @@ describe( 'safeQuerySelectorAll', () => {
 } );
 
 describe( 'prefersReducedMotion', () => {
-	it( 'reflects the matchMedia result', () => {
-		const addEventListener = jest.fn();
-		window.matchMedia = jest.fn().mockReturnValue( {
-			matches: true,
-			addEventListener,
-		} ) as unknown as typeof window.matchMedia;
+	it( 'reads the live preference on every call, never a stale copy', () => {
+		const mql = { matches: true };
+		window.matchMedia = jest
+			.fn()
+			.mockImplementation(
+				() => mql
+			) as unknown as typeof window.matchMedia;
 
 		expect( prefersReducedMotion() ).toBe( true );
-		// Registers a change listener so it stays in sync.
-		expect( addEventListener ).toHaveBeenCalledWith(
-			'change',
-			expect.any( Function )
+		mql.matches = false;
+		expect( prefersReducedMotion() ).toBe( false );
+		expect( window.matchMedia ).toHaveBeenCalledWith(
+			'(prefers-reduced-motion: reduce)'
 		);
 	} );
 } );

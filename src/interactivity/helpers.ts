@@ -11,7 +11,10 @@
 import { formatMinorAmount } from '../utils/store-api-money';
 import type { StoreApiCurrency } from '../utils/store-api-money';
 
+import { FOCUSABLE_SELECTOR } from '../utils/focusable';
+
 export { escapeHtml } from '../utils/escape-html';
+export { prefersReducedMotion, scrollBehavior } from '../utils/motion';
 export {
 	formatMinorAmount,
 	formatMoneyAmount,
@@ -493,19 +496,8 @@ export function pruneProductGrid( grid: HTMLElement, perPage: number ): void {
 	spacer.style.pointerEvents = 'none';
 }
 
-/**
- * Whether the user prefers reduced motion.
- */
-export function prefersReducedMotion(): boolean {
-	return window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
-}
-
 /** Controls that can participate in sequential keyboard navigation. */
 export function getFocusableElements( container: HTMLElement ): HTMLElement[] {
-	const FOCUSABLE_SELECTOR =
-		'a[href], button:not([disabled]), input:not([disabled]), ' +
-		'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
 	return Array.from(
 		container.querySelectorAll< HTMLElement >( FOCUSABLE_SELECTOR )
 	).filter( ( el ) => {

@@ -24,15 +24,12 @@ import type {
 	InteractivityActions,
 	InteractivityCallbacks,
 } from '../../../types/interactivity-shared';
+import { prefersReducedMotion, scrollBehavior } from '../../utils/motion';
 
 // Per-<details> canceller for an in-flight reveal finalizer, so a rapid re-tap
 // tears the old one down instead of letting stale transitionend/timeout
 // handlers fire.
 const pendingReveal = new WeakMap< HTMLElement, () => void >();
-
-function prefersReducedMotion(): boolean {
-	return window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
-}
 
 function getReveal( details: HTMLElement ): HTMLElement | null {
 	return details.querySelector( '.aa-product-info__reveal' );
@@ -334,11 +331,8 @@ export const productTabsStore = store< ProductTabsStore >(
 				const target = document.getElementById( ctx.sectionId );
 				if ( ! target ) return;
 
-				const reducedMotion = window.matchMedia(
-					'(prefers-reduced-motion: reduce)'
-				).matches;
 				target.scrollIntoView( {
-					behavior: reducedMotion ? 'auto' : 'smooth',
+					behavior: scrollBehavior(),
 					block: 'start',
 				} );
 				state.activeSection = ctx.sectionId;
@@ -420,9 +414,7 @@ export const productTabsStore = store< ProductTabsStore >(
 				const sidebar = ref.querySelector(
 					'.aa-product-info__sidebar'
 				) as HTMLElement | null;
-				const reducedMotion = window.matchMedia(
-					'(prefers-reduced-motion: reduce)'
-				).matches;
+				const reducedMotion = prefersReducedMotion();
 
 				const syncNavIntoView = ( sectionId: string ): void => {
 					if (

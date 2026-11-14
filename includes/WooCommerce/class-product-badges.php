@@ -266,7 +266,7 @@ class Product_Badges {
 				++$shown;
 			}
 
-			$groups[ $entry['position'] ][] = $this->build_badge_span(
+			$groups[ $entry['position'] ][] = self::render_badge(
 				$entry['badge'],
 				$entry['label'],
 				$hidden ? array( 'aggressive-apparel-product-badge--hide-small' ) : array()
@@ -294,14 +294,16 @@ class Product_Badges {
 	}
 
 	/**
-	 * Build a single badge <span> from badge data.
+	 * Build a single badge <span> from badge data — the one renderer for a
+	 * Badge Studio design, shared by product cards and Quick View.
 	 *
 	 * @param array<string, mixed> $badge         Badge data from get_badge_data().
-	 * @param string               $label         Display text.
+	 * @param string               $label         Display text (and the accessible name of an icon-only badge).
 	 * @param string[]             $extra_classes Extra classes (small-screen rules).
+	 * @param string               $label_html    Trusted markup shown in place of the escaped label, for a label filled in client-side.
 	 * @return string Badge HTML.
 	 */
-	private function build_badge_span( array $badge, string $label, array $extra_classes = array() ): string {
+	public static function render_badge( array $badge, string $label, array $extra_classes = array(), string $label_html = '' ): string {
 		$icon_position = Badge_Style_Schema::sanitize_enum(
 			$badge['icon_position'] ?? 'start',
 			Badge_Style_Schema::ICON_POSITIONS,
@@ -318,16 +320,17 @@ class Product_Badges {
 			)
 			: '';
 
+		$text       = '' !== $label_html ? $label_html : esc_html( $label );
 		$aria_label = '';
 		if ( 'only' === $icon_position ) {
-			$inner = '' !== $icon_html ? $icon_html : esc_html( $label );
+			$inner = '' !== $icon_html ? $icon_html : $text;
 			if ( '' !== $icon_html ) {
 				$aria_label = $label;
 			}
 		} elseif ( 'end' === $icon_position ) {
-			$inner = esc_html( $label ) . $icon_html;
+			$inner = $text . $icon_html;
 		} else {
-			$inner = $icon_html . esc_html( $label );
+			$inner = $icon_html . $text;
 		}
 
 		return Badge_Style_Schema::compile_badge_span( $badge, $inner, 'frontend', '', $aria_label, $extra_classes );

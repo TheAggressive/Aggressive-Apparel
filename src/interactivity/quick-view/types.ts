@@ -213,6 +213,7 @@ export interface QuickViewState {
 	readonly isActiveImage: boolean;
 	readonly imagePositionLabel: string;
 	readonly saleBadgeText: string;
+	readonly hasNoSaleBadge: boolean;
 	readonly isInStock: boolean;
 	readonly isLowStock: boolean;
 	readonly isOutOfStock: boolean;

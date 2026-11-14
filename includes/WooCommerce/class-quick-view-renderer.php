@@ -192,13 +192,8 @@ class Quick_View_Renderer {
 								data-wp-bind--alt="state.productName"
 								data-wp-watch="callbacks.syncCurrentImage"
 							/>
-							<!-- Sale badge. -->
-							<span
-								class="aggressive-apparel-quick-view__sale-badge"
-								data-wp-bind--hidden="state.isNotOnSale"
-								data-wp-text="state.saleBadgeText"
-								hidden
-							></span>
+							<!-- Sale badge (the Badge Studio design when the theme draws sale badges). -->
+							<?php echo aggressive_apparel_trusted_html( Quick_View_Sale_Badge::markup() ); ?>
 						</div>
 
 						<!-- Thumbnail navigation with arrows. -->

@@ -5,6 +5,7 @@ type MockState = Record< string, unknown > & {
 	salePercentage: number;
 	i18n: Record< string, string >;
 	readonly saleBadgeText: string;
+	readonly hasNoSaleBadge: boolean;
 };
 
 let mockState: MockState | undefined;
@@ -73,6 +74,7 @@ describe( 'Quick View sale badge text', () => {
 	it( "uses the store's sale badge wording, not a hardcoded format", () => {
 		expect( saleBadgeText() ).toBe( '13% Off' );
 		expect( mockState!.saleBadgeText ).toBe( '13% Off' );
+		expect( mockState!.hasNoSaleBadge ).toBe( false );
 	} );
 
 	it( 'falls back to the no-discount wording without a single figure', () => {
@@ -83,6 +85,7 @@ describe( 'Quick View sale badge text', () => {
 	it( 'is empty when the product is not on sale', () => {
 		mockState!.productOnSale = false;
 		expect( saleBadgeText() ).toBe( '' );
+		expect( mockState!.hasNoSaleBadge ).toBe( true );
 	} );
 
 	it( 'keeps the previous format when no wording was seeded', () => {

@@ -8,6 +8,8 @@ let fixture: {
 	cartPage: number;
 	simple: number;
 	variable: number;
+	/** Store Copy → Variable Product Button Text, which the wishlist must use. */
+	chooseOptions: string;
 };
 
 /** Real rendered blocks and product metadata; intercepted account writes are isolated. */
@@ -32,7 +34,7 @@ test.beforeAll( () => {
     foreach (array($page, $cart_page, $simple->get_id(), $variable->get_id()) as $id) {
       ${ ownPostPhp( '$id', 'wishlist' ) }
     }
-    echo wp_json_encode(array('page' => $page, 'cartPage' => $cart_page, 'simple' => $simple->get_id(), 'variable' => $variable->get_id()));
+    echo wp_json_encode(array('page' => $page, 'cartPage' => $cart_page, 'simple' => $simple->get_id(), 'variable' => $variable->get_id(), 'chooseOptions' => \\Aggressive_Apparel\\WooCommerce\\Feature_Settings::get_variable_product_button_text()));
   `,
 		] )
 	);
@@ -132,7 +134,7 @@ test( 'variable account saves stay local and never navigate or POST a parent', a
 		'Saved on this device'
 	);
 	await expect( page.locator( '.aa-wl-item-actions__view' ) ).toContainText(
-		'Choose options'
+		fixture.chooseOptions
 	);
 	expect( page.url() ).toBe( originalUrl );
 	await page.reload();
@@ -277,7 +279,7 @@ test( 'a timed-out write releases the heart and reconciles before another save',
 	}
 } );
 
-test( 'Choose options remains available when Add to Cart is enabled', async ( {
+test( 'the choose-options link remains available when Add to Cart is enabled', async ( {
 	page,
 } ) => {
 	await page.route( '**/shopper-lists/wishlist/items**', ( route ) =>
@@ -286,7 +288,7 @@ test( 'Choose options remains available when Add to Cart is enabled', async ( {
 	await page.goto( `/?page_id=${ fixture.cartPage }` );
 	await heart( page, fixture.variable ).click();
 	await expect( page.locator( '.aa-wl-item-actions__view' ) ).toContainText(
-		'Choose options'
+		fixture.chooseOptions
 	);
 	await expect( page.locator( '.aa-wl-item-actions__view' ) ).toBeVisible();
 	await expect( page.locator( '.aa-wl-item-actions__atc' ) ).toBeHidden();

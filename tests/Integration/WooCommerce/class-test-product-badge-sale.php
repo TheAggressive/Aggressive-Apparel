@@ -262,4 +262,66 @@ class Test_Product_Badge_Sale extends WP_UnitTestCase {
 		$this->assertNotFalse( has_filter( 'woocommerce_sale_flash', '__return_empty_string' ) );
 		$this->assertNotFalse( has_filter( 'render_block_woocommerce/product-sale-badge' ) );
 	}
+
+	/**
+	 * Client surfaces (Quick View) restyle nothing: they find the sale badge by
+	 * its type class and swap only the label span's text, keeping the design.
+	 *
+	 * @return void
+	 */
+	public function test_badges_carry_their_type_and_a_sale_label_slot(): void {
+		$this->enable_only_the_sale_rule();
+
+		$html = $this->badges->get_badges_html( $this->create_simple_product( '100.00', '80.00' ) );
+
+		$this->assertStringContainsString( 'aggressive-apparel-product-badge--type-sale', $html );
+		$this->assertMatchesRegularExpression(
+			'#<span class="aggressive-apparel-product-badge__label">[^<]+</span>#',
+			$html
+		);
+	}
+
+	/**
+	 * The low-stock threshold is the Badge Studio rule, filterable, and shared
+	 * with Quick View's stock message.
+	 *
+	 * @return void
+	 */
+	public function test_low_stock_threshold_follows_the_rule_and_filter(): void {
+		$this->enable_only_the_sale_rule();
+		$this->assertSame( 5, Product_Badges::low_stock_threshold() );
+
+		$filter = static fn(): int => 8;
+		add_filter( 'aggressive_apparel_badge_low_stock_threshold', $filter );
+		$this->assertSame( 8, Product_Badges::low_stock_threshold() );
+		remove_filter( 'aggressive_apparel_badge_low_stock_threshold', $filter );
+	}
+
+	/**
+	 * Quick View, Wishlist and Recently Viewed read the badge set from the
+	 * Store API product response.
+	 *
+	 * @return void
+	 */
+	public function test_store_api_product_response_carries_the_badges(): void {
+		$this->enable_only_the_sale_rule();
+		$this->badges->register_store_api_data();
+		$product = $this->create_simple_product( '100.00', '80.00' );
+
+		$response = rest_do_request( new \WP_REST_Request( 'GET', '/wc/store/v1/products/' . $product->get_id() ) );
+		$data     = $response->get_data();
+
+		// The request booted the shared REST server; drop it so later suites
+		// register their own routes on a fresh one.
+		$GLOBALS['wp_rest_server'] = null;
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertIsArray( $data );
+		$extensions = (array) $data['extensions'];
+		$this->assertArrayHasKey( Product_Badges::STORE_API_NAMESPACE, $extensions );
+		$this->assertSame(
+			$this->badges->get_badges_html( $product ),
+			( (array) $extensions[ Product_Badges::STORE_API_NAMESPACE ] )['html']
+		);
+	}
 }

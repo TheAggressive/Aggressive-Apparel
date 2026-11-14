@@ -18,6 +18,8 @@ export interface WishlistProduct {
 	add_to_cart?: { url?: string };
 	is_purchasable?: boolean;
 	is_in_stock?: boolean;
+	/** Theme Store API data (badges, savings note); see utils/product-extensions. */
+	extensions?: Record< string, unknown > | null;
 }
 
 export interface WishlistConfig {

@@ -36,7 +36,7 @@ $remove_aria = $remove_label
 
 	<?php if ( $show_view_product ) : ?>
 	<a class="aa-wl-item-actions__view aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--compact" data-wp-bind--href="context.item.permalink" data-wp-bind--hidden="<?php echo $show_add_to_cart ? '!context.item.hasProductFallback' : '!context.item.hasProductLink'; ?>">
-		<span data-wp-text="context.item.viewProductLabel"><?php esc_html_e( 'View product', 'aggressive-apparel' ); ?></span>
+		<span data-wp-text="context.item.viewProductLabel"><?php echo esc_html( Feature_Settings::get_view_product_button_text() ); ?></span>
 		<?php
 		echo aggressive_apparel_get_icon(
 			'arrow-right',

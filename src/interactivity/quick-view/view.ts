@@ -32,6 +32,8 @@ import type {
 	StoreApiProduct,
 } from './types';
 import { state, actions, getLabel, saleBadgeText } from '../quick-view';
+import { renderProductBadges, syncThemeSaleBadge } from './badges';
+import { productSavingsText } from '../../utils/product-extensions';
 
 /**
  * Write the sale badge text into its slot — never over the whole badge, which
@@ -49,7 +51,7 @@ function syncSaleBadge( root: ParentNode ): void {
 	}
 
 	const text = saleBadgeText();
-	badge.hidden = ! text;
+	badge.hidden = state.themeSaleBadge || ! text;
 
 	const slot = badge.querySelector(
 		'.aggressive-apparel-quick-view__sale-badge-text'
@@ -61,8 +63,27 @@ function syncSaleBadge( root: ParentNode ): void {
 	badge.querySelector( '[role="img"]' )?.setAttribute( 'aria-label', text );
 }
 
+/**
+ * Write the savings note and both sale badges (the theme's Badge Studio badge
+ * and the default chip) from state.
+ *
+ * @param root Element containing them.
+ */
+function syncSavingsAndBadges( root: ParentNode ): void {
+	root.querySelectorAll< HTMLElement >(
+		'.aggressive-apparel-quick-view__price-save'
+	).forEach( ( el ) => {
+		el.textContent = state.savingsText;
+		el.hidden = ! state.savingsText;
+	} );
+	syncSaleBadge( root );
+	syncThemeSaleBadge( root );
+}
+
 export function getStockInfo( product: StoreApiProduct ): StockInfo {
-	const lowThreshold = 3;
+	// The Badge Studio Low Stock rule, so the message agrees with the card's
+	// Low Stock badge.
+	const lowThreshold = state.lowStockThreshold || 5;
 	const isInStock = product.is_in_stock !== false;
 	const qty = product.stock_quantity;
 
@@ -140,8 +161,9 @@ export function syncPriceDOM(): void {
 			el.textContent = state.productRegularPrice;
 			el.hidden = ! state.productOnSale;
 		} );
-	// Sale badge — data-wp-text has the same reactivity issue as prices.
-	syncSaleBadge( modal );
+	// Savings note and sale badge — data-wp-text has the same reactivity
+	// issue as prices.
+	syncSavingsAndBadges( modal );
 }
 
 /**
@@ -297,8 +319,8 @@ export function populateModalDOM(): void {
 		stockLabel.textContent = state.stockStatusLabel;
 	}
 
-	// Sale badge.
-	syncSaleBadge( modal );
+	// Savings note and sale badges.
+	syncSavingsAndBadges( modal );
 
 	// Product link.
 	const link = q< HTMLAnchorElement >(
@@ -634,6 +656,14 @@ export function applyProductResponse(
 			state.salePercentage = calculateSalePercentage( regular, sale );
 		}
 	}
+
+	// The card's savings note and Badge Studio badges.
+	state.baseSavingsText = productSavingsText( data );
+	state.savingsText = state.baseSavingsText;
+	renderProductBadges(
+		document.getElementById( 'aggressive-apparel-quick-view' ) ?? document,
+		data
+	);
 
 	// Stock status.
 	const stockInfo = getStockInfo( data );

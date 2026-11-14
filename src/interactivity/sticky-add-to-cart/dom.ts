@@ -28,6 +28,39 @@ export function restoreInlineProperty(
 }
 
 /**
+ * Set one attribute on the main add-to-cart form and tell WooCommerce: its
+ * dropdown (classic and block forms) or, failing that, its radio pill.
+ *
+ * @param form  The main add-to-cart form.
+ * @param name  Attribute field name (e.g. `attribute_pa_size`).
+ * @param value Option value.
+ */
+export function setFormAttribute(
+	form: Element,
+	name: string,
+	value: string
+): void {
+	const select = form.querySelector< HTMLSelectElement >(
+		`select[data-attribute_name="${ name }"], select[name="${ name }"]`
+	);
+	const radio = select
+		? null
+		: form.querySelector< HTMLInputElement >(
+				`input[name="${ name }"][value="${ value }"]`
+			);
+	const field = select ?? radio;
+	if ( ! field ) {
+		return;
+	}
+	if ( select ) {
+		select.value = value;
+	} else if ( radio ) {
+		radio.checked = true;
+	}
+	field.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+}
+
+/**
  * Read all current attribute selections from a form element.
  */
 export function readFormAttributes( form: Element ): Record< string, string > {

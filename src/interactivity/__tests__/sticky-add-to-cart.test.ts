@@ -111,6 +111,10 @@ const actions = config.actions;
 const callbacks = config.callbacks;
 const unlockScroll = jest.requireMock( '@aggressive-apparel/scroll-lock' )
 	.unlockScroll as jest.Mock;
+// The real action; beforeEach stubs it for the visibility tests.
+const realMatchVariation = actions.matchVariation;
+const matchVariationHelper = jest.requireMock( '@aggressive-apparel/helpers' )
+	.matchVariation as jest.Mock;
 
 let cleanup: ( () => void ) | undefined;
 let form: HTMLFormElement;
@@ -352,5 +356,56 @@ describe( 'callbacks.init', () => {
 			document.body.classList.contains( 'aa-sticky-cart-visible' )
 		).toBe( false );
 		expect( intersectionObservers ).toHaveLength( 0 );
+	} );
+} );
+
+describe( 'actions.matchVariation', () => {
+	beforeEach( () => {
+		Object.assign( state, {
+			variations: [],
+			matchedVariationId: 0,
+			originalPrice: '$15.00',
+			originalRegularPrice: '$18.00',
+			originalSavingsText: 'Save 17%',
+			displayPrice: '$15.00',
+			regularPrice: '$18.00',
+			savingsText: 'Save 17%',
+			originalDrawerImage: '',
+			originalDrawerImageAlt: '',
+		} );
+	} );
+
+	it( "shows the chosen variation's savings note and restores the product's", () => {
+		state.selectedAttrs = { attribute_size: 'l' };
+		matchVariationHelper.mockReturnValue( {
+			id: 9,
+			price: '$12.00',
+			regularPrice: '$15.00',
+			savings: 'Save 20%',
+		} );
+		realMatchVariation();
+		expect( state.savingsText ).toBe( 'Save 20%' );
+
+		matchVariationHelper.mockReturnValue( null );
+		realMatchVariation();
+		expect( state.savingsText ).toBe( 'Save 17%' );
+	} );
+
+	it( 'restores the product price when every option is cleared', () => {
+		state.selectedAttrs = { attribute_size: 'l' };
+		matchVariationHelper.mockReturnValue( {
+			id: 9,
+			price: '$12.00',
+			regularPrice: '$15.00',
+			savings: '',
+		} );
+		realMatchVariation();
+		expect( state.savingsText ).toBe( '' );
+
+		state.selectedAttrs = { attribute_size: '' };
+		realMatchVariation();
+		expect( state.displayPrice ).toBe( '$15.00' );
+		expect( state.regularPrice ).toBe( '$18.00' );
+		expect( state.savingsText ).toBe( 'Save 17%' );
 	} );
 } );

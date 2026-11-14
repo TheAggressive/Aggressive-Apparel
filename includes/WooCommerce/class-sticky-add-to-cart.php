@@ -107,6 +107,8 @@ class Sticky_Add_To_Cart {
 				'originalPrice'          => $product_data['price_html'],
 				'regularPrice'           => $product_data['regular_price_html'],
 				'originalRegularPrice'   => $product_data['regular_price_html'],
+				'savingsText'            => $product_data['savings_text'],
+				'originalSavingsText'    => $product_data['savings_text'],
 				'cartApiUrl'             => esc_url_raw( rest_url( 'wc/store/v1/cart/add-item' ) ),
 				'nonce'                  => wp_create_nonce( 'wc_store_api' ),
 				'variations'             => $product_data['variations'],
@@ -180,6 +182,12 @@ class Sticky_Add_To_Cart {
 								<?php echo $product_data['regular_price_html'] === $product_data['price_html'] ? 'hidden' : ''; ?>
 							><?php echo esc_html( $product_data['regular_price_html'] ); ?></del>
 							<ins class="aa-sticky-cart__price-current" data-wp-text="state.displayPrice"><?php echo esc_html( $product_data['price_html'] ); ?></ins>
+							<span
+								class="aggressive-apparel-price-save"
+								data-wp-text="state.savingsText"
+								data-wp-bind--hidden="!state.savingsText"
+								<?php echo '' === $product_data['savings_text'] ? 'hidden' : ''; ?>
+							><?php echo esc_html( $product_data['savings_text'] ); ?></span>
 						</span>
 					</div>
 				</div>
@@ -288,6 +296,12 @@ class Sticky_Add_To_Cart {
 									<?php echo $product_data['regular_price_html'] === $product_data['price_html'] ? 'hidden' : ''; ?>
 								><?php echo esc_html( $product_data['regular_price_html'] ); ?></del>
 								<ins class="aa-sticky-cart__price-current" data-wp-text="state.displayPrice"><?php echo esc_html( $product_data['price_html'] ); ?></ins>
+								<span
+									class="aggressive-apparel-price-save"
+									data-wp-text="state.savingsText"
+									data-wp-bind--hidden="!state.savingsText"
+									<?php echo '' === $product_data['savings_text'] ? 'hidden' : ''; ?>
+								><?php echo esc_html( $product_data['savings_text'] ); ?></span>
 							</span>
 						</div>
 						<button
@@ -481,12 +495,13 @@ class Sticky_Add_To_Cart {
 	 * Extract product data for the sticky bar.
 	 *
 	 * @param \WC_Product $product Product object.
-	 * @return array{price_html: string, regular_price_html: string, variations: array, attributes: array, default_attrs: array}
+	 * @return array{price_html: string, regular_price_html: string, savings_text: string, variations: array, attributes: array, default_attrs: array}
 	 */
 	private function get_product_data( \WC_Product $product ): array {
 		$data = array(
 			'price_html'         => self::format_plain_price( $product ),
 			'regular_price_html' => self::format_plain_price( $product, true ),
+			'savings_text'       => Price_Display::savings_text( $product ),
 			'variations'         => array(),
 			'attributes'         => array(),
 			'default_attrs'      => array(),
@@ -525,6 +540,7 @@ class Sticky_Add_To_Cart {
 				'attributes'   => $variation->get_variation_attributes(),
 				'price'        => self::format_plain_price( $variation ),
 				'regularPrice' => self::format_plain_price( $variation, true ),
+				'savings'      => Price_Display::savings_text( $variation ),
 				'in_stock'     => $variation->is_in_stock(),
 				'image'        => $image_src,
 				'imageAlt'     => ! empty( $image_alt ) ? $image_alt : $product->get_name(),

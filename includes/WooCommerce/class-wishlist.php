@@ -304,8 +304,9 @@ BLOCKS;
 					/* translators: %s: Product name. */
 					'removeItemLabel'    => __( 'Remove %s from wishlist', 'aggressive-apparel' ),
 					'errorLabel'         => __( 'Your wishlist could not be updated. Please try again.', 'aggressive-apparel' ),
-					'chooseOptionsLabel' => __( 'Choose options', 'aggressive-apparel' ),
-					'viewProductLabel'   => __( 'View product', 'aggressive-apparel' ),
+					// Store Copy wording, so these match the cards and Quick View.
+					'chooseOptionsLabel' => Feature_Settings::get_variable_product_button_text(),
+					'viewProductLabel'   => Feature_Settings::get_view_product_button_text(),
 					'localSaveLabel'     => __( 'Saved on this device', 'aggressive-apparel' ),
 				),
 			),

@@ -86,6 +86,10 @@ class Quick_View_Renderer {
 
 				// Sale badge.
 				'salePercentage'        => 0,
+				'themeSaleBadge'        => false,
+				'savingsText'           => '',
+				'baseSavingsText'       => '',
+				'lowStockThreshold'     => Product_Badges::low_stock_threshold(),
 
 				// Color swatch data.
 				'colorSwatchData'       => Color_Data_Manager::get_safe_swatch_data(),
@@ -192,8 +196,17 @@ class Quick_View_Renderer {
 								data-wp-bind--alt="state.productName"
 								data-wp-watch="callbacks.syncCurrentImage"
 							/>
-							<!-- Sale badge (the Badge Studio design when the theme draws sale badges). -->
-							<?php echo aggressive_apparel_trusted_html( Quick_View_Sale_Badge::markup() ); ?>
+							<!-- The card's Badge Studio badges, filled from the Store API (quick-view/badges.ts). -->
+							<div class="aggressive-apparel-quick-view__badges"></div>
+							<!-- Default sale chip, for when the theme draws no sale badge. -->
+							<span
+								class="aggressive-apparel-quick-view__sale-badge"
+								data-wp-bind--hidden="state.hasNoSaleBadge"
+								hidden
+							><span
+								class="aggressive-apparel-quick-view__sale-badge-text"
+								data-wp-text="state.saleBadgeText"
+							></span></span>
 						</div>
 
 						<!-- Thumbnail navigation with arrows. -->
@@ -317,6 +330,13 @@ class Quick_View_Renderer {
 							<span
 								class="aggressive-apparel-quick-view__price-current"
 								data-wp-text="state.productPrice"
+							></span>
+							<!-- Smart Price Display savings note, as on the card. -->
+							<span
+								class="aggressive-apparel-price-save aggressive-apparel-quick-view__price-save"
+								data-wp-text="state.savingsText"
+								data-wp-bind--hidden="!state.savingsText"
+								hidden
 							></span>
 						</div>
 
@@ -457,6 +477,12 @@ class Quick_View_Renderer {
 											class="aggressive-apparel-quick-view__price-current"
 											data-wp-text="state.productPrice"
 										></ins>
+										<span
+											class="aggressive-apparel-price-save aggressive-apparel-quick-view__price-save"
+											data-wp-text="state.savingsText"
+											data-wp-bind--hidden="!state.savingsText"
+											hidden
+										></span>
 									</span>
 								</div>
 							</div>

@@ -159,10 +159,26 @@
 	}
 }
 
-/* Sale badge on image. With Product Badges' Sale rule on, the badge is the
-   Badge Studio design, placed by .aggressive-apparel-product-badge__wrapper;
-   this default chip is only for when WooCommerce owns the sale flash. */
-.aggressive-apparel-quick-view__sale-badge--default {
+/* The card's phone-only badge rules (Store Enhancements → Product Badges:
+   hide the sale badge, cap the count, shrink) free room on small cards; Quick
+   View has the room, so it shows the full set at full size. (0,2,0) beats
+   product-badges.css's (0,1,0) phone rules; both are unlayered. */
+@media (width < 600px) {
+	.aggressive-apparel-quick-view__badges
+		.aggressive-apparel-product-badge--hide-small {
+		display: inline-flex;
+	}
+
+	.aggressive-apparel-quick-view__badges
+		.aggressive-apparel-product-badge__wrapper {
+		zoom: 1;
+	}
+}
+
+/* Default sale chip on the image — only when the theme draws no sale badge
+   (Product Badges or its Sale rule off); otherwise the product's Badge Studio
+   set above carries the sale badge. */
+.aggressive-apparel-quick-view__sale-badge {
 	position: absolute;
 	top: 0.75rem;
 	left: 0.75rem;

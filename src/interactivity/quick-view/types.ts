@@ -84,7 +84,7 @@ export interface StoreApiProduct {
 	has_options?: boolean;
 	is_in_stock?: boolean;
 	stock_quantity?: number | null;
-	extensions?: Record< string, Record< string, Record< string, unknown > > >;
+	extensions?: Record< string, unknown > | null;
 }
 
 export interface StockInfo {
@@ -118,6 +118,8 @@ export interface ResolvedVariation {
 	imageAlt: string;
 	prices: StoreApiPrices;
 	inStock: boolean;
+	/** The variation's Smart Price Display savings note, or ''. */
+	savings: string;
 }
 
 export interface CartAddBody {
@@ -214,6 +216,14 @@ export interface QuickViewState {
 	readonly imagePositionLabel: string;
 	readonly saleBadgeText: string;
 	readonly hasNoSaleBadge: boolean;
+	/** Whether the product's Badge Studio set includes the sale badge. */
+	themeSaleBadge: boolean;
+	/** Savings note shown with the price ("Save 20%"), or ''. */
+	savingsText: string;
+	/** The product-level savings note, restored when no variation is chosen. */
+	baseSavingsText: string;
+	/** Badge Studio Low Stock threshold, shared with the stock message. */
+	lowStockThreshold: number;
 	readonly isInStock: boolean;
 	readonly isLowStock: boolean;
 	readonly isOutOfStock: boolean;

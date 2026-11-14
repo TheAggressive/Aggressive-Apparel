@@ -190,6 +190,15 @@ count, geo, or membership value is not.
 The catalog also *assumes* a persistent object cache and a full-page cache at
 real traffic — see [`docs/woocommerce.md`](docs/woocommerce.md).
 
+## One product, described the same everywhere
+
+Any surface that shows a product (cards, Quick View, sticky bar, Wishlist,
+Recently Viewed, Lookbook, search) must read the store's settings, never a
+hardcoded copy: Store Copy wording via `Feature_Settings::get_*()`, prices via
+`describeProductPrice()` / `Price_Display::savings_text()`, badges via the
+Store API `aggressive-apparel/badges` extension (`Product_Badges::render_badge()`).
+Details: [`docs/woocommerce.md`](docs/woocommerce.md#one-product-described-the-same-everywhere).
+
 ## Navigation gotchas
 
 Two subsystems — `navigation` (desktop bar) and `navigation-panel` (mobile

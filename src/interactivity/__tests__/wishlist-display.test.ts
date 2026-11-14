@@ -2,12 +2,9 @@ import { formatWishlistItem } from '../wishlist/display';
 
 jest.mock(
 	'@aggressive-apparel/helpers',
-	() => ( {
-		decodeEntities: ( value: string ) => value,
-		formatVariablePriceRange: () => 'From $20.00',
-		formatMinorAmount: jest.requireActual( '../../utils/store-api-money' )
-			.formatMinorAmount,
-	} ),
+	// The real helpers module: it is dependency-free, and the wishlist prices
+	// items with the same describeProductPrice() the other surfaces use.
+	() => jest.requireActual( '../helpers' ),
 	{ virtual: true }
 );
 const label = ( _key: string, fallback: string ) => fallback;

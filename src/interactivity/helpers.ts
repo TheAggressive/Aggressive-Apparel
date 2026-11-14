@@ -12,6 +12,8 @@ import { formatMinorAmount } from '../utils/store-api-money';
 import type { StoreApiCurrency } from '../utils/store-api-money';
 
 import { FOCUSABLE_SELECTOR } from '../utils/focusable';
+import { productSavingsText } from '../utils/product-extensions';
+import type { WithExtensions } from '../utils/product-extensions';
 
 export { escapeHtml } from '../utils/escape-html';
 export { prefersReducedMotion, scrollBehavior } from '../utils/motion';
@@ -24,6 +26,11 @@ export type {
 	CurrencyContext,
 	StoreApiCurrency,
 } from '../utils/store-api-money';
+export {
+	productBadgesHtml,
+	productSavingsText,
+} from '../utils/product-extensions';
+export type { WithExtensions } from '../utils/product-extensions';
 
 export interface StoreApiPrices extends StoreApiCurrency {
 	price: string;
@@ -72,6 +79,55 @@ export function formatVariablePriceRange(
 	}
 
 	return `${ minAmount } – ${ formatMinorAmount( range.max_amount, prices ) }`;
+}
+
+/** Smart Price Display settings seeded from `Price_Display::interactivity_price_config()`. */
+export interface PriceDisplayConfig {
+	collapseVariablePrice?: boolean;
+	priceStartingPrefix?: string;
+}
+
+/** A product's price as the product card shows it. */
+export interface ProductPriceParts {
+	/** Current price, "From $X", or a "$X – $Y" range. */
+	current: string;
+	/** Struck-out regular price while on sale, else ''. */
+	regular: string;
+	/** Smart Price Display savings note ("Save 20%"), else ''. */
+	savings: string;
+}
+
+/**
+ * Describe a Store API product's price exactly as the server-rendered card
+ * does: variable products show Smart Price Display's "From $X" (or the native
+ * range when it is off) with no struck price; anything else shows the current
+ * price, the regular price while on sale, and the savings note.
+ *
+ * @param product Store API product (or variation).
+ * @param config  Smart Price Display settings.
+ * @return Price parts; each '' when not applicable.
+ */
+export function describeProductPrice(
+	product: WithExtensions & {
+		type?: string;
+		prices?: StoreApiPrices | null;
+	},
+	config: PriceDisplayConfig = {}
+): ProductPriceParts {
+	const savings = productSavingsText( product );
+
+	if ( product.type === 'variable' ) {
+		const range = formatVariablePriceRange( product.prices, {
+			collapse: Boolean( config.collapseVariablePrice ),
+			prefix: config.priceStartingPrefix ?? '',
+		} );
+		if ( range !== null ) {
+			return { current: range, regular: '', savings };
+		}
+	}
+
+	const { current, regular, onSale } = parsePrice( product.prices );
+	return { current, regular: onSale ? regular : '', savings };
 }
 
 export interface PriceResult {

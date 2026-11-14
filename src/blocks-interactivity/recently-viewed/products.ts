@@ -1,5 +1,12 @@
-import { decodeEntities, parsePrice } from '../../interactivity/helpers';
-import type { StoreApiPrices } from '../../interactivity/helpers';
+import {
+	decodeEntities,
+	describeProductPrice,
+} from '../../interactivity/helpers';
+import type {
+	PriceDisplayConfig,
+	StoreApiPrices,
+} from '../../interactivity/helpers';
+import { productBadgesHtml } from '../../utils/product-extensions';
 
 export const STORAGE_KEY = 'aggressive_apparel_recently_viewed';
 export const MAX_STORED = 12;
@@ -10,6 +17,9 @@ export interface RecentProduct {
 	permalink: string;
 	images?: { src: string; thumbnail?: string }[];
 	prices: StoreApiPrices | null;
+	type?: string;
+	/** Theme Store API data (badges, savings note); see utils/product-extensions. */
+	extensions?: Record< string, unknown > | null;
 }
 
 /** Storage is visitor-controlled; keep only bounded, unique product IDs. */
@@ -70,7 +80,8 @@ export function httpUrl( value: string ): string {
 /** Build nodes rather than interpolating remote values into HTML. */
 export function renderProducts(
 	root: HTMLElement,
-	products: RecentProduct[]
+	products: RecentProduct[],
+	priceConfig: PriceDisplayConfig = {}
 ): void {
 	const fragment = document.createDocumentFragment();
 	for ( const product of products ) {
@@ -93,18 +104,39 @@ export function renderProducts(
 			img.width = 300;
 			img.height = 300;
 			anchor.append( img );
-			item.append( anchor );
+			const media = document.createElement( 'div' );
+			media.className = 'aggressive-apparel-recently-viewed__media';
+			media.append( anchor );
+			// The product card's Badge Studio badges: server-built, escaped
+			// markup from the same-origin Store API response.
+			const badges = productBadgesHtml( product );
+			if ( badges ) {
+				media.insertAdjacentHTML( 'beforeend', badges );
+			}
+			item.append( media );
 		}
 		const title = document.createElement( 'a' );
 		title.href = link;
 		title.className = 'aggressive-apparel-recently-viewed__name';
 		title.textContent = name;
 		item.append( title );
-		const price = parsePrice( product.prices ).current;
-		if ( price ) {
+		// Priced exactly as the product card.
+		const price = describeProductPrice( product, priceConfig );
+		if ( price.current ) {
 			const amount = document.createElement( 'span' );
 			amount.className = 'aggressive-apparel-recently-viewed__price';
-			amount.textContent = decodeEntities( price );
+			if ( price.regular ) {
+				const regular = document.createElement( 'del' );
+				regular.textContent = decodeEntities( price.regular );
+				amount.append( regular, ' ' );
+			}
+			amount.append( decodeEntities( price.current ) );
+			if ( price.savings ) {
+				const save = document.createElement( 'span' );
+				save.className = 'aggressive-apparel-price-save';
+				save.textContent = price.savings;
+				amount.append( ' ', save );
+			}
 			item.append( amount );
 		}
 		fragment.append( item );

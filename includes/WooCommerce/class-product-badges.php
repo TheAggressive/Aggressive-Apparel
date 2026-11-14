@@ -56,6 +56,29 @@ class Product_Badges {
 	private bool $sale_enabled = true;
 
 	/**
+	 * Store API product-data namespace carrying each product's badge markup.
+	 */
+	public const STORE_API_NAMESPACE = 'aggressive-apparel/badges';
+
+	/**
+	 * Stock quantity at or below which a product counts as low stock — the
+	 * Badge Studio Low Stock rule, shared with Quick View's stock message.
+	 *
+	 * @return int Threshold (units).
+	 */
+	public static function low_stock_threshold(): int {
+		/**
+		 * Filter the low-stock threshold.
+		 *
+		 * @param int $threshold Default 5.
+		 */
+		return (int) apply_filters(
+			'aggressive_apparel_badge_low_stock_threshold',
+			(int) Custom_Badge_Taxonomy::get_badge_rules()['low_stock']
+		);
+	}
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -79,6 +102,23 @@ class Product_Badges {
 		}
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+
+		// Client-rendered product surfaces (Quick View, Wishlist, Recently
+		// Viewed) read the same badge markup the cards get. Registered on
+		// `init`, not `rest_api_init`, so in-process Store API calls see it.
+		add_action( 'init', array( $this, 'register_store_api_data' ) );
+	}
+
+	/**
+	 * Add each product's badge markup to the Store API product response.
+	 *
+	 * @return void
+	 */
+	public function register_store_api_data(): void {
+		Store_Api_Extension::register_product_data(
+			self::STORE_API_NAMESPACE,
+			fn( \WC_Product $product ): array => array( 'html' => $this->get_badges_html( $product ) )
+		);
 	}
 
 	/**
@@ -102,12 +142,7 @@ class Product_Badges {
 		 */
 		$this->new_days = (int) apply_filters( 'aggressive_apparel_badge_new_days', $this->new_days );
 
-		/**
-		 * Filter the low-stock threshold.
-		 *
-		 * @param int $threshold Default 5.
-		 */
-		$this->low_stock_threshold = (int) apply_filters( 'aggressive_apparel_badge_low_stock_threshold', $this->low_stock_threshold );
+		$this->low_stock_threshold = self::low_stock_threshold();
 
 		/**
 		 * Filter the bestseller total-sales threshold.
@@ -124,6 +159,20 @@ class Product_Badges {
 	 */
 	public function enqueue_styles(): void {
 		if ( ! $this->is_product_page() ) {
+			return;
+		}
+
+		self::enqueue_style();
+	}
+
+	/**
+	 * Load the badge stylesheet — also called by blocks that show badges
+	 * outside product pages (Wishlist, Recently Viewed).
+	 *
+	 * @return void
+	 */
+	public static function enqueue_style(): void {
+		if ( ! Feature_Settings::is_enabled( 'product_badges' ) ) {
 			return;
 		}
 
@@ -179,9 +228,9 @@ class Product_Badges {
 	}
 
 	/**
-	 * Public accessor used by the Store API extension so AJAX-rendered
-	 * cards (product-filters, load-more) can render the same badge HTML
-	 * as server-rendered cards.
+	 * Public accessor used by the Store API extension so client-rendered
+	 * product surfaces (Quick View, Wishlist, Recently Viewed) render the
+	 * same badge HTML as server-rendered cards.
 	 *
 	 * Re-uses the threshold filters initialized in `init()`. When the badge
 	 * feature is disabled the class is never instantiated and this method
@@ -266,10 +315,20 @@ class Product_Badges {
 				++$shown;
 			}
 
+			$classes = array( 'aggressive-apparel-product-badge--type-' . str_replace( '_', '-', $entry['type'] ) );
+			if ( $hidden ) {
+				$classes[] = 'aggressive-apparel-product-badge--hide-small';
+			}
+
+			// The sale label sits in its own span so a client surface can swap
+			// in a variation's discount without touching the icon or shape.
 			$groups[ $entry['position'] ][] = self::render_badge(
 				$entry['badge'],
 				$entry['label'],
-				$hidden ? array( 'aggressive-apparel-product-badge--hide-small' ) : array()
+				$classes,
+				'sale' === $entry['type']
+					? '<span class="aggressive-apparel-product-badge__label">' . esc_html( $entry['label'] ) . '</span>'
+					: ''
 			);
 		}
 

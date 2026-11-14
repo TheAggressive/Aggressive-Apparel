@@ -1,4 +1,5 @@
 /** Recently viewed products, stored on this device and resolved via Store API. */
+import type { PriceDisplayConfig } from '../../interactivity/helpers';
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import {
 	historyIds,
@@ -16,6 +17,7 @@ interface RecentlyViewedContext {
 	restBase: string;
 	products: RecentProduct[];
 	loaded: boolean;
+	priceConfig?: PriceDisplayConfig;
 }
 
 store( 'aggressive-apparel/recently-viewed', {
@@ -23,10 +25,8 @@ store( 'aggressive-apparel/recently-viewed', {
 		renderProducts(): void {
 			const { ref } = getElement();
 			if ( ref instanceof HTMLElement ) {
-				renderProducts(
-					ref,
-					getContext< RecentlyViewedContext >().products
-				);
+				const ctx = getContext< RecentlyViewedContext >();
+				renderProducts( ref, ctx.products, ctx.priceConfig );
 			}
 		},
 

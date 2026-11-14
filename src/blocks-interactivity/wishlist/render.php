@@ -151,7 +151,7 @@ $inline_style = implode(
 	</div>
 
 	<a class="aa-wishlist-page__continue" data-wp-bind--hidden="state.isEmpty" href="<?php echo esc_url( $shop_url ); ?>">
-		<?php esc_html_e( 'Continue shopping', 'aggressive-apparel' ); ?>
+		<?php echo esc_html( Feature_Settings::get_continue_shopping_button_text() ); ?>
 		<?php
 		echo aggressive_apparel_get_icon(
 			'arrow-right',

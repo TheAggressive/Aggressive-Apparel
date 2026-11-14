@@ -24,7 +24,10 @@ import {
 	type WishlistConfig,
 	type WishlistProduct,
 } from './wishlist/account';
-import { fetchWishlistProducts } from './wishlist/products';
+import {
+	fetchWishlistProducts,
+	withProductExtensions,
+} from './wishlist/products';
 import {
 	formatWishlistItem,
 	type WishlistDisplayItem,
@@ -141,12 +144,31 @@ function announce( message: string ): void {
 	}, 8000 );
 }
 
-function guestProducts( ids: number[] ): Promise< WishlistProduct[] > {
-	return fetchWishlistProducts(
-		ids,
+function productsEndpoint(): string | undefined {
+	return (
 		config.productsUrl ||
-			( state as unknown as { productsApiUrl?: string } ).productsApiUrl
+		( state as unknown as { productsApiUrl?: string } ).productsApiUrl
 	);
+}
+
+function guestProducts( ids: number[] ): Promise< WishlistProduct[] > {
+	return fetchWishlistProducts( ids, productsEndpoint() );
+}
+
+/**
+ * The account's saved items. On the wishlist page they also get the badges
+ * and savings note public products carry, so they render like guest items;
+ * elsewhere only their IDs matter, so the extra lookup is skipped.
+ *
+ * @param list The account's item listing.
+ */
+async function accountListing(
+	list: Promise< WishlistProduct[] >
+): Promise< WishlistProduct[] > {
+	const items = await list;
+	return document.querySelector( '.wp-block-aggressive-apparel-wishlist' )
+		? withProductExtensions( items, productsEndpoint() )
+		: items;
 }
 
 function toWishlistItem( product: WishlistProduct ): WishlistDisplayItem {
@@ -196,7 +218,7 @@ async function refresh( readAccount = true ): Promise< void > {
 	const results = await Promise.allSettled( [
 		( async () => {
 			if ( ! account || ! readAccount ) return;
-			accountItems = await account.list();
+			accountItems = await accountListing( account.list() );
 			publishItems( guestIds );
 			const currentIds = readGuestItems();
 			const remaining = currentIds.filter(
@@ -398,6 +420,17 @@ const { state } = store( 'aggressive-apparel/wishlist', {
 			( ref as HTMLImageElement ).alt = ctx.item.name || '';
 		},
 
+		/** The item's Badge Studio badges, as its product card shows them. */
+		syncItemBadges(): void {
+			const ctx = getContext< WishlistContext >();
+			const { ref } = getElement();
+			if ( ! ref ) {
+				return;
+			}
+			// Server-built, escaped markup (Product_Badges via the Store API).
+			ref.innerHTML = ctx.item?.badgesHtml || '';
+		},
+
 		loadWishlistPage(): void {
 			const ctx = getContext< WishlistContext >();
 			void ready.finally( () => {
@@ -467,7 +500,8 @@ async function initialize(): Promise< void > {
 	}
 	const results = await Promise.allSettled( [
 		( async () => {
-			if ( account ) accountItems = await account.list();
+			if ( account )
+				accountItems = await accountListing( account.list() );
 			publishItems( guestIds );
 		} )(),
 		( async () => {
@@ -488,7 +522,9 @@ async function initialize(): Promise< void > {
 		results.every( ( result ) => result.status === 'fulfilled' )
 	) {
 		try {
-			accountItems = await account.merge( accountItems, localProducts );
+			accountItems = await accountListing(
+				account.merge( accountItems, localProducts )
+			);
 			failed ||= account.importFailed;
 		} catch {
 			failed = true;

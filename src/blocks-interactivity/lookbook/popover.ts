@@ -8,7 +8,9 @@
  */
 
 import type { LookbookI18n, StoreApiProduct } from './types';
-import { formatPrice, safeMediaUrl, safeUrl, stripTags } from './product';
+import { safeMediaUrl, safeUrl, stripTags } from './product';
+import { describeProductPrice } from '../../interactivity/helpers';
+import type { PriceDisplayConfig } from '../../interactivity/helpers';
 
 const VIEWPORT_PADDING = 12;
 let viewportListenersAttached = false;
@@ -170,7 +172,8 @@ export function renderProduct(
 	root: HTMLElement,
 	product: StoreApiProduct,
 	i18n: LookbookI18n,
-	focusCard = false
+	focusCard = false,
+	priceConfig: PriceDisplayConfig = {}
 ): void {
 	const content = root.querySelector< HTMLElement >(
 		'.aggressive-apparel-lookbook__popover-content'
@@ -181,8 +184,19 @@ export function renderProduct(
 	}
 
 	const name = product.name ?? '';
+	// Priced exactly as the product card; the legacy fields cover a product
+	// payload without Store API prices.
+	const parts = product.prices?.price
+		? describeProductPrice(
+				{
+					...product,
+					prices: { ...product.prices, price: product.prices.price },
+				},
+				priceConfig
+			)
+		: { current: '', regular: '', savings: '' };
 	const price =
-		formatPrice( product.prices ) ||
+		parts.current ||
 		stripTags( product.price_html ?? '' ) ||
 		String( product.price ?? '' );
 	const image = product.images?.[ 0 ];
@@ -217,7 +231,18 @@ export function renderProduct(
 	if ( price ) {
 		const productPrice = document.createElement( 'p' );
 		productPrice.className = 'aggressive-apparel-lookbook__product-price';
-		productPrice.textContent = price;
+		if ( parts.regular ) {
+			const regular = document.createElement( 'del' );
+			regular.textContent = parts.regular;
+			productPrice.append( regular, ' ' );
+		}
+		productPrice.append( price );
+		if ( parts.savings ) {
+			const save = document.createElement( 'span' );
+			save.className = 'aggressive-apparel-price-save';
+			save.textContent = parts.savings;
+			productPrice.append( ' ', save );
+		}
 		info.appendChild( productPrice );
 	}
 

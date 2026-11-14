@@ -8,6 +8,7 @@
  * @package Aggressive_Apparel
  */
 
+import { productSavingsText } from '../../utils/product-extensions';
 import { stripTags } from '@aggressive-apparel/helpers';
 import type {
 	ColorSwatchEntry,
@@ -336,6 +337,7 @@ export function buildVariations(
 				( detail?.images?.[ 0 ]?.alt as string ) || product.name || '',
 			prices: detail?.prices || product.prices,
 			inStock: detail ? detail.is_in_stock !== false : true,
+			savings: detail ? productSavingsText( detail ) : '',
 		};
 	} );
 }

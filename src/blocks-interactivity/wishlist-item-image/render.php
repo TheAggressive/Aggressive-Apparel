@@ -43,4 +43,5 @@ $link_to_product = ! isset( $attributes['linkToProduct'] ) || (bool) $attributes
 		data-wp-watch="callbacks.syncItemImage"
 	/>
 <?php endif; ?>
+	<div class="aa-wl-item-image__badges" data-wp-watch="callbacks.syncItemBadges"></div>
 </div>

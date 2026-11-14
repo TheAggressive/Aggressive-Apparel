@@ -15,7 +15,7 @@ jest.mock(
 );
 
 import { __testing, supportsHoverInteraction } from '../view';
-import { fetchProduct, formatPrice, safeUrl } from '../product';
+import { fetchProduct, safeUrl } from '../product';
 import { renderMessage, renderProduct } from '../popover';
 import type { LookbookI18n } from '../types';
 
@@ -82,43 +82,6 @@ describe( 'fetchProduct', () => {
 		).rejects.toThrow( 'Invalid product id' );
 
 		expect( window.fetch ).not.toHaveBeenCalled();
-	} );
-} );
-
-describe( 'formatPrice', () => {
-	it( 'formats using the store currency separators', () => {
-		expect(
-			formatPrice( {
-				price: '123456',
-				currency_minor_unit: 2,
-				currency_prefix: '',
-				currency_suffix: ' €',
-				currency_decimal_separator: ',',
-				currency_thousand_separator: '.',
-			} )
-		).toBe( '1.234,56 €' );
-	} );
-
-	it( 'defaults to US-style separators without a hardcoded symbol', () => {
-		expect( formatPrice( { price: '123456', currency_prefix: '$' } ) ).toBe(
-			'$1,234.56'
-		);
-		expect( formatPrice( { price: '123456' } ) ).toBe( '1,234.56' );
-	} );
-
-	it( 'handles currencies without minor units', () => {
-		expect(
-			formatPrice( {
-				price: '1234567',
-				currency_minor_unit: 0,
-				currency_prefix: '¥',
-			} )
-		).toBe( '¥1,234,567' );
-	} );
-
-	it( 'returns an empty string for missing or invalid prices', () => {
-		expect( formatPrice( undefined ) ).toBe( '' );
-		expect( formatPrice( { price: 'not-a-number' } ) ).toBe( '' );
 	} );
 } );
 

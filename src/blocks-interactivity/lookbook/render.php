@@ -12,6 +12,9 @@
 
 declare(strict_types=1);
 
+use Aggressive_Apparel\WooCommerce\Feature_Settings;
+use Aggressive_Apparel\WooCommerce\Price_Display;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -122,11 +125,12 @@ $context = wp_json_encode(
 		'activeHotspot' => -1,
 		'restBase'      => esc_url_raw( rest_url( 'wc/store/v1/products/' ) ),
 		'openOnHover'   => $open_on_hover,
+		'priceConfig'   => Price_Display::interactivity_price_config(),
 		'i18n'          => array(
 			'loading'         => __( 'Loading product.', 'aggressive-apparel' ),
 			'noProduct'       => __( 'No product selected.', 'aggressive-apparel' ),
 			'loadError'       => __( 'Product could not be loaded.', 'aggressive-apparel' ),
-			'viewProduct'     => __( 'View product', 'aggressive-apparel' ),
+			'viewProduct'     => Feature_Settings::get_view_product_button_text(),
 			/* translators: %s: product name. */
 			'viewProductName' => __( 'View product: %s', 'aggressive-apparel' ),
 		),

@@ -149,6 +149,34 @@ code.
 `card-touch-actions.spec.ts` covers the chip (including on appended cards);
 `Test_Card_Display_Settings` covers the options and badge ranking.
 
+## One product, described the same everywhere
+
+Client-rendered product surfaces — Quick View, the sticky add-to-cart bar,
+Wishlist, Recently Viewed, Lookbook and search results — show a product the
+way its server-rendered card does, so a store setting can't apply to one and
+not another:
+
+- **Badges** — `Product_Badges` adds each product's Badge Studio badge set to
+  the Store API product response (`extensions["aggressive-apparel/badges"].html`),
+  rendered by the same `Product_Badges::render_badge()` as the cards. The sale
+  badge carries `--type-sale` and its text sits in
+  `.aggressive-apparel-product-badge__label`, so Quick View can show a chosen
+  variation's discount without touching the design. Account wishlist items
+  (Shopper Lists, not extendable) fetch it from the products endpoint on the
+  wishlist page only. Quick View shows the full set at full size (the
+  phone-only card rules don't apply there); search rows show the sale wording
+  as a text pill.
+- **Prices** — `describeProductPrice()` (`src/interactivity/helpers.ts`)
+  applies the card's rule: Smart Price Display's "From $X" or the native range
+  for variable products, the struck regular price while on sale, and the
+  savings note from `Price_Display::savings_text()` (Store API
+  `extensions["aggressive-apparel/pricing"].savings`; seeded into the sticky
+  bar per variation).
+- **Wording** — every label with a Store Copy setting (button texts, sale badge
+  text, savings note, "From" prefix) reads it; Quick View's low-stock message
+  uses the Badge Studio Low Stock threshold
+  (`Product_Badges::low_stock_threshold()`).
+
 ## Free shipping (international)
 
 `free-shipping-bar` / `free-shipping-message` show progress toward the

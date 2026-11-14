@@ -526,17 +526,4 @@ class Test_Free_Shipping extends WP_UnitTestCase {
 	private function first_free_shipping_settings(): array {
 		return (array) get_option( 'woocommerce_free_shipping_' . $this->first_free_shipping_instance() . '_settings', array() );
 	}
-
-	/**
-	 * Currency context mirrors the Store API symbol position.
-	 */
-	public function test_currency_context_honours_symbol_position(): void {
-		update_option( 'woocommerce_currency_pos', 'right_space' );
-
-		$context = Free_Shipping::get_currency_context();
-
-		$this->assertSame( '', $context['currencyPrefix'] );
-		$this->assertStringStartsWith( ' ', $context['currencySuffix'] );
-		$this->assertArrayHasKey( 'currencyDecimalSeparator', $context );
-	}
 }

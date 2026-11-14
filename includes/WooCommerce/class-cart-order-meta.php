@@ -84,7 +84,7 @@ class Cart_Order_Meta {
 			),
 			'shipping' => array_merge(
 				Free_Shipping_Message::block_context( array() ),
-				Free_Shipping::get_currency_context()
+				Store_Currency::context()
 			),
 		);
 

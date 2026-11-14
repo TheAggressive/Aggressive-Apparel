@@ -1,9 +1,9 @@
 /** Shared formatting for account and browser wishlist items. */
 import {
 	decodeEntities,
+	formatMinorAmount,
 	formatVariablePriceRange,
 } from '@aggressive-apparel/helpers';
-import type { StoreApiPrices } from '@aggressive-apparel/helpers';
 import type { WishlistProduct } from './account';
 
 export interface WishlistI18n {
@@ -30,23 +30,6 @@ export interface WishlistDisplayItem {
 	price: string;
 	permalink: string;
 	addToCartUrl: string;
-}
-
-/**
- * Format a Store API raw price (minor units) into a display string.
- */
-function formatPrice( prices: StoreApiPrices | null ): string {
-	if ( ! prices || ! prices.price ) {
-		return '';
-	}
-	const minorUnit = prices.currency_minor_unit ?? 2;
-	const divisor = Math.pow( 10, minorUnit );
-	const value = ( parseInt( prices.price, 10 ) / divisor ).toFixed(
-		minorUnit
-	);
-	const prefix = prices.currency_prefix ?? '$';
-	const suffix = prices.currency_suffix ?? '';
-	return `${ prefix }${ value }${ suffix }`;
 }
 
 /**
@@ -128,7 +111,11 @@ export function formatWishlistItem(
 			product.images && product.images.length > 0
 				? product.images[ 0 ].src
 				: '',
-		price: fromPrice ?? formatPrice( product.prices ),
+		price:
+			fromPrice ??
+			( product.prices
+				? formatMinorAmount( product.prices.price, product.prices )
+				: '' ),
 		permalink: product.permalink || '#',
 		addToCartUrl,
 	};

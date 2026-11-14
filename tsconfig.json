@@ -19,6 +19,18 @@
 		"isolatedModules": true,
 		"noEmit": true,
 		"jsx": "react-jsx",
+		// Theme script modules are bare specifiers that webpack externalizes and
+		// the browser resolves through the import map; point the type checker at
+		// their sources so their types can never drift from the code.
+		"paths": {
+			"@aggressive-apparel/helpers": [ "./src/interactivity/helpers.ts" ],
+			"@aggressive-apparel/scroll-lock": [
+				"./src/interactivity/scroll-lock.ts"
+			],
+			"@aggressive-apparel/use-overlay": [
+				"./src/interactivity/use-overlay.ts"
+			]
+		},
 		"types": [
 			"jest",
 			"node",

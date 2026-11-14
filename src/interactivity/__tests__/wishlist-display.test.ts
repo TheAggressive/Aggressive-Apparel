@@ -5,6 +5,8 @@ jest.mock(
 	() => ( {
 		decodeEntities: ( value: string ) => value,
 		formatVariablePriceRange: () => 'From $20.00',
+		formatMinorAmount: jest.requireActual( '../../utils/store-api-money' )
+			.formatMinorAmount,
 	} ),
 	{ virtual: true }
 );

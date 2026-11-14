@@ -159,16 +159,18 @@ class Frequently_Bought_Together {
 
 		wp_interactivity_state(
 			'aggressive-apparel/frequently-bought-together',
-			array(
+			Store_Currency::context() + array(
 				'items'          => $items,
 				'totalPrice'     => $total,
+				// Server copy of the client getter, so the total renders before
+				// hydration; decoded because data-wp-text escapes it again.
+				'formattedTotal' => html_entity_decode( wp_strip_all_tags( wc_price( $total ) ), ENT_QUOTES, 'UTF-8' ),
 				'selectedCount'  => count( $items ),
 				'isAdding'       => false,
 				'isSuccess'      => false,
 				'hasError'       => false,
 				'cartApiUrl'     => esc_url_raw( rest_url( 'wc/store/v1/cart/add-item' ) ),
 				'nonce'          => wp_create_nonce( 'wc_store_api' ),
-				'currencyPrefix' => get_woocommerce_currency_symbol(),
 				'i18n'           => array(
 					'adding'          => __( 'Adding…', 'aggressive-apparel' ),
 					'added'           => __( 'Added!', 'aggressive-apparel' ),

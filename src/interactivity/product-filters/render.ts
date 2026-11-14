@@ -8,7 +8,7 @@
  * @package Aggressive_Apparel
  */
 
-import { escapeHtml } from './dom';
+import { escapeHtml, formatWholePrice } from './dom';
 import type {
 	CategoryTerm,
 	ColorTerm,
@@ -81,11 +81,13 @@ export function renderPills(): void {
 		state.priceMin > state.priceRange.min ||
 		state.priceMax < state.priceRange.max
 	) {
-		const prefix = state.priceRange.currencyPrefix || '$';
 		pills.push( {
 			type: 'price',
 			slug: 'price',
-			label: `${ prefix }${ state.priceMin } – ${ prefix }${ state.priceMax }`,
+			label: `${ formatWholePrice(
+				state.priceMin,
+				state.priceRange
+			) } – ${ formatWholePrice( state.priceMax, state.priceRange ) }`,
 		} );
 	}
 

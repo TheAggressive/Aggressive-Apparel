@@ -261,16 +261,9 @@ class Product_Filters {
 				'colorTerms'          => $slim_terms( $data['colorTerms'] ),
 				'sizeTerms'           => $slim_terms( $data['sizeTerms'] ),
 				'collectionTerms'     => $slim_terms( $data['collectionTerms'] ),
-				'priceRange'          => array_merge(
-					$data['priceRange'],
-					array(
-						'currencyPrefix' => html_entity_decode(
-							$data['priceRange']['currencyPrefix'] ?? '$',
-							ENT_QUOTES,
-							'UTF-8'
-						),
-					)
-				),
+				// Currency format is read per request (not cached with the
+				// range) so a currency or symbol-position change applies at once.
+				'priceRange'          => $data['priceRange'] + Store_Currency::context(),
 				'stockStatuses'       => $data['stockStatuses'],
 				'selectedCategories'  => array(),
 				'selectedColors'      => array(),

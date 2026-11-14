@@ -8,15 +8,24 @@
  * @since 1.22.0
  */
 
-export { escapeHtml } from '../utils/escape-html';
+import { formatMinorAmount } from '../utils/store-api-money';
+import type { StoreApiCurrency } from '../utils/store-api-money';
 
-export interface StoreApiPrices {
+export { escapeHtml } from '../utils/escape-html';
+export {
+	formatMinorAmount,
+	formatMoneyAmount,
+	fromCurrencyContext,
+} from '../utils/store-api-money';
+export type {
+	CurrencyContext,
+	StoreApiCurrency,
+} from '../utils/store-api-money';
+
+export interface StoreApiPrices extends StoreApiCurrency {
 	price: string;
 	regular_price?: string;
 	sale_price?: string;
-	currency_minor_unit?: number;
-	currency_prefix?: string;
-	currency_suffix?: string;
 	price_range?: { min_amount?: string; max_amount?: string } | null;
 }
 
@@ -52,24 +61,14 @@ export function formatVariablePriceRange(
 		return null;
 	}
 
-	const minorUnit = prices.currency_minor_unit ?? 2;
-	const divisor = Math.pow( 10, minorUnit );
-	const pre = prices.currency_prefix ?? '$';
-	const suf = prices.currency_suffix ?? '';
-	const lo = ( parseInt( range.min_amount, 10 ) / divisor ).toFixed(
-		minorUnit
-	);
-	const minAmount = `${ pre }${ lo }${ suf }`;
+	const minAmount = formatMinorAmount( range.min_amount, prices );
 
 	if ( collapse ) {
 		const word = ( prefix || '' ).trim();
 		return word ? `${ word } ${ minAmount }` : minAmount;
 	}
 
-	const hi = ( parseInt( range.max_amount, 10 ) / divisor ).toFixed(
-		minorUnit
-	);
-	return `${ minAmount } – ${ pre }${ hi }${ suf }`;
+	return `${ minAmount } – ${ formatMinorAmount( range.max_amount, prices ) }`;
 }
 
 export interface PriceResult {
@@ -99,25 +98,14 @@ export function parsePrice(
 		return result;
 	}
 
-	const minorUnit = prices.currency_minor_unit ?? 2;
-	const divisor = Math.pow( 10, minorUnit );
-	const prefix = prices.currency_prefix ?? '$';
-	const suffix = prices.currency_suffix ?? '';
-
-	const currentVal = ( parseInt( prices.price, 10 ) / divisor ).toFixed(
-		minorUnit
-	);
-	result.current = `${ prefix }${ currentVal }${ suffix }`;
+	result.current = formatMinorAmount( prices.price, prices );
 
 	if (
 		prices.regular_price &&
 		prices.sale_price &&
 		prices.regular_price !== prices.sale_price
 	) {
-		const regularVal = (
-			parseInt( prices.regular_price, 10 ) / divisor
-		).toFixed( minorUnit );
-		result.regular = `${ prefix }${ regularVal }${ suffix }`;
+		result.regular = formatMinorAmount( prices.regular_price, prices );
 		result.onSale = true;
 	}
 	return result;

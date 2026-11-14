@@ -6,6 +6,7 @@
  * @package Aggressive_Apparel
  */
 
+import { formatMinorAmount } from '../../utils/store-api-money';
 import type { StoreApiPrices, StoreApiProduct } from './types';
 
 const productCache = new Map< string, StoreApiProduct >();
@@ -18,32 +19,7 @@ export function stripTags( value: string ): string {
 }
 
 export function formatPrice( prices?: StoreApiPrices ): string {
-	if ( ! prices?.price ) return '';
-
-	const minorUnit = prices.currency_minor_unit ?? 2;
-	const divisor = Math.pow( 10, minorUnit );
-	const parsedPrice = parseInt( prices.price, 10 );
-
-	if ( ! Number.isFinite( parsedPrice ) ) {
-		return '';
-	}
-
-	const [ intPart, fracPart = '' ] = ( parsedPrice / divisor )
-		.toFixed( minorUnit )
-		.split( '.' );
-	const thousandSeparator = prices.currency_thousand_separator ?? ',';
-	const decimalSeparator = prices.currency_decimal_separator ?? '.';
-	const grouped = intPart.replace(
-		/\B(?=(\d{3})+(?!\d))/g,
-		thousandSeparator
-	);
-	const value = fracPart
-		? `${ grouped }${ decimalSeparator }${ fracPart }`
-		: grouped;
-	const prefix = prices.currency_prefix ?? '';
-	const suffix = prices.currency_suffix ?? '';
-
-	return `${ prefix }${ value }${ suffix }`;
+	return prices?.price ? formatMinorAmount( prices.price, prices ) : '';
 }
 
 export function safeUrl( value: string | undefined, fallback = '#' ): string {

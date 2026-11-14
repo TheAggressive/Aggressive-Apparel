@@ -15,7 +15,7 @@ import {
 	activateOverlayFocus,
 	closeOverlay,
 } from '@aggressive-apparel/use-overlay';
-import { chosenOption } from './product-filters/dom';
+import { chosenOption, formatWholePrice } from './product-filters/dom';
 import { requests, filterFlags } from './product-filters/runtime';
 import {
 	renderHorizontalDropdowns,
@@ -121,15 +121,11 @@ export const { state, actions } = store< ProductFiltersStore >(
 			},
 
 			get priceMinDisplay(): string {
-				const prefix = state.priceRange?.currencyPrefix || '$';
-				const suffix = state.priceRange?.currencySuffix || '';
-				return `${ prefix }${ state.priceMin }${ suffix }`;
+				return formatWholePrice( state.priceMin, state.priceRange );
 			},
 
 			get priceMaxDisplay(): string {
-				const prefix = state.priceRange?.currencyPrefix || '$';
-				const suffix = state.priceRange?.currencySuffix || '';
-				return `${ prefix }${ state.priceMax }${ suffix }`;
+				return formatWholePrice( state.priceMax, state.priceRange );
 			},
 
 			get announcement(): string {

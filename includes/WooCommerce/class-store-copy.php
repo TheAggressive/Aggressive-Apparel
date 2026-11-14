@@ -236,7 +236,7 @@ trait Store_Copy {
 			return '25';
 		}
 
-		return Free_Shipping_Message::format_amount( 25.0, Free_Shipping::get_currency_context() );
+		return Free_Shipping_Message::format_amount( 25.0, Store_Currency::context() );
 	}
 
 	/**

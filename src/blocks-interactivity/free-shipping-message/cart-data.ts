@@ -4,6 +4,11 @@
  * @package Aggressive_Apparel
  */
 
+import {
+	formatMoneyAmount,
+	fromCurrencyContext,
+} from '../../utils/store-api-money';
+
 /** Store API cart extension namespace (mirrors Free_Shipping::STORE_API_NAMESPACE). */
 export const FREE_SHIPPING_EXTENSION = 'aggressive-apparel/free-shipping';
 
@@ -96,18 +101,9 @@ export function isDefaultEmphasis( emphasis: string ): boolean {
  * Free_Shipping_Message::format_amount() so server HTML matches live updates.
  */
 export function formatMoney( amount: number, format: CurrencyFormat ): string {
-	const [ integer, fraction = '' ] = amount
-		.toFixed( format.currencyMinorUnit )
-		.split( '.' );
-	const grouped = integer.replace(
-		/\B(?=(\d{3})+(?!\d))/g,
-		format.currencyThousandSeparator
-	);
-	const number = /[1-9]/.test( fraction )
-		? `${ grouped }${ format.currencyDecimalSeparator }${ fraction }`
-		: grouped;
-
-	return `${ format.currencyPrefix }${ number }${ format.currencySuffix }`;
+	return formatMoneyAmount( amount, fromCurrencyContext( format ), {
+		trimZeroDecimals: true,
+	} );
 }
 
 /**

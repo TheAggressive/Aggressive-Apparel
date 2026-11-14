@@ -81,6 +81,39 @@ export function calculateSalePercentage(
 	return Math.round( ( ( regularPrice - salePrice ) / regularPrice ) * 100 );
 }
 
+/** The token merchant sale wording uses for the discount number. */
+export const PERCENT_TOKEN = '{percent}';
+
+/**
+ * Resolve merchant-authored sale wording against a discount — the client
+ * twin of PHP `Sale_Pricing::format_text()`, so Quick View's badge reads
+ * the same as the product card's.
+ *
+ * Wording without the token is static ("Now on Sale") and returned as is;
+ * `fallback` is used only when the wording asks for a number the product
+ * can't supply.
+ *
+ * @param template Wording, optionally containing `{percent}`.
+ * @param fallback Wording used when the token can't be resolved.
+ * @param percent  Whole-number discount, or 0 when uncomputable.
+ * @return The resolved wording.
+ */
+export function formatSaleText(
+	template: string,
+	fallback: string,
+	percent: number
+): string {
+	if ( ! template.includes( PERCENT_TOKEN ) ) {
+		return template;
+	}
+
+	if ( ! ( percent > 0 ) ) {
+		return fallback;
+	}
+
+	return template.split( PERCENT_TOKEN ).join( String( percent ) );
+}
+
 /**
  * Return a numeric rank for an apparel size string.
  * Handles: XS, S, M, L, XL, and multiplied variants like 2XS, 3XL, 7XL.

@@ -14,7 +14,7 @@
 
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import { describeUnavailableOption } from '@aggressive-apparel/helpers';
-import { isColorSlug } from './quick-view/product-data';
+import { formatSaleText, isColorSlug } from './quick-view/product-data';
 import type {
 	GalleryImage,
 	QuickViewContext,
@@ -49,6 +49,22 @@ export function getLabel(
 	fallback: string
 ): string {
 	return state.i18n?.[ key ] || fallback;
+}
+
+/**
+ * Sale badge text in the store's own wording (Store Copy → Sale Badge Text),
+ * matching the product card badge. Empty when the product isn't on sale.
+ */
+export function saleBadgeText(): string {
+	if ( ! state.productOnSale ) {
+		return '';
+	}
+
+	return formatSaleText(
+		getLabel( 'saleBadgeText', '-{percent}%' ),
+		state.i18n?.saleBadgeNoDiscountText ?? '',
+		state.salePercentage
+	);
 }
 
 /* ------------------------------------------------------------------ */
@@ -319,13 +335,10 @@ export const { state, actions } = store< QuickViewStore >(
 			},
 
 			/**
-			 * Sale badge text (e.g., "-25%").
+			 * Sale badge text, in the store's configured wording.
 			 */
 			get saleBadgeText(): string {
-				if ( state.salePercentage > 0 ) {
-					return `-${ state.salePercentage }%`;
-				}
-				return '';
+				return saleBadgeText();
 			},
 
 			/**

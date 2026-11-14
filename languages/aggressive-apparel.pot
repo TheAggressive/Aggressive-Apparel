@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.206.6\n"
+"Project-Id-Version: Aggressive Apparel 1.206.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T04:38:53+00:00\n"
+"POT-Creation-Date: 2026-11-14T10:57:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -3711,7 +3711,7 @@ msgid "Redirecting…"
 msgstr ""
 
 #: includes/WooCommerce/class-quick-view-renderer.php:113
-#: includes/WooCommerce/class-quick-view-renderer.php:639
+#: includes/WooCommerce/class-quick-view-renderer.php:642
 #: includes/WooCommerce/class-sticky-add-to-cart.php:135
 #: includes/WooCommerce/class-sticky-add-to-cart.php:424
 msgid "Added to cart!"
@@ -3743,54 +3743,54 @@ msgstr ""
 msgid "Unavailable"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:148
+#: includes/WooCommerce/class-quick-view-renderer.php:151
 msgid "Close quick view"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:213
+#: includes/WooCommerce/class-quick-view-renderer.php:216
 msgid "Scroll thumbnails left"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:233
-#: includes/WooCommerce/class-quick-view-renderer.php:278
+#: includes/WooCommerce/class-quick-view-renderer.php:236
+#: includes/WooCommerce/class-quick-view-renderer.php:281
 msgid "View image"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:251
+#: includes/WooCommerce/class-quick-view-renderer.php:254
 msgid "Scroll thumbnails right"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:343
-#: includes/WooCommerce/class-quick-view-renderer.php:526
+#: includes/WooCommerce/class-quick-view-renderer.php:346
+#: includes/WooCommerce/class-quick-view-renderer.php:529
 #: includes/WooCommerce/class-sticky-add-to-cart.php:197
 #: includes/WooCommerce/class-sticky-add-to-cart.php:368
 msgid "Decrease quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:351
-#: includes/WooCommerce/class-quick-view-renderer.php:534
+#: includes/WooCommerce/class-quick-view-renderer.php:354
+#: includes/WooCommerce/class-quick-view-renderer.php:537
 #: includes/WooCommerce/class-sticky-add-to-cart.php:206
 #: includes/WooCommerce/class-sticky-add-to-cart.php:377
 msgid "Quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:357
-#: includes/WooCommerce/class-quick-view-renderer.php:540
+#: includes/WooCommerce/class-quick-view-renderer.php:360
+#: includes/WooCommerce/class-quick-view-renderer.php:543
 #: includes/WooCommerce/class-sticky-add-to-cart.php:212
 #: includes/WooCommerce/class-sticky-add-to-cart.php:383
 msgid "Increase quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:425
+#: includes/WooCommerce/class-quick-view-renderer.php:428
 #: includes/WooCommerce/class-sticky-add-to-cart.php:266
 msgid "Select product options"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:588
+#: includes/WooCommerce/class-quick-view-renderer.php:591
 msgid "Could not load product details. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view-renderer.php:626
+#: includes/WooCommerce/class-quick-view-renderer.php:629
 msgid "Close cart confirmation"
 msgstr ""
 

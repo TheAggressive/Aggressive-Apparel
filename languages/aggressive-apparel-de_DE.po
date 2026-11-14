@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-11-13T20:48:02+00:00\n"
+"POT-Creation-Date: 2026-11-14T04:38:53+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2328,7 +2328,7 @@ msgid "You save"
 msgstr "Sie sparen"
 
 #: includes/WooCommerce/class-cart-order-meta.php:82
-#: src/blocks-interactivity/free-shipping-bar/render.php:90
+#: src/blocks-interactivity/free-shipping-bar/render.php:91
 #, aa-mt
 msgid "Free shipping progress"
 msgstr "Status der kostenlosen Lieferung"
@@ -2531,7 +2531,7 @@ msgstr ""
 "Bei Aktivierung werden Stil- und Wishlist-Kombinationsoptionen angezeigt."
 
 #: includes/WooCommerce/class-feature-catalog.php:138
-#: includes/WooCommerce/class-frequently-bought-together.php:247
+#: includes/WooCommerce/class-frequently-bought-together.php:249
 #, aa-mt
 msgid "Frequently Bought Together"
 msgstr "Häufig zusammen gekauft"
@@ -3323,52 +3323,52 @@ msgstr "{em}FREE Shipping{em_end} ENTSPERRT!"
 msgid "%s UNLOCKED!"
 msgstr "%s FREIGEGEBEN!"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:173
+#: includes/WooCommerce/class-frequently-bought-together.php:175
 #: includes/WooCommerce/class-quick-view-renderer.php:104
 #, aa-mt
 msgid "Adding…"
 msgstr "Weiter…"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:174
+#: includes/WooCommerce/class-frequently-bought-together.php:176
 #, aa-mt
 msgid "Added!"
 msgstr "Hinzugefügt!"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:175
+#: includes/WooCommerce/class-frequently-bought-together.php:177
 #, aa-mt
 msgid "Error — try again"
 msgstr "Fehler – bitte erneut versuchen"
 
 #. translators: %d: number of selected products to add to cart.
 #. translators: %d: number of items.
-#: includes/WooCommerce/class-frequently-bought-together.php:177
-#: includes/WooCommerce/class-frequently-bought-together.php:275
+#: includes/WooCommerce/class-frequently-bought-together.php:179
+#: includes/WooCommerce/class-frequently-bought-together.php:277
 #, php-format, aa-mt
 msgid "Add all %d items to cart"
 msgstr "Alle %d-Artikel in den Warenkorb legen"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:178
+#: includes/WooCommerce/class-frequently-bought-together.php:180
 #, aa-mt
 msgid "All items have been added to your cart."
 msgstr "Alle Artikel wurden in Ihren Warenkorb gelegt."
 
-#: includes/WooCommerce/class-frequently-bought-together.php:179
+#: includes/WooCommerce/class-frequently-bought-together.php:181
 #, aa-mt
 msgid "There was an error adding items to cart."
 msgstr "Beim Hinzufügen der Artikel zum Warenkorb ist ein Fehler aufgetreten."
 
-#: includes/WooCommerce/class-frequently-bought-together.php:245
+#: includes/WooCommerce/class-frequently-bought-together.php:247
 #, aa-mt
 msgid "Frequently bought together"
 msgstr "Häufig zusammen gekauft"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:259
+#: includes/WooCommerce/class-frequently-bought-together.php:261
 #, aa-mt
 msgid "Total price:"
 msgstr "Gesamtpreis:"
 
 #. translators: %s: product name.
-#: includes/WooCommerce/class-frequently-bought-together.php:337
+#: includes/WooCommerce/class-frequently-bought-together.php:339
 #, php-format, aa-mt
 msgid "Include %s"
 msgstr "%s einfügen"
@@ -3602,14 +3602,14 @@ msgid "(complete)"
 msgstr "(vollständig)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-printful-catalog.php:218
+#: includes/WooCommerce/class-printful-catalog.php:217
 #, aa-mt
 msgid "Printful has no size chart for that product."
 msgstr "Printful bietet für dieses Produkt keine Größentabelle an."
 
 #. translators: %d: HTTP status code.
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-printful-catalog.php:220
+#: includes/WooCommerce/class-printful-catalog.php:219
 #, php-format, aa-mt
 msgid "Printful didn’t answer (status %d). Try again in a moment."
 msgstr ""
@@ -3709,13 +3709,13 @@ msgstr "Galerie"
 msgid "Attributes"
 msgstr "Attribute"
 
-#: includes/WooCommerce/class-product-filter-data.php:232
+#: includes/WooCommerce/class-product-filter-data.php:224
 #: includes/WooCommerce/class-quick-view-renderer.php:115
 #, aa-mt
 msgid "In Stock"
 msgstr "Auf Lager"
 
-#: includes/WooCommerce/class-product-filter-data.php:236
+#: includes/WooCommerce/class-product-filter-data.php:228
 #: includes/WooCommerce/class-quick-view-renderer.php:114
 #: includes/WooCommerce/class-store-copy.php:83
 #: patterns/design-system-preview.php:157
@@ -3723,7 +3723,7 @@ msgstr "Auf Lager"
 msgid "Out of Stock"
 msgstr "Nicht vorrätig"
 
-#: includes/WooCommerce/class-product-filter-data.php:240
+#: includes/WooCommerce/class-product-filter-data.php:232
 #, aa-mt
 msgid "On Backorder"
 msgstr "Nicht vorrätig"
@@ -3807,13 +3807,13 @@ msgid "Maximum price"
 msgstr "Höchstpreis"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:240
-#: includes/WooCommerce/class-product-filters.php:312
+#: includes/WooCommerce/class-product-filters.php:305
 #, aa-mt
 msgid "In stock"
 msgstr "Auf Lager"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:245
-#: includes/WooCommerce/class-product-filters.php:313
+#: includes/WooCommerce/class-product-filters.php:306
 #, aa-mt
 msgid "On sale"
 msgstr "Im Angebot"
@@ -3824,79 +3824,79 @@ msgid "Filter by category"
 msgstr "Nach Kategorie filtern"
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:307
+#: includes/WooCommerce/class-product-filters.php:300
 #, php-format, aa-mt
 msgid "(%s filter applied)"
 msgstr "(Filter „%s“ angewendet)"
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:309
+#: includes/WooCommerce/class-product-filters.php:302
 #, php-format, aa-mt
 msgid "(%s filters applied)"
 msgstr "(%s Filter angewendet)"
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:311
+#: includes/WooCommerce/class-product-filters.php:304
 #, php-format, aa-mt
 msgid "Additional filters: %s"
 msgstr "Weitere Filter: %s"
 
-#: includes/WooCommerce/class-product-filters.php:314
+#: includes/WooCommerce/class-product-filters.php:307
 #, aa-mt
 msgid "All filters cleared."
 msgstr "Alle Filter wurden zurückgesetzt."
 
-#: includes/WooCommerce/class-product-filters.php:315
+#: includes/WooCommerce/class-product-filters.php:308
 #, aa-mt
 msgid "No products found."
 msgstr "Es wurden keine Produkte gefunden."
 
-#: includes/WooCommerce/class-product-filters.php:316
+#: includes/WooCommerce/class-product-filters.php:309
 #, aa-mt
 msgid "1 product found."
 msgstr "1 Produkt gefunden."
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:318
+#: includes/WooCommerce/class-product-filters.php:311
 #, php-format, aa-mt
 msgid "%d products found."
 msgstr "%d Produkte gefunden."
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:320
+#: includes/WooCommerce/class-product-filters.php:313
 #, php-format, aa-mt
 msgid "Remove %s filter"
 msgstr "Filter „%s“ entfernen"
 
-#: includes/WooCommerce/class-product-filters.php:388
-#: includes/WooCommerce/class-product-filters.php:479
+#: includes/WooCommerce/class-product-filters.php:381
+#: includes/WooCommerce/class-product-filters.php:472
 #, aa-mt
 msgid "Product filters"
 msgstr "Produktfilter"
 
-#: includes/WooCommerce/class-product-filters.php:397
+#: includes/WooCommerce/class-product-filters.php:390
 #, aa-mt
 msgid "Filters"
 msgstr "Filter"
 
-#: includes/WooCommerce/class-product-filters.php:402
+#: includes/WooCommerce/class-product-filters.php:395
 #, aa-mt
 msgid "Close filters"
 msgstr "Filter schließen"
 
-#: includes/WooCommerce/class-product-filters.php:427
+#: includes/WooCommerce/class-product-filters.php:420
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 #, aa-mt
 msgid "Clear All"
 msgstr "Alle löschen"
 
-#: includes/WooCommerce/class-product-filters.php:433
-#: includes/WooCommerce/class-product-filters.php:489
+#: includes/WooCommerce/class-product-filters.php:426
+#: includes/WooCommerce/class-product-filters.php:482
 #, aa-mt
 msgid "View Results"
 msgstr "Ergebnisse anzeigen"
 
-#: includes/WooCommerce/class-product-filters.php:493
+#: includes/WooCommerce/class-product-filters.php:486
 #, aa-mt
 msgid "Clear All Filters"
 msgstr "Alle Filter löschen"
@@ -5743,17 +5743,17 @@ msgstr ""
 "erfassten Gesamtverkaufszahlen an (echte Bestseller-Hinweise). Unauffälliger "
 "als Live-Kaufbenachrichtigungen."
 
-#: includes/WooCommerce/class-social-proof.php:205
+#: includes/WooCommerce/class-social-proof.php:206
 #, aa-mt
 msgid "Dismiss"
 msgstr "Schließen"
 
-#: includes/WooCommerce/class-social-proof.php:234
+#: includes/WooCommerce/class-social-proof.php:235
 #, aa-mt
 msgid "Social Proof preview: ON"
 msgstr "Vorschau „Social Proof“: EIN"
 
-#: includes/WooCommerce/class-social-proof.php:237
+#: includes/WooCommerce/class-social-proof.php:238
 #, aa-mt
 msgid "Click to manage Social Proof settings"
 msgstr "Klicken Sie hier, um die Einstellungen für „Social Proof“ zu verwalten"

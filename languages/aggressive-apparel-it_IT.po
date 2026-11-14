@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-11-14T04:38:53+00:00\n"
+"POT-Creation-Date: 2026-11-14T18:43:10+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5234,7 +5234,7 @@ msgid "Redirecting…"
 msgstr "Reindirizzamento in corso…"
 
 #: includes/WooCommerce/class-quick-view-renderer.php:113
-#: includes/WooCommerce/class-quick-view-renderer.php:639
+#: includes/WooCommerce/class-quick-view-renderer.php:637
 #: includes/WooCommerce/class-sticky-add-to-cart.php:135
 #: includes/WooCommerce/class-sticky-add-to-cart.php:424
 #, aa-mt
@@ -5270,63 +5270,63 @@ msgstr "Errore: %s"
 msgid "Unavailable"
 msgstr "Non disponibile"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:148
+#: includes/WooCommerce/class-quick-view-renderer.php:151
 #, aa-mt
 msgid "Close quick view"
 msgstr "Chiudi anteprima"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:213
+#: includes/WooCommerce/class-quick-view-renderer.php:211
 #, aa-mt
 msgid "Scroll thumbnails left"
 msgstr "Scorri le miniature verso sinistra"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:233
-#: includes/WooCommerce/class-quick-view-renderer.php:278
+#: includes/WooCommerce/class-quick-view-renderer.php:231
+#: includes/WooCommerce/class-quick-view-renderer.php:276
 #, aa-mt
 msgid "View image"
 msgstr "Visualizza immagine"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:251
+#: includes/WooCommerce/class-quick-view-renderer.php:249
 #, aa-mt
 msgid "Scroll thumbnails right"
 msgstr "Scorri le miniature verso destra"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:343
-#: includes/WooCommerce/class-quick-view-renderer.php:526
+#: includes/WooCommerce/class-quick-view-renderer.php:341
+#: includes/WooCommerce/class-quick-view-renderer.php:524
 #: includes/WooCommerce/class-sticky-add-to-cart.php:197
 #: includes/WooCommerce/class-sticky-add-to-cart.php:368
 #, aa-mt
 msgid "Decrease quantity"
 msgstr "Riduci la quantità"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:351
-#: includes/WooCommerce/class-quick-view-renderer.php:534
+#: includes/WooCommerce/class-quick-view-renderer.php:349
+#: includes/WooCommerce/class-quick-view-renderer.php:532
 #: includes/WooCommerce/class-sticky-add-to-cart.php:206
 #: includes/WooCommerce/class-sticky-add-to-cart.php:377
 #, aa-mt
 msgid "Quantity"
 msgstr "Quantità"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:357
-#: includes/WooCommerce/class-quick-view-renderer.php:540
+#: includes/WooCommerce/class-quick-view-renderer.php:355
+#: includes/WooCommerce/class-quick-view-renderer.php:538
 #: includes/WooCommerce/class-sticky-add-to-cart.php:212
 #: includes/WooCommerce/class-sticky-add-to-cart.php:383
 #, aa-mt
 msgid "Increase quantity"
 msgstr "Aumenta la quantità"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:425
+#: includes/WooCommerce/class-quick-view-renderer.php:423
 #: includes/WooCommerce/class-sticky-add-to-cart.php:266
 #, aa-mt
 msgid "Select product options"
 msgstr "Seleziona le opzioni del prodotto"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:588
+#: includes/WooCommerce/class-quick-view-renderer.php:586
 #, aa-mt
 msgid "Could not load product details. Please try again."
 msgstr "Impossibile caricare i dettagli del prodotto. Riprova."
 
-#: includes/WooCommerce/class-quick-view-renderer.php:626
+#: includes/WooCommerce/class-quick-view-renderer.php:624
 #, aa-mt
 msgid "Close cart confirmation"
 msgstr "Chiudi la conferma del carrello"

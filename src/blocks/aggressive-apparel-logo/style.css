@@ -44,20 +44,27 @@
 	transition: fill var(--aa-duration-fast) var(--aa-ease-default);
 }
 
+/* The large logo shows by default; each breakpoint modifier swaps in the
+   small one at and below its width. */
+.aggressive-apparel-logo__svg--large {
+	display: block;
+}
+
+.aggressive-apparel-logo__svg--small {
+	display: none;
+}
+
 /**
  * Breakpoint modifiers - responsive switching.
- * Uses !important to override inline styles set on SVGs.
  */
 .aggressive-apparel-logo[data-breakpoint="mobile"] {
 	@media (width <= 480px) {
 		.aggressive-apparel-logo__svg--large {
-			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:block" on the large SVG */
-			display: none !important;
+			display: none;
 		}
 
 		.aggressive-apparel-logo__svg--small {
-			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:none" on the small SVG */
-			display: block !important;
+			display: block;
 		}
 	}
 }
@@ -65,13 +72,11 @@
 .aggressive-apparel-logo[data-breakpoint="tablet"] {
 	@media (width <= 768px) {
 		.aggressive-apparel-logo__svg--large {
-			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:block" on the large SVG */
-			display: none !important;
+			display: none;
 		}
 
 		.aggressive-apparel-logo__svg--small {
-			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:none" on the small SVG */
-			display: block !important;
+			display: block;
 		}
 	}
 }
@@ -79,13 +84,11 @@
 .aggressive-apparel-logo[data-breakpoint="desktop"] {
 	@media (width <= 1024px) {
 		.aggressive-apparel-logo__svg--large {
-			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:block" on the large SVG */
-			display: none !important;
+			display: none;
 		}
 
 		.aggressive-apparel-logo__svg--small {
-			/* stylelint-disable-next-line declaration-no-important -- beats render.php's inline style="display:none" on the small SVG */
-			display: block !important;
+			display: block;
 		}
 	}
 }

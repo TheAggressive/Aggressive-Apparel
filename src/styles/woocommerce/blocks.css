@@ -47,8 +47,7 @@
 .is-style-commerce-cards .wc-block-grid__product {
 	padding: var(--aa-wc-product-card-padding);
 	border: 1px solid var(--aa-color-border-default);
-	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: no vendor/inline border-radius on product-template li found (checked WC blocks CSS, theme.json) */
-	border-radius: var(--aa-radius-card) !important;
+	border-radius: var(--aa-radius-card);
 	background-color: var(--aa-color-surface);
 	box-shadow: none;
 	transition:

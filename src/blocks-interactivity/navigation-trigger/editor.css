@@ -9,8 +9,9 @@
  */
 
 .aa-nav-trigger--editor {
-	/* stylelint-disable-next-line declaration-no-important -- beats the block's own style.css .aa-nav-trigger.aa-icon-button{display:none} (0,2,0) in the editor */
-	display: flex !important;
+	/* The editor wrapper has neither .aa-icon-button nor .is-visible, so
+	   style.css's responsive display rules never reach it. */
+	display: flex;
 	align-items: center;
 	gap: 6px;
 	padding: 0.5rem;

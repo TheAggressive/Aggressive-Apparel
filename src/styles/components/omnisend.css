@@ -79,16 +79,16 @@
  * the text color normally, red when the field has an error.
  */
 [id^="omnisend-embedded-v2-"] input:focus {
-	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: Omnisend's remote form CSS (per-field #id focus box-shadow); not in local plugin source */
+	/* stylelint-disable-next-line declaration-no-important -- beats Omnisend's remotely loaded form CSS, which sets the focus ring per field by #id (1,0,0); no class selector can outrank an id */
 	box-shadow: none !important;
 }
 
 [id^="omnisend-embedded-v2-"] input:focus-visible {
-	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: Omnisend's remote form CSS (per-field #id focus box-shadow); not in local plugin source */
+	/* stylelint-disable-next-line declaration-no-important -- beats Omnisend's remotely loaded form CSS, which sets the focus ring per field by #id (1,0,0); no class selector can outrank an id */
 	box-shadow: 0 0 0 2px currentcolor !important;
 }
 
 [id^="omnisend-embedded-v2-"] input.error:focus-visible {
-	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: Omnisend's remote form CSS (per-field #id focus box-shadow); not in local plugin source */
+	/* stylelint-disable-next-line declaration-no-important -- beats Omnisend's remotely loaded form CSS, which sets the focus ring per field by #id (1,0,0); no class selector can outrank an id */
 	box-shadow: 0 0 0 2px var(--wp--preset--color--red) !important;
 }

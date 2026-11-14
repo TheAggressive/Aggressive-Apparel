@@ -122,11 +122,15 @@ or unlayered/high-specificity to beat editor/theme.json output. WC overrides may
 be unlayered only to beat WooCommerce's own unlayered CSS, and set only
 structural props (use `color: inherit` so editor colors win).
 
-`!important` is allowed only to beat a vendor `!important`, to survive a
-same-specificity load-order race with vendor CSS (WooCommerce bundles print in
-varying order), or for the reset's `[hidden]` rule (state, not styling). Add a
+`!important` is allowed only to beat a vendor `!important` or a vendor rule no
+class can outrank (an `#id`, an inline `style`), to survive a same-specificity
+load-order race with vendor CSS (WooCommerce bundles print in varying order),
+for the reset's `[hidden]` rule (state, not styling), for reduced-motion
+kill-switches and the `.aa-hidden-*` utilities (contracts that must beat every
+rule), or to override the nav panel's own `!important` critical CSS. Add a
 comment naming what it beats; if specificity or a layer can win instead, use
-that.
+that — including against the theme's own rules and inline styles, which are
+fixed at the source rather than fought.
 
 theme.json `settings` is the single source of truth; `src/styles/base/tokens.css`
 (`--aa-*`) is a consumer/alias layer, not the source.

@@ -82,7 +82,6 @@
 @media (prefers-reduced-motion: reduce) {
 	::view-transition-old(root),
 	::view-transition-new(root) {
-		/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: reduced-motion kill-switch; no front-end vendor/core ::view-transition-*(root) animation found */
-		animation: none !important;
+		animation: none;
 	}
 }

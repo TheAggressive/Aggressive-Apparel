@@ -176,12 +176,14 @@
    - Tablets (768–1023px): 60vw leaves visible content behind */
 @media (width < 768px) {
 	.aa-nav__panel {
+		/* stylelint-disable-next-line declaration-no-important -- beats wp_footer nav-panel critical CSS .aa-nav__panel{width:var(--panel-width,…)}, same specificity, printed later */
 		width: 100% !important;
 	}
 }
 
 @media (768px <= width < 1024px) {
 	.aa-nav__panel {
+		/* stylelint-disable-next-line declaration-no-important -- beats wp_footer nav-panel critical CSS .aa-nav__panel{width:var(--panel-width,…)}, same specificity, printed later */
 		width: 60vw !important;
 	}
 }
@@ -233,7 +235,8 @@
  * the nav stays mounted but must not intercept taps. */
 body.has-search-modal-open .aa-nav__panel-overlay,
 body.has-search-modal-open .aa-nav__panel.is-open {
-	pointer-events: none !important; /* stylelint-disable-line declaration-no-important */
+	/* stylelint-disable-next-line declaration-no-important -- beats .aa-nav-panel__portal.is-open .aa-nav__panel-overlay{pointer-events:auto} (0,3,0), also in wp_footer critical CSS */
+	pointer-events: none !important;
 }
 
 /* ========================================
@@ -627,16 +630,20 @@ body.has-search-modal-open .aa-nav__panel.is-open {
 	.aa-nav-panel__portal *,
 	.aa-nav-panel__portal *::before,
 	.aa-nav-panel__portal *::after {
+		/* stylelint-disable declaration-no-important -- reduced-motion kill-switch: outranks the panel's own higher-specificity stagger animations and transitions */
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
+		/* stylelint-enable declaration-no-important */
 	}
 
 	/* Stagger items appear immediately */
 	.aa-nav__panel-menu > li,
 	.aa-nav__panel-section {
+		/* stylelint-disable declaration-no-important -- beats .aa-nav__panel.is-open .aa-nav__panel-menu > li stagger animation (higher specificity, fill-mode forwards) */
 		opacity: 1 !important;
 		animation: none !important;
+		/* stylelint-enable declaration-no-important */
 	}
 
 	.aa-nav__panel-section,
@@ -656,15 +663,18 @@ body.has-search-modal-open .aa-nav__panel.is-open {
 			.wp-block-aggressive-apparel-nav-submenu-drilldown__trigger,
 			.wp-block-aggressive-apparel-nav-submenu-accordion__trigger
 		) {
+		/* stylelint-disable declaration-no-important -- beats .aa-nav__panel.is-open .aa-nav__panel-menu > … trigger stagger animations (higher specificity, forwards) */
 		opacity: 1 !important;
 		translate: none !important;
 		animation: none !important;
+		/* stylelint-enable declaration-no-important */
 	}
 
 	/* Disable View Transitions */
 	@supports (view-transition-name: none) {
 		.aa-nav-panel__portal,
 		.aa-nav__panel {
+			/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: nothing assigns a view-transition-name here (checked theme CSS/PHP, wp-includes, plugins) */
 			view-transition-name: none !important;
 		}
 	}

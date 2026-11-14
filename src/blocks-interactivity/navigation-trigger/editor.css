@@ -9,6 +9,7 @@
  */
 
 .aa-nav-trigger--editor {
+	/* stylelint-disable-next-line declaration-no-important -- beats the block's own style.css .aa-nav-trigger.aa-icon-button{display:none} (0,2,0) in the editor */
 	display: flex !important;
 	align-items: center;
 	gap: 6px;

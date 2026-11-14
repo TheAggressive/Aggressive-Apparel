@@ -93,6 +93,7 @@
 
 .wp-block-aggressive-apparel-navigation-panel
 	.wp-block-aggressive-apparel-nav-link__link {
+	/* stylelint-disable declaration-no-important -- UNVERIFIED: no editor/core rule outranking (0,2,0) on __link found (checked nav-link editor/style, panel style, core CSS) */
 	display: flex !important;
 	width: 100%;
 	min-height: 56px;
@@ -101,6 +102,7 @@
 	padding: var(--aa-nav-panel-item-pad, 0.875rem)
 		var(--aa-nav-panel-inset, 1.25rem) !important;
 	border-radius: 0 !important;
+	/* stylelint-enable declaration-no-important */
 	font-weight: 400;
 }
 

@@ -118,10 +118,13 @@
 	/* WooCommerce repeats these rules in several independently loaded block
 	 * bundles (and marks padding important), so component overrides must win
 	 * regardless of which bundle is printed last. */
+	/* stylelint-disable-next-line declaration-no-important -- beats WooCommerce's .wc-block-components-notice-banner{padding:16px!important} */
 	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--5) !important;
+	/* stylelint-disable declaration-no-important -- race: WC repeats .wc-block-components-notice-banner{border-radius;background-color;color} in several bundles */
 	border-radius: var(--aa-radius-control) !important;
 	background-color: var(--aa-wc-notice-bg) !important;
 	color: var(--aa-color-foreground) !important;
+	/* stylelint-enable declaration-no-important */
 }
 
 .wc-block-components-notice-banner:is(
@@ -130,9 +133,11 @@
 	.is-info,
 	.is-warning
 ) {
+	/* stylelint-disable declaration-no-important -- race with WC .wc-block-components-notice-banner.is-{status}{border-color;background-color} (0,2,0) */
 	border: 0 !important;
 	border-inline-start: 3px solid var(--aa-wc-notice-color) !important;
 	background-color: var(--aa-wc-notice-bg) !important;
+	/* stylelint-enable declaration-no-important */
 }
 
 .wc-block-components-notice-banner > svg {
@@ -142,9 +147,11 @@
 	margin-top: 0;
 	padding: 2px;
 	border-radius: var(--aa-radius-full);
+	/* stylelint-disable declaration-no-important -- beats WC .wc-block-components-notice-banner.is-{status}>svg{background-color} (0,2,1); >svg{fill} per bundle */
 	background-color: var(--aa-wc-notice-color) !important;
 	fill: var(--aa-color-surface) !important;
 	color: var(--aa-color-surface) !important;
+	/* stylelint-enable declaration-no-important */
 }
 
 .wc-block-components-notice-banner
@@ -205,6 +212,7 @@
 	flex: 0 0 auto;
 	box-sizing: border-box;
 	min-height: var(--aa-compact-action-height);
+	/* stylelint-disable declaration-no-important -- beats WC notice-button CSS: …__content .wc-forward{padding:0;background;color …!important}, float/margin */
 	float: none !important;
 	margin: 0 !important;
 	margin-inline-start: auto !important;
@@ -218,6 +226,7 @@
 	) !important;
 	color: var(--wp--custom--button--secondary--text) !important;
 	box-shadow: none !important;
+	/* stylelint-enable declaration-no-important */
 	font-family: inherit;
 	font-size: var(--aa-compact-action-font-size);
 	font-weight: var(--aa-compact-action-font-weight);
@@ -242,10 +251,12 @@
 .wc-block-components-notice-banner
 	> .wc-block-components-notice-banner__content
 	.wc-forward:hover {
+	/* stylelint-disable declaration-no-important -- beats WC .wc-block-components-notice-banner>…__content .wc-forward{background:transparent!important;color!important} */
 	background-color: var(
 		--wp--custom--button--secondary--hover-background
 	) !important;
 	color: var(--wp--custom--button--secondary--hover-text) !important;
+	/* stylelint-enable declaration-no-important */
 	opacity: 1;
 }
 
@@ -288,6 +299,7 @@
 	align-items: center;
 	justify-content: center;
 	flex: 0 0 auto;
+	/* stylelint-disable declaration-no-important -- beats WC .wc-block-components-notice-banner>.wc-block-components-button{width;height;margin;padding;…!important} */
 	width: var(--aa-icon-button-size) !important;
 	height: var(--aa-icon-button-size) !important;
 	min-width: var(--aa-icon-button-size) !important;
@@ -298,6 +310,7 @@
 	border-radius: var(--aa-radius-full);
 	background: transparent !important;
 	color: var(--aa-color-foreground-muted) !important;
+	/* stylelint-enable declaration-no-important */
 	cursor: pointer;
 	transition:
 		background-color var(--aa-duration-fast) var(--aa-ease-default),
@@ -306,6 +319,7 @@
 
 .wc-block-components-notice-banner
 	> .wc-block-components-button.wc-block-components-notice-banner__dismiss:hover {
+	/* stylelint-disable-next-line declaration-no-important -- beats WC .wc-block-components-notice-banner>.wc-block-components-button{color:<dark grey>!important} */
 	color: var(--wp--custom--button--icon--hover-text) !important;
 }
 
@@ -328,6 +342,7 @@
 		.wc-forward {
 		width: 100%;
 		float: none;
+		/* stylelint-disable-next-line declaration-no-important -- beats this file's desktop margin:0!important above (itself against WC .wc-forward{margin:0 0 0 20px}) */
 		margin: var(--wp--preset--spacing--3) 0 0 !important;
 	}
 }

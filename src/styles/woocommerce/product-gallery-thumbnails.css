@@ -28,13 +28,14 @@
 
 @media (width > 600px) {
 	.wc-block-product-gallery .wc-block-product-gallery-large-image__container {
-		/* stylelint-disable-next-line declaration-property-value-no-unknown -- CSS Values 4 round() removes fractional scroll geometry. */
+		/* CSS Values 4 round() removes fractional scroll geometry. */
 		inline-size: round(down, 100%, 1px);
 	}
 }
 
 @media (width <= 600px) {
 	.wc-block-product-gallery .wc-block-product-gallery-thumbnails {
+		/* stylelint-disable-next-line declaration-no-important -- beats WC :where(.wc-block-product-gallery) :where(.wc-block-product-gallery-thumbnails){aspect-ratio:5/1!important} */
 		aspect-ratio: auto !important;
 		width: 100%;
 		height: auto;

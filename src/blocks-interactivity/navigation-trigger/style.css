@@ -221,6 +221,7 @@
 @media (prefers-reduced-motion: reduce) {
 	.aa-nav-trigger,
 	.aa-nav-trigger * {
+		/* stylelint-disable-next-line declaration-no-important -- reduced-motion kill-switch: outranks the higher-specificity aa-nav-trigger element transition rules */
 		transition-duration: 0.01ms !important;
 	}
 }

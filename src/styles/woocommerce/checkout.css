@@ -68,6 +68,7 @@
 	 * which selects don't get — so their floated labels ended up larger. Strip
 	 * that extra transform so both float at the same `scale(0.85)` size. (No-op on
 	 * selects, which have no transform.) */
+	/* stylelint-disable-next-line declaration-no-important -- race with WC .wc-block-components-form .wc-block-components-text-input.is-active label{transform:scale(.82)} (0,3,1) */
 	transform: none !important;
 }
 
@@ -94,8 +95,10 @@
 	)
 	.wc-block-components-checkout-step__title,
 .wc-block-components-title {
+	/* stylelint-disable declaration-no-important -- beats WooCommerce .wc-block-components-title.wc-block-components-title{font-size;line-height} (0,2,0) */
 	font-size: var(--wp--preset--font-size--xx-large) !important;
 	line-height: 1.2 !important;
+	/* stylelint-enable declaration-no-important */
 	text-transform: uppercase;
 	letter-spacing: 0.03em;
 	color: var(--wp--preset--color--foreground);
@@ -158,6 +161,7 @@
 
 /* Order-summary panel — drop WooCommerce's border. */
 .wp-block-woocommerce-checkout-order-summary-block {
+	/* stylelint-disable-next-line declaration-no-important -- race with WC .wp-block-woocommerce-checkout-order-summary-block{border:1px solid …} (0,1,0), bundle order varies */
 	border: none !important;
 }
 
@@ -199,19 +203,23 @@
 		align-items: center;
 		gap: 0.75rem;
 		min-height: 2.75rem;
+		/* stylelint-disable declaration-no-important -- beats WC .wp-block-woocommerce-checkout-order-summary-block .…__title{padding;margin-top;border-*} (0,2,0) */
 		padding: 0 !important;
 		margin-top: 0 !important;
 
 		/* Drop WC's top + bottom hairlines on the collapsed header. */
 		border-block: none !important;
+		/* stylelint-enable declaration-no-important */
 	}
 
 	/* "Order summary" → quiet eyebrow. */
 	.wc-block-components-checkout-order-summary__title-text {
 		flex-grow: 1;
 		color: var(--aa-color-foreground-muted);
+		/* stylelint-disable declaration-no-important -- beats WC .…-order-summary-block .…__title .…__title-text{font-size;font-weight} (0,3,0) */
 		font-size: var(--wp--preset--font-size--small) !important;
 		font-weight: 700 !important;
+		/* stylelint-enable declaration-no-important */
 		letter-spacing: 0.1em;
 	}
 
@@ -243,16 +251,19 @@
 :is(.wc-block-checkout, .wc-block-cart) textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
+	/* stylelint-disable declaration-no-important -- beats WC field CSS .wc-block-components-form .wc-block-components-text-input input[type=…] (0,3,1); dark-controls (0,5,1) */
 	border: none !important;
 	border-radius: var(--aa-field-radius) !important;
 	outline: none !important;
 	box-shadow: none !important;
 	color: var(--aa-field-text) !important;
 	transition: border-color var(--aa-duration-fast) var(--aa-ease-default) !important;
+	/* stylelint-enable declaration-no-important */
 }
 
 /* The native <select> stays transparent so the tinted container shows through. */
 .wc-blocks-components-select .wc-blocks-components-select__select {
+	/* stylelint-disable-next-line declaration-no-important -- race with WC .wc-blocks-components-select .wc-blocks-components-select__select{background:none} (0,2,0) */
 	background: transparent !important;
 }
 
@@ -266,6 +277,7 @@
 
 /* Dropdown chevron — adaptive so it shows on the dark field. */
 .wc-blocks-components-select .wc-blocks-components-select__expand {
+	/* stylelint-disable-next-line declaration-no-important -- beats WC .has-dark-controls/.has-error .wc-blocks-components-select .…__expand{fill} (0,3,0) */
 	fill: var(--aa-color-foreground-muted) !important;
 }
 
@@ -273,6 +285,7 @@
 	.wc-block-components-text-input
 	input::placeholder,
 :is(.wc-block-checkout, .wc-block-cart) textarea::placeholder {
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: WC only sets .wc-block-components-textarea::placeholder (0,1,1), which this rule already outranks */
 	color: var(--aa-field-placeholder) !important;
 }
 
@@ -282,12 +295,15 @@
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
 :is(.wc-block-checkout, .wc-block-cart) textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container {
+	/* stylelint-disable declaration-no-important -- beats WC field CSS text-input input[type=…]{border;background-color} (0,3,1+) and select__container{background} */
 	border-left: var(--aa-field-bar-width) solid transparent !important;
 	background: var(--aa-field-bg) !important;
+	/* stylelint-enable declaration-no-important */
 }
 
 /* Text inputs need right room for the curve (selects keep their chevron space). */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input {
+	/* stylelint-disable-next-line declaration-no-important -- beats WC .wc-block-components-form .wc-block-components-text-input input[type=…]{padding:16px 12px} (0,3,1) */
 	padding-right: 1.5rem !important;
 }
 
@@ -298,8 +314,10 @@
 :is(.wc-block-checkout, .wc-block-cart) textarea:focus,
 .wc-blocks-components-select:focus-within
 	.wc-blocks-components-select__container {
+	/* stylelint-disable declaration-no-important -- beats WC :focus-within field rules (border:1.5px solid) at (0,4,1), .has-dark-controls (0,5,1) */
 	border-left-color: var(--aa-field-bar-focus) !important;
 	outline: 2px solid transparent !important;
+	/* stylelint-enable declaration-no-important */
 }
 
 /* Validation — WC flags the wrapper with .has-error after a failed submit or
@@ -309,6 +327,7 @@
 	input,
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-textarea.has-error,
 .wc-blocks-components-select.has-error .wc-blocks-components-select__container {
+	/* stylelint-disable-next-line declaration-no-important -- beats WC .wc-block-components-form .wc-block-components-text-input.has-error input{border-color} (0,4,1) */
 	border-left-color: var(--aa-field-bar-invalid) !important;
 }
 

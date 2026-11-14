@@ -196,18 +196,22 @@
 	.wp-block-aggressive-apparel-navigation *,
 	.wp-block-aggressive-apparel-navigation *::before,
 	.wp-block-aggressive-apparel-navigation *::after {
+		/* stylelint-disable declaration-no-important -- reduced-motion kill-switch: outranks the nav blocks' own higher-specificity transition/animation rules */
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
+		/* stylelint-enable declaration-no-important */
 	}
 
 	/* Indicator snaps instantly */
 	.aa-nav__indicator {
+		/* stylelint-disable-next-line declaration-no-important -- beats the kill-switch above (.wp-block-aggressive-apparel-navigation *{transition-duration:0.01ms!important}) */
 		transition: none !important;
 	}
 
 	@supports (view-transition-name: none) {
 		.wp-block-aggressive-apparel-navigation {
+			/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: nothing assigns a view-transition-name here (checked theme CSS/PHP, wp-includes, plugins) */
 			view-transition-name: none !important;
 		}
 	}

@@ -68,8 +68,10 @@
 	.wp-block-aggressive-apparel-nav-submenu-drilldown
 	.wp-block-aggressive-apparel-nav-link__link {
 	min-height: 48px;
+	/* stylelint-disable declaration-no-important -- beats navigation-panel/editor.css's own padding !important on top-level panel links */
 	padding: var(--aa-nav-submenu-item-pad, 0.75rem)
 		var(--aa-nav-panel-inset, 1.25rem)
 		var(--aa-nav-submenu-item-pad, 0.75rem)
 		var(--aa-nav-submenu-inset, 3.25rem) !important;
+	/* stylelint-enable declaration-no-important */
 }

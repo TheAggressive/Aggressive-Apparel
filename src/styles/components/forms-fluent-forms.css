@@ -69,6 +69,7 @@
 .fluentform.ff-inherit-theme-style
 	.ff-el-form-control[readonly]:not(.flatpickr-input),
 .fluentform.ff-inherit-theme-style .ff-el-group .ff-read-only {
+	/* stylelint-disable-next-line declaration-no-important -- beats Fluent Forms .fluentform .ff-el-group .ff-read-only{background-color:<grey>!important} */
 	background-color: transparent !important; /* Fluent Forms sets !important */
 }
 

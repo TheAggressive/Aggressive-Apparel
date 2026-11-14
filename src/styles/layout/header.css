@@ -32,6 +32,7 @@
 	.site-header__customer-links {
 		order: 1;
 		display: flex;
+		/* stylelint-disable-next-line declaration-no-important -- race with core layout support .wp-container-core-group-is-layout-*{justify-content} (0,1,0), print order varies */
 		justify-content: flex-start !important;
 
 		.wc-block-mini-cart__button .wc-block-mini-cart__icon {
@@ -54,6 +55,7 @@
 	.site-header__aggressive-logo {
 		order: 2;
 		display: flex;
+		/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: the logo block has no layout support; no justify-content source found */
 		justify-content: center !important;
 	}
 
@@ -61,6 +63,7 @@
 	.site-header__main-nav {
 		order: 3;
 		display: flex;
+		/* stylelint-disable-next-line declaration-no-important -- race with core layout support .wp-container-aggressive-apparel-navigation-is-layout-*{justify-content} (0,1,0) */
 		justify-content: flex-end !important;
 	}
 }

@@ -496,15 +496,18 @@
 	@media (prefers-reduced-motion: reduce) {
 		.wp-block-post-featured-image:has(.aa-hover-img) > img,
 		.wp-block-post-featured-image:has(.aa-hover-img) > a {
+			/* stylelint-disable-next-line declaration-no-important -- reduced-motion: beats the hover-image effect transitions on the featured image (higher-specificity :has() rules) */
 			transition: opacity 0.01ms !important;
 		}
 
 		.aa-hover-img {
 			opacity: 0;
+			/* stylelint-disable declaration-no-important -- reduced-motion: beats .aa-hover-img--* effect rules (e.g. :is(:hover,:focus-within) .aa-hover-img--fade, 0,3,0) */
 			transform: none !important;
 			clip-path: none !important;
 			filter: none !important;
 			transition: opacity 0.01ms !important;
+			/* stylelint-enable declaration-no-important */
 		}
 
 		.wp-block-post-featured-image:has(.aa-hover-img):is(
@@ -518,13 +521,16 @@
 			)
 			> a {
 			opacity: 0;
+			/* stylelint-disable declaration-no-important -- reduced-motion: beats :has([data-aa-exit=…]) exit-effect transform/filter/clip-path rules (higher specificity) */
 			transform: none !important;
 			filter: none !important;
 			clip-path: inset(0 0 0 0) !important;
+			/* stylelint-enable declaration-no-important */
 		}
 
 		.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img {
 			opacity: 1;
+			/* stylelint-disable-next-line declaration-no-important -- reduced-motion: beats .aa-hover-img--* enter-effect clip-path rules (higher-specificity hover selectors) */
 			clip-path: none !important;
 		}
 	}

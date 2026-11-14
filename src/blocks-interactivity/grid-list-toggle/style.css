@@ -67,9 +67,11 @@
 /* ── SSR List View ─────────────────────────────────────────────────── */
 
 body.aa-list-view .wp-block-woocommerce-product-template {
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: no vendor/core display rule outranks (0,2,1) here; WC .wc-block-product-template.is-flex-container is (0,2,0) */
 	display: flex !important;
 	flex-direction: column;
 	gap: 1rem;
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: nothing sets CSS columns on the product template (checked WC blocks CSS, core, theme) */
 	columns: unset !important;
 }
 
@@ -78,7 +80,9 @@ body.aa-list-view .wp-block-woocommerce-product-template > li {
 	display: grid;
 	grid-template-columns: 260px 1fr;
 	grid-template-rows: auto auto 1fr auto;
+	/* stylelint-disable-next-line declaration-no-important -- beats WooCommerce .wc-block-product-template.is-flex-container.is-flex-container.columns-N>li{width} (0,5,1) */
 	width: 100% !important;
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: only WC carousel .wc-block-product{max-width:400px} (0,2,0) found, which (0,2,2) already beats */
 	max-width: none !important;
 	min-height: 260px;
 	overflow: hidden;

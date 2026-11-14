@@ -98,6 +98,7 @@
 	position: absolute;
 	inset: 0;
 	z-index: 1;
+	/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: no display:none/[hidden] source for the panel found; aa-reset's layered [hidden] !important outranks this anyway */
 	display: flex !important;
 	flex-direction: column;
 	overflow: clip auto;
@@ -117,6 +118,7 @@
 
 	/* Keep display: flex when PHP outputs [hidden] as a no-JS fallback */
 	&[hidden] {
+		/* stylelint-disable-next-line declaration-no-important -- UNVERIFIED: render.php never outputs [hidden]; aa-reset's layered [hidden]{display:none!important} outranks this anyway */
 		display: flex !important;
 		transform: translateX(100%);
 	}

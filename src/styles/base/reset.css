@@ -253,6 +253,7 @@
 	 * it is the one deliberate !important (an important declaration in the
 	 * lowest layer outranks every normal and unlayered-important one). */
 	[hidden]:where(:not([hidden="until-found"])) {
+		/* stylelint-disable-next-line declaration-no-important -- [hidden] is state, not styling: must outrank every display rule so data-wp-bind--hidden hides flex/grid */
 		display: none !important;
 	}
 }

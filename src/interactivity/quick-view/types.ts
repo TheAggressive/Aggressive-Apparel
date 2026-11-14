@@ -145,6 +145,10 @@ export interface QuickViewLabels {
 	addToCartError?: string;
 	errorAnnounce?: string;
 	unavailableLabel?: string;
+	/** Store Copy "Sale Badge Text", may contain `{percent}`. */
+	saleBadgeText?: string;
+	/** Store Copy "Sale Badge Text Without a Discount". */
+	saleBadgeNoDiscountText?: string;
 }
 
 export interface QuickViewState {

@@ -31,7 +31,7 @@ import type {
 	StockInfo,
 	StoreApiProduct,
 } from './types';
-import { state, actions, getLabel } from '../quick-view';
+import { state, actions, getLabel, saleBadgeText } from '../quick-view';
 
 export function getStockInfo( product: StoreApiProduct ): StockInfo {
 	const lowThreshold = 3;
@@ -117,9 +117,9 @@ export function syncPriceDOM(): void {
 		'.aggressive-apparel-quick-view__sale-badge'
 	);
 	if ( badge ) {
-		badge.hidden = ! state.productOnSale;
-		badge.textContent =
-			state.salePercentage > 0 ? `-${ state.salePercentage }%` : '';
+		const text = saleBadgeText();
+		badge.hidden = ! text;
+		badge.textContent = text;
 	}
 }
 
@@ -279,9 +279,9 @@ export function populateModalDOM(): void {
 	// Sale badge.
 	const badge = q( '.aggressive-apparel-quick-view__sale-badge' );
 	if ( badge ) {
-		badge.hidden = ! state.productOnSale;
-		badge.textContent =
-			state.salePercentage > 0 ? `-${ state.salePercentage }%` : '';
+		const text = saleBadgeText();
+		badge.hidden = ! text;
+		badge.textContent = text;
 	}
 
 	// Product link.

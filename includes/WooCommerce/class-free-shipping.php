@@ -212,47 +212,4 @@ class Free_Shipping {
 			'complete'   => $complete,
 		);
 	}
-
-	/**
-	 * Currency formatting for the blocks' client-side amounts.
-	 *
-	 * Mirrors the Store API currency fields so SSR context and cart responses
-	 * format identically (symbol position, separators, decimals).
-	 *
-	 * @return array{
-	 *     currencyPrefix: string,
-	 *     currencySuffix: string,
-	 *     currencyMinorUnit: int,
-	 *     currencyDecimalSeparator: string,
-	 *     currencyThousandSeparator: string
-	 * }
-	 */
-	public static function get_currency_context(): array {
-		$symbol   = html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES );
-		$position = (string) get_option( 'woocommerce_currency_pos', 'left' );
-		$prefix   = '';
-		$suffix   = '';
-
-		switch ( $position ) {
-			case 'left_space':
-				$prefix = $symbol . ' ';
-				break;
-			case 'right':
-				$suffix = $symbol;
-				break;
-			case 'right_space':
-				$suffix = ' ' . $symbol;
-				break;
-			default:
-				$prefix = $symbol;
-		}
-
-		return array(
-			'currencyPrefix'            => $prefix,
-			'currencySuffix'            => $suffix,
-			'currencyMinorUnit'         => wc_get_price_decimals(),
-			'currencyDecimalSeparator'  => wc_get_price_decimal_separator(),
-			'currencyThousandSeparator' => wc_get_price_thousand_separator(),
-		);
-	}
 }

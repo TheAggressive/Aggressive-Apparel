@@ -1,4 +1,26 @@
+import {
+	formatMoneyAmount,
+	fromCurrencyContext,
+} from '../../utils/store-api-money';
+import type { CurrencyContext } from '../../utils/store-api-money';
+
 export { escapeHtml } from '../../utils/escape-html';
+
+/**
+ * Format a whole-unit filter bound (the slider steps in whole currency units)
+ * in the store's currency format.
+ *
+ * @param amount   Whole-unit amount.
+ * @param currency Store currency format seeded with the price range.
+ */
+export function formatWholePrice(
+	amount: number,
+	currency: CurrencyContext | null | undefined
+): string {
+	return formatMoneyAmount( amount, fromCurrencyContext( currency ), {
+		trimZeroDecimals: true,
+	} );
+}
 
 /** Whether a filter option is unavailable (the one marker CSS styles too). */
 export function isUnavailable( option: Element ): boolean {

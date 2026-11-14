@@ -10,7 +10,11 @@
 import type { InteractivityActions } from '../../types/interactivity-shared';
 
 import { store } from '@wordpress/interactivity';
-import { storeApiPost } from '@aggressive-apparel/helpers';
+import {
+	formatMoneyAmount,
+	fromCurrencyContext,
+	storeApiPost,
+} from '@aggressive-apparel/helpers';
 
 interface FbtItem {
 	id: number;
@@ -34,6 +38,8 @@ interface FbtState {
 	currencyPrefix: string;
 	currencySuffix: string;
 	currencyMinorUnit: number;
+	currencyDecimalSeparator: string;
+	currencyThousandSeparator: string;
 	cartApiUrl: string;
 	nonce: string;
 	i18n?: FbtI18n;
@@ -69,8 +75,10 @@ const { state } = store< FbtStore >(
 	{
 		state: {
 			get formattedTotal(): string {
-				const prefix: string = state.currencyPrefix || '$';
-				return `${ prefix }${ state.totalPrice.toFixed( 2 ) }`;
+				return formatMoneyAmount(
+					state.totalPrice,
+					fromCurrencyContext( state )
+				);
 			},
 			get buttonText(): string {
 				const i18n = state.i18n ?? {};

@@ -5,6 +5,8 @@
  * @since 1.17.0
  */
 
+import type { StoreApiCurrency } from '../../utils/store-api-money';
+
 export interface LookbookHotspot {
 	x: number;
 	y: number;
@@ -32,13 +34,8 @@ export interface StoreApiImage {
 	alt?: string;
 }
 
-export interface StoreApiPrices {
+export interface StoreApiPrices extends StoreApiCurrency {
 	price?: string;
-	currency_minor_unit?: number;
-	currency_prefix?: string;
-	currency_suffix?: string;
-	currency_decimal_separator?: string;
-	currency_thousand_separator?: string;
 }
 
 export interface StoreApiProduct {

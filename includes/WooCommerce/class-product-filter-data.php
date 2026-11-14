@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /** Loads and caches the taxonomy, attribute, and price data used by filters. */
 final class Product_Filter_Data {
 
-	private const CACHE_KEY = 'aa_pf_v2_data';
+	private const CACHE_KEY = 'aa_pf_v3_data';
 	private const CACHE_TTL = 900;
 
 	/**
@@ -37,11 +37,8 @@ final class Product_Filter_Data {
 		}
 
 		$default_price = array(
-			'min'            => 0,
-			'max'            => 0,
-			'currencyPrefix' => '$',
-			'currencySuffix' => '',
-			'minorUnit'      => 2,
+			'min' => 0,
+			'max' => 0,
 		);
 
 		$data = array(
@@ -189,11 +186,8 @@ final class Product_Filter_Data {
 	/** Indexed catalogue-wide price range. */
 	private function price_range(): array {
 		$default = array(
-			'min'            => 0,
-			'max'            => 0,
-			'currencyPrefix' => '$',
-			'currencySuffix' => '',
-			'minorUnit'      => 2,
+			'min' => 0,
+			'max' => 0,
 		);
 		if ( ! function_exists( 'wc_get_price_decimals' ) ) {
 			return $default;
@@ -216,11 +210,8 @@ final class Product_Filter_Data {
 		}
 
 		return array(
-			'min'            => (int) $result->min_price,
-			'max'            => (int) $result->max_price,
-			'currencyPrefix' => html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ),
-			'currencySuffix' => '',
-			'minorUnit'      => wc_get_price_decimals(),
+			'min' => (int) $result->min_price,
+			'max' => (int) $result->max_price,
 		);
 	}
 

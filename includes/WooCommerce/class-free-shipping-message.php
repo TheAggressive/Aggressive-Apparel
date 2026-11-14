@@ -292,7 +292,7 @@ class Free_Shipping_Message {
 					'emphasisText' => $emphasis,
 					'i18n'         => self::get_templates(),
 				),
-				Free_Shipping::get_currency_context()
+				Store_Currency::context()
 			)
 		);
 

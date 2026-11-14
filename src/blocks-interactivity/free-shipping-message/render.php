@@ -10,6 +10,7 @@ declare(strict_types=1);
 use Aggressive_Apparel\Blocks\Icon_Block;
 use Aggressive_Apparel\WooCommerce\Free_Shipping;
 use Aggressive_Apparel\WooCommerce\Free_Shipping_Message;
+use Aggressive_Apparel\WooCommerce\Store_Currency;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -41,7 +42,7 @@ $context = (string) wp_json_encode(
 			'restBase'        => esc_url_raw( rest_url( 'wc/store/v1' ) ),
 		),
 		Free_Shipping_Message::block_context( $attributes ),
-		Free_Shipping::get_currency_context()
+		Store_Currency::context()
 	)
 );
 

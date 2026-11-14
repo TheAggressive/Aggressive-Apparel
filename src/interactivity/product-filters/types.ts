@@ -2,18 +2,17 @@ import type {
 	InteractivityActions,
 	InteractivityCallbacks,
 } from '../../../types/interactivity-shared';
+import type { CurrencyContext } from '../../utils/store-api-money';
 import urlContract from './url-contract.json';
 
 export interface DropdownContext {
 	dropdownId: string;
 }
 
-export interface PriceRange {
+/** Whole-unit catalogue bounds plus the store currency format (Store_Currency). */
+export interface PriceRange extends CurrencyContext {
 	min: number;
 	max: number;
-	currencyPrefix?: string;
-	currencySuffix?: string;
-	minorUnit?: number;
 }
 
 export interface CategoryTerm {

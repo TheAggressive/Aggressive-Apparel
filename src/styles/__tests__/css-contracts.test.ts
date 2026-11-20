@@ -524,3 +524,28 @@ describe( 'keyframes', () => {
 		expect( [ ...new Set( missing ) ] ).toEqual( [] );
 	} );
 } );
+
+describe( 'product card buttons in narrow slots', () => {
+	it( 'compact the add-to-cart pill in every card under 320px, including two-up mobile cards', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const button =
+			'.wp-block-woocommerce-product-button .wp-block-button__link';
+		const conditionsFor = async ( prop: string ) =>
+			( await blocks.declarations( button, prop ) ).map( ( d ) =>
+				d.conditions.join( ' ' )
+			);
+
+		expect( await conditionsFor( 'font-size' ) ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /product-card \(width ?< ?320px\)/ ),
+			] )
+		);
+		expect( await conditionsFor( 'padding-inline' ) ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /product-card \(width ?< ?200px\)/ ),
+			] )
+		);
+	} );
+} );

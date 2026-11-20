@@ -674,10 +674,17 @@
 	.wc-block-components-product-name {
 		font-size: var(--wp--preset--font-size--x-small);
 	}
+
+	/* Two-up mobile grids land here (~150–190px); a full-padding pill wraps
+	   "Add to cart" onto two lines. Tighten the inline padding too. */
+	.wp-block-woocommerce-product-button .wp-block-button__link,
+	.wc-block-grid__product-add-to-cart .wp-block-button__link {
+		padding-inline: var(--wp--preset--spacing--3);
+	}
 }
 
-/* Standard slot (200–320px) — compact button, tighter price. */
-@container product-card (200px <= width < 320px) {
+/* Narrow and standard slots (< 320px) — compact button, tighter price. */
+@container product-card (width < 320px) {
 	.wp-block-woocommerce-product-button .wp-block-button__link,
 	.wc-block-grid__product-add-to-cart .wp-block-button__link {
 		padding-block: var(--wp--preset--spacing--2);

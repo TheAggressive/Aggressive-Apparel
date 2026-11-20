@@ -139,8 +139,44 @@ final class Editorial_Catalog {
 		);
 	}
 
-	/** Whether the store marks any product as Featured. */
+	/**
+	 * Whether any published, catalog-visible product is marked Featured.
+	 *
+	 * Matches visibility terms by name, so the answer does not depend on
+	 * WooCommerce's memoised visibility term IDs or featured-IDs transient.
+	 */
 	public static function has_featured_products(): bool {
-		return function_exists( 'wc_get_featured_product_ids' ) && array() !== wc_get_featured_product_ids();
+		return (bool) Request_Cache::remember(
+			'editorial-catalog:has-featured',
+			static function (): bool {
+				$query = new \WP_Query(
+					array(
+						'post_type'              => 'product',
+						'post_status'            => 'publish',
+						'posts_per_page'         => 1,
+						'fields'                 => 'ids',
+						'no_found_rows'          => true,
+						'update_post_meta_cache' => false,
+						'update_post_term_cache' => false,
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed term lookup, memoised per request.
+						'tax_query'              => array(
+							array(
+								'taxonomy' => 'product_visibility',
+								'field'    => 'name',
+								'terms'    => array( 'featured' ),
+							),
+							array(
+								'taxonomy' => 'product_visibility',
+								'field'    => 'name',
+								'terms'    => array( 'exclude-from-catalog' ),
+								'operator' => 'NOT IN',
+							),
+						),
+					)
+				);
+
+				return array() !== $query->posts;
+			}
+		);
 	}
 }

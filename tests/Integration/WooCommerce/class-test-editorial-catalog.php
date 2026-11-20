@@ -115,6 +115,19 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertSame( true, $this->collection_query( $markup )['featured'] );
 	}
 
+	/**
+	 * Featured detection reads visibility terms by name, independent of
+	 * WooCommerce's featured-IDs transient.
+	 */
+	public function test_featured_detection_is_independent_of_the_featured_transient(): void {
+		set_transient( 'wc_featured_products', array() );
+		$this->create_product( array( 'featured' => true ) );
+		set_transient( 'wc_featured_products', array() );
+		wp_cache_flush();
+
+		$this->assertTrue( Editorial_Catalog::has_featured_products() );
+	}
+
 	/** With real sales the section ranks by popularity. */
 	public function test_best_sellers_ranks_by_sales_when_available(): void {
 		$this->create_product( array( 'total_sales' => 5 ) );

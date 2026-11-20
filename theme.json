@@ -319,7 +319,7 @@
 				{
 					"slug": "surface",
 					"name": "Surface (Adaptive)",
-					"light": "oklch(87% 0 0)",
+					"light": "oklch(95% 0.006 85)",
 					"dark": "oklch(20.5% 0 0)"
 				},
 				{
@@ -331,13 +331,13 @@
 				{
 					"slug": "surface-muted",
 					"name": "Surface Muted (Adaptive)",
-					"light": "oklch(93% 0 0)",
-					"dark": "oklch(26% 0 0)"
+					"light": "oklch(97.5% 0.004 85)",
+					"dark": "oklch(24% 0 0)"
 				},
 				{
 					"slug": "surface-sunken",
 					"name": "Surface Sunken (Adaptive)",
-					"light": "oklch(80% 0 0)",
+					"light": "oklch(90% 0.008 85)",
 					"dark": "oklch(12% 0 0)"
 				},
 				{
@@ -379,13 +379,13 @@
 				{
 					"slug": "border",
 					"name": "Border (Adaptive)",
-					"light": "oklch(70.8% 0 0)",
+					"light": "oklch(70.8% 0.006 85)",
 					"dark": "oklch(43.9% 0 0)"
 				},
 				{
 					"slug": "border-muted",
 					"name": "Border Muted (Adaptive)",
-					"light": "oklch(82% 0 0)",
+					"light": "oklch(84% 0.006 85)",
 					"dark": "oklch(30% 0 0)"
 				}
 			],

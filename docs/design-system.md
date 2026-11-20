@@ -8,16 +8,28 @@ Single source of truth for UI tokens, naming, and usage across the theme.
 
 Defined in `theme.json` → `settings.custom.adaptiveColors`. Injected at runtime as `light-dark(light, dark)` palette entries by `Adaptive_Colors`.
 
-| Slug                   | Editor name                         | Role                                                                                 | Light                     | Dark                      |
-| ---------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ | ------------------------- | ------------------------- |
-| `surface`              | Surface (Adaptive)                  | Default page/section background                                                      | oklch(87% 0 0)            | oklch(20.5% 0 0)          |
-| `surface-elevated`     | Surface Elevated (Adaptive)         | Higher-contrast surface                                                              | oklch(1 0 0)              | oklch(0 0 0)              |
-| `foreground`           | Foreground (Adaptive)               | Primary text                                                                         | oklch(0 0 0)              | oklch(1 0 0)              |
-| `foreground-muted`     | Foreground Muted (Adaptive)         | Secondary/muted text                                                                 | oklch(55.6% 0 0)          | oklch(87% 0 0)            |
-| `accent`               | Accent (Adaptive)                   | Brand interactive (links, hover, focus)                                              | oklch(44.4% 0.177 26.899) | oklch(65% 0.236 29)       |
-| `accent-on-foreground` | Accent on Foreground (Adaptive)     | Brand accent on inverted foreground                                                  | oklch(68% 0.22 27.325)    | oklch(44.4% 0.177 26.899) |
-| `accent-on-raised`     | Accent on Raised Surface (Adaptive) | Accent text on raised dark surfaces (striped rows) — only where `accent` fails 4.5:1 | oklch(44.4% 0.177 26.899) | oklch(67.5% 0.213 29)     |
-| `border`               | Border (Adaptive)                   | Borders and dividers                                                                 | oklch(70.8% 0 0)          | oklch(43.9% 0 0)          |
+Values live only in `theme.json` (the token contract test reads them from
+there); this table records each token's **role**.
+
+| Slug                   | Role                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| `surface`              | Default page/section background. Light mode is a warm paper neutral, dark mode a soft black. |
+| `surface-elevated`     | Highest-contrast surface (white / black): cards, product media wells, overlays.              |
+| `surface-muted`        | Soft raised panel between `surface` and `surface-elevated` (account cards, empty states).    |
+| `surface-sunken`       | Recessed wells: image placeholders, input fills.                                             |
+| `foreground`           | Primary text.                                                                                |
+| `foreground-muted`     | Secondary text, captions, meta.                                                              |
+| `accent`               | Brand interactive text: links, hover, focus.                                                 |
+| `accent-fill`          | Brand red as a **fill** (buttons, badges); brighter than `accent` in dark mode.              |
+| `accent-on-foreground` | Brand accent on an inverted (foreground-coloured) fill.                                      |
+| `accent-on-raised`     | Accent text on raised dark surfaces (striped rows) — only where `accent` fails 4.5:1.        |
+| `border`               | Borders and dividers.                                                                        |
+| `border-muted`         | Quieter hairlines than `border`.                                                             |
+
+Every text role (`foreground`, `foreground-muted`, `accent`) clears WCAG AA
+(4.5:1) on every surface in **both** schemes, and light surfaces keep the order
+sunken → surface → muted → elevated. `src/styles/__tests__/token-contracts.test.ts`
+enforces both, plus that this table and `design-tokens.md` list every token.
 
 **CSS variable:** `var(--wp--preset--color--{slug})`  
 **Alias:** `var(--aa-color-{slug})` in `src/styles/base/tokens.css`
@@ -252,21 +264,21 @@ Compose in PHP/HTML:
 
 ```html
 <form
-  class="my-feature__form aggressive-apparel-stack aggressive-apparel-stack--md"
+	class="my-feature__form aggressive-apparel-stack aggressive-apparel-stack--md"
 >
-  <input class="aggressive-apparel-field__input" type="email" />
-  <button
-    class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
-  >
-    Submit
-  </button>
+	<input class="aggressive-apparel-field__input" type="email" />
+	<button
+		class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
+	>
+		Submit
+	</button>
 </form>
 
 <div class="aggressive-apparel-overlay my-feature">
-  <div class="aggressive-apparel-overlay__backdrop"></div>
-  <div
-    class="aggressive-apparel-panel aggressive-apparel-panel--lg my-feature__panel"
-  ></div>
+	<div class="aggressive-apparel-overlay__backdrop"></div>
+	<div
+		class="aggressive-apparel-panel aggressive-apparel-panel--lg my-feature__panel"
+	></div>
 </div>
 ```
 

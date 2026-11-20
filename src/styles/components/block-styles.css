@@ -269,9 +269,12 @@
 
 /* core/heading — Headline (sans). The editorial counterpart to Bebas:
  * Space Grotesk, sentence case, tight tracking. Use it so not every section
- * leads with the same condensed caps. Editor font/size picks still win
+ * leads with the same condensed caps. Both editorial roles take the
+ * section's text color instead of the global accent heading color, so red
+ * stays a deliberate accent. Editor color/font/size picks still win
  * (WordPress preset classes are !important; inline sizes beat classes). */
 .wp-block-heading.is-style-headline {
+	color: inherit;
 	font-family: var(--wp--preset--font-family--space-grotesk);
 	font-size: var(--aa-type-headline-size);
 	font-weight: var(--aa-type-headline-weight);
@@ -283,6 +286,7 @@
 
 /* core/heading — Campaign (Bebas at the fluid display size, for heroes). */
 .wp-block-heading.is-style-campaign {
+	color: inherit;
 	font-size: var(--aa-type-display-size);
 	line-height: var(--aa-type-display-line-height);
 	letter-spacing: var(--aa-type-display-letter-spacing);

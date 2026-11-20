@@ -121,13 +121,15 @@ Rules:
 | 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
 | 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, artwork close-ups.    |
 | 3:4, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (3:4), tall looks (2:3), detail (1:1).   |
-| Product images         | Store catalog images, uncropped    | Product cards and Featured Product.                     |
+| Product images         | 1:1 media slot on every card       | Product cards; shoot or upload catalog images square.   |
 
 Rules:
 
-1. **Never force-crop product photography.** Product Image blocks keep the
-   catalog image's own ratio so garment artwork and colour stay intact; give
-   products room with fewer columns, not by cropping.
+1. **Product photography is never re-cropped by a pattern.** Every product
+   card reserves a square media slot (`woocommerce/blocks.css`, for CLS), so
+   catalog images should be square to show the whole garment. Patterns do not
+   override that slot with editorial ratios; they give products room with
+   fewer columns instead.
 2. Hero and campaign images are Covers with a **min-height in `svh`/`vh`**
    (60–90) rather than a fixed ratio, and a **focal point** set on the subject.
    Avoid thin banner strips: no campaign Cover under 60svh on desktop.
@@ -142,6 +144,57 @@ Rules:
 6. **Placeholders:** where approved photography isn't available, patterns ship
    an image-less Cover named `… (replace image)` in List View. Never substitute
    generated or stock imagery for retail product photos.
+
+## Editorial pattern library
+
+Twelve section patterns (category **Editorial Sections**) and one composition,
+**Editorial Homepage** (`editorial-homepage`), which `templates/home.html`
+renders. Each section is its own pattern, so editors can reorder, remove or
+insert any section alone.
+
+| #   | Pattern                       | Rhythm / surface           | Live data                                                            |
+| --- | ----------------------------- | -------------------------- | -------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop sorted by newest                                          |
+| 02  | `editorial-category-showcase` | standard                   | Featured Category tiles (category images); the whole tile links      |
+| 03  | `editorial-new-arrivals`      | standard                   | Product Collection, newest, 4-up                                     |
+| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#artwork` anchor for the hero's second CTA               |
+| 05  | `editorial-best-sellers`      | standard, surface-muted    | Real sales → Best sellers; else Featured → Staff picks; else omitted |
+| 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Drop term (`dead-signal`, filterable); else links to newest          |
+| 07  | `editorial-womens-collection` | editorial                  | `pa_collection` / category `womens` → landing page + 2-up grid       |
+| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | `hoodies` category, 3-up                                             |
+| 09  | `editorial-defiance-division` | editorial, black           | `defiance-division` (collection, category or tag) when present       |
+| 10  | `editorial-accessories`       | compact → standard         | `accessories` category, 5-up; omitted if the category is absent      |
+| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Three 2:3 look placeholders                                          |
+| 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                 |
+
+Rules the library follows (new sections should too):
+
+1. **No hardcoded store data.** Term IDs and archive URLs differ between
+   environments, so patterns resolve them at render time through
+   `WooCommerce\Editorial_Catalog` (term by slug → real archive URL, or the
+   Shop page). A grid is only filtered by a term that exists; a section whose
+   subject the store lacks drops its grid rather than showing unrelated
+   products under that heading.
+2. **No invented merchandising.** Best Sellers ranks by recorded sales only;
+   without sales it becomes "Staff picks" over the store's Featured flag.
+   Copy makes no claims about materials, process or stock.
+3. **One card.** `WooCommerce\Editorial_Product_Grid` emits every grid with
+   the Editorial Grid card the Shop archive uses (media well, title, price,
+   swatches). Editors can retune each query in the block inspector.
+4. **Placeholders, not stock photos.** Image slots ship as image-less Covers
+   named `… (replace image)` in List View.
+5. **One red accent per section.** The eyebrow carries the brand red;
+   headings take the section's text color (Headline and Campaign Display
+   inherit it; plain headings set Foreground).
+6. The slogan appears once, in the hero.
+
+**Adopting the homepage on an existing site.** A Blog Home (`home`) template
+customised in the Site Editor is stored in the database and overrides
+`templates/home.html`, so deploying the theme does not change a customised
+homepage. To adopt the new one, reset that template in Site Editor →
+Templates, or insert the Editorial Homepage pattern into it. WordPress caches
+the theme's pattern list per theme version; a release bumps the version, and
+locally `wp eval 'wp_get_theme()->delete_pattern_cache();'` refreshes it.
 
 ## Custom Tokens
 
@@ -195,7 +248,7 @@ Registered in `includes/Core/class-theme-support.php`:
 | `core/cover`                     | cinematic                                                                                                      |
 | `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, lead, legal, price                                                 |
 | `core/separator`                 | brand-stripe, subtle                                                                                           |
-| `woocommerce/product-collection` | commerce-grid                                                                                                  |
+| `woocommerce/product-collection` | commerce-grid, editorial-grid                                                                                  |
 | `woocommerce/product-template`   | commerce-cards                                                                                                 |
 | `woocommerce/product-image`      | product-frame                                                                                                  |
 | `woocommerce/product-price`      | commerce-price                                                                                                 |
@@ -225,7 +278,7 @@ Stored as style variations in `styles/*.json` and available for Group, Columns, 
 4. Use font presets instead of raw `font-size` values unless a pattern genuinely needs a one-off display treatment.
 5. Use Badge / Badge Muted for pills, labels, payment methods, and small metadata chips.
 6. Use `surface-card` or `bordered` for framed content instead of rebuilding card chrome inline.
-7. Use WooCommerce block styles for product grids: Commerce Grid, Commerce Cards, Product Frame, and Commerce Price.
+7. Use WooCommerce block styles for product grids: Commerce Grid (framed cards for utility contexts such as cart upsells) or Editorial Grid (frameless cards matching the Shop archive, for storytelling sections), plus Commerce Cards, Product Frame, and Commerce Price.
 8. Use the Design System Preview pattern after token or primitive changes to visually check the system.
 
 ## UI Consistency Contract
@@ -291,7 +344,7 @@ Do not place two primary buttons beside each other. In quick view and the sticky
 | Badges, labels, payment pills                   | registered `core/paragraph` Badge / Badge Muted styles                              |
 | Eyebrow, caption, meta, legal, price copy       | registered `core/paragraph` type-role styles                                        |
 | Commerce state chip                             | Badge style plus `aa-commerce-state-*` class                                        |
-| Product collection grid                         | registered `woocommerce/product-collection` Commerce Grid style                     |
+| Product collection grid                         | registered `woocommerce/product-collection` Commerce Grid or Editorial Grid style   |
 | Product card list item                          | registered `woocommerce/product-template` Commerce Cards style                      |
 | Product media frame                             | registered `woocommerce/product-image` Product Frame style                          |
 | Product price text                              | registered `woocommerce/product-price` Commerce Price style                         |
@@ -366,15 +419,15 @@ Reference migrations: exit-intent, back-in-stock, load-more.
 
 ## Lint Enforcement
 
-| Check                                     | Command                                                 |
-| ----------------------------------------- | ------------------------------------------------------- |
-| Stylelint (theme, block, and editor CSS)  | `pnpm lint:css`                                         |
-| Hex ban in feature CSS and patterns       | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Editor UI chrome literals                 | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Registered `is-style-*` usage in patterns | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Woo product collections use Commerce Grid | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| High-risk raw CTA sizing in patterns      | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| BEM class names                           | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Check                                                                                                    | Command                                                 |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Stylelint (theme, block, and editor CSS)                                                                 | `pnpm lint:css`                                         |
+| Hex ban in feature CSS and patterns                                                                      | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Editor UI chrome literals                                                                                | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Registered `is-style-*` usage in patterns (names read from `register_block_style()` and `styles/*.json`) | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Woo product collections use Commerce Grid or Editorial Grid                                              | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| High-risk raw CTA sizing in patterns                                                                     | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| BEM class names                                                                                          | `bin/check-design-system-css.sh` (runs with `lint:css`) |
 
 Hex colors are allowed only in `src/styles/base/tokens.css`, `src/styles/admin/`, and content values like color-picker defaults. Editor control surfaces, borders, radii, help text, and notices should use `src/utils/editor-style-tokens.ts`.
 

@@ -543,6 +543,18 @@ describe( 'editorial type roles', () => {
 		expect(
 			await styles.declarations( headline, 'text-transform' )
 		).toEqual( [ expect.objectContaining( { value: 'none' } ) ] );
+		// Takes the section's text color, not the global accent heading color.
+		for ( const role of [
+			headline,
+			'.wp-block-heading.is-style-campaign',
+		] ) {
+			expect( await styles.declarations( role, 'color' ) ).toEqual( [
+				expect.objectContaining( {
+					value: 'inherit',
+					important: false,
+				} ),
+			] );
+		}
 		expect( await styles.declarations( headline, 'font-size' ) ).toEqual( [
 			expect.objectContaining( {
 				value: 'var(--aa-type-headline-size)',

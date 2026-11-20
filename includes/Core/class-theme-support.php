@@ -366,6 +366,14 @@ class Theme_Support {
 			);
 
 			register_block_style(
+				'woocommerce/product-collection',
+				array(
+					'name'  => 'editorial-grid',
+					'label' => __( 'Editorial Grid', 'aggressive-apparel' ),
+				)
+			);
+
+			register_block_style(
 				'woocommerce/product-template',
 				array(
 					'name'  => 'commerce-cards',

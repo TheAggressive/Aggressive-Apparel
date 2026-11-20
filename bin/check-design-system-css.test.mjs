@@ -44,7 +44,7 @@ const COVERED = {
 	'Checking registered block style names in patterns...':
 		'an unregistered is-style-* name',
 	'Checking WooCommerce product collection pattern styles...':
-		'a collection without is-style-commerce-grid',
+		'a collection without a product grid style',
 	'Checking high-risk inline CTA recipes in patterns...': 'raw CTA sizing',
 	'Checking button patterns use centralized recipes...':
 		'inline, attribute, and stacked button styling',
@@ -151,15 +151,49 @@ test( 'rejects an unregistered block style name in patterns', () => {
 	);
 } );
 
-test( 'rejects a product collection missing is-style-commerce-grid', () => {
+test( 'rejects a product collection missing a product grid style', () => {
 	rejects(
 		( write ) =>
 			write(
 				'patterns/probe.php',
 				'<?php\n// <!-- wp:woocommerce/product-collection {"a":1} -->\n'
 			),
-		/FAIL: WooCommerce product collection missing is-style-commerce-grid/u
+		/FAIL: WooCommerce product collection missing a product grid style/u
 	);
+} );
+
+test( 'accepts a product collection using the editorial grid style', () => {
+	const { status, output } = check(
+		sandbox( ( write ) => {
+			write(
+				'patterns/probe.php',
+				'<?php\n// <!-- wp:woocommerce/product-collection {"className":"is-style-editorial-grid"} -->\n'
+			);
+			write(
+				'includes/Core/class-probe.php',
+				"<?php register_block_style( 'x', array( 'name' => 'editorial-grid' ) );\n"
+			);
+		} )
+	);
+
+	assert.equal(
+		status,
+		0,
+		`the editorial grid style must pass:\n${ output }`
+	);
+} );
+
+test( 'reads registered style names from register_block_style() calls', () => {
+	rejects( ( write ) => {
+		write(
+			'patterns/probe.php',
+			'<?php\n// is-style-not-registered-here\n'
+		);
+		write(
+			'includes/Core/class-probe.php',
+			"<?php register_block_style( 'x', array( 'name' => 'registered-here' ) );\n"
+		);
+	}, /FAIL: unregistered block style in patterns: is-style-not-registered-here/u );
 } );
 
 test( 'rejects raw CTA sizing in patterns', () => {

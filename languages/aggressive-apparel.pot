@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-20T00:45:18+00:00\n"
+"POT-Creation-Date: 2026-11-20T00:47:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -5204,6 +5204,46 @@ msgstr ""
 
 #: patterns/design-system-preview.php:211
 msgid "Legal text is intentionally quiet and compact while remaining readable."
+msgstr ""
+
+#: patterns/design-system-preview.php:219
+msgid "Editorial Roles"
+msgstr ""
+
+#: patterns/design-system-preview.php:223
+msgid "Campaign display"
+msgstr ""
+
+#: patterns/design-system-preview.php:227
+msgid "Headline (sans) for editorial statements."
+msgstr ""
+
+#: patterns/design-system-preview.php:231
+msgid "Lead copy introduces a section in one or two sentences."
+msgstr ""
+
+#: patterns/design-system-preview.php:239
+msgid "Layout Rhythm"
+msgstr ""
+
+#: patterns/design-system-preview.php:248
+msgid "Section: Compact"
+msgstr ""
+
+#: patterns/design-system-preview.php:258
+msgid "Section: Standard"
+msgstr ""
+
+#: patterns/design-system-preview.php:268
+msgid "Section: Editorial"
+msgstr ""
+
+#: patterns/design-system-preview.php:278
+msgid "Section: Immersive"
+msgstr ""
+
+#: patterns/design-system-preview.php:290
+msgid "Editorial Grid preview"
 msgstr ""
 
 #: patterns/drop-calendar-strip.php

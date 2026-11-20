@@ -30,7 +30,56 @@
    not the viewport. Enables correct stacking when the collection
    is placed in a narrow column or sidebar. */
 .wp-block-woocommerce-product-template {
-	gap: var(--wp--preset--spacing--8);
+	--aa-product-grid-gap: var(--wp--preset--spacing--8);
+
+	gap: var(--aa-product-grid-gap);
+}
+
+/* WooCommerce sizes responsive ("shrink columns") tracks as
+   calc(100% / N - 0.9375em), which only fits N columns with its own 1.25em
+   gap. With the theme's wider gap every grid dropped a column (Columns: 5
+   rendered 4). Re-derive the track minimum from the real gap; the 150px floor
+   is WooCommerce's. Doubled class beats WooCommerce's selector whichever
+   stylesheet prints first. */
+.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-product-grid-columns: 1;
+
+	grid-template-columns: repeat(
+		auto-fill,
+		minmax(
+			max(
+				150px,
+				calc(
+					(
+							100% - (var(--aa-product-grid-columns) - 1) *
+								var(--aa-product-grid-gap)
+						) /
+						var(--aa-product-grid-columns)
+				)
+			),
+			1fr
+		)
+	);
+
+	&.columns-2 {
+		--aa-product-grid-columns: 2;
+	}
+
+	&.columns-3 {
+		--aa-product-grid-columns: 3;
+	}
+
+	&.columns-4 {
+		--aa-product-grid-columns: 4;
+	}
+
+	&.columns-5 {
+		--aa-product-grid-columns: 5;
+	}
+
+	&.columns-6 {
+		--aa-product-grid-columns: 6;
+	}
 }
 
 .wp-block-woocommerce-product-template > li,
@@ -674,10 +723,17 @@
 	.wc-block-components-product-name {
 		font-size: var(--wp--preset--font-size--x-small);
 	}
+
+	/* Two-up mobile grids land here (~150–190px); a full-padding pill wraps
+	   "Add to cart" onto two lines. Tighten the inline padding too. */
+	.wp-block-woocommerce-product-button .wp-block-button__link,
+	.wc-block-grid__product-add-to-cart .wp-block-button__link {
+		padding-inline: var(--wp--preset--spacing--3);
+	}
 }
 
-/* Standard slot (200–320px) — compact button, tighter price. */
-@container product-card (200px <= width < 320px) {
+/* Narrow and standard slots (< 320px) — compact button, tighter price. */
+@container product-card (width < 320px) {
 	.wp-block-woocommerce-product-button .wp-block-button__link,
 	.wc-block-grid__product-add-to-cart .wp-block-button__link {
 		padding-block: var(--wp--preset--spacing--2);
@@ -691,4 +747,42 @@
 	.wc-block-grid__product-add-to-cart .wp-block-button__link {
 		width: 100%;
 	}
+}
+
+/* Editorial category tiles (pattern: editorial-category-showcase). The
+   category name is the tile's one link, stretched over the whole tile, so a
+   tile two-up on a phone needs no separate button. WooCommerce pads tile
+   content 48px a side, which leaves a 150px tile ~50px for text. */
+.aa-editorial-tiles .wc-block-featured-category {
+	position: relative;
+}
+
+.aa-editorial-tiles
+	.wc-block-featured-category
+	.wc-block-featured-category__inner-blocks {
+	padding: var(--wp--preset--spacing--5);
+}
+
+.aa-editorial-tiles .wc-block-featured-category .wp-block-heading a {
+	color: inherit;
+	text-decoration: none;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	&:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+
+	&:focus-visible {
+		outline: none;
+	}
+}
+
+.aa-editorial-tiles .wc-block-featured-category:has(a:focus-visible) {
+	box-shadow: var(--aa-focus-ring);
 }

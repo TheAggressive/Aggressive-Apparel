@@ -29,10 +29,10 @@
 		"shadow": "var:preset|shadow|small",
 		"spacing": {
 			"padding": {
-				"top": "var:preset|spacing|fluid-16",
-				"right": "var:preset|spacing|fluid-12",
-				"bottom": "var:preset|spacing|fluid-16",
-				"left": "var:preset|spacing|fluid-12"
+				"top": "var:preset|spacing|section-compact",
+				"right": "var:preset|spacing|gutter",
+				"bottom": "var:preset|spacing|section-compact",
+				"left": "var:preset|spacing|gutter"
 			}
 		},
 		"elements": {

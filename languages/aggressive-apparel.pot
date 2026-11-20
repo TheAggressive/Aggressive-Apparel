@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.206.9\n"
+"Project-Id-Version: Aggressive Apparel 1.206.10\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T21:07:47+00:00\n"
+"POT-Creation-Date: 2026-11-20T00:47:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -74,59 +74,67 @@ msgid "Full homepage compositions and hero sections."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:76
-msgid "Shop & Products"
+msgid "Editorial Sections"
 msgstr ""
 
 #: includes/Core/class-block-categories.php:77
-msgid "Product grids, collections, and shop-the-look layouts."
+msgid "Spacious editorial homepage sections built on live catalog data."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:81
-msgid "Shop Archive"
+msgid "Shop & Products"
 msgstr ""
 
 #: includes/Core/class-block-categories.php:82
-msgid "PLP headers, filters, and browse recovery states."
+msgid "Product grids, collections, and shop-the-look layouts."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:86
+msgid "Shop Archive"
+msgstr ""
+
+#: includes/Core/class-block-categories.php:87
+msgid "PLP headers, filters, and browse recovery states."
+msgstr ""
+
+#: includes/Core/class-block-categories.php:91
 #: includes/WooCommerce/class-feature-catalog.php:56
 msgid "Product Page"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:87
+#: includes/Core/class-block-categories.php:92
 msgid "PDP support modules: fit, shipping, cross-sells."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:91
+#: includes/Core/class-block-categories.php:96
 msgid "Drops & Culture"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:92
+#: includes/Core/class-block-categories.php:97
 msgid "Drop launches, collabs, creators, and events."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:96
+#: includes/Core/class-block-categories.php:101
 msgid "Social Proof"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:97
+#: includes/Core/class-block-categories.php:102
 msgid "UGC, reviews, press, and community."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:101
+#: includes/Core/class-block-categories.php:106
 msgid "Conversion"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:102
+#: includes/Core/class-block-categories.php:107
 msgid "Email capture, promos, loyalty, and urgency."
 msgstr ""
 
-#: includes/Core/class-block-categories.php:106
+#: includes/Core/class-block-categories.php:111
 msgid "Brand & Content"
 msgstr ""
 
-#: includes/Core/class-block-categories.php:107
+#: includes/Core/class-block-categories.php:112
 msgid "About, journal, FAQ, and brand story sections."
 msgstr ""
 
@@ -693,30 +701,46 @@ msgid "Commerce Grid"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:372
-msgid "Commerce Cards"
+msgid "Editorial Grid"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:380
-msgid "Product Frame"
+msgid "Commerce Cards"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:388
+msgid "Product Frame"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:396
 msgid "Commerce Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:398
+#: includes/Core/class-theme-support.php:406
 msgid "Overflow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:406
+#: includes/Core/class-theme-support.php:414
 msgid "Text Mask"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:414
+#: includes/Core/class-theme-support.php:422
+msgid "Headline (Sans)"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:430
+msgid "Campaign Display"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:438
+msgid "Lead"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:446
 msgid "Cinematic"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:422
+#: includes/Core/class-theme-support.php:454
 msgid "Frosted Dark"
 msgstr ""
 
@@ -2357,6 +2381,7 @@ msgstr ""
 #: includes/WooCommerce/class-garment-kinds.php:152
 #: patterns/animated-category-mosaic.php:31
 #: patterns/category-landing-composition.php:21
+#: patterns/editorial-hoodies-feature.php:25
 #: patterns/homepage-seasonal-shop.php:83
 #: patterns/mega-menu-panel.php:24
 #: patterns/no-results-browse.php:38
@@ -4541,6 +4566,7 @@ msgid "Outerwear"
 msgstr ""
 
 #: patterns/animated-category-mosaic.php:71
+#: patterns/editorial-accessories.php:29
 #: patterns/homepage-seasonal-shop.php:143
 #: patterns/lookbook-grid.php:79
 #: patterns/mega-menu-panel.php:36
@@ -4783,6 +4809,7 @@ msgid "Filter by size, color, and fit."
 msgstr ""
 
 #: patterns/category-landing-composition.php:118
+#: patterns/editorial-featured-looks.php:34
 #: patterns/lookbook-grid.php:16
 msgid "Lookbook"
 msgstr ""
@@ -5179,6 +5206,46 @@ msgstr ""
 msgid "Legal text is intentionally quiet and compact while remaining readable."
 msgstr ""
 
+#: patterns/design-system-preview.php:219
+msgid "Editorial Roles"
+msgstr ""
+
+#: patterns/design-system-preview.php:223
+msgid "Campaign display"
+msgstr ""
+
+#: patterns/design-system-preview.php:227
+msgid "Headline (sans) for editorial statements."
+msgstr ""
+
+#: patterns/design-system-preview.php:231
+msgid "Lead copy introduces a section in one or two sentences."
+msgstr ""
+
+#: patterns/design-system-preview.php:239
+msgid "Layout Rhythm"
+msgstr ""
+
+#: patterns/design-system-preview.php:248
+msgid "Section: Compact"
+msgstr ""
+
+#: patterns/design-system-preview.php:258
+msgid "Section: Standard"
+msgstr ""
+
+#: patterns/design-system-preview.php:268
+msgid "Section: Editorial"
+msgstr ""
+
+#: patterns/design-system-preview.php:278
+msgid "Section: Immersive"
+msgstr ""
+
+#: patterns/design-system-preview.php:290
+msgid "Editorial Grid preview"
+msgstr ""
+
 #: patterns/drop-calendar-strip.php
 msgctxt "Pattern title"
 msgid "Drop Calendar Strip"
@@ -5326,6 +5393,304 @@ msgstr ""
 msgid "Join the waitlist for early access. First 500 signups get priority checkout."
 msgstr ""
 
+#: patterns/editorial-accessories.php
+msgctxt "Pattern title"
+msgid "Editorial — Accessories"
+msgstr ""
+
+#: patterns/editorial-accessories.php
+msgctxt "Pattern description"
+msgid "A compact, denser row of the accessories actually in stock, with a short header and one link to the category."
+msgstr ""
+
+#: patterns/editorial-accessories.php:25
+msgid "Finish the fit"
+msgstr ""
+
+#: patterns/editorial-accessories.php:35
+msgid "Shop accessories"
+msgstr ""
+
+#: patterns/editorial-accessories.php:47
+msgid "Accessories row"
+msgstr ""
+
+#: patterns/editorial-artwork-spotlight.php
+msgctxt "Pattern title"
+msgid "Editorial — Artwork Spotlight"
+msgstr ""
+
+#: patterns/editorial-artwork-spotlight.php
+msgctxt "Pattern description"
+msgid "Dark, immersive split: a large portrait artwork close-up (replace the image) beside a sans headline about original artwork."
+msgstr ""
+
+#: patterns/editorial-artwork-spotlight.php:25
+msgid "Original artwork"
+msgstr ""
+
+#: patterns/editorial-artwork-spotlight.php:29
+msgid "Look closer. The detail is the point."
+msgstr ""
+
+#: patterns/editorial-artwork-spotlight.php:33
+msgid "Every graphic in the collection is original to The Aggressive. No stock art, no templates."
+msgstr ""
+
+#: patterns/editorial-artwork-spotlight.php:38
+#: src/blocks-interactivity/wishlist/render.php:141
+msgid "Explore the collection"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php
+msgctxt "Pattern title"
+msgid "Editorial — Best Sellers"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php
+msgctxt "Pattern description"
+msgid "Products ranked by real sales. Without sales data it shows the store's Featured products as Staff Picks, and with neither it renders nothing — popularity is never invented."
+msgstr ""
+
+#: patterns/editorial-best-sellers.php:27
+msgid "Most ordered"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php:27
+msgid "Chosen by the studio"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php:31
+msgid "Best sellers"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php:31
+msgid "Staff picks"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php:37
+msgid "Shop the list"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php:51
+msgid "Best sellers grid"
+msgstr ""
+
+#: patterns/editorial-best-sellers.php:59
+msgid "Staff picks grid"
+msgstr ""
+
+#: patterns/editorial-brand-story.php
+msgctxt "Pattern title"
+msgid "Editorial — The Aggressive Story"
+msgstr ""
+
+#: patterns/editorial-brand-story.php
+msgctxt "Pattern description"
+msgid "A spacious closing brand statement: a large sans headline about original artwork and independence, and a link to the About page when one exists."
+msgstr ""
+
+#: patterns/editorial-brand-story.php:22
+msgid "The Aggressive"
+msgstr ""
+
+#: patterns/editorial-brand-story.php:26
+msgid "Independent since 2010. Built on original artwork, made for the people who wear it hard."
+msgstr ""
+
+#: patterns/editorial-brand-story.php:30
+msgid "Skate, punk, tattoo and moto culture shaped where we came from. The artwork is where we are going, and every design is ours."
+msgstr ""
+
+#: patterns/editorial-brand-story.php:36
+msgid "Our story"
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php
+msgctxt "Pattern title"
+msgid "Editorial — Campaign Hero"
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php
+msgctxt "Pattern description"
+msgid "Full-bleed campaign Cover (replace the image) with a display headline, lead copy and two CTAs into the live catalog."
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:20
+msgid "New season"
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:24
+msgid "Rebellion has a uniform."
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:28
+msgid "Original artwork on apparel made to be worn hard. Designed independently, released in limited runs."
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:33
+msgid "Shop new arrivals"
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:37
+msgid "See the artwork"
+msgstr ""
+
+#: patterns/editorial-category-showcase.php
+msgctxt "Pattern title"
+msgid "Editorial — Category Showcase"
+msgstr ""
+
+#: patterns/editorial-category-showcase.php
+msgctxt "Pattern description"
+msgid "Portrait category tiles that read each category's own image from the store; the whole tile links to the category."
+msgstr ""
+
+#: patterns/editorial-category-showcase.php:36
+msgid "Shop by category"
+msgstr ""
+
+#: patterns/editorial-category-showcase.php:40
+msgid "Find your uniform."
+msgstr ""
+
+#: patterns/editorial-category-showcase.php:46
+msgid "All products"
+msgstr ""
+
+#: patterns/editorial-defiance-division.php
+msgctxt "Pattern title"
+msgid "Editorial — Defiance Division"
+msgstr ""
+
+#: patterns/editorial-defiance-division.php
+msgctxt "Pattern description"
+msgid "The motocross capsule's own treatment: a wide 16:9 action image (replace the image), racing-stripe accent and the capsule's products when the store has them."
+msgstr ""
+
+#: patterns/editorial-defiance-division.php:26
+msgid "Capsule collection"
+msgstr ""
+
+#: patterns/editorial-defiance-division.php:30
+msgid "Defiance Division"
+msgstr ""
+
+#: patterns/editorial-defiance-division.php:36
+msgid "A focused capsule inspired by riders, racers and the independent spirit of moto culture."
+msgstr ""
+
+#: patterns/editorial-defiance-division.php:41
+msgid "Shop Defiance Division"
+msgstr ""
+
+#: patterns/editorial-defiance-division.php:58
+msgid "Defiance Division products"
+msgstr ""
+
+#: patterns/editorial-featured-drop.php
+msgctxt "Pattern title"
+msgid "Editorial — Featured Drop"
+msgstr ""
+
+#: patterns/editorial-featured-drop.php
+msgctxt "Pattern description"
+msgid "Campaign Cover for the current release (replace the image) plus its products. Reads the drop from the store by slug (default \"dead-signal\"); without it, the section links to the newest products instead."
+msgstr ""
+
+#: patterns/editorial-featured-drop.php:23
+msgid "The latest drop"
+msgstr ""
+
+#: patterns/editorial-featured-drop.php:30
+msgid "Featured drop"
+msgstr ""
+
+#: patterns/editorial-featured-drop.php:38
+msgid "A new set of original graphics, released together and printed in limited runs."
+msgstr ""
+
+#: patterns/editorial-featured-drop.php:43
+#: patterns/mega-menu-panel.php:84
+msgid "Shop the drop"
+msgstr ""
+
+#: patterns/editorial-featured-drop.php:59
+msgid "Drop products"
+msgstr ""
+
+#: patterns/editorial-featured-looks.php
+msgctxt "Pattern title"
+msgid "Editorial — Featured Looks"
+msgstr ""
+
+#: patterns/editorial-featured-looks.php
+msgctxt "Pattern description"
+msgid "Staggered lookbook of three tall portraits (replace the images and link each look to its products) on a warm surface."
+msgstr ""
+
+#. translators: Lookbook look number.
+#: patterns/editorial-featured-looks.php:19
+#: patterns/editorial-lookbook-spread.php:78
+msgid "Look 01"
+msgstr ""
+
+#. translators: Lookbook look number.
+#: patterns/editorial-featured-looks.php:23
+#: patterns/editorial-lookbook-spread.php:90
+msgid "Look 02"
+msgstr ""
+
+#. translators: Lookbook look number.
+#: patterns/editorial-featured-looks.php:27
+#: patterns/editorial-lookbook-spread.php:102
+msgid "Look 03"
+msgstr ""
+
+#: patterns/editorial-featured-looks.php:38
+msgid "Featured looks"
+msgstr ""
+
+#: patterns/editorial-featured-looks.php:56
+msgid "Shop the look"
+msgstr ""
+
+#: patterns/editorial-homepage.php
+msgctxt "Pattern title"
+msgid "Editorial Homepage"
+msgstr ""
+
+#: patterns/editorial-homepage.php
+msgctxt "Pattern description"
+msgid "Twelve-section editorial storefront: campaign, categories, new arrivals, artwork, best sellers, featured drop, women's, hoodies, Defiance Division, accessories, looks and brand story. Each section is its own pattern, so sections can be reordered, removed or inserted alone."
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php
+msgctxt "Pattern title"
+msgid "Editorial — Hoodies Feature"
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php
+msgctxt "Pattern description"
+msgid "Oversized centered category headline over a three-up grid of real hoodies, with a single shopping CTA."
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php:21
+msgid "Layer up"
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php:29
+msgid "Original artwork with room to breathe."
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php:40
+msgid "Hoodies grid"
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php:49
+msgid "Shop all hoodies"
+msgstr ""
+
 #: patterns/editorial-lookbook-spread.php
 msgctxt "Pattern title"
 msgid "Editorial Lookbook Spread"
@@ -5360,18 +5725,6 @@ msgstr ""
 msgid "View Full Lookbook"
 msgstr ""
 
-#: patterns/editorial-lookbook-spread.php:78
-msgid "Look 01"
-msgstr ""
-
-#: patterns/editorial-lookbook-spread.php:90
-msgid "Look 02"
-msgstr ""
-
-#: patterns/editorial-lookbook-spread.php:102
-msgid "Look 03"
-msgstr ""
-
 #: patterns/editorial-lookbook-spread.php:116
 msgid "Shop the Look"
 msgstr ""
@@ -5379,6 +5732,62 @@ msgstr ""
 #: patterns/editorial-lookbook-spread.php:120
 #: patterns/shop-the-look.php:40
 msgid "View All Pieces &rarr;"
+msgstr ""
+
+#: patterns/editorial-new-arrivals.php
+msgctxt "Pattern title"
+msgid "Editorial — New Arrivals"
+msgstr ""
+
+#: patterns/editorial-new-arrivals.php
+msgctxt "Pattern description"
+msgid "The newest in-stock products from the live catalog in a spacious four-up grid."
+msgstr ""
+
+#: patterns/editorial-new-arrivals.php:20
+msgid "Just landed"
+msgstr ""
+
+#: patterns/editorial-new-arrivals.php:24
+msgid "New arrivals"
+msgstr ""
+
+#: patterns/editorial-new-arrivals.php:30
+msgid "Shop all new"
+msgstr ""
+
+#: patterns/editorial-new-arrivals.php:42
+msgid "New arrivals grid"
+msgstr ""
+
+#: patterns/editorial-womens-collection.php
+msgctxt "Pattern title"
+msgid "Editorial — Women's Collection"
+msgstr ""
+
+#: patterns/editorial-womens-collection.php
+msgctxt "Pattern description"
+msgid "A tall editorial portrait (replace the image) beside a two-up grid of real women's products and a path to the full collection."
+msgstr ""
+
+#: patterns/editorial-womens-collection.php:34
+msgid "Women's collection"
+msgstr ""
+
+#: patterns/editorial-womens-collection.php:38
+msgid "Made for her. Original by design."
+msgstr ""
+
+#: patterns/editorial-womens-collection.php:42
+msgid "Original graphics on fits made for women, from tees to layers."
+msgstr ""
+
+#: patterns/editorial-womens-collection.php:47
+msgid "Shop women's"
+msgstr ""
+
+#: patterns/editorial-womens-collection.php:60
+msgid "Women's products"
 msgstr ""
 
 #: patterns/event-popup-flyer.php
@@ -6371,10 +6780,6 @@ msgstr ""
 
 #: patterns/mega-menu-panel.php:78
 msgid "Nightfall Drop"
-msgstr ""
-
-#: patterns/mega-menu-panel.php:84
-msgid "Shop the drop"
 msgstr ""
 
 #: patterns/mega-menu-panel.php:102
@@ -7814,10 +8219,6 @@ msgstr ""
 msgid "Tap the heart on any product to keep it here."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:141
-msgid "Explore the collection"
-msgstr ""
-
 #: src/blocks/dark-mode-toggle/render.php:31
 #: src/blocks/dark-mode-toggle/render.php:36
 msgid "Dark Mode"
@@ -9002,6 +9403,31 @@ msgid "Display Giant"
 msgstr ""
 
 #: theme.json
+msgctxt "Space size name"
+msgid "Gutter"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Compact"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Standard"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Editorial"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Immersive"
+msgstr ""
+
+#: theme.json
 msgctxt "Color name"
 msgid "Primary"
 msgstr ""
@@ -9327,6 +9753,21 @@ msgid "Fluid XXXXXXXXX-Large"
 msgstr ""
 
 #: theme.json
+msgctxt "Font size name"
+msgid "Lead"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Headline"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Display"
+msgstr ""
+
+#: theme.json
 msgctxt "Shadow name"
 msgid "Small"
 msgstr ""
@@ -9349,6 +9790,16 @@ msgstr ""
 #: theme.json
 msgctxt "Shadow name"
 msgid "Brand Glow"
+msgstr ""
+
+#: theme.json
+msgctxt "Aspect ratio name"
+msgid "Campaign (21:9)"
+msgstr ""
+
+#: theme.json
+msgctxt "Aspect ratio name"
+msgid "Editorial Portrait (4:5)"
 msgstr ""
 
 #: theme.json

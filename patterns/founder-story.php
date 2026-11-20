@@ -17,7 +17,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
 			<!-- wp:cover {"dimRatio":0,"minHeight":600,"minHeightUnit":"px","contentPosition":"center center","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-light has-custom-content-position is-position-center-center" style="background-color:var(--wp--preset--color--surface-elevated);min-height:600px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-light has-custom-content-position is-position-center-center has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:600px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.08em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
 				<p class="has-text-align-center has-foreground-muted-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'Add founder photo', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->

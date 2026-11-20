@@ -213,6 +213,86 @@
 	</div>
 	<!-- /wp:group -->
 
+	<!-- wp:group {"className":"is-style-surface-card","style":{"spacing":{"blockGap":"var:preset|spacing|5"}},"layout":{"type":"constrained"}} -->
+	<div class="wp-block-group is-style-surface-card">
+		<!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+		<p class="is-style-eyebrow"><?php echo esc_html__( 'Editorial Roles', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph -->
+
+		<!-- wp:heading {"className":"is-style-campaign"} -->
+		<h2 class="wp-block-heading is-style-campaign"><?php echo esc_html__( 'Campaign display', 'aggressive-apparel' ); ?></h2>
+		<!-- /wp:heading -->
+
+		<!-- wp:heading {"className":"is-style-headline"} -->
+		<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Headline (sans) for editorial statements.', 'aggressive-apparel' ); ?></h2>
+		<!-- /wp:heading -->
+
+		<!-- wp:paragraph {"className":"is-style-lead"} -->
+		<p class="is-style-lead"><?php echo esc_html__( 'Lead copy introduces a section in one or two sentences.', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph -->
+	</div>
+	<!-- /wp:group -->
+
+	<!-- wp:group {"className":"is-style-surface-card","style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"constrained"}} -->
+	<div class="wp-block-group is-style-surface-card">
+		<!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+		<p class="is-style-eyebrow"><?php echo esc_html__( 'Layout Rhythm', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph -->
+
+		<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|2"}},"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"top"}} -->
+		<div class="wp-block-group"><!-- wp:group {"style":{"dimensions":{"minHeight":"var:preset|spacing|section-compact"},"layout":{"selfStretch":"fixed","flexSize":"0.75rem"}},"backgroundColor":"accent-fill","layout":{"type":"default"}} -->
+		<div class="wp-block-group has-accent-fill-background-color has-background" style="min-height:var(--wp--preset--spacing--section-compact)"></div>
+		<!-- /wp:group -->
+
+		<!-- wp:paragraph {"className":"is-style-meta"} -->
+		<p class="is-style-meta"><?php echo esc_html__( 'Section: Compact', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph --></div>
+		<!-- /wp:group -->
+
+		<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|2"}},"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"top"}} -->
+		<div class="wp-block-group"><!-- wp:group {"style":{"dimensions":{"minHeight":"var:preset|spacing|section-standard"},"layout":{"selfStretch":"fixed","flexSize":"0.75rem"}},"backgroundColor":"accent-fill","layout":{"type":"default"}} -->
+		<div class="wp-block-group has-accent-fill-background-color has-background" style="min-height:var(--wp--preset--spacing--section-standard)"></div>
+		<!-- /wp:group -->
+
+		<!-- wp:paragraph {"className":"is-style-meta"} -->
+		<p class="is-style-meta"><?php echo esc_html__( 'Section: Standard', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph --></div>
+		<!-- /wp:group -->
+
+		<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|2"}},"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"top"}} -->
+		<div class="wp-block-group"><!-- wp:group {"style":{"dimensions":{"minHeight":"var:preset|spacing|section-editorial"},"layout":{"selfStretch":"fixed","flexSize":"0.75rem"}},"backgroundColor":"accent-fill","layout":{"type":"default"}} -->
+		<div class="wp-block-group has-accent-fill-background-color has-background" style="min-height:var(--wp--preset--spacing--section-editorial)"></div>
+		<!-- /wp:group -->
+
+		<!-- wp:paragraph {"className":"is-style-meta"} -->
+		<p class="is-style-meta"><?php echo esc_html__( 'Section: Editorial', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph --></div>
+		<!-- /wp:group -->
+
+		<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|2"}},"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"top"}} -->
+		<div class="wp-block-group"><!-- wp:group {"style":{"dimensions":{"minHeight":"var:preset|spacing|section-immersive"},"layout":{"selfStretch":"fixed","flexSize":"0.75rem"}},"backgroundColor":"accent-fill","layout":{"type":"default"}} -->
+		<div class="wp-block-group has-accent-fill-background-color has-background" style="min-height:var(--wp--preset--spacing--section-immersive)"></div>
+		<!-- /wp:group -->
+
+		<!-- wp:paragraph {"className":"is-style-meta"} -->
+		<p class="is-style-meta"><?php echo esc_html__( 'Section: Immersive', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph --></div>
+		<!-- /wp:group -->
+	</div>
+	<!-- /wp:group -->
+
+	<?php
+	$aa_preview_grid = \Aggressive_Apparel\WooCommerce\Editorial_Product_Grid::markup(
+		array(
+			'query_id' => 98,
+			'columns'  => 4,
+			'align'    => '',
+			'label'    => __( 'Editorial Grid preview', 'aggressive-apparel' ),
+		)
+	);
+	echo $aa_preview_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
+	?>
+
 	<!-- wp:woocommerce/product-collection {"queryId":99,"query":{"perPage":4,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->
 <div class="wp-block-woocommerce-product-collection is-style-commerce-grid">
 <!-- wp:woocommerce/product-template {"className":"is-style-commerce-cards"} -->

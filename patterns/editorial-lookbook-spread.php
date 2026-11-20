@@ -11,7 +11,7 @@
  */
 
 ?><!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":80,"minHeightUnit":"vh","contentPosition":"bottom left","align":"full","isDark":true,"style":{"color":{"background":"var:preset|color|black"},"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|12","right":"var:preset|spacing|12"},"margin":{"top":"0","bottom":"0"}}}} -->
-<div class="wp-block-cover alignfull is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--12);min-height:80vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"600px","justifyContent":"left"}} -->
+<div class="wp-block-cover alignfull is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--12);min-height:80vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"600px","justifyContent":"left"}} -->
 <div class="wp-block-group">
 	<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.2em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"x-small"} -->
 	<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.2em;text-transform:uppercase"><?php echo esc_html__( 'SS26 Collection', 'aggressive-apparel' ); ?></p>
@@ -55,7 +55,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
 			<!-- wp:cover {"dimRatio":0,"minHeight":550,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);min-height:550px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-light has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:550px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","fontSize":"large"} -->
 				<p class="has-text-align-center has-large-font-size"></p>
 				<!-- /wp:paragraph -->
@@ -73,7 +73,7 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":400,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Look 01', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
@@ -85,7 +85,7 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":400,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Look 02', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
@@ -97,7 +97,7 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":400,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Look 03', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->

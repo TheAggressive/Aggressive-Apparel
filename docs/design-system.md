@@ -8,16 +8,28 @@ Single source of truth for UI tokens, naming, and usage across the theme.
 
 Defined in `theme.json` → `settings.custom.adaptiveColors`. Injected at runtime as `light-dark(light, dark)` palette entries by `Adaptive_Colors`.
 
-| Slug                   | Editor name                         | Role                                                                                 | Light                     | Dark                      |
-| ---------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ | ------------------------- | ------------------------- |
-| `surface`              | Surface (Adaptive)                  | Default page/section background                                                      | oklch(87% 0 0)            | oklch(20.5% 0 0)          |
-| `surface-elevated`     | Surface Elevated (Adaptive)         | Higher-contrast surface                                                              | oklch(1 0 0)              | oklch(0 0 0)              |
-| `foreground`           | Foreground (Adaptive)               | Primary text                                                                         | oklch(0 0 0)              | oklch(1 0 0)              |
-| `foreground-muted`     | Foreground Muted (Adaptive)         | Secondary/muted text                                                                 | oklch(55.6% 0 0)          | oklch(87% 0 0)            |
-| `accent`               | Accent (Adaptive)                   | Brand interactive (links, hover, focus)                                              | oklch(44.4% 0.177 26.899) | oklch(65% 0.236 29)       |
-| `accent-on-foreground` | Accent on Foreground (Adaptive)     | Brand accent on inverted foreground                                                  | oklch(68% 0.22 27.325)    | oklch(44.4% 0.177 26.899) |
-| `accent-on-raised`     | Accent on Raised Surface (Adaptive) | Accent text on raised dark surfaces (striped rows) — only where `accent` fails 4.5:1 | oklch(44.4% 0.177 26.899) | oklch(67.5% 0.213 29)     |
-| `border`               | Border (Adaptive)                   | Borders and dividers                                                                 | oklch(70.8% 0 0)          | oklch(43.9% 0 0)          |
+Values live only in `theme.json` (the token contract test reads them from
+there); this table records each token's **role**.
+
+| Slug                   | Role                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| `surface`              | Default page/section background. Light mode is a warm paper neutral, dark mode a soft black. |
+| `surface-elevated`     | Highest-contrast surface (white / black): cards, product media wells, overlays.              |
+| `surface-muted`        | Soft raised panel between `surface` and `surface-elevated` (account cards, empty states).    |
+| `surface-sunken`       | Recessed wells: image placeholders, input fills.                                             |
+| `foreground`           | Primary text.                                                                                |
+| `foreground-muted`     | Secondary text, captions, meta.                                                              |
+| `accent`               | Brand interactive text: links, hover, focus.                                                 |
+| `accent-fill`          | Brand red as a **fill** (buttons, badges); brighter than `accent` in dark mode.              |
+| `accent-on-foreground` | Brand accent on an inverted (foreground-coloured) fill.                                      |
+| `accent-on-raised`     | Accent text on raised dark surfaces (striped rows) — only where `accent` fails 4.5:1.        |
+| `border`               | Borders and dividers.                                                                        |
+| `border-muted`         | Quieter hairlines than `border`.                                                             |
+
+Every text role (`foreground`, `foreground-muted`, `accent`) clears WCAG AA
+(4.5:1) on every surface in **both** schemes, and light surfaces keep the order
+sunken → surface → muted → elevated. `src/styles/__tests__/token-contracts.test.ts`
+enforces both, plus that this table and `design-tokens.md` list every token.
 
 **CSS variable:** `var(--wp--preset--color--{slug})`  
 **Alias:** `var(--aa-color-{slug})` in `src/styles/base/tokens.css`
@@ -49,7 +61,140 @@ Use **adaptive** tokens for surfaces, text, and brand UI. The legacy `primary` a
 
 ## Typography
 
-The theme exposes Space Grotesk for body and interface text and Bebas Neue for headings. Font files are installed and activated through the WordPress Font Library, so `theme.json` declares the families without owning `fontFace` sources.
+Space Grotesk carries body and interface text; Bebas Neue carries headings and
+campaign display. Font files are installed and activated through the WordPress
+Font Library, so `theme.json` declares the families without owning `fontFace`
+sources. Only declared families may be referenced from theme markup — the
+token contract test fails on any other `fontFamily` slug.
+
+Bebas Neue has no lowercase and renders smaller than its nominal size, so a
+page built only from Bebas headings reads as one shouted voice. Mix the roles:
+Bebas for campaign moments and section labels, the sans **Headline** for
+editorial statements, **Lead** for intro copy.
+
+### Type roles
+
+| Role           | How to apply                                             | Use                                                            |
+| -------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
+| `display`      | Heading style **Campaign Display** (`is-style-campaign`) | Hero and campaign headlines. At most one per section.          |
+| `headline`     | Heading style **Headline (Sans)** (`is-style-headline`)  | Editorial statements, story sections, sentence-case headlines. |
+| h1–h6          | Default heading (theme.json `styles.elements`)           | Document structure; Bebas, fluid sizes.                        |
+| `lead`         | Paragraph style **Lead** (`is-style-lead`)               | One intro paragraph under a section heading.                   |
+| `eyebrow`      | Paragraph style **Eyebrow**                              | Short kicker above a heading (accent, caps, tracked).          |
+| `caption`      | Paragraph style **Caption**                              | Image and figure captions.                                     |
+| `meta`         | Paragraph style **Meta**                                 | Dates, counts, small uppercase metadata.                       |
+| `legal`        | Paragraph style **Legal**                                | Fine print.                                                    |
+| `price`        | Paragraph style **Price** / Commerce Price               | Prices outside product blocks.                                 |
+| `productTitle` | Product card titles (`--aa-type-product-title-*`)        | Product names in grids.                                        |
+
+Sizes come from `settings.custom.typeRole` (aliased as `--aa-type-<role>-*`);
+`display`, `headline` and `lead` use the fluid `display`, `headline` and `lead`
+font-size presets, which editors can also pick directly.
+
+## Layout rhythm
+
+One gutter and four section densities, all fluid spacing presets
+(`var:preset|spacing|<slug>`, aliased `--aa-gutter` / `--aa-section-*`):
+
+| Preset              | 375px → 1440px+ | Use                                                                  |
+| ------------------- | --------------- | -------------------------------------------------------------------- |
+| `gutter`            | 16px → 48px     | Horizontal page padding on every template's `<main>` and the footer. |
+| `section-compact`   | 40px → 64px     | Utility bands: trust rows, marquee, newsletter, surface cards.       |
+| `section-standard`  | 64px → 128px    | Default merchandising section (product rows, category grids).        |
+| `section-editorial` | 80px → 160px    | Story-led sections: artwork spotlight, collection features, brand.   |
+| `section-immersive` | 96px → 208px    | Rare campaign moments; never two in a row.                           |
+
+Rules:
+
+1. A section's vertical padding uses one of the `section-*` presets — never a
+   raw number. Pick by the section's **importance**, not to fill space.
+2. Stack sections with `blockGap: 0` on the page wrapper and let each section
+   own its padding, so adjacent sections with different surfaces meet cleanly.
+3. Content stays inside `contentSize` (1200px); merchandising grids and
+   editorial media may go `wide` (1600px); campaign media goes `full`.
+4. Section style variations (below) already apply these presets.
+
+## Image system
+
+| Ratio                  | Slug / source                      | Use                                                     |
+| ---------------------- | ---------------------------------- | ------------------------------------------------------- |
+| 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
+| 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, artwork close-ups.    |
+| 3:4, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (3:4), tall looks (2:3), detail (1:1).   |
+| Product images         | 1:1 media slot on every card       | Product cards; shoot or upload catalog images square.   |
+
+Rules:
+
+1. **Product photography is never re-cropped by a pattern.** Every product
+   card reserves a square media slot (`woocommerce/blocks.css`, for CLS), so
+   catalog images should be square to show the whole garment. Patterns do not
+   override that slot with editorial ratios; they give products room with
+   fewer columns instead.
+2. Hero and campaign images are Covers with a **min-height in `svh`/`vh`**
+   (60–90) rather than a fixed ratio, and a **focal point** set on the subject.
+   Avoid thin banner strips: no campaign Cover under 60svh on desktop.
+3. **Text-safe areas:** place Cover content to one side (`contentPosition`)
+   and pair it with the `dark-overlay` / `dark-overlay-strong` gradient at
+   30–60% so copy clears 4.5:1 regardless of the photo.
+4. **Loading:** WordPress marks the first large content image
+   `fetchpriority="high"` and lazy-loads the rest; don't add `loading` or
+   priority attributes by hand.
+5. **Alt text:** describe the garment and artwork in product and editorial
+   images; decorative Cover backgrounds keep empty alt.
+6. **Placeholders:** where approved photography isn't available, patterns ship
+   an image-less Cover named `… (replace image)` in List View. Never substitute
+   generated or stock imagery for retail product photos.
+
+## Editorial pattern library
+
+Twelve section patterns (category **Editorial Sections**) and one composition,
+**Editorial Homepage** (`editorial-homepage`), which `templates/home.html`
+renders. Each section is its own pattern, so editors can reorder, remove or
+insert any section alone.
+
+| #   | Pattern                       | Rhythm / surface           | Live data                                                            |
+| --- | ----------------------------- | -------------------------- | -------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop sorted by newest                                          |
+| 02  | `editorial-category-showcase` | standard                   | Featured Category tiles (category images); the whole tile links      |
+| 03  | `editorial-new-arrivals`      | standard                   | Product Collection, newest, 4-up                                     |
+| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#artwork` anchor for the hero's second CTA               |
+| 05  | `editorial-best-sellers`      | standard, surface-muted    | Real sales → Best sellers; else Featured → Staff picks; else omitted |
+| 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Drop term (`dead-signal`, filterable); else links to newest          |
+| 07  | `editorial-womens-collection` | editorial                  | `pa_collection` / category `womens` → landing page + 2-up grid       |
+| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | `hoodies` category, 3-up                                             |
+| 09  | `editorial-defiance-division` | editorial, black           | `defiance-division` (collection, category or tag) when present       |
+| 10  | `editorial-accessories`       | compact → standard         | `accessories` category, 5-up; omitted if the category is absent      |
+| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Three 2:3 look placeholders                                          |
+| 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                 |
+
+Rules the library follows (new sections should too):
+
+1. **No hardcoded store data.** Term IDs and archive URLs differ between
+   environments, so patterns resolve them at render time through
+   `WooCommerce\Editorial_Catalog` (term by slug → real archive URL, or the
+   Shop page). A grid is only filtered by a term that exists; a section whose
+   subject the store lacks drops its grid rather than showing unrelated
+   products under that heading.
+2. **No invented merchandising.** Best Sellers ranks by recorded sales only;
+   without sales it becomes "Staff picks" over the store's Featured flag.
+   Copy makes no claims about materials, process or stock.
+3. **One card.** `WooCommerce\Editorial_Product_Grid` emits every grid with
+   the Editorial Grid card the Shop archive uses (media well, title, price,
+   swatches). Editors can retune each query in the block inspector.
+4. **Placeholders, not stock photos.** Image slots ship as image-less Covers
+   named `… (replace image)` in List View.
+5. **One red accent per section.** The eyebrow carries the brand red;
+   headings take the section's text color (Headline and Campaign Display
+   inherit it; plain headings set Foreground).
+6. The slogan appears once, in the hero.
+
+**Adopting the homepage on an existing site.** A Blog Home (`home`) template
+customised in the Site Editor is stored in the database and overrides
+`templates/home.html`, so deploying the theme does not change a customised
+homepage. To adopt the new one, reset that template in Site Editor →
+Templates, or insert the Editorial Homepage pattern into it. WordPress caches
+the theme's pattern list per theme version; a release bumps the version, and
+locally `wp eval 'wp_get_theme()->delete_pattern_cache();'` refreshes it.
 
 ## Custom Tokens
 
@@ -98,19 +243,19 @@ Registered in `includes/Core/class-theme-support.php`:
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `core/button`                    | ghost, cta-ghost, text, small, cta, cta-small, outline-on-dark, cta-outline-on-dark, cta-small-outline-on-dark |
 | `core/group`                     | frosted, surface-card, bordered, frosted-dark                                                                  |
-| `core/heading`                   | display, overflow, text-mask                                                                                   |
+| `core/heading`                   | display, campaign, headline, overflow, text-mask                                                               |
 | `core/image`                     | editorial                                                                                                      |
 | `core/cover`                     | cinematic                                                                                                      |
-| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, legal, price                                                       |
+| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, lead, legal, price                                                 |
 | `core/separator`                 | brand-stripe, subtle                                                                                           |
-| `woocommerce/product-collection` | commerce-grid                                                                                                  |
+| `woocommerce/product-collection` | commerce-grid, editorial-grid                                                                                  |
 | `woocommerce/product-template`   | commerce-cards                                                                                                 |
 | `woocommerce/product-image`      | product-frame                                                                                                  |
 | `woocommerce/product-price`      | commerce-price                                                                                                 |
 
 ### Reusable section styles
 
-Stored as style variations in `styles/*.json` and available for Group, Columns, Media & Text, and Cover blocks:
+Stored as style variations in `styles/*.json` and available for Group, Columns, Media & Text, and Cover blocks. Each applies the `gutter` horizontally and a section rhythm vertically (Surface: `section-compact`; Brand Accent and Editorial Dark: `section-standard`):
 
 | Style                   | Purpose                                                                  |
 | ----------------------- | ------------------------------------------------------------------------ |
@@ -133,7 +278,7 @@ Stored as style variations in `styles/*.json` and available for Group, Columns, 
 4. Use font presets instead of raw `font-size` values unless a pattern genuinely needs a one-off display treatment.
 5. Use Badge / Badge Muted for pills, labels, payment methods, and small metadata chips.
 6. Use `surface-card` or `bordered` for framed content instead of rebuilding card chrome inline.
-7. Use WooCommerce block styles for product grids: Commerce Grid, Commerce Cards, Product Frame, and Commerce Price.
+7. Use WooCommerce block styles for product grids: Commerce Grid (framed cards for utility contexts such as cart upsells) or Editorial Grid (frameless cards matching the Shop archive, for storytelling sections), plus Commerce Cards, Product Frame, and Commerce Price.
 8. Use the Design System Preview pattern after token or primitive changes to visually check the system.
 
 ## UI Consistency Contract
@@ -199,7 +344,7 @@ Do not place two primary buttons beside each other. In quick view and the sticky
 | Badges, labels, payment pills                   | registered `core/paragraph` Badge / Badge Muted styles                              |
 | Eyebrow, caption, meta, legal, price copy       | registered `core/paragraph` type-role styles                                        |
 | Commerce state chip                             | Badge style plus `aa-commerce-state-*` class                                        |
-| Product collection grid                         | registered `woocommerce/product-collection` Commerce Grid style                     |
+| Product collection grid                         | registered `woocommerce/product-collection` Commerce Grid or Editorial Grid style   |
 | Product card list item                          | registered `woocommerce/product-template` Commerce Cards style                      |
 | Product media frame                             | registered `woocommerce/product-image` Product Frame style                          |
 | Product price text                              | registered `woocommerce/product-price` Commerce Price style                         |
@@ -252,21 +397,21 @@ Compose in PHP/HTML:
 
 ```html
 <form
-  class="my-feature__form aggressive-apparel-stack aggressive-apparel-stack--md"
+	class="my-feature__form aggressive-apparel-stack aggressive-apparel-stack--md"
 >
-  <input class="aggressive-apparel-field__input" type="email" />
-  <button
-    class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
-  >
-    Submit
-  </button>
+	<input class="aggressive-apparel-field__input" type="email" />
+	<button
+		class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
+	>
+		Submit
+	</button>
 </form>
 
 <div class="aggressive-apparel-overlay my-feature">
-  <div class="aggressive-apparel-overlay__backdrop"></div>
-  <div
-    class="aggressive-apparel-panel aggressive-apparel-panel--lg my-feature__panel"
-  ></div>
+	<div class="aggressive-apparel-overlay__backdrop"></div>
+	<div
+		class="aggressive-apparel-panel aggressive-apparel-panel--lg my-feature__panel"
+	></div>
 </div>
 ```
 
@@ -274,15 +419,15 @@ Reference migrations: exit-intent, back-in-stock, load-more.
 
 ## Lint Enforcement
 
-| Check                                     | Command                                                 |
-| ----------------------------------------- | ------------------------------------------------------- |
-| Stylelint (theme, block, and editor CSS)  | `pnpm lint:css`                                         |
-| Hex ban in feature CSS and patterns       | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Editor UI chrome literals                 | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Registered `is-style-*` usage in patterns | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Woo product collections use Commerce Grid | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| High-risk raw CTA sizing in patterns      | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| BEM class names                           | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Check                                                                                                    | Command                                                 |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Stylelint (theme, block, and editor CSS)                                                                 | `pnpm lint:css`                                         |
+| Hex ban in feature CSS and patterns                                                                      | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Editor UI chrome literals                                                                                | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Registered `is-style-*` usage in patterns (names read from `register_block_style()` and `styles/*.json`) | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Woo product collections use Commerce Grid or Editorial Grid                                              | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| High-risk raw CTA sizing in patterns                                                                     | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| BEM class names                                                                                          | `bin/check-design-system-css.sh` (runs with `lint:css`) |
 
 Hex colors are allowed only in `src/styles/base/tokens.css`, `src/styles/admin/`, and content values like color-picker defaults. Editor control surfaces, borders, radii, help text, and notices should use `src/utils/editor-style-tokens.ts`.
 

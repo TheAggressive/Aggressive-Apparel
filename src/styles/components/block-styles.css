@@ -267,6 +267,45 @@
 	text-transform: uppercase;
 }
 
+/* core/heading — Headline (sans). The editorial counterpart to Bebas:
+ * Space Grotesk, sentence case, tight tracking. Use it so not every section
+ * leads with the same condensed caps. Both editorial roles take the
+ * section's text color instead of the global accent heading color, so red
+ * stays a deliberate accent. Editor color/font/size picks still win
+ * (WordPress preset classes are !important; inline sizes beat classes). */
+.wp-block-heading.is-style-headline {
+	color: inherit;
+	font-family: var(--wp--preset--font-family--space-grotesk);
+	font-size: var(--aa-type-headline-size);
+	font-weight: var(--aa-type-headline-weight);
+	line-height: var(--aa-type-headline-line-height);
+	text-transform: none;
+	letter-spacing: var(--aa-type-headline-letter-spacing);
+	text-wrap: balance;
+
+	/* At 200% text a single word can outgrow a phone column; break it rather
+	   than scroll the page sideways (WCAG 1.4.10). No effect when it fits. */
+	overflow-wrap: anywhere;
+}
+
+/* core/heading — Campaign (Bebas at the fluid display size, for heroes). */
+.wp-block-heading.is-style-campaign {
+	color: inherit;
+	font-size: var(--aa-type-display-size);
+	line-height: var(--aa-type-display-line-height);
+	letter-spacing: var(--aa-type-display-letter-spacing);
+	text-wrap: balance;
+	overflow-wrap: anywhere;
+}
+
+/* core/paragraph — Lead (section intro copy). */
+.is-style-lead {
+	font-size: var(--aa-type-lead-size);
+	font-weight: var(--aa-type-lead-weight);
+	line-height: var(--aa-type-lead-line-height);
+	text-wrap: pretty;
+}
+
 /* core/heading — Overflow (type escapes the container grid) */
 .wp-block-heading.is-style-overflow {
 	overflow: visible;

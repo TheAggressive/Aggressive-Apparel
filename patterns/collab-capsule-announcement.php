@@ -41,7 +41,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"50%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:50%">
 			<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":70,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--surface-elevated);min-height:70vh">
+			<div class="wp-block-cover is-dark has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:70vh">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->

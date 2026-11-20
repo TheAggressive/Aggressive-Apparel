@@ -524,3 +524,131 @@ describe( 'keyframes', () => {
 		expect( [ ...new Set( missing ) ] ).toEqual( [] );
 	} );
 } );
+
+describe( 'editorial type roles', () => {
+	it( 'Headline (Sans) switches to the sans family in sentence case, overridable by editor picks', async () => {
+		const styles = await CompiledCss.load(
+			'src/styles/components/block-styles.css'
+		);
+		const headline = '.wp-block-heading.is-style-headline';
+
+		expect( await styles.declarations( headline, 'font-family' ) ).toEqual(
+			[
+				expect.objectContaining( {
+					value: 'var(--wp--preset--font-family--space-grotesk)',
+					important: false,
+				} ),
+			]
+		);
+		expect(
+			await styles.declarations( headline, 'text-transform' )
+		).toEqual( [ expect.objectContaining( { value: 'none' } ) ] );
+		// Long words break instead of scrolling the page at 200% text.
+		for ( const role of [
+			headline,
+			'.wp-block-heading.is-style-campaign',
+		] ) {
+			expect(
+				await styles.declarations( role, 'overflow-wrap' )
+			).toEqual( [ expect.objectContaining( { value: 'anywhere' } ) ] );
+		}
+		// Takes the section's text color, not the global accent heading color.
+		for ( const role of [
+			headline,
+			'.wp-block-heading.is-style-campaign',
+		] ) {
+			expect( await styles.declarations( role, 'color' ) ).toEqual( [
+				expect.objectContaining( {
+					value: 'inherit',
+					important: false,
+				} ),
+			] );
+		}
+		expect( await styles.declarations( headline, 'font-size' ) ).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-headline-size)',
+				important: false,
+			} ),
+		] );
+	} );
+
+	it( 'Campaign Display and Lead size from their type roles', async () => {
+		const styles = await CompiledCss.load(
+			'src/styles/components/block-styles.css'
+		);
+
+		expect(
+			await styles.declarations(
+				'.wp-block-heading.is-style-campaign',
+				'font-size'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-display-size)',
+				important: false,
+			} ),
+		] );
+		expect(
+			await styles.declarations( '.is-style-lead', 'font-size' )
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-lead-size)',
+				important: false,
+			} ),
+		] );
+	} );
+} );
+
+describe( 'product card buttons in narrow slots', () => {
+	it( 'compact the add-to-cart pill in every card under 320px, including two-up mobile cards', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const button =
+			'.wp-block-woocommerce-product-button .wp-block-button__link';
+		const conditionsFor = async ( prop: string ) =>
+			( await blocks.declarations( button, prop ) ).map( ( d ) =>
+				d.conditions.join( ' ' )
+			);
+
+		expect( await conditionsFor( 'font-size' ) ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /product-card \(width ?< ?320px\)/ ),
+			] )
+		);
+		expect( await conditionsFor( 'padding-inline' ) ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /product-card \(width ?< ?200px\)/ ),
+			] )
+		);
+	} );
+} );
+
+describe( 'responsive product grid columns', () => {
+	it( 'derive the track minimum from the theme gap, so Columns: N renders N', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const grid =
+			'.wp-block-woocommerce-product-template.wc-block-product-template__responsive';
+
+		const [ columns ] = await blocks.declarations(
+			grid,
+			'grid-template-columns'
+		);
+		expect( columns.important ).toBe( false );
+		expect( columns.value ).toContain( 'var(--aa-product-grid-gap)' );
+		expect( columns.value ).toContain( 'var(--aa-product-grid-columns)' );
+
+		for ( const count of [ 2, 3, 4, 5, 6 ] ) {
+			expect(
+				await blocks.declarations(
+					`${ grid }.columns-${ count }`,
+					'--aa-product-grid-columns'
+				)
+			).toEqual( [
+				expect.objectContaining( { value: String( count ) } ),
+			] );
+		}
+	} );
+} );

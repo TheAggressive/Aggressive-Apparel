@@ -24,6 +24,8 @@ so it's clear they shift with the color scheme.
 | White                               | `white`                | `#ffffff`                                                   |
 | Black                               | `black`                | `#000000`                                                   |
 | Transparent                         | `transparent`          | `transparent` (explicit "no fill")                          |
+| Light Gray                          | `light-gray`           | 70% white mixed into black (footer copy on the dark footer) |
+| Bright Red                          | `bright-red`           | `oklch(57.7% 0.245 27.325)` (absolute brand red)            |
 | Surface (Adaptive)                  | `surface`              | Adaptive page/section background                            |
 | Surface Elevated (Adaptive)         | `surface-elevated`     | Adaptive higher-contrast surface                            |
 | Surface Muted (Adaptive)            | `surface-muted`        | Soft panel between elevated and surface                     |
@@ -31,6 +33,7 @@ so it's clear they shift with the color scheme.
 | Foreground (Adaptive)               | `foreground`           | Adaptive primary text                                       |
 | Foreground Muted (Adaptive)         | `foreground-muted`     | Adaptive secondary text                                     |
 | Accent (Adaptive)                   | `accent`               | Adaptive brand interactive color                            |
+| Accent Fill (Adaptive)              | `accent-fill`          | Brand red used as a fill (buttons, badges)                  |
 | Accent on Foreground (Adaptive)     | `accent-on-foreground` | Inverse accent for foreground surfaces                      |
 | Accent on Raised Surface (Adaptive) | `accent-on-raised`     | Accent text on raised dark surfaces where `accent` fails AA |
 | Border (Adaptive)                   | `border`               | Adaptive borders/dividers                                   |

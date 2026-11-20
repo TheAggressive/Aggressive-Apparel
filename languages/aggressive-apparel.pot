@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.206.9\n"
+"Project-Id-Version: Aggressive Apparel 1.206.10\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T21:07:47+00:00\n"
+"POT-Creation-Date: 2026-11-20T00:11:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -713,10 +713,22 @@ msgid "Text Mask"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:414
-msgid "Cinematic"
+msgid "Headline (Sans)"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:422
+msgid "Campaign Display"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:430
+msgid "Lead"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:438
+msgid "Cinematic"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:446
 msgid "Frosted Dark"
 msgstr ""
 
@@ -9002,6 +9014,31 @@ msgid "Display Giant"
 msgstr ""
 
 #: theme.json
+msgctxt "Space size name"
+msgid "Gutter"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Compact"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Standard"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Editorial"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "Section: Immersive"
+msgstr ""
+
+#: theme.json
 msgctxt "Color name"
 msgid "Primary"
 msgstr ""
@@ -9327,6 +9364,21 @@ msgid "Fluid XXXXXXXXX-Large"
 msgstr ""
 
 #: theme.json
+msgctxt "Font size name"
+msgid "Lead"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Headline"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Display"
+msgstr ""
+
+#: theme.json
 msgctxt "Shadow name"
 msgid "Small"
 msgstr ""
@@ -9349,6 +9401,16 @@ msgstr ""
 #: theme.json
 msgctxt "Shadow name"
 msgid "Brand Glow"
+msgstr ""
+
+#: theme.json
+msgctxt "Aspect ratio name"
+msgid "Campaign (21:9)"
+msgstr ""
+
+#: theme.json
+msgctxt "Aspect ratio name"
+msgid "Editorial Portrait (4:5)"
 msgstr ""
 
 #: theme.json

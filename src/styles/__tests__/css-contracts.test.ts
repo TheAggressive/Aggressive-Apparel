@@ -525,6 +525,59 @@ describe( 'keyframes', () => {
 	} );
 } );
 
+describe( 'editorial type roles', () => {
+	it( 'Headline (Sans) switches to the sans family in sentence case, overridable by editor picks', async () => {
+		const styles = await CompiledCss.load(
+			'src/styles/components/block-styles.css'
+		);
+		const headline = '.wp-block-heading.is-style-headline';
+
+		expect( await styles.declarations( headline, 'font-family' ) ).toEqual(
+			[
+				expect.objectContaining( {
+					value: 'var(--wp--preset--font-family--space-grotesk)',
+					important: false,
+				} ),
+			]
+		);
+		expect(
+			await styles.declarations( headline, 'text-transform' )
+		).toEqual( [ expect.objectContaining( { value: 'none' } ) ] );
+		expect( await styles.declarations( headline, 'font-size' ) ).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-headline-size)',
+				important: false,
+			} ),
+		] );
+	} );
+
+	it( 'Campaign Display and Lead size from their type roles', async () => {
+		const styles = await CompiledCss.load(
+			'src/styles/components/block-styles.css'
+		);
+
+		expect(
+			await styles.declarations(
+				'.wp-block-heading.is-style-campaign',
+				'font-size'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-display-size)',
+				important: false,
+			} ),
+		] );
+		expect(
+			await styles.declarations( '.is-style-lead', 'font-size' )
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-lead-size)',
+				important: false,
+			} ),
+		] );
+	} );
+} );
+
 describe( 'product card buttons in narrow slots', () => {
 	it( 'compact the add-to-cart pill in every card under 320px, including two-up mobile cards', async () => {
 		const blocks = await CompiledCss.load(

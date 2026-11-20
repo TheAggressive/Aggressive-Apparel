@@ -408,6 +408,30 @@ class Theme_Support {
 		);
 
 		register_block_style(
+			'core/heading',
+			array(
+				'name'  => 'headline',
+				'label' => __( 'Headline (Sans)', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/heading',
+			array(
+				'name'  => 'campaign',
+				'label' => __( 'Campaign Display', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/paragraph',
+			array(
+				'name'  => 'lead',
+				'label' => __( 'Lead', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
 			'core/cover',
 			array(
 				'name'  => 'cinematic',

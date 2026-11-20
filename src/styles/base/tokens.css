@@ -389,6 +389,45 @@
 		1.2
 	);
 
+	/* Editorial roles: Lead intro copy, sans Headline, Bebas campaign Display.
+	   Sizes are the fluid `lead` / `headline` / `display` font-size presets. */
+	--aa-type-lead-size: var(--wp--custom--type-role--lead--font-size);
+	--aa-type-lead-weight: var(--wp--custom--type-role--lead--font-weight, 400);
+	--aa-type-lead-line-height: var(
+		--wp--custom--type-role--lead--line-height,
+		1.5
+	);
+	--aa-type-headline-size: var(--wp--custom--type-role--headline--font-size);
+	--aa-type-headline-weight: var(
+		--wp--custom--type-role--headline--font-weight,
+		600
+	);
+	--aa-type-headline-line-height: var(
+		--wp--custom--type-role--headline--line-height,
+		1.02
+	);
+	--aa-type-headline-letter-spacing: var(
+		--wp--custom--type-role--headline--letter-spacing,
+		-0.025em
+	);
+	--aa-type-display-size: var(--wp--custom--type-role--display--font-size);
+	--aa-type-display-line-height: var(
+		--wp--custom--type-role--display--line-height,
+		0.9
+	);
+	--aa-type-display-letter-spacing: var(
+		--wp--custom--type-role--display--letter-spacing,
+		0.005em
+	);
+
+	/* Layout rhythm (spacing presets): one page gutter and four section
+	   densities. Usage rules: docs/design-system.md#layout-rhythm. */
+	--aa-gutter: var(--wp--preset--spacing--gutter);
+	--aa-section-compact: var(--wp--preset--spacing--section-compact);
+	--aa-section-standard: var(--wp--preset--spacing--section-standard);
+	--aa-section-editorial: var(--wp--preset--spacing--section-editorial);
+	--aa-section-immersive: var(--wp--preset--spacing--section-immersive);
+
 	/* Form fields (from settings.custom.field) — the branded checkout field:
 	   translucent fill, soft radius, and a 3px left bar that turns accent on
 	   focus / error on invalid. Shared by the native baseline (forms.css),

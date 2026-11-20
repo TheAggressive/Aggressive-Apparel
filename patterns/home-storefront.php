@@ -18,8 +18,8 @@
 <!-- /wp:column -->
 
 <!-- wp:column {"style":{"border":{"radius":{"topLeft":"1.5rem","topRight":"1.5rem","bottomLeft":"1.5rem","bottomRight":"1.5rem"}}}} -->
-<div class="wp-block-column" style="border-top-left-radius:1.5rem;border-top-right-radius:1.5rem;border-bottom-left-radius:1.5rem;border-bottom-right-radius:1.5rem"><!-- wp:heading {"style":{"typography":{"textAlign":"center"}},"fontSize":"fluid-xxxxxxx-large","fontFamily":"pirata-one"} -->
-<h2 class="wp-block-heading has-text-align-center has-pirata-one-font-family has-fluid-xxxxxxx-large-font-size"><?php echo esc_html__( 'Rebellion Has a Uniform', 'aggressive-apparel' ); ?></h2>
+<div class="wp-block-column" style="border-top-left-radius:1.5rem;border-top-right-radius:1.5rem;border-bottom-left-radius:1.5rem;border-bottom-right-radius:1.5rem"><!-- wp:heading {"style":{"typography":{"textAlign":"center"}},"fontSize":"fluid-xxxxxxx-large"} -->
+<h2 class="wp-block-heading has-text-align-center has-fluid-xxxxxxx-large-font-size"><?php echo esc_html__( 'Rebellion Has a Uniform', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-meta","style":{"typography":{"textAlign":"center","fontStyle":"normal","fontWeight":"400"},"elements":{"link":{"color":{"text":"var:preset|color|white"}}}},"textColor":"white","fontSize":"large"} -->

@@ -61,7 +61,87 @@ Use **adaptive** tokens for surfaces, text, and brand UI. The legacy `primary` a
 
 ## Typography
 
-The theme exposes Space Grotesk for body and interface text and Bebas Neue for headings. Font files are installed and activated through the WordPress Font Library, so `theme.json` declares the families without owning `fontFace` sources.
+Space Grotesk carries body and interface text; Bebas Neue carries headings and
+campaign display. Font files are installed and activated through the WordPress
+Font Library, so `theme.json` declares the families without owning `fontFace`
+sources. Only declared families may be referenced from theme markup — the
+token contract test fails on any other `fontFamily` slug.
+
+Bebas Neue has no lowercase and renders smaller than its nominal size, so a
+page built only from Bebas headings reads as one shouted voice. Mix the roles:
+Bebas for campaign moments and section labels, the sans **Headline** for
+editorial statements, **Lead** for intro copy.
+
+### Type roles
+
+| Role           | How to apply                                             | Use                                                            |
+| -------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
+| `display`      | Heading style **Campaign Display** (`is-style-campaign`) | Hero and campaign headlines. At most one per section.          |
+| `headline`     | Heading style **Headline (Sans)** (`is-style-headline`)  | Editorial statements, story sections, sentence-case headlines. |
+| h1–h6          | Default heading (theme.json `styles.elements`)           | Document structure; Bebas, fluid sizes.                        |
+| `lead`         | Paragraph style **Lead** (`is-style-lead`)               | One intro paragraph under a section heading.                   |
+| `eyebrow`      | Paragraph style **Eyebrow**                              | Short kicker above a heading (accent, caps, tracked).          |
+| `caption`      | Paragraph style **Caption**                              | Image and figure captions.                                     |
+| `meta`         | Paragraph style **Meta**                                 | Dates, counts, small uppercase metadata.                       |
+| `legal`        | Paragraph style **Legal**                                | Fine print.                                                    |
+| `price`        | Paragraph style **Price** / Commerce Price               | Prices outside product blocks.                                 |
+| `productTitle` | Product card titles (`--aa-type-product-title-*`)        | Product names in grids.                                        |
+
+Sizes come from `settings.custom.typeRole` (aliased as `--aa-type-<role>-*`);
+`display`, `headline` and `lead` use the fluid `display`, `headline` and `lead`
+font-size presets, which editors can also pick directly.
+
+## Layout rhythm
+
+One gutter and four section densities, all fluid spacing presets
+(`var:preset|spacing|<slug>`, aliased `--aa-gutter` / `--aa-section-*`):
+
+| Preset              | 375px → 1440px+ | Use                                                                  |
+| ------------------- | --------------- | -------------------------------------------------------------------- |
+| `gutter`            | 16px → 48px     | Horizontal page padding on every template's `<main>` and the footer. |
+| `section-compact`   | 40px → 64px     | Utility bands: trust rows, marquee, newsletter, surface cards.       |
+| `section-standard`  | 64px → 128px    | Default merchandising section (product rows, category grids).        |
+| `section-editorial` | 80px → 160px    | Story-led sections: artwork spotlight, collection features, brand.   |
+| `section-immersive` | 96px → 208px    | Rare campaign moments; never two in a row.                           |
+
+Rules:
+
+1. A section's vertical padding uses one of the `section-*` presets — never a
+   raw number. Pick by the section's **importance**, not to fill space.
+2. Stack sections with `blockGap: 0` on the page wrapper and let each section
+   own its padding, so adjacent sections with different surfaces meet cleanly.
+3. Content stays inside `contentSize` (1200px); merchandising grids and
+   editorial media may go `wide` (1600px); campaign media goes `full`.
+4. Section style variations (below) already apply these presets.
+
+## Image system
+
+| Ratio                  | Slug / source                      | Use                                                     |
+| ---------------------- | ---------------------------------- | ------------------------------------------------------- |
+| 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
+| 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, artwork close-ups.    |
+| 3:4, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (3:4), tall looks (2:3), detail (1:1).   |
+| Product images         | Store catalog images, uncropped    | Product cards and Featured Product.                     |
+
+Rules:
+
+1. **Never force-crop product photography.** Product Image blocks keep the
+   catalog image's own ratio so garment artwork and colour stay intact; give
+   products room with fewer columns, not by cropping.
+2. Hero and campaign images are Covers with a **min-height in `svh`/`vh`**
+   (60–90) rather than a fixed ratio, and a **focal point** set on the subject.
+   Avoid thin banner strips: no campaign Cover under 60svh on desktop.
+3. **Text-safe areas:** place Cover content to one side (`contentPosition`)
+   and pair it with the `dark-overlay` / `dark-overlay-strong` gradient at
+   30–60% so copy clears 4.5:1 regardless of the photo.
+4. **Loading:** WordPress marks the first large content image
+   `fetchpriority="high"` and lazy-loads the rest; don't add `loading` or
+   priority attributes by hand.
+5. **Alt text:** describe the garment and artwork in product and editorial
+   images; decorative Cover backgrounds keep empty alt.
+6. **Placeholders:** where approved photography isn't available, patterns ship
+   an image-less Cover named `… (replace image)` in List View. Never substitute
+   generated or stock imagery for retail product photos.
 
 ## Custom Tokens
 
@@ -110,10 +190,10 @@ Registered in `includes/Core/class-theme-support.php`:
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `core/button`                    | ghost, cta-ghost, text, small, cta, cta-small, outline-on-dark, cta-outline-on-dark, cta-small-outline-on-dark |
 | `core/group`                     | frosted, surface-card, bordered, frosted-dark                                                                  |
-| `core/heading`                   | display, overflow, text-mask                                                                                   |
+| `core/heading`                   | display, campaign, headline, overflow, text-mask                                                               |
 | `core/image`                     | editorial                                                                                                      |
 | `core/cover`                     | cinematic                                                                                                      |
-| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, legal, price                                                       |
+| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, lead, legal, price                                                 |
 | `core/separator`                 | brand-stripe, subtle                                                                                           |
 | `woocommerce/product-collection` | commerce-grid                                                                                                  |
 | `woocommerce/product-template`   | commerce-cards                                                                                                 |
@@ -122,7 +202,7 @@ Registered in `includes/Core/class-theme-support.php`:
 
 ### Reusable section styles
 
-Stored as style variations in `styles/*.json` and available for Group, Columns, Media & Text, and Cover blocks:
+Stored as style variations in `styles/*.json` and available for Group, Columns, Media & Text, and Cover blocks. Each applies the `gutter` horizontally and a section rhythm vertically (Surface: `section-compact`; Brand Accent and Editorial Dark: `section-standard`):
 
 | Style                   | Purpose                                                                  |
 | ----------------------- | ------------------------------------------------------------------------ |

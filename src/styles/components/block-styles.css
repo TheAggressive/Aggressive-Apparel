@@ -282,6 +282,10 @@
 	text-transform: none;
 	letter-spacing: var(--aa-type-headline-letter-spacing);
 	text-wrap: balance;
+
+	/* At 200% text a single word can outgrow a phone column; break it rather
+	   than scroll the page sideways (WCAG 1.4.10). No effect when it fits. */
+	overflow-wrap: anywhere;
 }
 
 /* core/heading — Campaign (Bebas at the fluid display size, for heroes). */
@@ -291,6 +295,7 @@
 	line-height: var(--aa-type-display-line-height);
 	letter-spacing: var(--aa-type-display-letter-spacing);
 	text-wrap: balance;
+	overflow-wrap: anywhere;
 }
 
 /* core/paragraph — Lead (section intro copy). */

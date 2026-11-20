@@ -543,6 +543,15 @@ describe( 'editorial type roles', () => {
 		expect(
 			await styles.declarations( headline, 'text-transform' )
 		).toEqual( [ expect.objectContaining( { value: 'none' } ) ] );
+		// Long words break instead of scrolling the page at 200% text.
+		for ( const role of [
+			headline,
+			'.wp-block-heading.is-style-campaign',
+		] ) {
+			expect(
+				await styles.declarations( role, 'overflow-wrap' )
+			).toEqual( [ expect.objectContaining( { value: 'anywhere' } ) ] );
+		}
 		// Takes the section's text color, not the global accent heading color.
 		for ( const role of [
 			headline,

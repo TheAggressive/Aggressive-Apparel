@@ -602,3 +602,32 @@ describe( 'product card buttons in narrow slots', () => {
 		);
 	} );
 } );
+
+describe( 'responsive product grid columns', () => {
+	it( 'derive the track minimum from the theme gap, so Columns: N renders N', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const grid =
+			'.wp-block-woocommerce-product-template.wc-block-product-template__responsive';
+
+		const [ columns ] = await blocks.declarations(
+			grid,
+			'grid-template-columns'
+		);
+		expect( columns.important ).toBe( false );
+		expect( columns.value ).toContain( 'var(--aa-product-grid-gap)' );
+		expect( columns.value ).toContain( 'var(--aa-product-grid-columns)' );
+
+		for ( const count of [ 2, 3, 4, 5, 6 ] ) {
+			expect(
+				await blocks.declarations(
+					`${ grid }.columns-${ count }`,
+					'--aa-product-grid-columns'
+				)
+			).toEqual( [
+				expect.objectContaining( { value: String( count ) } ),
+			] );
+		}
+	} );
+} );

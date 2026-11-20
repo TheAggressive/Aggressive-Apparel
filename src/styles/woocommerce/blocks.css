@@ -30,7 +30,56 @@
    not the viewport. Enables correct stacking when the collection
    is placed in a narrow column or sidebar. */
 .wp-block-woocommerce-product-template {
-	gap: var(--wp--preset--spacing--8);
+	--aa-product-grid-gap: var(--wp--preset--spacing--8);
+
+	gap: var(--aa-product-grid-gap);
+}
+
+/* WooCommerce sizes responsive ("shrink columns") tracks as
+   calc(100% / N - 0.9375em), which only fits N columns with its own 1.25em
+   gap. With the theme's wider gap every grid dropped a column (Columns: 5
+   rendered 4). Re-derive the track minimum from the real gap; the 150px floor
+   is WooCommerce's. Doubled class beats WooCommerce's selector whichever
+   stylesheet prints first. */
+.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-product-grid-columns: 1;
+
+	grid-template-columns: repeat(
+		auto-fill,
+		minmax(
+			max(
+				150px,
+				calc(
+					(
+							100% - (var(--aa-product-grid-columns) - 1) *
+								var(--aa-product-grid-gap)
+						) /
+						var(--aa-product-grid-columns)
+				)
+			),
+			1fr
+		)
+	);
+
+	&.columns-2 {
+		--aa-product-grid-columns: 2;
+	}
+
+	&.columns-3 {
+		--aa-product-grid-columns: 3;
+	}
+
+	&.columns-4 {
+		--aa-product-grid-columns: 4;
+	}
+
+	&.columns-5 {
+		--aa-product-grid-columns: 5;
+	}
+
+	&.columns-6 {
+		--aa-product-grid-columns: 6;
+	}
 }
 
 .wp-block-woocommerce-product-template > li,

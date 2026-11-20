@@ -28,8 +28,8 @@
 			<p class="has-text-align-center has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Lane A', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
-			<!-- wp:woocommerce/product-collection {"queryId":131,"query":{"perPage":1,"pages":1,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":1,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/featured","queryContextIncludes":["collection"],"className":"is-style-commerce-grid","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
-<div class="wp-block-woocommerce-product-collection is-style-commerce-grid" style="margin-top:var(--wp--preset--spacing--6)">
+			<!-- wp:woocommerce/product-collection {"queryId":131,"query":{"perPage":1,"pages":1,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":1,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/featured","queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->
+<div class="wp-block-woocommerce-product-collection is-style-commerce-grid">
 <!-- wp:woocommerce/product-template {"className":"is-style-commerce-cards"} -->
 <!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","isDescendentOfQueryLoop":true,"className":"is-style-product-frame"} -->
 <!-- wp:woocommerce/product-sale-badge {"align":"right"} /-->
@@ -50,8 +50,8 @@
 			<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Lane B', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
-			<!-- wp:woocommerce/product-collection {"queryId":132,"query":{"perPage":1,"pages":1,"offset":1,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":1,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/featured","queryContextIncludes":["collection"],"className":"is-style-commerce-grid","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
-<div class="wp-block-woocommerce-product-collection is-style-commerce-grid" style="margin-top:var(--wp--preset--spacing--6)">
+			<!-- wp:woocommerce/product-collection {"queryId":132,"query":{"perPage":1,"pages":1,"offset":1,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":1,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/featured","queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->
+<div class="wp-block-woocommerce-product-collection is-style-commerce-grid">
 <!-- wp:woocommerce/product-template {"className":"is-style-commerce-cards"} -->
 <!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","isDescendentOfQueryLoop":true,"className":"is-style-product-frame"} -->
 <!-- wp:woocommerce/product-sale-badge {"align":"right"} /-->

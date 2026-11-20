@@ -17,7 +17,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"58%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:58%">
 			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":560,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"},"border":{"radius":"var(--wp--custom--radius--card)"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="border-radius:var(--wp--custom--radius--card);background-color:var(--wp--preset--color--black);min-height:560px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="border-radius:var(--wp--custom--radius--card);background-color:var(--wp--preset--color--black);min-height:560px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"x-small"} -->
 				<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.15em;text-transform:uppercase"><?php echo esc_html__( 'Featured Story', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->

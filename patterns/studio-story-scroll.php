@@ -17,7 +17,7 @@
 		<!-- wp:aggressive-blocks/split-story-media -->
 		<div class="wp-block-aggressive-blocks-split-story-media aa-split-story__media">
 			<!-- wp:cover {"dimRatio":25,"overlayColor":"black","minHeight":100,"minHeightUnit":"%","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-			<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--black);min-height:100%"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-25 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-background" style="background-color:var(--wp--preset--color--black);min-height:100%"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.16em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"x-small"} -->
 				<p class="has-text-align-center has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.16em;text-transform:uppercase"><?php echo esc_html__( 'Studio still', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->

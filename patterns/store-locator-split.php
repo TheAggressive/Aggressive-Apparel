@@ -53,7 +53,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"58%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:58%">
 			<!-- wp:cover {"dimRatio":0,"minHeight":480,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"},"border":{"radius":"var(--wp--custom--radius--card)"}}} -->
-			<div class="wp-block-cover is-light" style="border-radius:var(--wp--custom--radius--card);background-color:var(--wp--preset--color--surface-elevated);min-height:480px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-light has-background" style="border-radius:var(--wp--custom--radius--card);background-color:var(--wp--preset--color--surface-elevated);min-height:480px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
 				<p class="has-text-align-center has-foreground-muted-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Flagship', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->

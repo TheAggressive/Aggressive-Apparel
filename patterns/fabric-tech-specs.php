@@ -17,7 +17,7 @@
 		<!-- wp:column {"verticalAlignment":"stretch","width":"45%"} -->
 		<div class="wp-block-column is-vertically-aligned-stretch" style="flex-basis:45%">
 			<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":100,"minHeightUnit":"%","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"},"border":{"radius":"var(--wp--custom--radius--card)"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="border-radius:var(--wp--custom--radius--card);background-color:var(--wp--preset--color--black);min-height:100%"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="border-radius:var(--wp--custom--radius--card);background-color:var(--wp--preset--color--black);min-height:100%"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"x-small"} -->
 				<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Material', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->

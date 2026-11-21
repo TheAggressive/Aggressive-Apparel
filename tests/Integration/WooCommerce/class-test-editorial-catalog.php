@@ -158,6 +158,22 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertSame( $markup, serialize_blocks( parse_blocks( $markup ) ) );
 	}
 
+	/** A centred grid carries the class its short-row CSS keys off, and still round-trips. */
+	public function test_centered_grid_markup_round_trips(): void {
+		$markup = Editorial_Product_Grid::markup(
+			array(
+				'query_id' => 43,
+				'columns'  => 3,
+				'centered' => true,
+			)
+		);
+		$blocks = array_values( array_filter( parse_blocks( $markup ), static fn( $block ) => null !== $block['blockName'] ) );
+
+		$this->assertSame( 'is-style-editorial-grid aa-grid-centered', $blocks[0]['attrs']['className'] );
+		$this->assertStringContainsString( 'class="wp-block-woocommerce-product-collection alignwide is-style-editorial-grid aa-grid-centered"', $markup );
+		$this->assertSame( $markup, serialize_blocks( parse_blocks( $markup ) ) );
+	}
+
 	/** An empty category is skipped for the next candidate that has products. */
 	public function test_stocked_term_skips_empty_categories(): void {
 		self::factory()->term->create(

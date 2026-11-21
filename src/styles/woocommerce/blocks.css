@@ -83,6 +83,30 @@
 	}
 }
 
+/* A short row under a centred heading (Editorial_Product_Grid `centered`):
+   auto-fit drops the empty tracks and each track keeps its N-column width
+   instead of stretching, so one product sits centred at card size rather
+   than flush left. Full rows lay out exactly as above. */
+.wp-block-woocommerce-product-collection.aa-grid-centered
+	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-product-grid-track: calc(
+		(
+				100% - (var(--aa-product-grid-columns) - 1) *
+					var(--aa-product-grid-gap)
+			) /
+			var(--aa-product-grid-columns)
+	);
+
+	grid-template-columns: repeat(
+		auto-fit,
+		minmax(
+			max(150px, var(--aa-product-grid-track)),
+			var(--aa-product-grid-track)
+		)
+	);
+	justify-content: center;
+}
+
 .wp-block-woocommerce-product-template > li,
 .wc-block-grid__product {
 	container-type: inline-size;

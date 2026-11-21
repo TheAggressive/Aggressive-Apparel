@@ -735,3 +735,23 @@ describe( 'desktop navigation menubar', () => {
 		);
 	} );
 } );
+
+describe( 'centred short product rows', () => {
+	it( 'drop empty tracks and keep card width instead of stretching', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const grid =
+			'.wp-block-woocommerce-product-collection.aa-grid-centered .wp-block-woocommerce-product-template.wc-block-product-template__responsive';
+
+		const [ columns ] = await blocks.declarations(
+			grid,
+			'grid-template-columns'
+		);
+		expect( columns.value ).toMatch( /^repeat\(auto-fit,/ );
+		expect( columns.value ).not.toContain( '1fr' );
+		expect( await blocks.declarations( grid, 'justify-content' ) ).toEqual(
+			[ expect.objectContaining( { value: 'center' } ) ]
+		);
+	} );
+} );

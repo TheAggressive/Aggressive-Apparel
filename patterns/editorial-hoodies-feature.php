@@ -42,6 +42,7 @@ $aa_grid = Editorial_Product_Grid::markup(
 		'columns'  => 3,
 		'term'     => $aa_term,
 		'label'    => __( 'Hoodies grid', 'aggressive-apparel' ),
+		'centered' => true,
 	)
 );
 echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.

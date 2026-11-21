@@ -2,8 +2,9 @@
  * Editorial sections (patterns/editorial-*.php)
  *
  * Section-level treatments the block editor can't express: the campaign
- * hero's typographic state and the lookbook's phone rail. Both key off a
- * class the pattern sets, so they never reach other Covers or Columns.
+ * hero's display type, full-width linked photos and the lookbook's phone
+ * rail. The section rules key off a class the pattern sets, so they
+ * never reach other Covers or Columns.
  *
  * Unlayered on purpose: the hero rules must outrank the Campaign Display
  * heading style (block-styles.css, unlayered) and core's constrained-layout
@@ -13,19 +14,19 @@
  * @package Aggressive_Apparel
  */
 
-/* Campaign hero without photography. An image-less Cover is a black field;
-   at the photo-sized headline it read as a missing image. Until a campaign
-   image is set, the slogan becomes the image: full-width display type,
-   free of the 880px text column. Setting an image restores the photo
-   layout with no editor change. */
-.aa-campaign-hero:not(
-	:has(
-		> .wp-block-cover__image-background,
-		> .wp-block-cover__video-background
-	)
-) {
+/* Campaign hero. Beside its photos the slogan is stacked at display scale
+   sized to the 40% text column (9 condensed capitals, "REBELLION", fit it
+   from 782px up); with no portrait photo in the store the hero has no
+   image and the slogan becomes the image: full-width display type.
+   Editor font-size picks still win (preset classes carry !important). */
+.aa-campaign-hero {
 	& .wp-block-heading.is-style-campaign {
 		max-width: none;
+		font-size: clamp(3.5rem, 1rem + 6vw, 8rem);
+		line-height: 0.88;
+	}
+
+	&:not(:has(.wp-block-image)) .wp-block-heading.is-style-campaign {
 		font-size: clamp(4.5rem, 2rem + 11vw, 13rem);
 		line-height: 0.86;
 	}
@@ -35,16 +36,65 @@
 	}
 }
 
-/* Lookbook on phones. Stacked, three portrait looks made a ~2,400px column
+/* Full-height photo column (className `aa-bleed-photo`, the hero's and the
+   Women's spread). Its photos run the full height of the row: when the copy
+   beside them is taller than the photos' own ratio they stretch and crop
+   (cover) rather than leave a strip under them. The column keeps height
+   auto so the row stretches it (an explicit height on a flex item turns
+   stretch off); its contents fill it. Side by side only (from 600px, see
+   aa-tablet-split): stacked on phones the photos keep their ratio. */
+@media (width >= 600px) {
+	.aa-bleed-photo
+		:is(
+			.wp-block-columns,
+			.wp-block-column,
+			.wp-block-image,
+			.wp-block-image > a,
+			img
+		) {
+		height: 100%;
+	}
+}
+
+/* Tablets (600-781px) keep the editorial splits side by side (className
+   `aa-tablet-split`: hero, New Arrivals, the collection bands, Women's,
+   Hoodies) instead of stacking them into 768px-wide photos and cards; phones
+   still stack. Core stacks columns below 782px with flex-wrap:wrap!important
+   and flex-basis:100%!important; !important here beats exactly those two. */
+@media (600px <= width < 782px) {
+	.wp-block-columns.aa-tablet-split {
+		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
+		flex-wrap: nowrap !important;
+
+		& > .wp-block-column {
+			/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-basis:100%!important */
+			flex-basis: 0 !important;
+			flex-grow: 1;
+		}
+	}
+}
+
+/* A linked image set to 100% width (editorial photo slots, and any image
+   the editor sizes that way) fills its column. Core makes the link
+   inline-block, a shrink-to-fit box, so the image's percentage width
+   resolved to its natural size: a 504px photo sat in a 624px column. */
+.wp-block-image > a:has(> img[style*="width:100%"]) {
+	display: block;
+}
+
+/* Lookbook on phones (tablets keep it side by side: aa-tablet-split).
+   Stacked, three portrait looks made a ~2,400px column
    of image; a swipeable rail shows the first look whole and the next one's
    edge, at about a third of the height. Core stacks columns below 782px
-   with `flex-wrap: wrap !important` and `flex-basis: 100% !important`;
-   !important here beats exactly those two declarations. */
-@media (width < 782px) {
+   with `flex-wrap: wrap !important` and `flex-basis: 100% !important`, and
+   its constrained layout pins children with margin-inline auto !important;
+   !important here beats exactly those three declarations. */
+@media (width < 600px) {
 	.wp-block-columns.aa-editorial-looks {
 		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
 		flex-wrap: nowrap !important;
-		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter));
+		/* stylelint-disable-next-line declaration-no-important -- beats core constrained-layout margin-inline:auto!important */
+		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter)) !important;
 		padding-inline: var(--wp--preset--spacing--gutter);
 		scroll-padding-inline: var(--wp--preset--spacing--gutter);
 		overflow-x: auto;

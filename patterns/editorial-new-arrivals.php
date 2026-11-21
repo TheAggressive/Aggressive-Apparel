@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — New Arrivals
- * Description: The newest in-stock products from the live catalog in a spacious four-up grid.
+ * Description: The newest in-stock product as a large lead card beside a two-by-two of the next four, from the live catalog.
  * Slug: aggressive-apparel/editorial-new-arrivals
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-products
  * Keywords: new arrivals, latest, products, woocommerce, homepage
@@ -32,19 +32,48 @@ use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
 
-<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"align":"wide"} -->
+<!-- wp:columns {"className":"aa-tablet-split","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|8","left":"var:preset|spacing|8"}}}} -->
+<div class="wp-block-columns aa-tablet-split alignwide"><!-- wp:column {"width":"50%"} -->
+<div class="wp-block-column" style="flex-basis:50%">
+<?php
+// The newest piece, large; the next four beside it. Two Product
+// Collections over the same query (the second offset by one), so each
+// stays a native, retunable block. Always visible: products are never
+// held behind a scroll reveal.
+$aa_lead = Editorial_Product_Grid::markup(
+	array(
+		'query_id'   => 301,
+		'per_page'   => 1,
+		'columns'    => 1,
+		'collection' => 'new-arrivals',
+		'align'      => '',
+		'label'      => __( 'Newest arrival', 'aggressive-apparel' ),
+		'lead'       => true,
+	)
+);
+echo $aa_lead; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
+?>
+</div>
+<!-- /wp:column -->
+
+<!-- wp:column {"width":"50%"} -->
+<div class="wp-block-column" style="flex-basis:50%">
 <?php
 $aa_grid = Editorial_Product_Grid::markup(
 	array(
-		'query_id'   => 301,
-		'per_page'   => 8,
-		'columns'    => 4,
+		'query_id'   => 302,
+		'per_page'   => 4,
+		'offset'     => 1,
+		'columns'    => 2,
 		'collection' => 'new-arrivals',
+		'align'      => '',
 		'label'      => __( 'New arrivals grid', 'aggressive-apparel' ),
 	)
 );
 echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
 ?>
-<!-- /wp:aggressive-blocks/animate-on-scroll -->
+</div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
 </div>
 <!-- /wp:group -->

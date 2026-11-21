@@ -11,13 +11,15 @@ namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
-use WC_Product_Simple;
+use Aggressive_Apparel\Tests\Support\Builds_Editorial_Fixtures;
 use WP_UnitTestCase;
 
 /**
  * Editorial patterns resolve live store data and never invent merchandising.
  */
 class Test_Editorial_Catalog extends WP_UnitTestCase {
+
+	use Builds_Editorial_Fixtures;
 
 	/** Attribute taxonomy registered for the attribute-filter case. */
 	private const ATTRIBUTE = 'pa_editorial_probe';
@@ -104,13 +106,17 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertSame( '', trim( $this->render_pattern( 'editorial-best-sellers' ) ) );
 	}
 
-	/** Without sales the section is honestly labelled Staff Picks over Featured products. */
-	public function test_best_sellers_falls_back_to_featured_staff_picks(): void {
+	/**
+	 * Without sales the section is labelled Featured, exactly what the store
+	 * flag means; nothing claims the staff chose them or that they sell.
+	 */
+	public function test_best_sellers_falls_back_to_featured_products(): void {
 		$this->create_product( array( 'featured' => true ) );
 
 		$markup = $this->render_pattern( 'editorial-best-sellers' );
 
-		$this->assertStringContainsString( 'Staff picks', $markup );
+		$this->assertStringContainsString( 'Featured', $markup );
+		$this->assertStringNotContainsString( 'Staff', $markup );
 		$this->assertStringNotContainsString( 'Best sellers', $markup );
 		$this->assertSame( true, $this->collection_query( $markup )['featured'] );
 	}
@@ -197,37 +203,11 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertNull( Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'editorial-empty' ) ) );
 	}
 
-	/** A term shows the merchant's own image first, else its newest product's, never another term's. */
-	public function test_term_image_prefers_the_term_thumbnail_then_its_newest_product(): void {
-		$term  = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
-		$other = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
-		$this->create_product(
-			array(
-				'category' => $other->term_id,
-				'image'    => $this->create_image(),
-			)
-		);
-		$this->assertSame( 0, Editorial_Catalog::term_image_id( $term ) );
-
-		$product_image = $this->create_image();
-		$this->create_product(
-			array(
-				'category' => $term->term_id,
-				'image'    => $product_image,
-			)
-		);
-		wp_cache_flush();
-		$this->assertSame( $product_image, Editorial_Catalog::term_image_id( $term ) );
-
-		$thumbnail = $this->create_image();
-		update_term_meta( $term->term_id, 'thumbnail_id', $thumbnail );
-		$this->assertSame( $thumbnail, Editorial_Catalog::term_image_id( $term ) );
-	}
-
 	/**
 	 * One tile per stocked category in a single row, with the grid's real gap
 	 * declared (core assumes 0.5em without it and drops a column), store
-	 * imagery on the tile, and an overlay WooCommerce can print as CSS.
+	 * imagery on the tile, an overlay WooCommerce can print as CSS, and no
+	 * scroll reveal hiding the tiles.
 	 */
 	public function test_category_showcase_renders_one_row_of_stocked_tiles(): void {
 		$hoodies = self::factory()->term->create_and_get(
@@ -255,11 +235,9 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertNotNull( $grid );
 		$tiles = array();
 		foreach ( $grid['innerBlocks'] as $item ) {
-			// Each tile is a grid item wrapped in its own scroll reveal.
-			$this->assertSame( 'aggressive-blocks/animate-on-scroll', $item['blockName'] );
-			$tile = $this->find_block( $item['innerBlocks'], static fn( $block ) => 'woocommerce/featured-category' === $block['blockName'] );
-			$this->assertNotNull( $tile );
-			$tiles[] = $tile;
+			// Each tile is a direct grid item: never held behind a scroll reveal.
+			$this->assertSame( 'woocommerce/featured-category', $item['blockName'] );
+			$tiles[] = $item;
 		}
 
 		$this->assertCount( 1, $tiles, 'Empty Accessories category gets no tile.' );
@@ -313,83 +291,6 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$markup = $this->render_pattern( 'editorial-hoodies-feature' );
 
 		$this->assertStringContainsString( esc_url( (string) get_term_link( $hoodies ) ), $markup );
-	}
-
-	/**
-	 * Create a published simple product.
-	 *
-	 * @param array{featured?: bool, total_sales?: int, category?: int, image?: int} $props Product properties.
-	 */
-	private function create_product( array $props = array() ): WC_Product_Simple {
-		$product = new WC_Product_Simple();
-		$product->set_name( 'Editorial probe' );
-		$product->set_status( 'publish' );
-		$product->set_regular_price( '20' );
-		$product->set_featured( $props['featured'] ?? false );
-		$product->set_total_sales( $props['total_sales'] ?? 0 );
-		if ( isset( $props['category'] ) ) {
-			$product->set_category_ids( array( $props['category'] ) );
-		}
-		if ( isset( $props['image'] ) ) {
-			$product->set_image_id( $props['image'] );
-		}
-		$product->save();
-
-		return $product;
-	}
-
-	/** Create an image attachment with real dimensions. */
-	private function create_image(): int {
-		$id = self::factory()->attachment->create_object(
-			array(
-				'file'           => 'editorial-probe.jpg',
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-		wp_update_attachment_metadata(
-			$id,
-			array(
-				'width'  => 504,
-				'height' => 757,
-				'file'   => 'editorial-probe.jpg',
-			)
-		);
-
-		return $id;
-	}
-
-	/**
-	 * Depth-first search of parsed blocks.
-	 *
-	 * @param array<int, array<string, mixed>> $blocks    Parsed blocks.
-	 * @param callable                         $predicate Match test.
-	 * @return array<string, mixed>|null
-	 */
-	private function find_block( array $blocks, callable $predicate ): ?array {
-		foreach ( $blocks as $block ) {
-			if ( null !== $block['blockName'] && $predicate( $block ) ) {
-				return $block;
-			}
-			$inner = $this->find_block( $block['innerBlocks'], $predicate );
-			if ( null !== $inner ) {
-				return $inner;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Render a theme pattern file as WordPress does (include under output buffering).
-	 *
-	 * @param string $slug Pattern file slug.
-	 */
-	private function render_pattern( string $slug ): string {
-		wp_cache_flush();
-		ob_start();
-		include get_theme_file_path( 'patterns/' . $slug . '.php' );
-
-		return (string) ob_get_clean();
 	}
 
 	/**

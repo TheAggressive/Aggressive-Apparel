@@ -11,68 +11,50 @@ is a review call.
 
 ## Who we are
 
-**The Aggressive is a premium, independent apparel label shaped by
-alternative culture, individuality, self-expression and creative freedom.**
+**The Aggressive is an independent apparel label, est. 2010, named for an old
+compliment: "aggressive" meant nobody softened it.** Graphic pieces, plain
+essentials and accessories, without the edges sanded off to please everyone.
 
-- **A complete apparel label**, not a graphic-tee company. Copy talks about
-  the clothing, the identity, the creative direction and the experience of
-  wearing it, and leaves room for new categories and directions.
-- **Original artwork is a strength, not the purpose.** Mention it where a
-  piece or collection is genuinely about its artwork; don't make every brand
-  line about drawing.
-- **Alternative culture informs us; it doesn't fence us in.** Our roots run
-  through several underground and independent movements. Don't list them
-  (no "skate, punk, tattoo and moto"): say "alternative culture", or better,
-  let the line show it without naming it. Never imply we are one scene's
-  merch store.
-- **Collections keep their own worlds.** A capsule may speak its own
-  language: Defiance Division is motocross, so pit lanes and race numbers
-  belong there, not in brand statements.
+- **A point of view, not a philosophy.** The brand never describes its own
+  attitude, independence or rebellion; what it makes, leaves out and finds
+  funny shows it. It is not a motivational brand: no talk of commitment,
+  purpose or living your truth.
+- **A complete apparel label.** Copy is about the clothes and the life they
+  are worn in. Original artwork is mentioned where a piece really carries it.
+- **Roots shown, not listed.** Where we come from appears in the odd
+  reference ("the riff nobody turned down"), never in a list of scenes.
+- **Divisions keep their own worlds.** Defiance Division is motocross: pit
+  lanes and race numbers belong there, not in brand copy. Drops may be
+  numbered as issues ("Issue 07").
+- **The name is explained once** ("Aggressive used to be a compliment."):
+  homepage section 04 and the About page. Nowhere else.
 
 ## The voice
 
-| We are                                   | So we write                                                                   |
-| ---------------------------------------- | ----------------------------------------------------------------------------- |
-| Independent, unapologetic                | Plain statements. No hedging, no asking permission.                           |
-| Mature, intelligent, confident           | Short sentences that assume the reader is smart.                              |
-| Direct, sharp, occasionally provocative  | One idea per line. Provocation comes from an idea, not volume.                |
-| Individual and self-expressive           | Write to a person choosing for themselves, never to a tribe or a type.        |
-| Authentic, not performatively rebellious | No borrowed attitude, no forced edge. If a line could sell any brand, cut it. |
-| Minimal when the clothes can speak       | The image carries the section; the copy names it.                             |
+**Sharp, dry, unbothered.** Someone with good taste and nothing to prove: says
+less than it knows, is funny without signalling the joke, can be dark or
+blunt, and is never needy, angry for show or earnest about itself.
 
-Two tests for any campaign line:
+**Plain by default, plus five registers.** Most copy is plain. A page gets
+two or three lines with voice, a section one at most, several sections none.
 
-1. **The logo test.** Cover the logo. Could a competitor print this line
-   unchanged? "Premium independent streetwear" passes the claims check but
-   fails this: any label could run it. "Stand out from the crowd" fails
-   worse: it belongs to everyone.
-2. **The idea test.** Does the line say something, or only describe
-   something? "Uniforms are usually issued. This one you choose." says
-   something: it is an argument, and only the brand whose slogan is
-   "Rebellion Has a Uniform" can make it.
+| Register | Sounds like                                                       | Example                                           |
+| -------- | ----------------------------------------------------------------- | ------------------------------------------------- |
+| Plain    | Familiar, exact, no voice (shopping, support, labels, specs)      | Your cart is empty. · Size down for a closer fit. |
+| Deadpan  | Flat understatement; the joke is what's left out                  | Rebellion has a uniform. This season's is in.     |
+| Dark     | Gallows wit with a straight face                                  | Dead Signal. Reception was never the point.       |
+| Blunt    | Honest to the point of rude, at the industry or us, never you     | Nobody needs another hoodie. We made one anyway.  |
+| Quiet    | Almost nothing; the picture carries it                            | Black. Again.                                     |
+| Strange  | Form as the joke: catalogue numbers, captions that refuse to sell | Fig. 1: hoodie, worn as intended.                 |
 
-## Finding the idea
+A line is ours when it names something specific, is true, is short, trusts
+the reader, and would sound wrong on any other label's site. Provocation has
+to be true to land. Humour stays out of checkout, errors, shipping and
+support, and never punches at the customer or a group of people.
 
-Original lines come from material only we have. Start from one of these,
-not from a feeling ("bold", "edgy", "raw"):
-
-- **The slogan's tension.** A uniform is imposed; ours is chosen. Issue,
-  rank, regulation, dress code: the uniform's own vocabulary turned around
-  ("Pick your issue.", "Built for personal style, not a dress code.").
-- **Independence, made concrete.** Who decides, and who doesn't: no trend
-  report, no sign-off but ours ("If it carries our name, we made the
-  call.", "Still drawing our own lines.").
-- **The clothes themselves.** Fit, cut, weight, how a piece is worn and
-  lived in, the moment it's for ("Cut for women, not shrunk for them.",
-  "For the cold walk home.", "How it's worn").
-- **Plain truth said flatly.** Real data stated without decoration reads as
-  confidence ("Ranked by real orders, nothing else.").
-- **A turn on the expected.** Set up the cliché, then refuse it ("Nothing
-  borrowed. Nothing toned down.").
-
-Keep it short: one idea per line, no adjective doing the work a noun should.
-If a line needs "bold", "authentic" or "unapologetic" to land, it hasn't
-found its idea yet.
+**Not leaned on** (fine once in a long while, never a pattern): commitment,
+conviction, decided, purpose, mission, journey, passion, authentic,
+unapologetic, attitude, edge, rebel, bold, premium, elevate.
 
 ## Where personality goes
 
@@ -90,10 +72,12 @@ customers recognize them instantly.
 
 We say only what we can stand behind.
 
-- **Safe to state:** the label is independent; it has been around since
-  2010; it is shaped by alternative culture; its designs and creative
-  direction are its own. Original artwork, where a piece really carries it.
-- **Needs proof before it ships:** materials and weights, construction,
+- **Safe to state:** the label is independent; it was established in 2010
+  ("Est. 2010", "in 2010", never "since 2010", which implies an unbroken
+  run nobody has confirmed); the range and divisions that exist today.
+- **Needs proof before it ships:** that designs are made in-house; fit
+  claims ("cut for women"); who chose a product ("staff picks"); materials
+  and weights, construction,
   printing or production methods, ethics or sourcing, durability, stock
   levels or scarcity ("limited", "sells out fast", "no restocks"), shipping
   speed or cutoffs, return terms, exclusivity, popularity ("best seller",
@@ -124,8 +108,10 @@ lines:
 - Fresh drops, just landed · Refuse to blend in · Wear your attitude
 - Game-changer · Must-have · Level up
 - "UNLOCKED!" and other gamified shipping language
-- Unsupported scarcity or quality ("sells out fast", "premium quality
-  guaranteed")
+- Unsupported scarcity or quality ("sells out fast", "limited runs",
+  "premium quality guaranteed")
+- For the Unruled · never meant to blend in · Trends die. Attitude doesn't.
+- Every conviction ends up with a look · Loud or plain. Never undecided.
 
 ## Component conventions
 
@@ -133,7 +119,7 @@ lines:
 | --------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Buttons and CTAs            | Verb + object, sentence case in source (CSS sets display case). Say where it goes. | Shop new arrivals · Shop women's · Back to home                       |
 | Eyebrows                    | Two or three words that classify, not decorate.                                    | Shop by category · New in · Heavy rotation                            |
-| Headlines                   | One idea. Campaign tier may provoke; merchandising tier names.                     | Nothing here is borrowed. · Pick your issue. · Accessories            |
+| Headlines                   | One idea. Campaign tier may provoke; merchandising tier names.                     | Aggressive used to be a compliment. · Pick your issue. · Accessories  |
 | Confirmations               | Past tense, no exclamation mark.                                                   | Added · Added to your cart · All items added to your cart.            |
 | Errors                      | What failed, then what to do. No blame, no "Oops".                                 | Couldn't add this to your cart. Try again.                            |
 | Empty states                | State it plainly, then offer the next step.                                        | Your cart is empty. → Shop all products                               |

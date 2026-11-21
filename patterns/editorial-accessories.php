@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Accessories
- * Description: A compact, denser row of the accessories actually in stock, with a short header and one link to the category.
+ * Description: The accessories actually in stock, with a short header and one link to the category: a row of up to four, or a sideways-scrolling rail of up to eight that shows four and a half.
  * Slug: aggressive-apparel/editorial-accessories
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-products
  * Keywords: accessories, hats, bags, products, homepage
@@ -17,6 +17,15 @@ $aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'acce
 if ( null === $aa_term ) {
 	return;
 }
+$aa_count = Editorial_Catalog::visible_count( $aa_term );
+if ( 0 === $aa_count ) {
+	return;
+}
+// Four across at most: five made the smallest cards on the page. More than
+// four become a rail of up to eight that shows four and a half, so the
+// range reads as a range rather than another row of four.
+$aa_columns = max( 2, min( 4, $aa_count ) );
+$aa_rail    = $aa_count > 4;
 
 ?><!-- wp:group {"metadata":{"name":"10 Accessories"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
@@ -25,8 +34,8 @@ if ( null === $aa_term ) {
 <p class="is-style-eyebrow"><?php echo esc_html__( 'The small stuff', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"level":2,"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Accessories', 'aggressive-apparel' ); ?></h2>
+<!-- wp:heading {"textColor":"foreground"} -->
+<h2 class="wp-block-heading has-foreground-color has-text-color"><?php echo esc_html__( 'Accessories', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
@@ -41,8 +50,9 @@ if ( null === $aa_term ) {
 $aa_grid = Editorial_Product_Grid::markup(
 	array(
 		'query_id' => 310,
-		'per_page' => 5,
-		'columns'  => 5,
+		'per_page' => $aa_rail ? min( 8, $aa_count ) : $aa_columns,
+		'columns'  => $aa_columns,
+		'rail'     => $aa_rail,
 		'term'     => $aa_term,
 		'label'    => __( 'Accessories row', 'aggressive-apparel' ),
 	)

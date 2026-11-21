@@ -651,6 +651,24 @@ describe( 'responsive product grid columns', () => {
 			] );
 		}
 	} );
+
+	it( 'give homepage editorial grids of 4+ columns two large cards per row below desktop', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+
+		expect(
+			await blocks.declarations(
+				'.is-style-editorial-grid .wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(.columns-4,.columns-5,.columns-6)',
+				'--aa-product-grid-columns'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: '2',
+				conditions: [ '@media (width<1024px)' ],
+			} ),
+		] );
+	} );
 } );
 
 describe( 'product card names', () => {
@@ -688,21 +706,6 @@ describe( 'editorial category tiles', () => {
 		expect( await blocks.declarations( wrapper, 'align-content' ) ).toEqual(
 			[ expect.objectContaining( { value: 'flex-end' } ) ]
 		);
-	} );
-
-	it( 'span an odd first tile across a two-up phone grid instead of orphaning the last', async () => {
-		const blocks = await CompiledCss.load(
-			'src/styles/woocommerce/blocks.css'
-		);
-		const [ span ] = await blocks.declarations(
-			'.aa-editorial-tiles > :first-child:nth-last-child(odd)',
-			'grid-column'
-		);
-
-		expect( span.value ).toBe( '1/-1' );
-		expect( span.conditions ).toEqual( [
-			expect.stringMatching( /^@container .*36rem/ ),
-		] );
 	} );
 } );
 
@@ -757,25 +760,29 @@ describe( 'centred short product rows', () => {
 } );
 
 describe( 'editorial sections', () => {
-	it( 'turn an image-less campaign hero into full-width display type', async () => {
+	it( 'size the hero slogan to its column, and to the full width without a photo', async () => {
 		const editorial = await CompiledCss.load(
 			'src/styles/components/editorial.css'
 		);
-		const heading = editorial
+		const campaign = editorial
 			.all()
 			.filter(
 				( d ) =>
-					d.selector.includes( '.aa-campaign-hero:not(:has(' ) &&
+					d.selector.startsWith( '.aa-campaign-hero' ) &&
 					d.selector.includes( '.is-style-campaign' )
 			);
+		const typeOnly = campaign.filter( ( d ) =>
+			d.selector.includes( ':not(:has(.wp-block-image))' )
+		);
 
-		expect( heading.map( ( d ) => d.prop ) ).toEqual(
+		expect( campaign.map( ( d ) => d.prop ) ).toEqual(
 			expect.arrayContaining( [ 'max-width', 'font-size' ] )
 		);
-		expect( heading.every( ( d ) => ! d.important ) ).toBe( true );
+		expect( typeOnly.map( ( d ) => d.prop ) ).toContain( 'font-size' );
+		expect( campaign.every( ( d ) => ! d.important ) ).toBe( true );
 	} );
 
-	it( 'make the lookbook a phone rail, overriding only core’s mobile stacking', async () => {
+	it( 'make the lookbook a phone rail, overriding only core’s mobile stacking and margin pinning', async () => {
 		const editorial = await CompiledCss.load(
 			'src/styles/components/editorial.css'
 		);
@@ -784,13 +791,134 @@ describe( 'editorial sections', () => {
 			.filter( ( d ) => d.selector.includes( '.aa-editorial-looks' ) );
 
 		expect(
-			rail.filter( ( d ) => d.important ).map( ( d ) => d.prop )
-		).toEqual( [ 'flex-wrap', 'flex-basis' ] );
+			rail
+				.filter( ( d ) => d.important )
+				.map( ( d ) => d.prop )
+				.sort()
+		).toEqual( [ 'flex-basis', 'flex-wrap', 'margin-inline' ] );
 		expect(
-			rail.every( ( d ) => /782px/.test( d.conditions.join() ) )
+			rail.every( ( d ) => /600px/.test( d.conditions.join() ) )
 		).toBe( true );
 		expect( rail.map( ( d ) => d.prop ) ).toEqual(
 			expect.arrayContaining( [ 'overflow-x', 'scroll-snap-type' ] )
 		);
+	} );
+
+	it( 'run bleed photos the full row height without turning off the column stretch', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const fill = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.startsWith( '.aa-bleed-photo' ) &&
+					d.prop === 'height'
+			);
+
+		expect( fill.length ).toBeGreaterThan( 0 );
+		// The column itself must keep height:auto, or flex stretch stops.
+		expect(
+			fill.some( ( d ) => /^\.aa-bleed-photo$/.test( d.selector ) )
+		).toBe( false );
+		expect(
+			fill.every( ( d ) => /600px/.test( d.conditions.join() ) )
+		).toBe( true );
+	} );
+
+	it( 'make the category tiles a swipe rail on phones', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const rail = blocks
+			.all()
+			.filter( ( d ) =>
+				d.selector.includes( '.aa-editorial-tiles.is-layout-grid' )
+			);
+
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [
+				'display',
+				'overflow-x',
+				'scroll-snap-type',
+			] )
+		);
+		expect(
+			rail.every( ( d ) => /782px/.test( d.conditions.join() ) )
+		).toBe( true );
+	} );
+
+	it( 'keep editorial splits side by side on tablets, overriding only core stacking', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const split = editorial
+			.all()
+			.filter( ( d ) => d.selector.includes( '.aa-tablet-split' ) );
+
+		expect(
+			split
+				.filter( ( d ) => d.important )
+				.map( ( d ) => d.prop )
+				.sort()
+		).toEqual( [ 'flex-basis', 'flex-wrap' ] );
+		expect(
+			split.every(
+				( d ) =>
+					/600px/.test( d.conditions.join() ) &&
+					/782px/.test( d.conditions.join() )
+			)
+		).toBe( true );
+	} );
+
+	it( 'scroll a rail grid sideways with a fraction of the next card showing', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const rail = blocks
+			.all()
+			.filter( ( d ) => d.selector.startsWith( '.aa-grid-rail' ) );
+
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [
+				'display',
+				'overflow-x',
+				'scroll-snap-type',
+				'flex',
+			] )
+		);
+		expect(
+			rail
+				.filter( ( d ) => d.prop === '--aa-rail-visible' )
+				.map( ( d ) => d.value )
+		).toEqual( expect.arrayContaining( [ '4.5', '2.5', '1.6' ] ) );
+	} );
+
+	it( 'end the lead card image level with the 2 x 2 beside it (3:4)', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+
+		expect(
+			await blocks.declarations(
+				'.aa-grid-lead .wp-block-woocommerce-product-template .wp-block-post-featured-image',
+				'aspect-ratio'
+			)
+		).toEqual( [ expect.objectContaining( { value: '3/4' } ) ] );
+	} );
+
+	it( 'let a linked 100%-width image fill its column, not its natural size', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+
+		expect(
+			await editorial.declarations(
+				'.wp-block-image>a:has(>img[style*="width:100%"])',
+				'display'
+			)
+		).toEqual( [
+			expect.objectContaining( { value: 'block', important: false } ),
+		] );
 	} );
 } );

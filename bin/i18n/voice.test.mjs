@@ -45,9 +45,11 @@ test( 'flags shouted short messages but not calm ones or long admin sentences', 
 
 test( 'flags unsupported claims and invented attribution', () => {
 	assert.equal(
-		findVoiceViolations( pot( 'Limited runs sell out fast.' ) ).length,
+		findVoiceViolations( pot( 'These sell out fast.' ) ).length,
 		1
 	);
+	assert.equal( findVoiceViolations( pot( 'Limited runs.' ) ).length, 1 );
+	assert.equal( findVoiceViolations( pot( 'Staff picks' ) ).length, 1 );
 	assert.equal(
 		findVoiceViolations( pot( 'PREMIUM QUALITY GUARANTEED' ) ).length,
 		1

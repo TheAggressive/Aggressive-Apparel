@@ -10,6 +10,7 @@
 @import "./_cart.css";
 @import "./_saved-for-later.css";
 @import "./_editorial-tiles.css";
+@import "./_editorial-grids.css";
 
 /* Allow collection headings and their CTA to wrap when text is enlarged. */
 .wp-block-woocommerce-product-collection.is-style-commerce-grid
@@ -83,30 +84,6 @@
 	}
 }
 
-/* A short row under a centred heading (Editorial_Product_Grid `centered`):
-   auto-fit drops the empty tracks and each track keeps its N-column width
-   instead of stretching, so one product sits centred at card size rather
-   than flush left. Full rows lay out exactly as above. */
-.wp-block-woocommerce-product-collection.aa-grid-centered
-	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
-	--aa-product-grid-track: calc(
-		(
-				100% - (var(--aa-product-grid-columns) - 1) *
-					var(--aa-product-grid-gap)
-			) /
-			var(--aa-product-grid-columns)
-	);
-
-	grid-template-columns: repeat(
-		auto-fit,
-		minmax(
-			max(150px, var(--aa-product-grid-track)),
-			var(--aa-product-grid-track)
-		)
-	);
-	justify-content: center;
-}
-
 .wp-block-woocommerce-product-template > li,
 .wc-block-grid__product {
 	container-type: inline-size;
@@ -167,9 +144,10 @@
 	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
-/* Square media slot on listing cards — reserves space before images load (CLS). */
+/* Portrait 4:5 media slot on every listing card: apparel is shot on people,
+   so square cut heads and feet; also reserves space before images load. */
 .wp-block-woocommerce-product-template .wp-block-post-featured-image {
-	aspect-ratio: 1;
+	aspect-ratio: 4 / 5;
 	overflow: hidden;
 }
 

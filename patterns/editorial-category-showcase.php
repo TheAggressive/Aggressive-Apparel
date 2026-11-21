@@ -11,6 +11,7 @@
  */
 
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
+use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
 // Candidate slugs per tile, first match wins; a tile is left out when the
 // store has no such category or it has no products, so every tile links to
@@ -63,7 +64,7 @@ foreach ( $aa_tiles as $aa_tile ) {
 $aa_grid_attributes = array(
 	'align'     => 'wide',
 	'className' => 'aa-editorial-tiles',
-	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|4' ) ),
+	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|2' ) ),
 	'layout'    => array(
 		'type'               => 'grid',
 		'columnCount'        => max( 1, count( $aa_found ) ),
@@ -74,16 +75,7 @@ $aa_grid_attributes = array(
 <!-- wp:group <?php echo serialize_block_attributes( $aa_grid_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <div class="wp-block-group alignwide aa-editorial-tiles">
 <?php
-foreach ( $aa_found as $aa_index => $aa_term ) {
-	// Tiles rise in sequence as the row scrolls in (aggressive-blocks
-	// Animate on Scroll; static without JS and under reduced motion).
-	$aa_motion     = array(
-		'animation'     => 'slide',
-		'direction'     => 'up',
-		'slideDistance' => 24,
-		'duration'      => 0.7,
-		'initialDelay'  => round( 0.08 * $aa_index, 2 ),
-	);
+foreach ( $aa_found as $aa_term ) {
 	$aa_attributes = array(
 		'contentAlign'    => 'left',
 		'dimRatio'        => 100,
@@ -92,21 +84,36 @@ foreach ( $aa_found as $aa_index => $aa_term ) {
 		'overlayGradient' => 'var(--wp--preset--gradient--dark-overlay)',
 		'categoryId'      => $aa_term->term_id,
 		'backgroundColor' => 'black',
-		'style'           => array( 'dimensions' => array( 'aspectRatio' => '3/4' ) ),
+		// Tall 2:3, the shape of the portrait photography it carries.
+		'style'           => array( 'dimensions' => array( 'aspectRatio' => '2/3' ) ),
 	);
-	$aa_image      = Editorial_Catalog::term_image_id( $aa_term );
+	// The category's own image, else its newest product photo not already
+	// shown higher on the page (the hero's); claimed so later slots skip it.
+	$aa_image = Editorial_Imagery::term_image( $aa_term );
 	if ( $aa_image > 0 ) {
 		$aa_attributes['mediaId']  = $aa_image;
 		$aa_attributes['imageFit'] = 'cover';
 	}
 	?>
-<!-- wp:aggressive-blocks/animate-on-scroll <?php echo serialize_block_attributes( $aa_motion ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <!-- wp:woocommerce/featured-category <?php echo serialize_block_attributes( $aa_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
-<!-- wp:heading {"level":3,"textColor":"white"} -->
-<h3 class="wp-block-heading has-white-color has-text-color"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
+<!-- wp:heading {"level":3,"textColor":"white","fontSize":"fluid-xxxxx-large"} -->
+<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxxxx-large-font-size"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
 <!-- /wp:heading -->
+	<?php
+	$aa_count = Editorial_Catalog::visible_count( $aa_term );
+	if ( $aa_count > 0 ) :
+		?>
+
+<!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
+<p class="is-style-meta has-white-color has-text-color">
+		<?php
+		/* translators: %d: number of in-stock products in a category. */
+		echo esc_html( sprintf( _n( '%d piece', '%d pieces', $aa_count, 'aggressive-apparel' ), $aa_count ) );
+		?>
+</p>
+<!-- /wp:paragraph -->
+	<?php endif; ?>
 <!-- /wp:woocommerce/featured-category -->
-<!-- /wp:aggressive-blocks/animate-on-scroll -->
 	<?php
 }
 ?>

@@ -71,62 +71,6 @@ final class Editorial_Catalog {
 	}
 
 	/**
-	 * Image for a term: its own thumbnail (the image the merchant chose), else
-	 * the newest catalog-visible product in it that has one. Never an image
-	 * from outside the term, so a tile always shows what it links to.
-	 *
-	 * @param \WP_Term $term Term.
-	 * @return int Attachment ID, or 0 when the term has no image to show.
-	 */
-	public static function term_image_id( \WP_Term $term ): int {
-		$thumbnail = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
-		if ( $thumbnail > 0 && wp_attachment_is_image( $thumbnail ) ) {
-			return $thumbnail;
-		}
-
-		return (int) Request_Cache::remember(
-			'editorial-catalog:term-image:' . $term->term_id,
-			static function () use ( $term ): int {
-				$query = new \WP_Query(
-					array(
-						'post_type'              => 'product',
-						'post_status'            => 'publish',
-						'posts_per_page'         => 1,
-						'fields'                 => 'ids',
-						'orderby'                => 'date',
-						'order'                  => 'DESC',
-						'no_found_rows'          => true,
-						'update_post_term_cache' => false,
-						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- One indexed lookup per tile, memoised per request.
-						'meta_query'             => array(
-							array(
-								'key'     => '_thumbnail_id',
-								'compare' => 'EXISTS',
-							),
-						),
-						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed lookup per tile, memoised per request.
-						'tax_query'              => array(
-							array(
-								'taxonomy' => $term->taxonomy,
-								'terms'    => array( $term->term_id ),
-							),
-							array(
-								'taxonomy' => 'product_visibility',
-								'field'    => 'name',
-								'terms'    => array( 'exclude-from-catalog' ),
-								'operator' => 'NOT IN',
-							),
-						),
-					)
-				);
-				$product = $query->posts[0] ?? 0;
-
-				return $product > 0 ? (int) get_post_thumbnail_id( $product ) : 0;
-			}
-		);
-	}
-
-	/**
 	 * Archive URL for a term, or the Shop page when there is none.
 	 *
 	 * @param \WP_Term|null $term Term.
@@ -252,6 +196,61 @@ final class Editorial_Catalog {
 				);
 
 				return array() !== $query->posts;
+			}
+		);
+	}
+
+	/**
+	 * Catalog-visible, in-stock products a section can actually show.
+	 *
+	 * A term's own count includes hidden and out-of-stock products, which an
+	 * editorial grid filters out; sections size their grid from this instead,
+	 * so three in-stock hoodies get three large cards, not a half-empty row.
+	 *
+	 * @param \WP_Term|null $term     Collection (category, tag or attribute term) or null for the whole catalog.
+	 * @param bool          $featured Count only featured products.
+	 */
+	public static function visible_count( ?\WP_Term $term = null, bool $featured = false ): int {
+		$key = 'editorial-catalog:visible:' . ( null === $term ? 'all' : $term->term_id ) . ( $featured ? ':featured' : '' );
+
+		return (int) Request_Cache::remember(
+			$key,
+			static function () use ( $term, $featured ): int {
+				$tax_query = array(
+					array(
+						'taxonomy' => 'product_visibility',
+						'field'    => 'name',
+						'terms'    => array( 'exclude-from-catalog', 'outofstock' ),
+						'operator' => 'NOT IN',
+					),
+				);
+				if ( null !== $term ) {
+					$tax_query[] = array(
+						'taxonomy' => $term->taxonomy,
+						'terms'    => array( $term->term_id ),
+					);
+				}
+				if ( $featured ) {
+					$tax_query[] = array(
+						'taxonomy' => 'product_visibility',
+						'field'    => 'name',
+						'terms'    => array( 'featured' ),
+					);
+				}
+				$query = new \WP_Query(
+					array(
+						'post_type'              => 'product',
+						'post_status'            => 'publish',
+						'posts_per_page'         => 1,
+						'fields'                 => 'ids',
+						'update_post_meta_cache' => false,
+						'update_post_term_cache' => false,
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed count per section, memoised per request.
+						'tax_query'              => $tax_query,
+					)
+				);
+
+				return (int) $query->found_posts;
 			}
 		);
 	}

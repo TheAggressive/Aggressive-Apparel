@@ -1,0 +1,94 @@
+/**
+ * Homepage editorial product grids (Editorial_Product_Grid)
+ *
+ * Imported at the top of blocks.css, so these load BEFORE its responsive
+ * grid column rules (.columns-N, specificity 0,3,0). They use the same
+ * --aa-product-grid-* custom properties and win by specificity, not order.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Homepage editorial grids of 4+ columns go two-up below desktop: not four
+   150px cards. Three-column grids stay three (a two-up would orphan the
+   third card); a one-card lead grid stays one card.
+   Specificity 0,4,0 beats the .columns-N rules that load after it. */
+@media (width < 1024px) {
+	.is-style-editorial-grid
+		.wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(
+			.columns-4,
+			.columns-5,
+			.columns-6
+		) {
+		--aa-product-grid-columns: 2;
+	}
+}
+
+/* A short row under a centred heading (Editorial_Product_Grid `centered`):
+   auto-fit drops the empty tracks and each track keeps its N-column width
+   instead of stretching, so one product sits centred at card size rather
+   than flush left. Full rows lay out exactly as above. */
+.wp-block-woocommerce-product-collection.aa-grid-centered
+	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-product-grid-track: calc(
+		(
+				100% - (var(--aa-product-grid-columns) - 1) *
+					var(--aa-product-grid-gap)
+			) /
+			var(--aa-product-grid-columns)
+	);
+
+	grid-template-columns: repeat(
+		auto-fit,
+		minmax(
+			max(150px, var(--aa-product-grid-track)),
+			var(--aa-product-grid-track)
+		)
+	);
+	justify-content: center;
+}
+
+/* A lead card (Editorial_Product_Grid `lead`, New Arrivals' newest piece) is
+   3:4 rather than the cards' 4:5: beside a 2 x 2 of half-width cards, that
+   ends its image level with the second row's images (within ~20px from 1024
+   to 1920px) instead of ~150px short of them. */
+.aa-grid-lead
+	.wp-block-woocommerce-product-template
+	.wp-block-post-featured-image {
+	aspect-ratio: 3 / 4;
+}
+
+/* A rail (Editorial_Product_Grid `rail`): one row that scrolls sideways and
+   shows a fraction of the next card, so a longer range reads as more than a
+   row. Keeps a thin visible scrollbar for mouse users; arrow keys and focus
+   scroll it natively. 0,3,0 beats WooCommerce's grid display. */
+.aa-grid-rail
+	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-rail-visible: 4.5;
+
+	display: flex;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: thin;
+	padding-block-end: var(--wp--preset--spacing--4);
+
+	& > li {
+		flex: 0 0
+			calc(
+				(
+						100% - (var(--aa-rail-visible) - 1) *
+							var(--aa-product-grid-gap)
+					) /
+					var(--aa-rail-visible)
+			);
+		scroll-snap-align: start;
+	}
+
+	@media (width < 1024px) {
+		--aa-rail-visible: 2.5;
+	}
+
+	@media (width < 600px) {
+		--aa-rail-visible: 1.6;
+	}
+}

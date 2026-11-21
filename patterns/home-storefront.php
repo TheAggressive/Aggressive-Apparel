@@ -124,10 +124,10 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":1,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textAlign":"center"}},"fontSize":"fluid-xxxxxx-large"} -->
-<h1 class="wp-block-heading has-text-align-center has-fluid-xxxxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'For the Unruled', 'aggressive-apparel' ); ?></h1>
+<h1 class="wp-block-heading has-text-align-center has-fluid-xxxxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Aggressive used to be a compliment.', 'aggressive-apparel' ); ?></h1>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8","textAlign":"center"}},"fontSize":"medium"} -->
-<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'The Aggressive is an independent apparel label shaped by alternative culture. Made for people who carry their edge naturally, not people trying to manufacture one.', 'aggressive-apparel' ); ?></p>
+<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'We named a label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither one is sorry.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->

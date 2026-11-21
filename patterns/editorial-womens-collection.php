@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Women's Collection
- * Description: A tall portrait photo of the collection beside the statement and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place.
+ * Description: A tall portrait photo of the collection beside the collection name and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place.
  * Slug: aggressive-apparel/editorial-womens-collection
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-products
  * Keywords: women, womens, collection, editorial, products, homepage
@@ -57,16 +57,13 @@ $aa_text_width = null !== $aa_lead ? '55%' : '40%';
 <!-- wp:column {"verticalAlignment":"center","width":"<?php echo esc_attr( $aa_text_width ); ?>","style":{"spacing":{"blockGap":"var:preset|spacing|fluid-12"}}} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:<?php echo esc_attr( $aa_text_width ); ?>"><!-- wp:group {"layout":{"type":"constrained","contentSize":"560px","justifyContent":"left"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-<p class="is-style-eyebrow"><?php echo esc_html__( "Women's", 'aggressive-apparel' ); ?></p>
+<p class="is-style-eyebrow"><?php echo esc_html__( 'Collection', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Cut for women, not shrunk for them.', 'aggressive-apparel' ); ?></h2>
+<!-- wp:heading {"className":"is-style-campaign"} -->
+<h2 class="wp-block-heading is-style-campaign"><?php echo esc_html__( 'Women’s', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Women’s fits, nothing toned down.', 'aggressive-apparel' ); ?></p>
-<!-- /wp:paragraph -->
 
 <!-- wp:buttons -->
 <div class="wp-block-buttons"><!-- wp:button {"className":"is-style-ghost"} -->

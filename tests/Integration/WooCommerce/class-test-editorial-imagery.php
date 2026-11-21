@@ -151,16 +151,111 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		}
 	}
 
-	/** Original Work: a store photo beside the statement, or the statement alone. */
-	public function test_original_work_shows_a_photo_or_the_statement_alone(): void {
-		$markup = $this->render_pattern( 'editorial-artwork-spotlight' );
-		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/image' ) );
-		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/columns' ) );
-		$this->assertStringNotContainsString( 'wp:cover', $markup );
-
+	/** The name: a typographic statement, never a placeholder frame or a photo. */
+	public function test_the_name_section_is_typographic(): void {
 		$this->create_product( array( 'image' => $this->create_image() ) );
+
 		$markup = $this->render_pattern( 'editorial-artwork-spotlight' );
-		$this->assertCount( 1, $this->find_all( parse_blocks( $markup ), 'core/image' ) );
+
+		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/image' ) );
+		$this->assertStringNotContainsString( 'wp:cover', $markup );
+		$this->assertStringContainsString( 'id="the-label"', $markup );
+	}
+
+	/**
+	 * The hero shows a real product photo, linked to the product, but never
+	 * the newest product's: New Arrivals opens with that one directly below.
+	 */
+	public function test_hero_photo_skips_the_newest_arrival(): void {
+		$older  = $this->create_product( array( 'image' => $this->create_image() ) );
+		$newest = $this->create_product( array( 'image' => $this->create_image() ) );
+		wp_update_post(
+			array(
+				'ID'            => $older->get_id(),
+				'post_date'     => '2026-01-01 00:00:00',
+				'post_date_gmt' => '2026-01-01 00:00:00',
+			)
+		);
+
+		$markup = $this->render_pattern( 'editorial-campaign-hero' );
+		$images = $this->find_all( parse_blocks( $markup ), 'core/image' );
+
+		$this->assertCount( 1, $images );
+		$this->assertSame( (int) $older->get_image_id(), $images[0]['attrs']['id'] );
+		$this->assertStringNotContainsString( (string) get_permalink( $newest->get_id() ), $markup );
+	}
+
+	/** Without a portrait photo the hero is the slogan alone: no empty frame. */
+	public function test_hero_without_photography_is_type_only(): void {
+		$this->create_product( array( 'image' => $this->create_image( 800, 800 ) ) );
+
+		$markup = $this->render_pattern( 'editorial-campaign-hero' );
+
+		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/image' ) );
+		$this->assertStringContainsString( 'Rebellion has a uniform.', $markup );
+	}
+
+	/** New Arrivals: the newest product as a lead card, the next four beside it. */
+	public function test_new_arrivals_leads_with_the_newest_then_the_next_four(): void {
+		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
+
+		$this->assertCount( 2, $grids );
+		$this->assertSame( array( 1, 0 ), array( $grids[0]['attrs']['query']['perPage'], $grids[0]['attrs']['query']['offset'] ) );
+		$this->assertSame( array( 4, 1 ), array( $grids[1]['attrs']['query']['perPage'], $grids[1]['attrs']['query']['offset'] ) );
+		$this->assertSame( array(), $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'aggressive-blocks/animate-on-scroll' ), 'Products are never behind a reveal.' );
+	}
+
+	/**
+	 * A tile shows the category's own image, else its newest product photo not
+	 * already on the page, else its newest; never another category's photo.
+	 */
+	public function test_term_image_prefers_thumbnail_then_unclaimed_product_photo(): void {
+		$term  = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
+		$other = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
+		$this->create_product(
+			array(
+				'category' => $other->term_id,
+				'image'    => $this->create_image(),
+			)
+		);
+		$this->assertSame( 0, Editorial_Imagery::term_image( $term ) );
+
+		$first  = $this->create_image();
+		$second = $this->create_image( 800, 800 );
+		$this->create_product(
+			array(
+				'category' => $term->term_id,
+				'image'    => $first,
+			)
+		);
+		$this->create_product(
+			array(
+				'category' => $term->term_id,
+				'image'    => $second,
+			)
+		);
+		wp_cache_flush();
+		Editorial_Imagery::claim( $second );
+		$this->assertSame( $first, Editorial_Imagery::term_image( $term ), 'Skips the photo already shown; any orientation qualifies.' );
+
+		wp_cache_flush();
+		$thumbnail = $this->create_image();
+		update_term_meta( $term->term_id, 'thumbnail_id', $thumbnail );
+		$this->assertSame( $thumbnail, Editorial_Imagery::term_image( $term ) );
+	}
+
+	/** Lookbook: tops up from photos shown higher rather than disappearing. */
+	public function test_lookbook_reuses_shown_photos_before_giving_up(): void {
+		$shown = $this->create_image();
+		$this->create_product( array( 'image' => $shown ) );
+		$this->create_product( array( 'image' => $this->create_image() ) );
+		$this->create_product( array( 'image' => $this->create_image() ) );
+		Editorial_Imagery::claim( $shown );
+
+		$this->assertCount( 2, Editorial_Imagery::leads( 3 ) );
+		wp_cache_flush();
+		Editorial_Imagery::claim( $shown );
+		$this->assertCount( 3, Editorial_Imagery::leads( 3, null, true ) );
 	}
 
 	/**

@@ -50,11 +50,16 @@ final class Editorial_Imagery {
 	 * the Women's portrait must show women's clothing, even if a category tile
 	 * used the same photo.
 	 *
+	 * A catalog-wide slot that must show $limit photos or nothing (the
+	 * lookbook) passes $fill: when the unclaimed photos run short, it tops up
+	 * with ones shown higher on the page rather than disappearing.
+	 *
 	 * @param int           $limit Photos wanted.
 	 * @param \WP_Term|null $term  Collection (category, tag or attribute term) or null for the whole catalog.
+	 * @param bool          $fill  Catalog-wide only: reuse claimed photos when unclaimed ones run short.
 	 * @return list<array{product: int, image: int}>
 	 */
-	public static function leads( int $limit, ?\WP_Term $term = null ): array {
+	public static function leads( int $limit, ?\WP_Term $term = null, bool $fill = false ): array {
 		$claimed = self::claimed();
 		$fresh   = array();
 		$reused  = array();
@@ -71,7 +76,7 @@ final class Editorial_Imagery {
 			}
 		}
 
-		$leads = array_slice( null === $term ? $fresh : array_merge( $fresh, $reused ), 0, max( 0, $limit ) );
+		$leads = array_slice( null === $term && ! $fill ? $fresh : array_merge( $fresh, $reused ), 0, max( 0, $limit ) );
 		foreach ( $leads as $lead ) {
 			self::claim( $lead['image'] );
 		}
@@ -90,6 +95,42 @@ final class Editorial_Imagery {
 			$claimed[] = $image;
 			Request_Cache::set( self::CLAIMED, $claimed );
 		}
+	}
+
+	/**
+	 * Keep the newest product's photo out of editorial slots.
+	 *
+	 * New Arrivals opens with the newest product as a large card; the hero
+	 * calls this first so it never shows the same photo directly above it.
+	 */
+	public static function reserve_newest_arrival(): void {
+		$newest = self::candidates( null, false )[0] ?? null;
+		if ( null !== $newest ) {
+			self::claim( $newest['image'] );
+		}
+	}
+
+	/**
+	 * A category tile's photo: the term's own image, else its newest product
+	 * photo not yet shown on this page (any orientation; tiles crop to 3:4),
+	 * else its newest product photo. Claims what it returns.
+	 *
+	 * @param \WP_Term $term Category.
+	 */
+	public static function term_image( \WP_Term $term ): int {
+		$thumbnail = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
+		if ( $thumbnail > 0 && wp_attachment_is_image( $thumbnail ) ) {
+			self::claim( $thumbnail );
+
+			return $thumbnail;
+		}
+		$claimed = self::claimed();
+		$images  = array_column( self::candidates( $term, false ), 'image' );
+		$fresh   = array_values( array_diff( $images, $claimed ) );
+		$image   = $fresh[0] ?? ( $images[0] ?? 0 );
+		self::claim( $image );
+
+		return $image;
 	}
 
 	/**
@@ -155,20 +196,21 @@ final class Editorial_Imagery {
 	}
 
 	/**
-	 * Newest catalog-visible, in-stock products whose main photo is portrait.
+	 * Newest catalog-visible, in-stock products with a main photo.
 	 *
-	 * @param \WP_Term|null $term Collection or null for the whole catalog.
+	 * @param \WP_Term|null $term          Collection or null for the whole catalog.
+	 * @param bool          $portrait_only Only portrait photos (editorial slots); false for any orientation (tiles).
 	 * @return list<array{product: int, image: int}>
 	 */
-	private static function candidates( ?\WP_Term $term ): array {
+	private static function candidates( ?\WP_Term $term, bool $portrait_only = true ): array {
 		$candidates = Request_Cache::remember(
-			'editorial-imagery:candidates:' . ( null === $term ? 'all' : $term->term_id ),
+			'editorial-imagery:candidates:' . ( null === $term ? 'all' : $term->term_id ) . ( $portrait_only ? ':portrait' : ':any' ),
 			/**
-			 * Portrait leads among the newest products.
+			 * Newest products' photos, filtered by orientation.
 			 *
 			 * @return list<array{product: int, image: int}>
 			 */
-			static function () use ( $term ): array {
+			static function () use ( $term, $portrait_only ): array {
 				$tax_query = array(
 					array(
 						'taxonomy' => 'product_visibility',
@@ -209,7 +251,7 @@ final class Editorial_Imagery {
 				foreach ( $query->posts as $post ) {
 					$product = $post instanceof \WP_Post ? $post->ID : $post;
 					$image   = (int) get_post_thumbnail_id( $product );
-					if ( $image > 0 && self::is_portrait( $image ) ) {
+					if ( $image > 0 && ( ! $portrait_only || self::is_portrait( $image ) ) ) {
 						$found[] = array(
 							'product' => $product,
 							'image'   => $image,

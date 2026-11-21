@@ -106,13 +106,17 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertSame( '', trim( $this->render_pattern( 'editorial-best-sellers' ) ) );
 	}
 
-	/** Without sales the section is honestly labelled Staff Picks over Featured products. */
-	public function test_best_sellers_falls_back_to_featured_staff_picks(): void {
+	/**
+	 * Without sales the section is labelled Featured, exactly what the store
+	 * flag means; nothing claims the staff chose them or that they sell.
+	 */
+	public function test_best_sellers_falls_back_to_featured_products(): void {
 		$this->create_product( array( 'featured' => true ) );
 
 		$markup = $this->render_pattern( 'editorial-best-sellers' );
 
-		$this->assertStringContainsString( 'Staff picks', $markup );
+		$this->assertStringContainsString( 'Featured', $markup );
+		$this->assertStringNotContainsString( 'Staff', $markup );
 		$this->assertStringNotContainsString( 'Best sellers', $markup );
 		$this->assertSame( true, $this->collection_query( $markup )['featured'] );
 	}
@@ -199,37 +203,11 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertNull( Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'editorial-empty' ) ) );
 	}
 
-	/** A term shows the merchant's own image first, else its newest product's, never another term's. */
-	public function test_term_image_prefers_the_term_thumbnail_then_its_newest_product(): void {
-		$term  = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
-		$other = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
-		$this->create_product(
-			array(
-				'category' => $other->term_id,
-				'image'    => $this->create_image(),
-			)
-		);
-		$this->assertSame( 0, Editorial_Catalog::term_image_id( $term ) );
-
-		$product_image = $this->create_image();
-		$this->create_product(
-			array(
-				'category' => $term->term_id,
-				'image'    => $product_image,
-			)
-		);
-		wp_cache_flush();
-		$this->assertSame( $product_image, Editorial_Catalog::term_image_id( $term ) );
-
-		$thumbnail = $this->create_image();
-		update_term_meta( $term->term_id, 'thumbnail_id', $thumbnail );
-		$this->assertSame( $thumbnail, Editorial_Catalog::term_image_id( $term ) );
-	}
-
 	/**
 	 * One tile per stocked category in a single row, with the grid's real gap
 	 * declared (core assumes 0.5em without it and drops a column), store
-	 * imagery on the tile, and an overlay WooCommerce can print as CSS.
+	 * imagery on the tile, an overlay WooCommerce can print as CSS, and no
+	 * scroll reveal hiding the tiles.
 	 */
 	public function test_category_showcase_renders_one_row_of_stocked_tiles(): void {
 		$hoodies = self::factory()->term->create_and_get(
@@ -257,11 +235,9 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertNotNull( $grid );
 		$tiles = array();
 		foreach ( $grid['innerBlocks'] as $item ) {
-			// Each tile is a grid item wrapped in its own scroll reveal.
-			$this->assertSame( 'aggressive-blocks/animate-on-scroll', $item['blockName'] );
-			$tile = $this->find_block( $item['innerBlocks'], static fn( $block ) => 'woocommerce/featured-category' === $block['blockName'] );
-			$this->assertNotNull( $tile );
-			$tiles[] = $tile;
+			// Each tile is a direct grid item: never held behind a scroll reveal.
+			$this->assertSame( 'woocommerce/featured-category', $item['blockName'] );
+			$tiles[] = $item;
 		}
 
 		$this->assertCount( 1, $tiles, 'Empty Accessories category gets no tile.' );

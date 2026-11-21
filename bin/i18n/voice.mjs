@@ -32,6 +32,24 @@ export const VOICE_RULES = [
 		reason: 'generic rebellion cliché',
 	},
 	{ pattern: /\bwear your attitude\b/i, reason: 'manufactured attitude' },
+	{ pattern: /\bfor the unruled\b/i, reason: 'generic rebellion cliché' },
+	{ pattern: /\bmeant to blend in\b/i, reason: 'generic rebellion cliché' },
+	{ pattern: /\btrends die\b/i, reason: 'manufactured attitude' },
+	{
+		pattern:
+			/\bno permission needed\b|\bbreak the rules\b|\bmade for rebels\b|\bfor those who dare\b/i,
+		reason: 'generic rebellion cliché',
+	},
+	{ pattern: /\blimited runs?\b/i, reason: 'unverified scarcity' },
+	{
+		pattern: /\bstaff picks?\b/i,
+		reason: 'unverified selection claim: say "Featured"',
+	},
+	{ pattern: /\bcut for women\b/i, reason: 'unverified fit claim' },
+	{
+		pattern: /\bevery conviction\b/i,
+		reason: 'retired: philosophy where a wink was needed',
+	},
 	{ pattern: /\bgame[- ]?changer\b/i, reason: 'empty superlative' },
 	{ pattern: /\bmust[- ]have\b/i, reason: 'empty superlative' },
 	{ pattern: /\blevel up\b/i, reason: 'generic cliché' },

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T08:13:35+00:00\n"
+"POT-Creation-Date: 2026-11-21T09:50:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1032,6 +1032,7 @@ msgid "Best Selling"
 msgstr ""
 
 #: includes/WooCommerce/class-advanced-sorting.php:57
+#: patterns/editorial-best-sellers.php:35
 #: patterns/mega-menu-panel.php:74
 msgid "Featured"
 msgstr ""
@@ -2633,6 +2634,7 @@ msgstr ""
 #: includes/WooCommerce/class-product-filter-renderer.php:41
 #: includes/WooCommerce/class-product-filter-renderer.php:141
 #: patterns/collection-landing-hero.php:18
+#: patterns/editorial-womens-collection.php:60
 msgid "Collection"
 msgstr ""
 
@@ -4734,8 +4736,6 @@ msgid "Three rules we don’t bend."
 msgstr ""
 
 #: patterns/brand-values.php:33
-#: patterns/editorial-artwork-spotlight.php:32
-#: patterns/editorial-artwork-spotlight.php:55
 msgid "Original work"
 msgstr ""
 
@@ -4804,7 +4804,7 @@ msgid "Filter by size, color, and fit."
 msgstr ""
 
 #: patterns/category-landing-composition.php:118
-#: patterns/editorial-featured-looks.php:44
+#: patterns/editorial-featured-looks.php:45
 #: patterns/lookbook-grid.php:16
 msgid "Lookbook"
 msgstr ""
@@ -5397,27 +5397,30 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern title"
-msgid "Editorial — Original Work"
+msgid "Editorial — The Name"
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern description"
-msgid "Dark split: a large portrait photo beside a statement about original design and creative independence. Shows the newest product photo until campaign photography replaces it; without a portrait photo the statement stands alone."
+msgid "Black typographic band, the one place the brand explains itself: a large statement about the name beside a short paragraph and a link into the catalog. Anchor #the-label, the hero's second CTA."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:36
-#: patterns/editorial-artwork-spotlight.php:59
-msgid "Nothing here is borrowed."
+#: patterns/editorial-artwork-spotlight.php:19
+msgid "The name"
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:40
-#: patterns/editorial-artwork-spotlight.php:63
-msgid "Original design, our own creative direction, no trend report to answer to. If it carries our name, we made the call."
+#: patterns/editorial-artwork-spotlight.php:23
+#: patterns/home-storefront.php:127
+msgid "Aggressive used to be a compliment."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:45
-#: patterns/editorial-artwork-spotlight.php:68
-msgid "Shop the collection"
+#: patterns/editorial-artwork-spotlight.php:29
+msgid "It meant nobody softened it: the riff, the line, the work. We named a label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither one is sorry."
+msgstr ""
+
+#: patterns/editorial-artwork-spotlight.php:34
+#: patterns/editorial-brand-story.php:38
+msgid "Shop all"
 msgstr ""
 
 #: patterns/editorial-best-sellers.php
@@ -5427,7 +5430,7 @@ msgstr ""
 
 #: patterns/editorial-best-sellers.php
 msgctxt "Pattern description"
-msgid "Products ranked by real sales. Without sales data it shows the store's Featured products as Staff Picks, and with neither it renders nothing — popularity is never invented."
+msgid "Products ranked by real sales. Without sales data it shows the store's Featured products, and with neither it renders nothing — popularity is never invented."
 msgstr ""
 
 #: patterns/editorial-best-sellers.php:31
@@ -5436,35 +5439,27 @@ msgid "Most wanted"
 msgstr ""
 
 #: patterns/editorial-best-sellers.php:31
-msgid "Studio picks"
+msgid "Start here"
 msgstr ""
 
 #: patterns/editorial-best-sellers.php:35
 msgid "Best sellers"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:35
-msgid "Staff picks"
-msgstr ""
-
-#: patterns/editorial-best-sellers.php:39
+#: patterns/editorial-best-sellers.php:40
 msgid "Ranked by real orders, nothing else."
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:39
-msgid "What we’d wear tomorrow. Picked by the people who make it, not an algorithm."
-msgstr ""
-
-#: patterns/editorial-best-sellers.php:44
+#: patterns/editorial-best-sellers.php:46
 msgid "Shop the list"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:62
+#: patterns/editorial-best-sellers.php:64
 msgid "Best sellers grid"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:71
-msgid "Staff picks grid"
+#: patterns/editorial-best-sellers.php:73
+msgid "Featured grid"
 msgstr ""
 
 #: patterns/editorial-brand-story.php
@@ -5474,22 +5469,22 @@ msgstr ""
 
 #: patterns/editorial-brand-story.php
 msgctxt "Pattern description"
-msgid "A spacious closing brand statement: a large sans headline about independence and alternative culture, and a link to the About page when one exists."
+msgid "A short closing line that hands the page back to the clothes, a link into the catalog, and a link to the About page when one exists."
 msgstr ""
 
-#: patterns/editorial-brand-story.php:23
+#: patterns/editorial-brand-story.php:25
 msgid "The Aggressive"
 msgstr ""
 
-#: patterns/editorial-brand-story.php:27
-msgid "Independent since 2010. Still drawing our own lines."
+#: patterns/editorial-brand-story.php:29
+msgid "That’s all the explaining we’ll do."
 msgstr ""
 
-#: patterns/editorial-brand-story.php:31
-msgid "Alternative culture raised us. It doesn’t fence us in. What we make next, and how it looks, is nobody’s call but ours."
+#: patterns/editorial-brand-story.php:33
+msgid "The rest is in the clothes."
 msgstr ""
 
-#: patterns/editorial-brand-story.php:37
+#: patterns/editorial-brand-story.php:43
 msgid "Our story"
 msgstr ""
 
@@ -5500,28 +5495,28 @@ msgstr ""
 
 #: patterns/editorial-campaign-hero.php
 msgctxt "Pattern description"
-msgid "Full-bleed campaign Cover (replace the image) with a display headline, lead copy and two CTAs into the live catalog."
-msgstr ""
-
-#: patterns/editorial-campaign-hero.php:20
-msgid "Est. 2010"
-msgstr ""
-
-#: patterns/editorial-campaign-hero.php:24
-msgid "Rebellion has a uniform."
-msgstr ""
-
-#: patterns/editorial-campaign-hero.php:28
-msgid "Uniforms are usually issued. This one you choose."
+msgid "Black opening band: the slogan at display scale beside a tall portrait photo of a real product, linked to it, with two CTAs into the live catalog. Shows the store's newest portrait product photo until campaign photography replaces it; without one, the slogan runs full width as type."
 msgstr ""
 
 #: patterns/editorial-campaign-hero.php:33
+msgid "Est. 2010"
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:37
+msgid "Rebellion has a uniform."
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:41
+msgid "This season’s is in."
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:46
 #: patterns/editorial-new-arrivals.php:30
 msgid "Shop new arrivals"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:37
-msgid "Inside the label"
+#: patterns/editorial-campaign-hero.php:50
+msgid "About the name"
 msgstr ""
 
 #: patterns/editorial-category-showcase.php
@@ -5613,25 +5608,22 @@ msgctxt "Pattern description"
 msgid "Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three."
 msgstr ""
 
-#. translators: Lookbook look number.
-#: patterns/editorial-featured-looks.php:23
-#: patterns/editorial-lookbook-spread.php:78
-msgid "Look 01"
+#. translators: Lookbook figure number, as in a catalogue caption.
+#: patterns/editorial-featured-looks.php:24
+msgid "Fig. 01"
 msgstr ""
 
-#. translators: Lookbook look number.
-#: patterns/editorial-featured-looks.php:29
-#: patterns/editorial-lookbook-spread.php:90
-msgid "Look 02"
+#. translators: Lookbook figure number, as in a catalogue caption.
+#: patterns/editorial-featured-looks.php:30
+msgid "Fig. 02"
 msgstr ""
 
-#. translators: Lookbook look number.
-#: patterns/editorial-featured-looks.php:35
-#: patterns/editorial-lookbook-spread.php:102
-msgid "Look 03"
+#. translators: Lookbook figure number, as in a catalogue caption.
+#: patterns/editorial-featured-looks.php:36
+msgid "Fig. 03"
 msgstr ""
 
-#: patterns/editorial-featured-looks.php:48
+#: patterns/editorial-featured-looks.php:49
 #: patterns/lookbook-grid.php:20
 msgid "How it’s worn"
 msgstr ""
@@ -5706,6 +5698,18 @@ msgstr ""
 msgid "View Full Lookbook"
 msgstr ""
 
+#: patterns/editorial-lookbook-spread.php:78
+msgid "Look 01"
+msgstr ""
+
+#: patterns/editorial-lookbook-spread.php:90
+msgid "Look 02"
+msgstr ""
+
+#: patterns/editorial-lookbook-spread.php:102
+msgid "Look 03"
+msgstr ""
+
 #: patterns/editorial-lookbook-spread.php:116
 msgid "Shop the Look"
 msgstr ""
@@ -5722,7 +5726,7 @@ msgstr ""
 
 #: patterns/editorial-new-arrivals.php
 msgctxt "Pattern description"
-msgid "The newest in-stock products from the live catalog in a spacious four-up grid."
+msgid "The newest in-stock product as a large lead card beside a two-by-two of the next four, from the live catalog."
 msgstr ""
 
 #: patterns/editorial-new-arrivals.php:20
@@ -5735,7 +5739,11 @@ msgstr ""
 msgid "New arrivals"
 msgstr ""
 
-#: patterns/editorial-new-arrivals.php:43
+#: patterns/editorial-new-arrivals.php:50
+msgid "Newest arrival"
+msgstr ""
+
+#: patterns/editorial-new-arrivals.php:69
 msgid "New arrivals grid"
 msgstr ""
 
@@ -5746,29 +5754,19 @@ msgstr ""
 
 #: patterns/editorial-womens-collection.php
 msgctxt "Pattern description"
-msgid "A tall portrait photo of the collection beside the statement and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place."
-msgstr ""
-
-#: patterns/editorial-womens-collection.php:60
-#: patterns/home-storefront.php:108
-#: patterns/homepage-seasonal-shop.php:48
-msgid "Women's"
+msgid "A tall portrait photo of the collection beside the collection name and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place."
 msgstr ""
 
 #: patterns/editorial-womens-collection.php:64
-msgid "Cut for women, not shrunk for them."
+msgid "Women’s"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:68
-msgid "Women’s fits, nothing toned down."
-msgstr ""
-
-#: patterns/editorial-womens-collection.php:73
+#: patterns/editorial-womens-collection.php:70
 msgid "Shop women's"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:86
-#: patterns/editorial-womens-collection.php:106
+#: patterns/editorial-womens-collection.php:83
+#: patterns/editorial-womens-collection.php:103
 msgid "Women's products"
 msgstr ""
 
@@ -6326,17 +6324,18 @@ msgstr ""
 msgid "Woman wearing a black t-shirt with the word AGGRESSIVE in a spiky metal-style font"
 msgstr ""
 
+#: patterns/home-storefront.php:108
+#: patterns/homepage-seasonal-shop.php:48
+msgid "Women's"
+msgstr ""
+
 #: patterns/home-storefront.php:114
 #: patterns/homepage-seasonal-shop.php:54
 msgid "Shop Women's"
 msgstr ""
 
-#: patterns/home-storefront.php:127
-msgid "For the Unruled"
-msgstr ""
-
 #: patterns/home-storefront.php:131
-msgid "The Aggressive is an independent apparel label shaped by alternative culture. Made for people who carry their edge naturally, not people trying to manufacture one."
+msgid "We named a label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither one is sorry."
 msgstr ""
 
 #: patterns/homepage-brand-led.php

@@ -28,13 +28,14 @@ final class Editorial_Product_Grid {
 	/**
 	 * Product Collection markup.
 	 *
-	 * Options: query_id (required, unique per page), per_page, columns,
-	 * order_by, featured, term (filters by a category, tag or attribute),
+	 * Options: query_id (required, unique per page), per_page, offset (skip
+	 * the first N, e.g. after a lead card), columns, order_by, featured, term
+	 * (filters by a category, tag or attribute),
 	 * collection (a WooCommerce preset such as new-arrivals), align, label,
 	 * centered (centre a row shorter than the column count).
 	 *
 	 * @param array<string, mixed> $args Grid options.
-	 * @phpstan-param array{query_id: int, per_page?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool} $args
+	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool} $args
 	 */
 	public static function markup( array $args ): string {
 		$term    = $args['term'] ?? null;
@@ -50,7 +51,7 @@ final class Editorial_Product_Grid {
 			'query'         => array(
 				'perPage'                       => max( 1, $args['per_page'] ?? $columns ),
 				'pages'                         => 1,
-				'offset'                        => 0,
+				'offset'                        => max( 0, $args['offset'] ?? 0 ),
 				'postType'                      => 'product',
 				'order'                         => 'desc',
 				'orderBy'                       => $args['order_by'] ?? 'date',

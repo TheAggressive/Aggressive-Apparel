@@ -1,0 +1,48 @@
+/**
+ * Homepage editorial product grids (Editorial_Product_Grid)
+ *
+ * Imported at the top of blocks.css, so these load BEFORE its responsive
+ * grid column rules (.columns-N, specificity 0,3,0). They use the same
+ * --aa-product-grid-* custom properties and win by specificity, not order.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Homepage editorial grids of 3+ columns go two-up below desktop: not four
+   150px cards or 3 + 1 orphans. A one-card lead grid stays one card.
+   Specificity 0,4,0 beats the .columns-N rules that load after it. */
+@media (width < 1024px) {
+	.is-style-editorial-grid
+		.wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(
+			.columns-3,
+			.columns-4,
+			.columns-5,
+			.columns-6
+		) {
+		--aa-product-grid-columns: 2;
+	}
+}
+
+/* A short row under a centred heading (Editorial_Product_Grid `centered`):
+   auto-fit drops the empty tracks and each track keeps its N-column width
+   instead of stretching, so one product sits centred at card size rather
+   than flush left. Full rows lay out exactly as above. */
+.wp-block-woocommerce-product-collection.aa-grid-centered
+	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-product-grid-track: calc(
+		(
+				100% - (var(--aa-product-grid-columns) - 1) *
+					var(--aa-product-grid-gap)
+			) /
+			var(--aa-product-grid-columns)
+	);
+
+	grid-template-columns: repeat(
+		auto-fit,
+		minmax(
+			max(150px, var(--aa-product-grid-track)),
+			var(--aa-product-grid-track)
+		)
+	);
+	justify-content: center;
+}

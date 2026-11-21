@@ -2,8 +2,8 @@
  * Editorial sections (patterns/editorial-*.php)
  *
  * Section-level treatments the block editor can't express: the campaign
- * hero's typographic state, full-width linked photos and the lookbook's
- * phone rail. The section rules key off a class the pattern sets, so they
+ * hero's display type, full-width linked photos and the lookbook's phone
+ * rail. The section rules key off a class the pattern sets, so they
  * never reach other Covers or Columns.
  *
  * Unlayered on purpose: the hero rules must outrank the Campaign Display
@@ -14,19 +14,18 @@
  * @package Aggressive_Apparel
  */
 
-/* Campaign hero without photography. An image-less Cover is a black field;
-   at the photo-sized headline it read as a missing image. Until a campaign
-   image is set, the slogan becomes the image: full-width display type,
-   free of the 880px text column. Setting an image restores the photo
-   layout with no editor change. */
-.aa-campaign-hero:not(
-	:has(
-		> .wp-block-cover__image-background,
-		> .wp-block-cover__video-background
-	)
-) {
+/* Campaign hero. Beside its photo the slogan is set at display scale
+   sized to the text column; with no portrait photo in the store the hero
+   has no image and the slogan becomes the image: full-width display type.
+   Editor font-size picks still win (preset classes carry !important). */
+.aa-campaign-hero {
 	& .wp-block-heading.is-style-campaign {
 		max-width: none;
+		font-size: clamp(3.75rem, 1.25rem + 6.5vw, 8.5rem);
+		line-height: 0.88;
+	}
+
+	&:not(:has(.wp-block-image)) .wp-block-heading.is-style-campaign {
 		font-size: clamp(4.5rem, 2rem + 11vw, 13rem);
 		line-height: 0.86;
 	}

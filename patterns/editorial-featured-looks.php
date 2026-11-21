@@ -13,26 +13,27 @@
 use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
 // Three real photos or no lookbook: an empty frame reads as missing content.
-$aa_leads = Editorial_Imagery::leads( 3 );
+// Fresh photos first; a small catalog may repeat one shown higher up.
+$aa_leads = Editorial_Imagery::leads( 3, null, true );
 if ( count( $aa_leads ) < 3 ) {
 	return;
 }
 $aa_looks = array(
 	array(
-		/* translators: Lookbook look number. */
-		'label' => __( 'Look 01', 'aggressive-apparel' ),
+		/* translators: Lookbook figure number, as in a catalogue caption. */
+		'label' => __( 'Fig. 01', 'aggressive-apparel' ),
 		'width' => '50%',
 		'ratio' => '4/5',
 	),
 	array(
-		/* translators: Lookbook look number. */
-		'label' => __( 'Look 02', 'aggressive-apparel' ),
+		/* translators: Lookbook figure number, as in a catalogue caption. */
+		'label' => __( 'Fig. 02', 'aggressive-apparel' ),
 		'width' => '25%',
 		'ratio' => '2/3',
 	),
 	array(
-		/* translators: Lookbook look number. */
-		'label' => __( 'Look 03', 'aggressive-apparel' ),
+		/* translators: Lookbook figure number, as in a catalogue caption. */
+		'label' => __( 'Fig. 03', 'aggressive-apparel' ),
 		'width' => '25%',
 		'ratio' => '2/3',
 	),
@@ -49,7 +50,6 @@ $aa_looks = array(
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"align":"wide"} -->
 <!-- wp:columns {"verticalAlignment":"bottom","align":"wide","className":"aa-editorial-looks","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-8"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-bottom aa-editorial-looks">
 <?php foreach ( $aa_looks as $aa_index => $aa_look ) : ?>
@@ -69,5 +69,5 @@ $aa_looks = array(
 <?php endforeach; ?>
 </div>
 <!-- /wp:columns -->
-<!-- /wp:aggressive-blocks/animate-on-scroll --></div>
+</div>
 <!-- /wp:group -->

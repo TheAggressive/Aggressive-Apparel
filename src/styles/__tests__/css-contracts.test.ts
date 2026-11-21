@@ -652,14 +652,14 @@ describe( 'responsive product grid columns', () => {
 		}
 	} );
 
-	it( 'give homepage editorial grids two large cards per row below desktop', async () => {
+	it( 'give homepage editorial grids of 3+ columns two large cards per row below desktop', async () => {
 		const blocks = await CompiledCss.load(
 			'src/styles/woocommerce/blocks.css'
 		);
 
 		expect(
 			await blocks.declarations(
-				'.is-style-editorial-grid .wp-block-woocommerce-product-template.wc-block-product-template__responsive',
+				'.is-style-editorial-grid .wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(.columns-3,.columns-4,.columns-5,.columns-6)',
 				'--aa-product-grid-columns'
 			)
 		).toEqual( [
@@ -775,22 +775,26 @@ describe( 'centred short product rows', () => {
 } );
 
 describe( 'editorial sections', () => {
-	it( 'turn an image-less campaign hero into full-width display type', async () => {
+	it( 'size the hero slogan to its column, and to the full width without a photo', async () => {
 		const editorial = await CompiledCss.load(
 			'src/styles/components/editorial.css'
 		);
-		const heading = editorial
+		const campaign = editorial
 			.all()
 			.filter(
 				( d ) =>
-					d.selector.includes( '.aa-campaign-hero:not(:has(' ) &&
+					d.selector.startsWith( '.aa-campaign-hero' ) &&
 					d.selector.includes( '.is-style-campaign' )
 			);
+		const typeOnly = campaign.filter( ( d ) =>
+			d.selector.includes( ':not(:has(.wp-block-image))' )
+		);
 
-		expect( heading.map( ( d ) => d.prop ) ).toEqual(
+		expect( campaign.map( ( d ) => d.prop ) ).toEqual(
 			expect.arrayContaining( [ 'max-width', 'font-size' ] )
 		);
-		expect( heading.every( ( d ) => ! d.important ) ).toBe( true );
+		expect( typeOnly.map( ( d ) => d.prop ) ).toContain( 'font-size' );
+		expect( campaign.every( ( d ) => ! d.important ) ).toBe( true );
 	} );
 
 	it( 'make the lookbook a phone rail, overriding only core’s mobile stacking', async () => {

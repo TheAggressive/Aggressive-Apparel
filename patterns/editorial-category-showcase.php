@@ -75,16 +75,7 @@ $aa_grid_attributes = array(
 <!-- wp:group <?php echo serialize_block_attributes( $aa_grid_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <div class="wp-block-group alignwide aa-editorial-tiles">
 <?php
-foreach ( $aa_found as $aa_index => $aa_term ) {
-	// Tiles rise in sequence as the row scrolls in (aggressive-blocks
-	// Animate on Scroll; static without JS and under reduced motion).
-	$aa_motion     = array(
-		'animation'     => 'slide',
-		'direction'     => 'up',
-		'slideDistance' => 24,
-		'duration'      => 0.7,
-		'initialDelay'  => round( 0.08 * $aa_index, 2 ),
-	);
+foreach ( $aa_found as $aa_term ) {
 	$aa_attributes = array(
 		'contentAlign'    => 'left',
 		'dimRatio'        => 100,
@@ -95,21 +86,19 @@ foreach ( $aa_found as $aa_index => $aa_term ) {
 		'backgroundColor' => 'black',
 		'style'           => array( 'dimensions' => array( 'aspectRatio' => '3/4' ) ),
 	);
-	$aa_image      = Editorial_Catalog::term_image_id( $aa_term );
+	// The category's own image, else its newest product photo not already
+	// shown higher on the page (the hero's); claimed so later slots skip it.
+	$aa_image = Editorial_Imagery::term_image( $aa_term );
 	if ( $aa_image > 0 ) {
-		// Later editorial slots skip this photo, so the page never repeats it.
-		Editorial_Imagery::claim( $aa_image );
 		$aa_attributes['mediaId']  = $aa_image;
 		$aa_attributes['imageFit'] = 'cover';
 	}
 	?>
-<!-- wp:aggressive-blocks/animate-on-scroll <?php echo serialize_block_attributes( $aa_motion ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <!-- wp:woocommerce/featured-category <?php echo serialize_block_attributes( $aa_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <!-- wp:heading {"level":3,"textColor":"white"} -->
 <h3 class="wp-block-heading has-white-color has-text-color"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
 <!-- /wp:heading -->
 <!-- /wp:woocommerce/featured-category -->
-<!-- /wp:aggressive-blocks/animate-on-scroll -->
 	<?php
 }
 ?>

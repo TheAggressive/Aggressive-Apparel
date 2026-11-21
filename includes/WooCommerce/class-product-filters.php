@@ -305,7 +305,7 @@ class Product_Filters {
 					'inStockLabel'                 => __( 'In stock', 'aggressive-apparel' ),
 					'onSaleLabel'                  => __( 'On sale', 'aggressive-apparel' ),
 					'allFiltersCleared'            => __( 'All filters cleared.', 'aggressive-apparel' ),
-					'noProductsFound'              => __( 'No products found.', 'aggressive-apparel' ),
+					'noProductsFound'              => __( 'No products match these filters.', 'aggressive-apparel' ),
 					'oneProductFound'              => __( '1 product found.', 'aggressive-apparel' ),
 					/* translators: %d: number of products found after filtering. */
 					'productsFound'                => __( '%d products found.', 'aggressive-apparel' ),

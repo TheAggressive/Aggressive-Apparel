@@ -13,12 +13,17 @@
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 
-$aa_term = Editorial_Catalog::term( array( 'product_cat' ), array( 'hoodies', 'hoodie', 'sweatshirts' ) );
+$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'hoodies', 'hoodie', 'sweatshirts' ) );
+
+// "Shop all hoodies" must lead to hoodies, not the whole catalog.
+if ( null === $aa_term ) {
+	return;
+}
 
 ?><!-- wp:group {"metadata":{"name":"08 Hoodies"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"backgroundColor":"surface-elevated","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull has-surface-elevated-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"constrained","contentSize":"760px"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"align":"center","className":"is-style-eyebrow"} -->
-<p class="has-text-align-center is-style-eyebrow"><?php echo esc_html__( 'Layer up', 'aggressive-apparel' ); ?></p>
+<p class="has-text-align-center is-style-eyebrow"><?php echo esc_html__( 'Heavy rotation', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"textAlign":"center","className":"is-style-campaign"} -->
@@ -26,22 +31,21 @@ $aa_term = Editorial_Catalog::term( array( 'product_cat' ), array( 'hoodies', 'h
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"align":"center","className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="has-text-align-center is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Original artwork with room to breathe.', 'aggressive-apparel' ); ?></p>
+<p class="has-text-align-center is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'For the cold walk home.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 <?php
-if ( null !== $aa_term ) {
-	$aa_grid = Editorial_Product_Grid::markup(
-		array(
-			'query_id' => 308,
-			'per_page' => 3,
-			'columns'  => 3,
-			'term'     => $aa_term,
-			'label'    => __( 'Hoodies grid', 'aggressive-apparel' ),
-		)
-	);
-	echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
-}
+$aa_grid = Editorial_Product_Grid::markup(
+	array(
+		'query_id' => 308,
+		'per_page' => 3,
+		'columns'  => 3,
+		'term'     => $aa_term,
+		'label'    => __( 'Hoodies grid', 'aggressive-apparel' ),
+		'centered' => true,
+	)
+);
+echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
 ?>
 
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->

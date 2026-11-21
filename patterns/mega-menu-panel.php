@@ -99,7 +99,7 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 	<div class="wp-block-group">
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.08em","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-small"} -->
-		<p class="has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'Trending now', 'aggressive-apparel' ); ?></p>
+		<p class="has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'New this week', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"fontSize":"small"} -->

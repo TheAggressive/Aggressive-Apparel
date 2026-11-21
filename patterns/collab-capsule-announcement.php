@@ -25,7 +25,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.7"}},"textColor":"foreground-muted","fontSize":"large"} -->
-			<p class="has-foreground-muted-color has-text-color has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.7"><?php echo esc_html__( 'Replace [Partner] with the collab name. Limited capsule — streetwear edge meets their craft. Edit the piece count and story to match the drop.', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.7"><?php echo esc_html__( 'Replace [Partner] with the collaborator’s name, then say what each side brought to the capsule. Add a piece count only if it is fixed.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->

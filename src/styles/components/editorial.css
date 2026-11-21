@@ -1,0 +1,66 @@
+/**
+ * Editorial sections (patterns/editorial-*.php)
+ *
+ * Section-level treatments the block editor can't express: the campaign
+ * hero's typographic state and the lookbook's phone rail. Both key off a
+ * class the pattern sets, so they never reach other Covers or Columns.
+ *
+ * Unlayered on purpose: the hero rules must outrank the Campaign Display
+ * heading style (block-styles.css, unlayered) and core's constrained-layout
+ * width. Editor typography still wins — font-size preset classes carry
+ * !important, inline sizes are inline.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Campaign hero without photography. An image-less Cover is a black field;
+   at the photo-sized headline it read as a missing image. Until a campaign
+   image is set, the slogan becomes the image: full-width display type,
+   free of the 880px text column. Setting an image restores the photo
+   layout with no editor change. */
+.aa-campaign-hero:not(
+	:has(
+		> .wp-block-cover__image-background,
+		> .wp-block-cover__video-background
+	)
+) {
+	& .wp-block-heading.is-style-campaign {
+		max-width: none;
+		font-size: clamp(4.5rem, 2rem + 11vw, 13rem);
+		line-height: 0.86;
+	}
+
+	& .is-style-lead {
+		max-width: 38rem;
+	}
+}
+
+/* Lookbook on phones. Stacked, three portrait looks made a ~2,400px column
+   of image; a swipeable rail shows the first look whole and the next one's
+   edge, at about a third of the height. Core stacks columns below 782px
+   with `flex-wrap: wrap !important` and `flex-basis: 100% !important`;
+   !important here beats exactly those two declarations. */
+@media (width < 782px) {
+	.wp-block-columns.aa-editorial-looks {
+		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
+		flex-wrap: nowrap !important;
+		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter));
+		padding-inline: var(--wp--preset--spacing--gutter);
+		scroll-padding-inline: var(--wp--preset--spacing--gutter);
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		& > .wp-block-column {
+			/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-basis:100%!important */
+			flex-basis: 78% !important;
+			flex-shrink: 0;
+			scroll-snap-align: start;
+		}
+	}
+}

@@ -13,7 +13,7 @@
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 
-$aa_term = Editorial_Catalog::term( array( 'product_cat' ), array( 'accessories' ) );
+$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'accessories' ) );
 if ( null === $aa_term ) {
 	return;
 }
@@ -22,7 +22,7 @@ if ( null === $aa_term ) {
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
 <div class="wp-block-group alignwide"><!-- wp:group {"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-<p class="is-style-eyebrow"><?php echo esc_html__( 'Finish the fit', 'aggressive-apparel' ); ?></p>
+<p class="is-style-eyebrow"><?php echo esc_html__( 'The small stuff', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2,"className":"is-style-headline"} -->

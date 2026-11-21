@@ -35,7 +35,7 @@
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"small"} -->
-				<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Tees, caps, and everyday heat.', 'aggressive-apparel' ); ?></p>
+				<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Tees, caps and everyday staples.', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->

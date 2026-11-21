@@ -12,16 +12,16 @@ msgstr ""
 msgid "Page Not Found"
 msgstr "ZZ-PAGE-NOT-FOUND"
 
-msgid "Browse Shop"
+msgid "Shop all products"
 msgstr "ZZ-BROWSE-SHOP"
 
 msgid "No products were found matching your selection."
 msgstr "ZZ-NO-PRODUCTS"
 
-msgid "%s Away from {em}FREE Shipping{em_end}!"
+msgid "%s away from {em}free shipping{em_end}"
 msgstr "ZZ-%s-AWAY-{em}FREE-SHIPPING{em_end}"
 
-msgid "{em}FREE Shipping{em_end} UNLOCKED!"
+msgid "Your order qualifies for {em}free shipping{em_end}."
 msgstr "ZZ-{em}FREE-SHIPPING{em_end}-UNLOCKED"
 
 msgid "Adding…"

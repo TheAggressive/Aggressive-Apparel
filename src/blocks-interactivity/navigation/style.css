@@ -100,7 +100,12 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: var(--navigation-gap);
+
+	/* The editor's block gap is the cap. On narrow desktops (~1024px) the
+	   header leaves the menubar too little room for five items at full gap,
+	   so the last one wrapped onto a second header row; the gap tightens
+	   with the viewport instead and reaches the editor's value by ~1440px. */
+	gap: min(var(--navigation-gap), 2.25vw - 0.5rem);
 	list-style: none;
 	margin: 0;
 	padding: 0;

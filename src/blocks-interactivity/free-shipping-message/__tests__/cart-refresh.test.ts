@@ -26,10 +26,10 @@ const usd = {
 };
 
 const defaultI18n = {
-	progressDefault: '%s Away from {em}FREE Shipping{em_end}!',
-	progressCustom: '%1$s Away from %2$s!',
-	unlockedDefault: '{em}FREE Shipping{em_end} UNLOCKED!',
-	unlockedCustom: '%s UNLOCKED!',
+	progressDefault: '%s away from {em}free shipping{em_end}',
+	progressCustom: '%1$s away from %2$s',
+	unlockedDefault: 'Your order qualifies for {em}free shipping{em_end}.',
+	unlockedCustom: 'Your order qualifies for %s.',
 };
 
 describe( 'formatMoney', () => {
@@ -288,7 +288,7 @@ describe( 'formatFreeShippingMessage', () => {
 
 	it( 'formats default progress copy', () => {
 		expect( formatFreeShippingMessage( baseContext ) ).toBe(
-			'$50 Away from FREE Shipping!'
+			'$50 away from free shipping'
 		);
 	} );
 
@@ -299,14 +299,14 @@ describe( 'formatFreeShippingMessage', () => {
 				complete: true,
 				remaining: 0,
 			} )
-		).toBe( 'FREE Shipping UNLOCKED!' );
+		).toBe( 'Your order qualifies for free shipping.' );
 	} );
 
 	it( 'uses custom emphasis when set', () => {
 		const ctx = { ...baseContext, emphasisText: 'FREE Express' };
 
 		expect( formatFreeShippingMessage( ctx ) ).toBe(
-			'$50 Away from FREE Express!'
+			'$50 away from FREE Express'
 		);
 		expect(
 			formatFreeShippingMessage( {
@@ -314,7 +314,7 @@ describe( 'formatFreeShippingMessage', () => {
 				complete: true,
 				remaining: 0,
 			} )
-		).toBe( 'FREE Express UNLOCKED!' );
+		).toBe( 'Your order qualifies for FREE Express.' );
 	} );
 
 	it( 'uses translated templates from context', () => {
@@ -359,9 +359,8 @@ describe( 'buildFreeShippingSegments', () => {
 	it( 'splits the amount and highlighted phrase out of the sentence', () => {
 		expect( kinds( baseContext ) ).toEqual( [
 			[ '$49.50', 'amount' ],
-			[ ' Away from ', 'text' ],
-			[ 'FREE Shipping', 'emphasis' ],
-			[ '!', 'text' ],
+			[ ' away from ', 'text' ],
+			[ 'free shipping', 'emphasis' ],
 		] );
 	} );
 
@@ -370,13 +369,13 @@ describe( 'buildFreeShippingSegments', () => {
 
 		expect( kinds( ctx ) ).toEqual( [
 			[ '$49.50', 'amount' ],
-			[ ' Away from ', 'text' ],
+			[ ' away from ', 'text' ],
 			[ 'FREE Express', 'emphasis' ],
-			[ '!', 'text' ],
 		] );
 		expect( kinds( { ...ctx, complete: true, remaining: 0 } ) ).toEqual( [
+			[ 'Your order qualifies for ', 'text' ],
 			[ 'FREE Express', 'emphasis' ],
-			[ ' UNLOCKED!', 'text' ],
+			[ '.', 'text' ],
 		] );
 	} );
 
@@ -423,7 +422,7 @@ describe( 'buildFreeShippingSegments', () => {
 	it( 'gives each segment a stable positional key', () => {
 		expect(
 			buildFreeShippingSegments( baseContext ).map( ( s ) => s.key )
-		).toEqual( [ '0-amount', '1-text', '2-emphasis', '3-text' ] );
+		).toEqual( [ '0-amount', '1-text', '2-emphasis' ] );
 	} );
 } );
 

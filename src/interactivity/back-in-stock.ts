@@ -148,7 +148,7 @@ const { state } = store< BackInStockStore >(
 						state._successMessage =
 							json.data?.message ||
 							i18n.successFallback ||
-							"We'll email you when this product is back in stock!";
+							"We'll email you when it's back in stock.";
 					} else {
 						state.hasError = true;
 						state.errorMessage =

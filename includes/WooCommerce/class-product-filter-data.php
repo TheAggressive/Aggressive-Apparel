@@ -221,11 +221,11 @@ final class Product_Filter_Data {
 		return array(
 			array(
 				'value' => 'instock',
-				'label' => __( 'In Stock', 'aggressive-apparel' ),
+				'label' => __( 'In stock', 'aggressive-apparel' ),
 			),
 			array(
 				'value' => 'outofstock',
-				'label' => __( 'Out of Stock', 'aggressive-apparel' ),
+				'label' => __( 'Out of stock', 'aggressive-apparel' ),
 			),
 			array(
 				'value' => 'onbackorder',

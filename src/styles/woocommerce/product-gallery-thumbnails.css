@@ -31,6 +31,12 @@
 		/* CSS Values 4 round() removes fractional scroll geometry. */
 		inline-size: round(down, 100%, 1px);
 	}
+
+	/* The strip starts level with the image's top edge; centred against a
+	   portrait frame it floated mid-image. */
+	.wc-block-product-gallery .wc-block-product-gallery-thumbnails {
+		align-self: flex-start;
+	}
 }
 
 @media (width <= 600px) {

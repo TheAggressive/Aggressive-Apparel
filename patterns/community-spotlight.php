@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Community Spotlight
- * Description: Feature one community member with large portrait, personal quote, and the products they wear.
+ * Description: Feature one real community member with portrait, quote (with permission) and the products they wear. Replace every bracketed line.
  * Slug: aggressive-apparel/community-spotlight
  * Categories: aggressive, aggressive-social-proof, aggressive-homepage
  * Keywords: community, spotlight, member, portrait, quote, shoppable, featured
@@ -23,11 +23,11 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
-				<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Zara Okonkwo', 'aggressive-apparel' ); ?></h3>
+				<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( '[Name]', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}}},"textColor":"white","fontSize":"small"} -->
-				<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--2)"><?php echo esc_html__( '@zara.ok &middot; Brooklyn, NY', 'aggressive-apparel' ); ?></p>
+				<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--2)"><?php echo esc_html__( '[@handle] &middot; [City]', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 			</div></div>
 			<!-- /wp:cover -->
@@ -37,11 +37,11 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"italic","lineHeight":"1.6"}},"fontSize":"fluid-xx-large"} -->
-			<p class="has-fluid-xx-large-font-size" style="font-style:italic;line-height:1.6"><?php echo esc_html__( '&ldquo;I wear Aggressive on repeat — studio days, night runs, everything. The fits hold up and the drops always feel personal.&rdquo;', 'aggressive-apparel' ); ?></p>
+			<p class="has-fluid-xx-large-font-size" style="font-style:italic;line-height:1.6"><?php echo esc_html__( '&ldquo;[Their words, used with permission.]&rdquo;', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|6"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.08em","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-small"} -->
-			<h4 class="wp-block-heading has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--12);margin-bottom:var(--wp--preset--spacing--6);font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'What Zara Wears', 'aggressive-apparel' ); ?></h4>
+			<h4 class="wp-block-heading has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--12);margin-bottom:var(--wp--preset--spacing--6);font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'What they wear', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 
 			<!-- wp:woocommerce/product-collection {"queryId":56,"query":{"perPage":2,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"popularity","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":2,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/featured","queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->
@@ -67,7 +67,7 @@
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->
 			<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--10)">
 				<!-- wp:button {"backgroundColor":"black","textColor":"white"} -->
-				<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" href="/shop"><?php echo esc_html__( 'Shop Zara\'s Fit', 'aggressive-apparel' ); ?></a></div>
+				<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" href="/shop"><?php echo esc_html__( 'Shop the fit', 'aggressive-apparel' ); ?></a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->

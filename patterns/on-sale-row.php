@@ -19,7 +19,7 @@
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph {"textColor":"white","fontSize":"medium"} -->
-		<p class="has-white-color has-text-color has-medium-font-size"><?php echo esc_html__( 'Selected styles. Limited time.', 'aggressive-apparel' ); ?></p>
+		<p class="has-white-color has-text-color has-medium-font-size"><?php echo esc_html__( 'Selected styles, marked down.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

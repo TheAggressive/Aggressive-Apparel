@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Featured Looks
- * Description: Staggered lookbook of three tall portraits (replace the images and link each look to its products) on a warm surface.
+ * Description: Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline (replace the images and link each look to its products) on a warm surface.
  * Slug: aggressive-apparel/editorial-featured-looks
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-drops
  * Keywords: lookbook, looks, outfits, editorial, style, homepage
@@ -17,14 +17,20 @@ $aa_looks = array(
 	array(
 		/* translators: Lookbook look number. */
 		'label' => __( 'Look 01', 'aggressive-apparel' ),
+		'width' => '50%',
+		'ratio' => '4/5',
 	),
 	array(
 		/* translators: Lookbook look number. */
 		'label' => __( 'Look 02', 'aggressive-apparel' ),
+		'width' => '25%',
+		'ratio' => '2/3',
 	),
 	array(
 		/* translators: Lookbook look number. */
 		'label' => __( 'Look 03', 'aggressive-apparel' ),
+		'width' => '25%',
+		'ratio' => '2/3',
 	),
 );
 
@@ -35,15 +41,16 @@ $aa_looks = array(
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"textAlign":"center","textColor":"foreground"} -->
-<h2 class="wp-block-heading has-text-align-center has-foreground-color has-text-color"><?php echo esc_html__( 'Featured looks', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading has-text-align-center has-foreground-color has-text-color"><?php echo esc_html__( 'How it’s worn', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:columns {"align":"wide","className":"aa-editorial-looks","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-12"}}}} -->
-<div class="wp-block-columns alignwide aa-editorial-looks">
+<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"align":"wide"} -->
+<!-- wp:columns {"verticalAlignment":"bottom","align":"wide","className":"aa-editorial-looks","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-8"}}}} -->
+<div class="wp-block-columns alignwide are-vertically-aligned-bottom aa-editorial-looks">
 <?php foreach ( $aa_looks as $aa_look ) : ?>
-<!-- wp:column {"style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
-<div class="wp-block-column"><!-- wp:cover {"dimRatio":100,"overlayColor":"surface-sunken","isUserOverlayColor":true,"isDark":false,"metadata":{"name":"<?php echo esc_attr( $aa_look['label'] ); ?> (replace image)"},"style":{"dimensions":{"aspectRatio":"2/3"}}} -->
+<!-- wp:column {"verticalAlignment":"bottom","width":"<?php echo esc_attr( $aa_look['width'] ); ?>","style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
+<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:<?php echo esc_attr( $aa_look['width'] ); ?>"><!-- wp:cover {"dimRatio":100,"overlayColor":"surface-sunken","isUserOverlayColor":true,"isDark":false,"metadata":{"name":"<?php echo esc_attr( $aa_look['label'] ); ?> (replace image)"},"style":{"dimensions":{"aspectRatio":"<?php echo esc_attr( $aa_look['ratio'] ); ?>"}}} -->
 <div class="wp-block-cover is-light"><span aria-hidden="true" class="wp-block-cover__background has-surface-sunken-background-color has-background-dim-100 has-background-dim"></span><div class="wp-block-cover__inner-container"></div></div>
 <!-- /wp:cover -->
 
@@ -59,5 +66,6 @@ $aa_looks = array(
 <!-- /wp:column -->
 <?php endforeach; ?>
 </div>
-<!-- /wp:columns --></div>
+<!-- /wp:columns -->
+<!-- /wp:aggressive-blocks/animate-on-scroll --></div>
 <!-- /wp:group -->

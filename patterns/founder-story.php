@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Founder Story
- * Description: Human-centric brand section featuring the founder with personal photo and authentic origin story.
+ * Description: Founder section with photo, quote and origin story. Every bracketed line is a prompt: replace it with the founder's real words and history.
  * Slug: aggressive-apparel/founder-story
  * Categories: aggressive, aggressive-informational, aggressive-homepage
  * Keywords: founder, team, story, personal, about, authentic, human
@@ -33,15 +33,15 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxxx-large"} -->
-			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Alex Rivera', 'aggressive-apparel' ); ?></h2>
+			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( '[Founder name]', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:quote {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"fontStyle":"italic","lineHeight":"1.7"}},"fontSize":"large"} -->
-			<blockquote class="wp-block-quote has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.7"><p><?php echo esc_html__( '"Clothing should fuel your confidence — not just cover your body."', 'aggressive-apparel' ); ?></p></blockquote>
+			<blockquote class="wp-block-quote has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.7"><p><?php echo esc_html__( '"[A line from the founder, in their own words.]"', 'aggressive-apparel' ); ?></p></blockquote>
 			<!-- /wp:quote -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"textColor":"foreground-muted","fontSize":"medium"} -->
-			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'What started as garage-printed tees for friends is now a full lineup built with the same hunger that launched the brand. No investors. No shortcuts — just drive and a community that wears its ambition.', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( '[How the label started, in two or three sentences. Real history only: no invented dates, numbers or anecdotes.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|6"}}},"className":"is-style-wide"} -->
@@ -49,7 +49,7 @@
 			<!-- /wp:separator -->
 
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"italic","fontWeight":"600"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="font-style:italic;font-weight:600"><?php echo esc_html__( '— Alex Rivera, Founder &amp; CEO', 'aggressive-apparel' ); ?></p>
+			<p class="has-medium-font-size" style="font-style:italic;font-weight:600"><?php echo esc_html__( '— [Founder name], [role]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

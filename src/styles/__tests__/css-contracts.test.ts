@@ -652,3 +652,145 @@ describe( 'responsive product grid columns', () => {
 		}
 	} );
 } );
+
+describe( 'product card names', () => {
+	it( 'set listing names in the body face, sentence case, unlayered at (0,2,0) so they beat the global post-title style but not editor picks', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const name =
+			'.wp-block-woocommerce-product-template .wp-block-post-title';
+
+		const [ family ] = await blocks.declarations( name, 'font-family' );
+		expect( family ).toEqual(
+			expect.objectContaining( {
+				value: 'var(--wp--preset--font-family--space-grotesk)',
+				important: false,
+				layer: null,
+			} )
+		);
+		expect( await blocks.declarations( name, 'text-transform' ) ).toEqual( [
+			expect.objectContaining( { value: 'none', important: false } ),
+		] );
+		// Size is the editor's (template fontSize attribute), never restated here.
+		expect( await blocks.declarations( name, 'font-size' ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'editorial category tiles', () => {
+	it( 'seat the category name on the lower edge of the tile', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const wrapper =
+			'.aa-editorial-tiles .wc-block-featured-category .wc-block-featured-category__wrapper';
+
+		expect( await blocks.declarations( wrapper, 'align-content' ) ).toEqual(
+			[ expect.objectContaining( { value: 'flex-end' } ) ]
+		);
+	} );
+
+	it( 'span an odd first tile across a two-up phone grid instead of orphaning the last', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const [ span ] = await blocks.declarations(
+			'.aa-editorial-tiles > :first-child:nth-last-child(odd)',
+			'grid-column'
+		);
+
+		expect( span.value ).toBe( '1/-1' );
+		expect( span.conditions ).toEqual( [
+			expect.stringMatching( /^@container .*36rem/ ),
+		] );
+	} );
+} );
+
+describe( 'product gallery thumbnails', () => {
+	it( 'align the desktop strip to the top of a portrait frame', async () => {
+		const thumbs = await CompiledCss.load(
+			'src/styles/woocommerce/product-gallery-thumbnails.css'
+		);
+		const [ align ] = await thumbs.declarations(
+			'.wc-block-product-gallery .wc-block-product-gallery-thumbnails',
+			'align-self'
+		);
+
+		expect( align.value ).toBe( 'flex-start' );
+		expect( align.conditions ).toEqual( [
+			expect.stringMatching( /width\s*>\s*600px|min-width/ ),
+		] );
+	} );
+} );
+
+describe( 'desktop navigation menubar', () => {
+	it( "caps the item gap at the editor's block gap and tightens it on narrow desktops", async () => {
+		const nav = await CompiledCss.load(
+			'src/blocks-interactivity/navigation/style.css'
+		);
+		const [ gap ] = await nav.declarations( '.aa-nav__menubar', 'gap' );
+
+		expect( gap.value.replace( /\s+/g, '' ) ).toBe(
+			'min(var(--navigation-gap),2.25vw - .5rem)'.replace( /\s+/g, '' )
+		);
+	} );
+} );
+
+describe( 'centred short product rows', () => {
+	it( 'drop empty tracks and keep card width instead of stretching', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const grid =
+			'.wp-block-woocommerce-product-collection.aa-grid-centered .wp-block-woocommerce-product-template.wc-block-product-template__responsive';
+
+		const [ columns ] = await blocks.declarations(
+			grid,
+			'grid-template-columns'
+		);
+		expect( columns.value ).toMatch( /^repeat\(auto-fit,/ );
+		expect( columns.value ).not.toContain( '1fr' );
+		expect( await blocks.declarations( grid, 'justify-content' ) ).toEqual(
+			[ expect.objectContaining( { value: 'center' } ) ]
+		);
+	} );
+} );
+
+describe( 'editorial sections', () => {
+	it( 'turn an image-less campaign hero into full-width display type', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const heading = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.includes( '.aa-campaign-hero:not(:has(' ) &&
+					d.selector.includes( '.is-style-campaign' )
+			);
+
+		expect( heading.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [ 'max-width', 'font-size' ] )
+		);
+		expect( heading.every( ( d ) => ! d.important ) ).toBe( true );
+	} );
+
+	it( 'make the lookbook a phone rail, overriding only core’s mobile stacking', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const rail = editorial
+			.all()
+			.filter( ( d ) => d.selector.includes( '.aa-editorial-looks' ) );
+
+		expect(
+			rail.filter( ( d ) => d.important ).map( ( d ) => d.prop )
+		).toEqual( [ 'flex-wrap', 'flex-basis' ] );
+		expect(
+			rail.every( ( d ) => /782px/.test( d.conditions.join() ) )
+		).toBe( true );
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [ 'overflow-x', 'scroll-snap-type' ] )
+		);
+	} );
+} );

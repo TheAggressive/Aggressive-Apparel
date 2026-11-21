@@ -19,7 +19,7 @@
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","level":1,"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"fontWeight":"800","lineHeight":"1.05","letterSpacing":"-0.02em"}},"textColor":"white","fontSize":"fluid-xxxx-large"} -->
-	<h1 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-weight:800;line-height:1.05;letter-spacing:-0.02em"><?php echo esc_html__( 'The New Standard in Streetwear', 'aggressive-apparel' ); ?></h1>
+	<h1 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-weight:800;line-height:1.05;letter-spacing:-0.02em"><?php echo esc_html__( 'Made on our terms.', 'aggressive-apparel' ); ?></h1>
 	<!-- /wp:heading -->
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->
@@ -67,7 +67,7 @@
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","level":2,"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"fontWeight":"800","lineHeight":"1.05","letterSpacing":"-0.02em"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
-	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-weight:800;line-height:1.05;letter-spacing:-0.02em"><?php echo esc_html__( 'Early Access. Exclusive Drops.', 'aggressive-apparel' ); ?></h2>
+	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-weight:800;line-height:1.05;letter-spacing:-0.02em"><?php echo esc_html__( 'New pieces, first look.', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->

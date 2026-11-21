@@ -15,8 +15,13 @@ use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 
 // The Collection attribute drives the /shop/womens/ landing page; a
 // category of the same name is the fallback.
-$aa_term = Editorial_Catalog::term( array( 'pa_collection', 'product_cat' ), array( 'womens', 'women', 'womens-2' ) );
-$aa_url  = ( null !== $aa_term && 'pa_collection' === $aa_term->taxonomy )
+$aa_term = Editorial_Catalog::stocked_term( array( 'pa_collection', 'product_cat' ), array( 'womens', 'women', 'womens-2' ) );
+
+// "Shop women's" must lead to women's products, not the whole catalog.
+if ( null === $aa_term ) {
+	return;
+}
+$aa_url = 'pa_collection' === $aa_term->taxonomy
 	? Editorial_Catalog::audience_url( $aa_term->slug )
 	: Editorial_Catalog::url( $aa_term );
 
@@ -31,15 +36,15 @@ $aa_url  = ( null !== $aa_term && 'pa_collection' === $aa_term->taxonomy )
 <!-- wp:column {"width":"55%","style":{"spacing":{"blockGap":"var:preset|spacing|fluid-12"}}} -->
 <div class="wp-block-column" style="flex-basis:55%"><!-- wp:group {"layout":{"type":"constrained","contentSize":"560px","justifyContent":"left"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-<p class="is-style-eyebrow"><?php echo esc_html__( "Women's collection", 'aggressive-apparel' ); ?></p>
+<p class="is-style-eyebrow"><?php echo esc_html__( "Women's", 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Made for her. Original by design.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Cut for women, not shrunk for them.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Original graphics on fits made for women, from tees to layers.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Women’s fits, nothing toned down.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons -->
@@ -49,19 +54,17 @@ $aa_url  = ( null !== $aa_term && 'pa_collection' === $aa_term->taxonomy )
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
 <?php
-if ( null !== $aa_term ) {
-	$aa_grid = Editorial_Product_Grid::markup(
-		array(
-			'query_id' => 307,
-			'per_page' => 4,
-			'columns'  => 2,
-			'term'     => $aa_term,
-			'align'    => '',
-			'label'    => __( "Women's products", 'aggressive-apparel' ),
-		)
-	);
-	echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
-}
+$aa_grid = Editorial_Product_Grid::markup(
+	array(
+		'query_id' => 307,
+		'per_page' => 4,
+		'columns'  => 2,
+		'term'     => $aa_term,
+		'align'    => '',
+		'label'    => __( "Women's products", 'aggressive-apparel' ),
+	)
+);
+echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
 ?>
 </div>
 <!-- /wp:column --></div>

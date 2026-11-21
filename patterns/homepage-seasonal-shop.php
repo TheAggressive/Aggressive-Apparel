@@ -211,7 +211,7 @@
 	<!-- /wp:paragraph -->
 
 	<!-- wp:quote {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"fontStyle":"italic","lineHeight":"1.5"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
-	<blockquote class="wp-block-quote has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.5"><p><?php echo esc_html__( '"Streetwear isn\'t a trend — it\'s a uniform for people who refuse to blend in."', 'aggressive-apparel' ); ?></p><cite><?php echo esc_html__( '— Aggressive Apparel, SS26 Lookbook', 'aggressive-apparel' ); ?></cite></blockquote>
+	<blockquote class="wp-block-quote has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.5"><p><?php echo esc_html__( '"Rebellion has a uniform."', 'aggressive-apparel' ); ?></p><cite><?php echo esc_html__( '— The Aggressive', 'aggressive-apparel' ); ?></cite></blockquote>
 	<!-- /wp:quote -->
 </div>
 <!-- /wp:group -->

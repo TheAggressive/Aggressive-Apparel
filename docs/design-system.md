@@ -101,7 +101,7 @@ One gutter and four section densities, all fluid spacing presets
 | `gutter`            | 16px → 48px     | Horizontal page padding on every template's `<main>` and the footer. |
 | `section-compact`   | 40px → 64px     | Utility bands: trust rows, marquee, newsletter, surface cards.       |
 | `section-standard`  | 64px → 128px    | Default merchandising section (product rows, category grids).        |
-| `section-editorial` | 80px → 160px    | Story-led sections: artwork spotlight, collection features, brand.   |
+| `section-editorial` | 80px → 160px    | Story-led sections: original-work feature, collections, brand.       |
 | `section-immersive` | 96px → 208px    | Rare campaign moments; never two in a row.                           |
 
 Rules:
@@ -119,7 +119,7 @@ Rules:
 | Ratio                  | Slug / source                      | Use                                                     |
 | ---------------------- | ---------------------------------- | ------------------------------------------------------- |
 | 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
-| 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, artwork close-ups.    |
+| 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, detail close-ups.     |
 | 3:4, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (3:4), tall looks (2:3), detail (1:1).   |
 | Product images         | 1:1 media slot on every card       | Product cards; shoot or upload catalog images square.   |
 
@@ -139,7 +139,7 @@ Rules:
 4. **Loading:** WordPress marks the first large content image
    `fetchpriority="high"` and lazy-loads the rest; don't add `loading` or
    priority attributes by hand.
-5. **Alt text:** describe the garment and artwork in product and editorial
+5. **Alt text:** describe the garment (and its artwork, where it has one) in product and editorial
    images; decorative Cover backgrounds keep empty alt.
 6. **Placeholders:** where approved photography isn't available, patterns ship
    an image-less Cover named `… (replace image)` in List View. Never substitute
@@ -152,41 +152,65 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface           | Live data                                                            |
-| --- | ----------------------------- | -------------------------- | -------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop sorted by newest                                          |
-| 02  | `editorial-category-showcase` | standard                   | Featured Category tiles (category images); the whole tile links      |
-| 03  | `editorial-new-arrivals`      | standard                   | Product Collection, newest, 4-up                                     |
-| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#artwork` anchor for the hero's second CTA               |
-| 05  | `editorial-best-sellers`      | standard, surface-muted    | Real sales → Best sellers; else Featured → Staff picks; else omitted |
-| 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Drop term (`dead-signal`, filterable); else links to newest          |
-| 07  | `editorial-womens-collection` | editorial                  | `pa_collection` / category `womens` → landing page + 2-up grid       |
-| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | `hoodies` category, 3-up                                             |
-| 09  | `editorial-defiance-division` | editorial, black           | `defiance-division` (collection, category or tag) when present       |
-| 10  | `editorial-accessories`       | compact → standard         | `accessories` category, 5-up; omitted if the category is absent      |
-| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Three 2:3 look placeholders                                          |
-| 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                 |
+| #   | Pattern                       | Rhythm / surface           | Live data                                                               |
+| --- | ----------------------------- | -------------------------- | ----------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop by newest; full-width display type until an image is set     |
+| 02  | `editorial-category-showcase` | standard → compact         | One row of stocked categories; category image, else newest product's    |
+| 03  | `editorial-new-arrivals`      | compact → standard         | Product Collection, newest, 4-up                                        |
+| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#the-label` anchor for the hero's second CTA                |
+| 05  | `editorial-best-sellers`      | standard, intro + 3-up     | Real sales → Best sellers; else Featured → Staff picks; else omitted    |
+| 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Stocked drop term (`dead-signal`, filterable); else omitted             |
+| 07  | `editorial-womens-collection` | editorial                  | Stocked `womens` collection or category → landing + 2-up; else omitted  |
+| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | Stocked `hoodies` category, 3-up, short rows centred; else omitted      |
+| 09  | `editorial-defiance-division` | editorial, black           | Stocked `defiance-division` (collection, category or tag); else omitted |
+| 10  | `editorial-accessories`       | compact → standard         | Stocked `accessories` category, 5-up; else omitted                      |
+| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Lead 4:5 look + two 2:3 looks; swipe rail on phones (placeholders)      |
+| 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                    |
 
 Rules the library follows (new sections should too):
 
 1. **No hardcoded store data.** Term IDs and archive URLs differ between
    environments, so patterns resolve them at render time through
    `WooCommerce\Editorial_Catalog` (term by slug → real archive URL, or the
-   Shop page). A grid is only filtered by a term that exists; a section whose
-   subject the store lacks drops its grid rather than showing unrelated
-   products under that heading.
+   Shop page). A section whose CTA names a collection ("Shop women's",
+   "Shop the drop") renders only when the store has that term **with
+   products** (`Editorial_Catalog::stocked_term()`); otherwise it renders
+   nothing, rather than a CTA to the whole catalog.
 2. **No invented merchandising.** Best Sellers ranks by recorded sales only;
    without sales it becomes "Staff picks" over the store's Featured flag.
    Copy makes no claims about materials, process or stock.
 3. **One card.** `WooCommerce\Editorial_Product_Grid` emits every grid with
    the Editorial Grid card the Shop archive uses (media well, title, price,
    swatches). Editors can retune each query in the block inspector.
-4. **Placeholders, not stock photos.** Image slots ship as image-less Covers
-   named `… (replace image)` in List View.
-5. **One red accent per section.** The eyebrow carries the brand red;
+4. **Store imagery for tiles, art direction for campaigns.** A tile that
+   links to a category shows that category's own image, else its newest
+   product's photo (`Editorial_Catalog::term_image_id()`), never an image
+   from outside it. Campaign slots (hero, original work, drop, women's, Defiance
+   Division, looks) need art direction, so they ship as image-less Covers
+   named `… (replace image)` in List View; in black sections they use
+   `surface-muted`, because adaptive colors resolve dark there and
+   `surface-sunken` would vanish.
+5. **Grids declare their gap.** Core sizes a responsive grid's tracks
+   (Column count + Minimum width) from the block's own gap and assumes 0.5em
+   when none is set; against the theme's 48px gap that drops a column. Set
+   Block spacing on every responsive Grid group.
+6. **One red accent per section.** The eyebrow carries the brand red;
    headings take the section's text color (Headline and Campaign Display
    inherit it; plain headings set Foreground).
-6. The slogan appears once, in the hero.
+7. **Motion is a reveal, not a show.** Below-the-fold sections rise into
+   place with aggressive-blocks **Animate on Scroll** at one house setting:
+   `slide` up 24px over 0.7s, children staggered 0.08s. The hero never
+   animates (it is the page's largest paint). Staggered grid items get one
+   wrapper each (the wrapper is the grid item); content inside a horizontal
+   scroller is revealed as one block, because items parked offscreen never
+   trigger. The block renders content visible without JavaScript and holds
+   still under reduced motion.
+8. **Placeholders degrade on purpose.** An image-less campaign hero
+   (`aa-campaign-hero`) sets the slogan as full-width display type; a short
+   product row under a centred heading (`Editorial_Product_Grid` `centered`)
+   centres at card width instead of sitting flush left.
+9. The slogan appears once, in the hero. Copy follows
+   [`brand-voice.md`](brand-voice.md).
 
 **Adopting the homepage on an existing site.** A Blog Home (`home`) template
 customised in the Site Editor is stored in the database and overrides

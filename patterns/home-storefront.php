@@ -56,7 +56,7 @@
 
 <!-- wp:group {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|fluid-16"}}},"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 <div class="wp-block-group" style="margin-top:var(--wp--preset--spacing--2);margin-bottom:var(--wp--preset--spacing--fluid-16)"><!-- wp:paragraph {"style":{"typography":{"lineHeight":"1"}},"fontSize":"small"} -->
-<p class="has-small-font-size" style="line-height:1"><?php echo esc_html__( 'Fresh graphics. No recycled attitude.', 'aggressive-apparel' ); ?></p>
+<p class="has-small-font-size" style="line-height:1"><?php echo esc_html__( 'New pieces, when they’re ready.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -128,6 +128,6 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8","textAlign":"center"}},"fontSize":"medium"} -->
-<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'The Aggressive is independent graphic apparel shaped by punk, metal, skate and motocross culture. Designed for people who carry their edge naturally—not people trying to manufacture one.', 'aggressive-apparel' ); ?></p>
+<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'The Aggressive is an independent apparel label shaped by alternative culture. Made for people who carry their edge naturally, not people trying to manufacture one.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->

@@ -40,6 +40,7 @@
 @import "./components/panel.css";
 @import "./components/adaptive-block-colors.css";
 @import "./components/block-styles.css";
+@import "./components/editorial.css";
 @import "./layout/header.css";
 @import "./layout/footer.css";
 @import "./layout/content.css";

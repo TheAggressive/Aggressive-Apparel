@@ -214,7 +214,7 @@ trait Store_Copy {
 			),
 			'free_shipping_unlocked_text'   => array(
 				'option'          => Free_Shipping_Message::UNLOCKED_WORDING_OPTION,
-				'label'           => __( 'Free Shipping Unlocked Message', 'aggressive-apparel' ),
+				'label'           => __( 'Free Shipping Reached Message', 'aggressive-apparel' ),
 				'default'         => Free_Shipping_Message::default_wording( 'unlocked' ),
 				'description'     => __( 'Shown by the same blocks once the cart qualifies for free shipping. Put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language.', 'aggressive-apparel' ),
 				'tokens'          => array(),

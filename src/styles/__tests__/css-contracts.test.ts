@@ -755,3 +755,42 @@ describe( 'centred short product rows', () => {
 		);
 	} );
 } );
+
+describe( 'editorial sections', () => {
+	it( 'turn an image-less campaign hero into full-width display type', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const heading = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.includes( '.aa-campaign-hero:not(:has(' ) &&
+					d.selector.includes( '.is-style-campaign' )
+			);
+
+		expect( heading.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [ 'max-width', 'font-size' ] )
+		);
+		expect( heading.every( ( d ) => ! d.important ) ).toBe( true );
+	} );
+
+	it( 'make the lookbook a phone rail, overriding only core’s mobile stacking', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const rail = editorial
+			.all()
+			.filter( ( d ) => d.selector.includes( '.aa-editorial-looks' ) );
+
+		expect(
+			rail.filter( ( d ) => d.important ).map( ( d ) => d.prop )
+		).toEqual( [ 'flex-wrap', 'flex-basis' ] );
+		expect(
+			rail.every( ( d ) => /782px/.test( d.conditions.join() ) )
+		).toBe( true );
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [ 'overflow-x', 'scroll-snap-type' ] )
+		);
+	} );
+} );

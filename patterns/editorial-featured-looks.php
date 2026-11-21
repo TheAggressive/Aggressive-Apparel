@@ -41,7 +41,7 @@ $aa_looks = array(
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"textAlign":"center","textColor":"foreground"} -->
-<h2 class="wp-block-heading has-text-align-center has-foreground-color has-text-color"><?php echo esc_html__( 'Featured looks', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading has-text-align-center has-foreground-color has-text-color"><?php echo esc_html__( 'How it’s worn', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 

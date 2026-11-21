@@ -36,15 +36,15 @@ $aa_url = 'pa_collection' === $aa_term->taxonomy
 <!-- wp:column {"width":"55%","style":{"spacing":{"blockGap":"var:preset|spacing|fluid-12"}}} -->
 <div class="wp-block-column" style="flex-basis:55%"><!-- wp:group {"layout":{"type":"constrained","contentSize":"560px","justifyContent":"left"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-<p class="is-style-eyebrow"><?php echo esc_html__( "Women's collection", 'aggressive-apparel' ); ?></p>
+<p class="is-style-eyebrow"><?php echo esc_html__( "Women's", 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Cut for women.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Cut for women, not shrunk for them.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Original artwork on women’s fits.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'The same original artwork, on fits made for women.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons -->

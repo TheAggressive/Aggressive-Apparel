@@ -13,11 +13,11 @@
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|24","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--24);padding-bottom:var(--wp--preset--spacing--24)">
 	<!-- wp:heading {"textAlign":"center","textColor":"white","fontSize":"fluid-xxxx-large"} -->
-	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size"><?php echo esc_html__( 'Why The Aggressive', 'aggressive-apparel' ); ?></h2>
+	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size"><?php echo esc_html__( 'What we stand on', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|16"}}},"textColor":"white","fontSize":"medium"} -->
-	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--16)"><?php echo esc_html__( 'Three things we do not compromise on.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--16)"><?php echo esc_html__( 'Three rules we don’t bend.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
@@ -34,7 +34,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"medium"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Every graphic is drawn for The Aggressive. No stock art, no templates.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'If it isn’t ours, it isn’t on the shirt.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -50,7 +50,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"medium"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'An independent label since 2010. We release what we would wear.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Since 2010, the only approval it needs is ours.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -62,11 +62,11 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"},"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"x-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Made to be worn', 'aggressive-apparel' ); ?></h3>
+			<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Worn, not framed', 'aggressive-apparel' ); ?></h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"medium"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'The artwork goes on everyday clothing, not a display case.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Art belongs on a back, not behind glass.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

@@ -21,7 +21,7 @@
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"foreground-muted","fontSize":"medium"} -->
-	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'New releases reach the list before they reach the feed.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'New artwork, straight to your inbox. No feed, no algorithm.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:group {"borderColor":"white","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"},"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"width":"1px","style":"dashed"}},"layout":{"type":"constrained"}} -->

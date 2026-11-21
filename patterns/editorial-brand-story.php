@@ -24,11 +24,11 @@ $aa_about = $aa_about instanceof WP_Post && 'publish' === $aa_about->post_status
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Independent since 2010. Built on original artwork.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Independent since 2010. Still drawing our own lines.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Skate, punk, tattoo and moto culture shaped where we came from. The artwork is where we are going, and every design is ours.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Skate decks, tattoo flash, punk flyers, race numbers: that’s where the artwork comes from. Nobody signs off on it but us.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 <?php if ( false !== $aa_about ) : ?>
 

@@ -27,16 +27,16 @@ use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline","textColor":"white"} -->
-<h2 class="wp-block-heading is-style-headline has-white-color has-text-color"><?php echo esc_html__( 'Look closer. The detail is the point.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline has-white-color has-text-color"><?php echo esc_html__( 'Every line is ours.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"white"} -->
-<p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'Every graphic in the collection is original to The Aggressive. No stock art, no templates.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'No stock graphics. No template packs. If it’s on the garment, it started as an original drawing.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)"><!-- wp:button {"className":"is-style-outline-on-dark"} -->
-<div class="wp-block-button is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Editorial_Catalog::shop_url() ); ?>"><?php echo esc_html__( 'Shop the collection', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-button is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Editorial_Catalog::shop_url() ); ?>"><?php echo esc_html__( 'Shop the artwork', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons -->
 <!-- /wp:aggressive-blocks/animate-on-scroll --></div>

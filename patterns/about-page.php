@@ -45,11 +45,11 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxx-large"} -->
-			<h2 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Artwork first.', 'aggressive-apparel' ); ?></h2>
+			<h2 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Art first. Garment second.', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Every design starts as original artwork and stays ours. We put it on clothing and let it do the talking.', 'aggressive-apparel' ); ?></p>
+			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Every design starts as an original drawing. The garment is how it leaves the studio.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->

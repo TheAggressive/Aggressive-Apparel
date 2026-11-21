@@ -39,7 +39,7 @@ if ( null === $aa_term ) {
 
 <!-- wp:column {"verticalAlignment":"bottom","width":"40%"} -->
 <div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:40%"><!-- wp:paragraph {"className":"is-style-lead","textColor":"white"} -->
-<p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'A capsule drawn from moto culture.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'Drawn from the pit lane, not the showroom.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons -->

@@ -20,9 +20,39 @@ person, or shouts a short message. Everything else here is a review call.
 | Authentic, not performatively rebellious   | No borrowed attitude. If a line could sell any brand, cut it.         |
 | Minimal when the artwork can speak         | The image carries the section; the copy names it.                     |
 
-The test for any line: **would it still be true, and still ours, on a page
-with no logo?** "Original artwork on everyday clothing" is ours. "Stand out
-from the crowd" belongs to everyone, so it says nothing about us.
+Two tests for any campaign line:
+
+1. **The logo test.** Cover the logo. Could a competitor print this line
+   unchanged? "Original artwork on everyday clothing" passes the claims check
+   but fails this: it is a description, and any graphic-tee brand could run
+   it. "Stand out from the crowd" fails worse: it belongs to everyone.
+2. **The idea test.** Does the line say something, or only describe
+   something? "Uniforms are usually issued. This one you choose." says
+   something: it is an argument, and only the brand whose slogan is
+   "Rebellion Has a Uniform" can make it.
+
+## Finding the idea
+
+Original lines come from material only we have. Start from one of these,
+not from a feeling ("bold", "edgy", "raw"):
+
+- **The slogan's tension.** A uniform is imposed; ours is chosen. Issue,
+  rank, regulation, dress code: the uniform's own vocabulary turned around
+  ("Pick your issue.").
+- **The drawn line.** The artwork is the product, so the language of drawing
+  works twice: lines, ink, linework, the hand, sign-off ("Every line is
+  ours.", "Still drawing our own lines.").
+- **The culture's artifacts.** Name real objects, not attitudes: skate decks,
+  tattoo flash, punk flyers, race numbers, the pit lane ("Drawn from the pit
+  lane, not the showroom.").
+- **Plain truth said flatly.** Real data stated without decoration reads as
+  confidence ("Ranked by real orders, nothing else.").
+- **A turn on the expected.** Set up the cliché, then refuse it ("Cut for
+  women, not shrunk for them.", "Worn, not framed.").
+
+Keep it short: one idea per line, no adjective doing the work a noun should.
+If a line needs "bold", "authentic" or "unapologetic" to land, it hasn't
+found its idea yet.
 
 ## Where personality goes
 
@@ -82,8 +112,8 @@ lines:
 | Component                   | Convention                                                                         | Example                                                               |
 | --------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Buttons and CTAs            | Verb + object, sentence case in source (CSS sets display case). Say where it goes. | Shop new arrivals · Shop women's · Back to home                       |
-| Eyebrows                    | Two or three words that classify, not decorate.                                    | Shop by category · Newest first · Original artwork                    |
-| Headlines                   | One idea. Campaign tier may provoke; merchandising tier names.                     | Look closer. The detail is the point. · Cut for women.                |
+| Eyebrows                    | Two or three words that classify, not decorate.                                    | Shop by category · Latest artwork · Heavy rotation                    |
+| Headlines                   | One idea. Campaign tier may provoke; merchandising tier names.                     | Every line is ours. · Pick your issue. · Accessories                  |
 | Confirmations               | Past tense, no exclamation mark.                                                   | Added · Added to your cart · All items added to your cart.            |
 | Errors                      | What failed, then what to do. No blame, no "Oops".                                 | Couldn't add this to your cart. Try again.                            |
 | Empty states                | State it plainly, then offer the next step.                                        | Your cart is empty. → Shop all products                               |

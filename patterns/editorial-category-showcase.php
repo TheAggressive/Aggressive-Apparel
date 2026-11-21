@@ -38,7 +38,7 @@ $aa_tiles = array(
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Choose your canvas.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Pick your issue.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 

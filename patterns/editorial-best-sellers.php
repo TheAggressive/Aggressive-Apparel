@@ -25,7 +25,7 @@ if ( ! $aa_ranked && ! $aa_featured ) {
 <div class="wp-block-columns alignwide"><!-- wp:column {"width":"30%","style":{"spacing":{"blockGap":"var:preset|spacing|6"}}} -->
 <div class="wp-block-column" style="flex-basis:30%"><!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"staggerChildren":true,"staggerDelay":0.08,"style":{"spacing":{"blockGap":"var:preset|spacing|6"}}} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-<p class="is-style-eyebrow"><?php echo esc_html( $aa_ranked ? __( 'Most ordered', 'aggressive-apparel' ) : __( 'Chosen by the studio', 'aggressive-apparel' ) ); ?></p>
+<p class="is-style-eyebrow"><?php echo esc_html( $aa_ranked ? __( 'Most wanted', 'aggressive-apparel' ) : __( 'Studio picks', 'aggressive-apparel' ) ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
@@ -33,7 +33,7 @@ if ( ! $aa_ranked && ! $aa_featured ) {
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"textColor":"foreground-muted"} -->
-<p class="has-foreground-muted-color has-text-color"><?php echo esc_html( $aa_ranked ? __( 'The pieces ordered most, ranked by real orders.', 'aggressive-apparel' ) : __( 'Pieces picked by the studio from the current collection.', 'aggressive-apparel' ) ); ?></p>
+<p class="has-foreground-muted-color has-text-color"><?php echo esc_html( $aa_ranked ? __( 'Ranked by real orders, nothing else.', 'aggressive-apparel' ) : __( 'What we’d wear tomorrow. Picked by the people who make it, not an algorithm.', 'aggressive-apparel' ) ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->

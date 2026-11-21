@@ -11,13 +11,15 @@ namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
-use WC_Product_Simple;
+use Aggressive_Apparel\Tests\Support\Builds_Editorial_Fixtures;
 use WP_UnitTestCase;
 
 /**
  * Editorial patterns resolve live store data and never invent merchandising.
  */
 class Test_Editorial_Catalog extends WP_UnitTestCase {
+
+	use Builds_Editorial_Fixtures;
 
 	/** Attribute taxonomy registered for the attribute-filter case. */
 	private const ATTRIBUTE = 'pa_editorial_probe';
@@ -313,83 +315,6 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$markup = $this->render_pattern( 'editorial-hoodies-feature' );
 
 		$this->assertStringContainsString( esc_url( (string) get_term_link( $hoodies ) ), $markup );
-	}
-
-	/**
-	 * Create a published simple product.
-	 *
-	 * @param array{featured?: bool, total_sales?: int, category?: int, image?: int} $props Product properties.
-	 */
-	private function create_product( array $props = array() ): WC_Product_Simple {
-		$product = new WC_Product_Simple();
-		$product->set_name( 'Editorial probe' );
-		$product->set_status( 'publish' );
-		$product->set_regular_price( '20' );
-		$product->set_featured( $props['featured'] ?? false );
-		$product->set_total_sales( $props['total_sales'] ?? 0 );
-		if ( isset( $props['category'] ) ) {
-			$product->set_category_ids( array( $props['category'] ) );
-		}
-		if ( isset( $props['image'] ) ) {
-			$product->set_image_id( $props['image'] );
-		}
-		$product->save();
-
-		return $product;
-	}
-
-	/** Create an image attachment with real dimensions. */
-	private function create_image(): int {
-		$id = self::factory()->attachment->create_object(
-			array(
-				'file'           => 'editorial-probe.jpg',
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-		wp_update_attachment_metadata(
-			$id,
-			array(
-				'width'  => 504,
-				'height' => 757,
-				'file'   => 'editorial-probe.jpg',
-			)
-		);
-
-		return $id;
-	}
-
-	/**
-	 * Depth-first search of parsed blocks.
-	 *
-	 * @param array<int, array<string, mixed>> $blocks    Parsed blocks.
-	 * @param callable                         $predicate Match test.
-	 * @return array<string, mixed>|null
-	 */
-	private function find_block( array $blocks, callable $predicate ): ?array {
-		foreach ( $blocks as $block ) {
-			if ( null !== $block['blockName'] && $predicate( $block ) ) {
-				return $block;
-			}
-			$inner = $this->find_block( $block['innerBlocks'], $predicate );
-			if ( null !== $inner ) {
-				return $inner;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Render a theme pattern file as WordPress does (include under output buffering).
-	 *
-	 * @param string $slug Pattern file slug.
-	 */
-	private function render_pattern( string $slug ): string {
-		wp_cache_flush();
-		ob_start();
-		include get_theme_file_path( 'patterns/' . $slug . '.php' );
-
-		return (string) ob_get_clean();
 	}
 
 	/**

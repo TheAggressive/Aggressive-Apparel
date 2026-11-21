@@ -2,8 +2,9 @@
  * Editorial sections (patterns/editorial-*.php)
  *
  * Section-level treatments the block editor can't express: the campaign
- * hero's typographic state and the lookbook's phone rail. Both key off a
- * class the pattern sets, so they never reach other Covers or Columns.
+ * hero's typographic state, full-width linked photos and the lookbook's
+ * phone rail. The section rules key off a class the pattern sets, so they
+ * never reach other Covers or Columns.
  *
  * Unlayered on purpose: the hero rules must outrank the Campaign Display
  * heading style (block-styles.css, unlayered) and core's constrained-layout
@@ -33,6 +34,14 @@
 	& .is-style-lead {
 		max-width: 38rem;
 	}
+}
+
+/* A linked image set to 100% width (editorial photo slots, and any image
+   the editor sizes that way) fills its column. Core makes the link
+   inline-block, a shrink-to-fit box, so the image's percentage width
+   resolved to its natural size: a 504px photo sat in a 624px column. */
+.wp-block-image > a:has(> img[style*="width:100%"]) {
+	display: block;
 }
 
 /* Lookbook on phones. Stacked, three portrait looks made a ~2,400px column

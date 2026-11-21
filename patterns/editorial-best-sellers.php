@@ -19,6 +19,9 @@ $aa_featured = ! $aa_ranked && Editorial_Catalog::has_featured_products();
 if ( ! $aa_ranked && ! $aa_featured ) {
 	return;
 }
+// Two or three large cards beside the intro, sized to the picks that exist:
+// two staff picks fill the column instead of leaving a third of it empty.
+$aa_columns = $aa_ranked ? 3 : max( 2, min( 3, Editorial_Catalog::visible_count( null, true ) ) );
 
 ?><!-- wp:group {"metadata":{"name":"05 Best Sellers"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"backgroundColor":"surface-muted","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull has-surface-muted-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:columns {"align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
@@ -28,8 +31,8 @@ if ( ! $aa_ranked && ! $aa_featured ) {
 <p class="is-style-eyebrow"><?php echo esc_html( $aa_ranked ? __( 'Most wanted', 'aggressive-apparel' ) : __( 'Studio picks', 'aggressive-apparel' ) ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html( $aa_ranked ? __( 'Best sellers', 'aggressive-apparel' ) : __( 'Staff picks', 'aggressive-apparel' ) ); ?></h2>
+<!-- wp:heading {"textColor":"foreground"} -->
+<h2 class="wp-block-heading has-foreground-color has-text-color"><?php echo esc_html( $aa_ranked ? __( 'Best sellers', 'aggressive-apparel' ) : __( 'Staff picks', 'aggressive-apparel' ) ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"textColor":"foreground-muted"} -->
@@ -51,8 +54,8 @@ $aa_grid = Editorial_Product_Grid::markup(
 	$aa_ranked
 		? array(
 			'query_id'   => 305,
-			'per_page'   => 3,
-			'columns'    => 3,
+			'per_page'   => $aa_columns,
+			'columns'    => $aa_columns,
 			'order_by'   => 'popularity',
 			'collection' => 'best-sellers',
 			'align'      => '',
@@ -60,8 +63,8 @@ $aa_grid = Editorial_Product_Grid::markup(
 		)
 		: array(
 			'query_id'   => 305,
-			'per_page'   => 3,
-			'columns'    => 3,
+			'per_page'   => $aa_columns,
+			'columns'    => $aa_columns,
 			'featured'   => true,
 			'collection' => 'featured',
 			'align'      => '',

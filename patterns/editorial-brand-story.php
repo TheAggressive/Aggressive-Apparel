@@ -13,8 +13,8 @@
 $aa_about = get_page_by_path( 'about' );
 $aa_about = $aa_about instanceof WP_Post && 'publish' === $aa_about->post_status ? get_permalink( $aa_about ) : false;
 
-?><!-- wp:group {"metadata":{"name":"12 The Aggressive Story"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-immersive","bottom":"var:preset|spacing|section-immersive","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|8"}},"layout":{"type":"constrained","contentSize":"960px"}} -->
-<div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-immersive);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-immersive);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"staggerChildren":true,"staggerDelay":0.08,"style":{"spacing":{"blockGap":"var:preset|spacing|8"}}} -->
+?><!-- wp:group {"metadata":{"name":"12 The Aggressive Story"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-editorial","bottom":"var:preset|spacing|section-editorial","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|8"}},"layout":{"type":"constrained","contentSize":"960px"}} -->
+<div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-editorial);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-editorial);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"staggerChildren":true,"staggerDelay":0.08,"style":{"spacing":{"blockGap":"var:preset|spacing|8"}}} -->
 <!-- wp:separator {"className":"is-style-brand-stripe"} -->
 <hr class="wp-block-separator has-alpha-channel-opacity is-style-brand-stripe"/>
 <!-- /wp:separator -->

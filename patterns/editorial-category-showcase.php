@@ -11,6 +11,7 @@
  */
 
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
+use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
 // Candidate slugs per tile, first match wins; a tile is left out when the
 // store has no such category or it has no products, so every tile links to
@@ -96,6 +97,8 @@ foreach ( $aa_found as $aa_index => $aa_term ) {
 	);
 	$aa_image      = Editorial_Catalog::term_image_id( $aa_term );
 	if ( $aa_image > 0 ) {
+		// Later editorial slots skip this photo, so the page never repeats it.
+		Editorial_Imagery::claim( $aa_image );
 		$aa_attributes['mediaId']  = $aa_image;
 		$aa_attributes['imageFit'] = 'cover';
 	}

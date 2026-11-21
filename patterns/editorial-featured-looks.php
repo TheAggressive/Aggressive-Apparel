@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Featured Looks
- * Description: Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline (replace the images and link each look to its products) on a warm surface.
+ * Description: Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three.
  * Slug: aggressive-apparel/editorial-featured-looks
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-drops
  * Keywords: lookbook, looks, outfits, editorial, style, homepage
@@ -10,9 +10,13 @@
  * @package Aggressive_Apparel
  */
 
-use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
+use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
-$aa_shop  = Editorial_Catalog::shop_url();
+// Three real photos or no lookbook: an empty frame reads as missing content.
+$aa_leads = Editorial_Imagery::leads( 3 );
+if ( count( $aa_leads ) < 3 ) {
+	return;
+}
 $aa_looks = array(
 	array(
 		/* translators: Lookbook look number. */
@@ -48,11 +52,9 @@ $aa_looks = array(
 <!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"align":"wide"} -->
 <!-- wp:columns {"verticalAlignment":"bottom","align":"wide","className":"aa-editorial-looks","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-8"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-bottom aa-editorial-looks">
-<?php foreach ( $aa_looks as $aa_look ) : ?>
+<?php foreach ( $aa_looks as $aa_index => $aa_look ) : ?>
 <!-- wp:column {"verticalAlignment":"bottom","width":"<?php echo esc_attr( $aa_look['width'] ); ?>","style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
-<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:<?php echo esc_attr( $aa_look['width'] ); ?>"><!-- wp:cover {"dimRatio":100,"overlayColor":"surface-sunken","isUserOverlayColor":true,"isDark":false,"metadata":{"name":"<?php echo esc_attr( $aa_look['label'] ); ?> (replace image)"},"style":{"dimensions":{"aspectRatio":"<?php echo esc_attr( $aa_look['ratio'] ); ?>"}}} -->
-<div class="wp-block-cover is-light"><span aria-hidden="true" class="wp-block-cover__background has-surface-sunken-background-color has-background-dim-100 has-background-dim"></span><div class="wp-block-cover__inner-container"></div></div>
-<!-- /wp:cover -->
+<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:<?php echo esc_attr( $aa_look['width'] ); ?>"><?php echo Editorial_Imagery::image_markup( $aa_leads[ $aa_index ], $aa_look['ratio'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>
 
 <!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-meta"} -->
@@ -60,7 +62,7 @@ $aa_looks = array(
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p><a href="<?php echo esc_url( $aa_shop ); ?>"><?php echo esc_html__( 'Shop the look', 'aggressive-apparel' ); ?></a></p>
+<p><a href="<?php echo esc_url( (string) get_permalink( $aa_leads[ $aa_index ]['product'] ) ); ?>"><?php echo esc_html( get_the_title( $aa_leads[ $aa_index ]['product'] ) ); ?></a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:column -->

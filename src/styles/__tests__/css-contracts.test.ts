@@ -651,6 +651,24 @@ describe( 'responsive product grid columns', () => {
 			] );
 		}
 	} );
+
+	it( 'give homepage editorial grids two large cards per row below desktop', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+
+		expect(
+			await blocks.declarations(
+				'.is-style-editorial-grid .wp-block-woocommerce-product-template.wc-block-product-template__responsive',
+				'--aa-product-grid-columns'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: '2',
+				conditions: [ '@media (width<1024px)' ],
+			} ),
+		] );
+	} );
 } );
 
 describe( 'product card names', () => {
@@ -792,5 +810,20 @@ describe( 'editorial sections', () => {
 		expect( rail.map( ( d ) => d.prop ) ).toEqual(
 			expect.arrayContaining( [ 'overflow-x', 'scroll-snap-type' ] )
 		);
+	} );
+
+	it( 'let a linked 100%-width image fill its column, not its natural size', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+
+		expect(
+			await editorial.declarations(
+				'.wp-block-image>a:has(>img[style*="width:100%"])',
+				'display'
+			)
+		).toEqual( [
+			expect.objectContaining( { value: 'block', important: false } ),
+		] );
 	} );
 } );

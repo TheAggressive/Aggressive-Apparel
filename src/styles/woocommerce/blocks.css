@@ -83,6 +83,15 @@
 	}
 }
 
+/* Homepage editorial grids below desktop: two large cards per row, not four
+   150px cards (or 3 + 1 orphans). Same specificity as above, later. */
+@media (width < 1024px) {
+	.is-style-editorial-grid
+		.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+		--aa-product-grid-columns: 2;
+	}
+}
+
 /* A short row under a centred heading (Editorial_Product_Grid `centered`):
    auto-fit drops the empty tracks and each track keeps its N-column width
    instead of stretching, so one product sits centred at card size rather

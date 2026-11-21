@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T05:20:47+00:00\n"
+"POT-Creation-Date: 2026-11-21T08:13:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2382,7 +2382,7 @@ msgstr ""
 #: includes/WooCommerce/class-garment-kinds.php:152
 #: patterns/animated-category-mosaic.php:31
 #: patterns/category-landing-composition.php:21
-#: patterns/editorial-hoodies-feature.php:30
+#: patterns/editorial-hoodies-feature.php:59
 #: patterns/homepage-seasonal-shop.php:83
 #: patterns/mega-menu-panel.php:24
 #: patterns/no-results-browse.php:38
@@ -4560,7 +4560,7 @@ msgid "Outerwear"
 msgstr ""
 
 #: patterns/animated-category-mosaic.php:71
-#: patterns/editorial-accessories.php:29
+#: patterns/editorial-accessories.php:35
 #: patterns/homepage-seasonal-shop.php:143
 #: patterns/lookbook-grid.php:79
 #: patterns/mega-menu-panel.php:36
@@ -4734,7 +4734,8 @@ msgid "Three rules we don’t bend."
 msgstr ""
 
 #: patterns/brand-values.php:33
-#: patterns/editorial-artwork-spotlight.php:26
+#: patterns/editorial-artwork-spotlight.php:32
+#: patterns/editorial-artwork-spotlight.php:55
 msgid "Original work"
 msgstr ""
 
@@ -4803,7 +4804,7 @@ msgid "Filter by size, color, and fit."
 msgstr ""
 
 #: patterns/category-landing-composition.php:118
-#: patterns/editorial-featured-looks.php:40
+#: patterns/editorial-featured-looks.php:44
 #: patterns/lookbook-grid.php:16
 msgid "Lookbook"
 msgstr ""
@@ -5379,18 +5380,18 @@ msgstr ""
 
 #: patterns/editorial-accessories.php
 msgctxt "Pattern description"
-msgid "A compact, denser row of the accessories actually in stock, with a short header and one link to the category."
+msgid "A row of up to four accessories actually in stock, with a short header and one link to the category."
 msgstr ""
 
-#: patterns/editorial-accessories.php:25
+#: patterns/editorial-accessories.php:31
 msgid "The small stuff"
 msgstr ""
 
-#: patterns/editorial-accessories.php:35
+#: patterns/editorial-accessories.php:41
 msgid "Shop accessories"
 msgstr ""
 
-#: patterns/editorial-accessories.php:47
+#: patterns/editorial-accessories.php:53
 msgid "Accessories row"
 msgstr ""
 
@@ -5401,18 +5402,21 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern description"
-msgid "Dark, immersive split: a large portrait image (replace the image) beside a statement about original design and creative independence."
+msgid "Dark split: a large portrait photo beside a statement about original design and creative independence. Shows the newest product photo until campaign photography replaces it; without a portrait photo the statement stands alone."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:30
+#: patterns/editorial-artwork-spotlight.php:36
+#: patterns/editorial-artwork-spotlight.php:59
 msgid "Nothing here is borrowed."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:34
+#: patterns/editorial-artwork-spotlight.php:40
+#: patterns/editorial-artwork-spotlight.php:63
 msgid "Original design, our own creative direction, no trend report to answer to. If it carries our name, we made the call."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:39
+#: patterns/editorial-artwork-spotlight.php:45
+#: patterns/editorial-artwork-spotlight.php:68
 msgid "Shop the collection"
 msgstr ""
 
@@ -5426,40 +5430,40 @@ msgctxt "Pattern description"
 msgid "Products ranked by real sales. Without sales data it shows the store's Featured products as Staff Picks, and with neither it renders nothing — popularity is never invented."
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:28
+#: patterns/editorial-best-sellers.php:31
 #: patterns/ranked-bestsellers-chart.php:20
 msgid "Most wanted"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:28
+#: patterns/editorial-best-sellers.php:31
 msgid "Studio picks"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:32
+#: patterns/editorial-best-sellers.php:35
 msgid "Best sellers"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:32
+#: patterns/editorial-best-sellers.php:35
 msgid "Staff picks"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:36
+#: patterns/editorial-best-sellers.php:39
 msgid "Ranked by real orders, nothing else."
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:36
+#: patterns/editorial-best-sellers.php:39
 msgid "What we’d wear tomorrow. Picked by the people who make it, not an algorithm."
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:41
+#: patterns/editorial-best-sellers.php:44
 msgid "Shop the list"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:59
+#: patterns/editorial-best-sellers.php:62
 msgid "Best sellers grid"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:68
+#: patterns/editorial-best-sellers.php:71
 msgid "Staff picks grid"
 msgstr ""
 
@@ -5530,15 +5534,15 @@ msgctxt "Pattern description"
 msgid "Portrait category tiles, one per stocked category, showing the category's own image (or its newest product's); the whole tile links to the category."
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:37
+#: patterns/editorial-category-showcase.php:38
 msgid "Shop by category"
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:41
+#: patterns/editorial-category-showcase.php:42
 msgid "Pick your issue."
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:47
+#: patterns/editorial-category-showcase.php:48
 msgid "All products"
 msgstr ""
 
@@ -5606,34 +5610,30 @@ msgstr ""
 
 #: patterns/editorial-featured-looks.php
 msgctxt "Pattern description"
-msgid "Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline (replace the images and link each look to its products) on a warm surface."
+msgid "Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three."
 msgstr ""
 
 #. translators: Lookbook look number.
-#: patterns/editorial-featured-looks.php:19
+#: patterns/editorial-featured-looks.php:23
 #: patterns/editorial-lookbook-spread.php:78
 msgid "Look 01"
 msgstr ""
 
 #. translators: Lookbook look number.
-#: patterns/editorial-featured-looks.php:25
+#: patterns/editorial-featured-looks.php:29
 #: patterns/editorial-lookbook-spread.php:90
 msgid "Look 02"
 msgstr ""
 
 #. translators: Lookbook look number.
-#: patterns/editorial-featured-looks.php:31
+#: patterns/editorial-featured-looks.php:35
 #: patterns/editorial-lookbook-spread.php:102
 msgid "Look 03"
 msgstr ""
 
-#: patterns/editorial-featured-looks.php:44
+#: patterns/editorial-featured-looks.php:48
 #: patterns/lookbook-grid.php:20
 msgid "How it’s worn"
-msgstr ""
-
-#: patterns/editorial-featured-looks.php:63
-msgid "Shop the look"
 msgstr ""
 
 #: patterns/editorial-homepage.php
@@ -5653,22 +5653,22 @@ msgstr ""
 
 #: patterns/editorial-hoodies-feature.php
 msgctxt "Pattern description"
-msgid "Oversized centered category headline over a three-up grid of real hoodies, with a single shopping CTA."
+msgid "Oversized category headline with real hoodies and a single shopping CTA. Three or more hoodies sit in a centred row under the headline; one or two become large cards beside it."
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:26
-msgid "Heavy rotation"
-msgstr ""
-
-#: patterns/editorial-hoodies-feature.php:34
-msgid "For the cold walk home."
-msgstr ""
-
-#: patterns/editorial-hoodies-feature.php:44
+#: patterns/editorial-hoodies-feature.php:37
 msgid "Hoodies grid"
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:53
+#: patterns/editorial-hoodies-feature.php:55
+msgid "Heavy rotation"
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php:63
+msgid "For the cold walk home."
+msgstr ""
+
+#: patterns/editorial-hoodies-feature.php:74
 msgid "Shop all hoodies"
 msgstr ""
 
@@ -5746,28 +5746,29 @@ msgstr ""
 
 #: patterns/editorial-womens-collection.php
 msgctxt "Pattern description"
-msgid "A tall editorial portrait (replace the image) beside a two-up grid of real women's products and a path to the full collection."
+msgid "A tall portrait photo of the collection beside the statement and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place."
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:39
+#: patterns/editorial-womens-collection.php:60
 #: patterns/home-storefront.php:108
 #: patterns/homepage-seasonal-shop.php:48
 msgid "Women's"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:43
+#: patterns/editorial-womens-collection.php:64
 msgid "Cut for women, not shrunk for them."
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:47
+#: patterns/editorial-womens-collection.php:68
 msgid "Women’s fits, nothing toned down."
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:52
+#: patterns/editorial-womens-collection.php:73
 msgid "Shop women's"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:64
+#: patterns/editorial-womens-collection.php:86
+#: patterns/editorial-womens-collection.php:106
 msgid "Women's products"
 msgstr ""
 

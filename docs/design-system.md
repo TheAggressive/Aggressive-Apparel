@@ -152,20 +152,20 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface           | Live data                                                               |
-| --- | ----------------------------- | -------------------------- | ----------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop by newest; full-width display type until an image is set     |
-| 02  | `editorial-category-showcase` | standard → compact         | One row of stocked categories; category image, else newest product's    |
-| 03  | `editorial-new-arrivals`      | compact → standard         | Product Collection, newest, 4-up                                        |
-| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#the-label` anchor for the hero's second CTA                |
-| 05  | `editorial-best-sellers`      | standard, intro + 3-up     | Real sales → Best sellers; else Featured → Staff picks; else omitted    |
-| 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Stocked drop term (`dead-signal`, filterable); else omitted             |
-| 07  | `editorial-womens-collection` | editorial                  | Stocked `womens` collection or category → landing + 2-up; else omitted  |
-| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | Stocked `hoodies` category, 3-up, short rows centred; else omitted      |
-| 09  | `editorial-defiance-division` | editorial, black           | Stocked `defiance-division` (collection, category or tag); else omitted |
-| 10  | `editorial-accessories`       | compact → standard         | Stocked `accessories` category, 5-up; else omitted                      |
-| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Lead 4:5 look + two 2:3 looks; swipe rail on phones (placeholders)      |
-| 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                    |
+| #   | Pattern                       | Rhythm / surface         | Live data                                                                |
+| --- | ----------------------------- | ------------------------ | ------------------------------------------------------------------------ |
+| 01  | `editorial-campaign-hero`     | 88vh Cover, black        | CTA → Shop by newest; full-width display type until an image is set      |
+| 02  | `editorial-category-showcase` | standard → compact       | One row of stocked categories; category image, else newest product's     |
+| 03  | `editorial-new-arrivals`      | compact → standard       | Product Collection, newest, 4-up                                         |
+| 04  | `editorial-artwork-spotlight` | editorial, black         | Store portrait photo + statement, else statement alone; `#the-label`     |
+| 05  | `editorial-best-sellers`      | standard, intro + 2–3-up | Real sales → Best sellers; else Featured → Staff picks; else omitted     |
+| 06  | `editorial-featured-drop`     | 75vh Cover + grid        | Stocked drop term (`dead-signal`, filterable); else omitted              |
+| 07  | `editorial-womens-collection` | editorial                | Stocked `womens` term: portrait photo + 2-up (from 2 products); else —   |
+| 08  | `editorial-hoodies-feature`   | standard, surface-muted  | Stocked `hoodies`: 3+ → centred row; 1–2 → large cards beside headline   |
+| 09  | `editorial-defiance-division` | editorial, black         | Stocked `defiance-division` (collection, category or tag); else omitted  |
+| 10  | `editorial-accessories`       | compact → standard       | Stocked `accessories` category, up to 4-up; else omitted                 |
+| 11  | `editorial-featured-looks`    | editorial, surface-muted | Three store portrait photos linked to products; phone rail; else omitted |
+| 12  | `editorial-brand-story`       | editorial                | About page link when a published `about` page exists                     |
 
 Rules the library follows (new sections should too):
 
@@ -182,12 +182,20 @@ Rules the library follows (new sections should too):
 3. **One card.** `WooCommerce\Editorial_Product_Grid` emits every grid with
    the Editorial Grid card the Shop archive uses (media well, title, price,
    swatches). Editors can retune each query in the block inspector.
-4. **Store imagery for tiles, art direction for campaigns.** A tile that
-   links to a category shows that category's own image, else its newest
-   product's photo (`Editorial_Catalog::term_image_id()`), never an image
-   from outside it. Campaign slots (hero, original work, drop, women's, Defiance
-   Division, looks) need art direction, so they ship as image-less Covers
-   named `… (replace image)` in List View; in black sections they use
+4. **Real photography or a different layout, never an empty frame.** A tile
+   that links to a category shows that category's own image, else its newest
+   product's photo (`Editorial_Catalog::term_image_id()`). Editorial photo
+   slots (original work, women's, looks) take the store's newest **portrait**
+   product photos (`WooCommerce\Editorial_Imagery::leads()`), as plain
+   core/image blocks linked to the product, which the merchant replaces with
+   campaign photography in the editor. Square images (packshots, flat
+   mockups) never qualify. Each photo appears once per page: tiles claim
+   theirs first and catalog-wide slots skip claimed photos; a collection slot
+   (women's) may reuse one, because it must show that collection. A slot
+   that can't be filled changes the layout (Original Work becomes a
+   statement, Looks is omitted) instead of showing a placeholder. Covers
+   named `… (replace image)` remain only where the section is a campaign
+   (hero, drop, Defiance Division); in black sections they use
    `surface-muted`, because adaptive colors resolve dark there and
    `surface-sunken` would vanish.
 5. **Grids declare their gap.** Core sizes a responsive grid's tracks
@@ -205,12 +213,23 @@ Rules the library follows (new sections should too):
    scroller is revealed as one block, because items parked offscreen never
    trigger. The block renders content visible without JavaScript and holds
    still under reduced motion.
-8. **Placeholders degrade on purpose.** An image-less campaign hero
-   (`aa-campaign-hero`) sets the slogan as full-width display type; a short
-   product row under a centred heading (`Editorial_Product_Grid` `centered`)
-   centres at card width instead of sitting flush left.
-9. The slogan appears once, in the hero. Copy follows
-   [`brand-voice.md`](brand-voice.md).
+8. **Sections size to their stock.** Grids count what they can actually
+   show (`Editorial_Catalog::visible_count()`: catalog-visible, in stock),
+   not the term's raw count. Two staff picks are two large cards, not a
+   third of an empty row; one or two hoodies sit large beside the headline;
+   a one-product women's collection is carried by its photo. Below 1024px
+   every editorial grid is two-up. An image-less campaign hero
+   (`aa-campaign-hero`) sets the slogan as full-width display type.
+9. **Two heading roles.** A heading that names a product set (New arrivals,
+   Staff picks, Hoodies, Accessories, How it's worn) is the plain display
+   heading, set to Foreground; a heading that makes a statement ("Pick your
+   issue.", "Nothing here is borrowed.") is Headline (Sans).
+10. **Light surfaces alternate.** Below the hero, light sections alternate
+    `surface` and `surface-muted` (black bands break the run; categories and
+    new arrivals share one surface as a single shopping block); no section
+    uses `surface-elevated` white.
+11. The slogan appears once, in the hero. Copy follows
+    [`brand-voice.md`](brand-voice.md).
 
 **Adopting the homepage on an existing site.** A Blog Home (`home`) template
 customised in the Site Editor is stored in the database and overrides

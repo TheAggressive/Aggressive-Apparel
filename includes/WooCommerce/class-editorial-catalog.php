@@ -255,4 +255,59 @@ final class Editorial_Catalog {
 			}
 		);
 	}
+
+	/**
+	 * Catalog-visible, in-stock products a section can actually show.
+	 *
+	 * A term's own count includes hidden and out-of-stock products, which an
+	 * editorial grid filters out; sections size their grid from this instead,
+	 * so three in-stock hoodies get three large cards, not a half-empty row.
+	 *
+	 * @param \WP_Term|null $term     Collection (category, tag or attribute term) or null for the whole catalog.
+	 * @param bool          $featured Count only featured products.
+	 */
+	public static function visible_count( ?\WP_Term $term = null, bool $featured = false ): int {
+		$key = 'editorial-catalog:visible:' . ( null === $term ? 'all' : $term->term_id ) . ( $featured ? ':featured' : '' );
+
+		return (int) Request_Cache::remember(
+			$key,
+			static function () use ( $term, $featured ): int {
+				$tax_query = array(
+					array(
+						'taxonomy' => 'product_visibility',
+						'field'    => 'name',
+						'terms'    => array( 'exclude-from-catalog', 'outofstock' ),
+						'operator' => 'NOT IN',
+					),
+				);
+				if ( null !== $term ) {
+					$tax_query[] = array(
+						'taxonomy' => $term->taxonomy,
+						'terms'    => array( $term->term_id ),
+					);
+				}
+				if ( $featured ) {
+					$tax_query[] = array(
+						'taxonomy' => 'product_visibility',
+						'field'    => 'name',
+						'terms'    => array( 'featured' ),
+					);
+				}
+				$query = new \WP_Query(
+					array(
+						'post_type'              => 'product',
+						'post_status'            => 'publish',
+						'posts_per_page'         => 1,
+						'fields'                 => 'ids',
+						'update_post_meta_cache' => false,
+						'update_post_term_cache' => false,
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed count per section, memoised per request.
+						'tax_query'              => $tax_query,
+					)
+				);
+
+				return (int) $query->found_posts;
+			}
+		);
+	}
 }

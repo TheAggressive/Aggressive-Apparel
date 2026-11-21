@@ -48,9 +48,9 @@ class Test_Free_Shipping_Message extends WP_UnitTestCase {
 	 * Default copy renders as plain text in both states.
 	 */
 	public function test_format_uses_default_copy(): void {
-		$this->assertStringContainsString( 'Away from FREE Shipping!', Free_Shipping_Message::format( 150.0, '', false ) );
-		$this->assertSame( 'FREE Shipping UNLOCKED!', Free_Shipping_Message::format( 0.0, '', true ) );
-		$this->assertSame( 'FREE Express UNLOCKED!', Free_Shipping_Message::format( 0.0, 'FREE Express', true ) );
+		$this->assertStringContainsString( 'away from free shipping', Free_Shipping_Message::format( 150.0, '', false ) );
+		$this->assertSame( 'Your order qualifies for free shipping.', Free_Shipping_Message::format( 0.0, '', true ) );
+		$this->assertSame( 'Your order qualifies for FREE Express.', Free_Shipping_Message::format( 0.0, 'FREE Express', true ) );
 	}
 
 	/**
@@ -69,10 +69,10 @@ class Test_Free_Shipping_Message extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertSame( array( '$49.50', ' Away from ', 'FREE Shipping', '!' ), array_column( $segments, 'text' ) );
-		$this->assertSame( array( true, false, false, false ), array_column( $segments, 'amount' ) );
-		$this->assertSame( array( false, false, true, false ), array_column( $segments, 'emphasis' ) );
-		$this->assertSame( array( '0-amount', '1-text', '2-emphasis', '3-text' ), array_column( $segments, 'key' ) );
+		$this->assertSame( array( '$49.50', ' away from ', 'free shipping' ), array_column( $segments, 'text' ) );
+		$this->assertSame( array( true, false, false ), array_column( $segments, 'amount' ) );
+		$this->assertSame( array( false, false, true ), array_column( $segments, 'emphasis' ) );
+		$this->assertSame( array( '0-amount', '1-text', '2-emphasis' ), array_column( $segments, 'key' ) );
 	}
 
 	/**
@@ -134,8 +134,8 @@ class Test_Free_Shipping_Message extends WP_UnitTestCase {
 	public function test_default_wording_round_trips(): void {
 		$templates = Free_Shipping_Message::get_default_templates();
 
-		$this->assertSame( '{amount} Away from *FREE Shipping*!', Free_Shipping_Message::default_wording( 'progress' ) );
-		$this->assertSame( '*FREE Shipping* UNLOCKED!', Free_Shipping_Message::default_wording( 'unlocked' ) );
+		$this->assertSame( '{amount} away from *free shipping*', Free_Shipping_Message::default_wording( 'progress' ) );
+		$this->assertSame( 'Your order qualifies for *free shipping*.', Free_Shipping_Message::default_wording( 'unlocked' ) );
 		$this->assertSame(
 			str_replace( '%s', '%1$s', $templates['progressDefault'] ),
 			Free_Shipping_Message::wording_to_template( Free_Shipping_Message::default_wording( 'progress' ), true )
@@ -159,20 +159,20 @@ class Test_Free_Shipping_Message extends WP_UnitTestCase {
 			array_column( Free_Shipping_Message::segments( $context( $attributes ) ), 'text' )
 		);
 
-		$this->assertSame( '$12 Away from FREE Shipping!', $text( array() ) );
+		$this->assertSame( '$12 away from free shipping', $text( array() ) );
 
 		update_option( Free_Shipping_Message::PROGRESS_WORDING_OPTION, 'Just {amount} to *free shipping*' );
 		$this->assertSame( 'Just $12 to free shipping', $text( array() ) );
 
 		// A legacy phrase is block-level, so it outranks site wording.
-		$this->assertSame( '$12 Away from FREE Express!', $text( array( 'emphasisText' => 'FREE Express' ) ) );
+		$this->assertSame( '$12 away from FREE Express', $text( array( 'emphasisText' => 'FREE Express' ) ) );
 
 		// Block wording applies only while its toggle is on.
 		$override = array(
 			'progressText' => 'Only {amount} left',
 			'emphasisText' => 'FREE Express',
 		);
-		$this->assertSame( '$12 Away from FREE Express!', $text( $override ) );
+		$this->assertSame( '$12 away from FREE Express', $text( $override ) );
 		$this->assertSame( 'Only $12 left', $text( array( 'useCustomWording' => true ) + $override ) );
 
 		// Blank block wording inherits the site wording.

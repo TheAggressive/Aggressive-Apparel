@@ -276,7 +276,7 @@ function announceResults(): void {
 	const total = renderedTotal();
 	if ( total === 0 ) {
 		state._announcement =
-			state.i18n?.noProductsFound ?? 'No products found.';
+			state.i18n?.noProductsFound ?? 'No products match these filters.';
 	} else if ( total === 1 ) {
 		state._announcement = state.i18n?.oneProductFound ?? '1 product found.';
 	} else if ( total !== null ) {

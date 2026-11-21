@@ -90,7 +90,7 @@ $inline_style = implode(
 			<?php if ( $show_header ) : ?>
 			<p class="aa-wishlist-page__eyebrow"><?php esc_html_e( 'Saved for later', 'aggressive-apparel' ); ?></p>
 			<h2 class="aa-wishlist-page__title"><?php esc_html_e( 'Your wishlist', 'aggressive-apparel' ); ?></h2>
-			<p class="aa-wishlist-page__description"><?php esc_html_e( 'Your favorite pieces, all in one place.', 'aggressive-apparel' ); ?></p>
+			<p class="aa-wishlist-page__description"><?php esc_html_e( 'Everything you’ve saved, in one place.', 'aggressive-apparel' ); ?></p>
 			<?php endif; ?>
 		</div>
 		<?php if ( $show_count ) : ?>

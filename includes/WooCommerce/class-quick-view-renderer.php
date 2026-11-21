@@ -106,7 +106,7 @@ class Quick_View_Renderer {
 				'i18n'                  => array(
 					'addToCartText'           => Feature_Settings::get_simple_product_button_text(),
 					'addingToCartText'        => __( 'Adding…', 'aggressive-apparel' ),
-					'addedToCartText'         => __( '✓ Added!', 'aggressive-apparel' ),
+					'addedToCartText'         => __( 'Added', 'aggressive-apparel' ),
 					'outOfStockButtonText'    => Feature_Settings::get_out_of_stock_button_text(),
 					'variableButtonText'      => Feature_Settings::get_variable_product_button_text(),
 					'buyNowText'              => Feature_Settings::get_buy_now_button_text(),
@@ -114,13 +114,13 @@ class Quick_View_Renderer {
 					'viewCartText'            => Feature_Settings::get_view_cart_button_text(),
 					'continueShoppingText'    => Feature_Settings::get_continue_shopping_button_text(),
 					'viewProductText'         => Feature_Settings::get_view_product_button_text(),
-					'addedToCartMessage'      => __( 'Added to cart!', 'aggressive-apparel' ),
-					'outOfStockLabel'         => __( 'Out of Stock', 'aggressive-apparel' ),
-					'inStockLabel'            => __( 'In Stock', 'aggressive-apparel' ),
+					'addedToCartMessage'      => __( 'Added to your cart', 'aggressive-apparel' ),
+					'outOfStockLabel'         => __( 'Out of stock', 'aggressive-apparel' ),
+					'inStockLabel'            => __( 'In stock', 'aggressive-apparel' ),
 					/* translators: %d: remaining stock quantity. */
-					'onlyNLeft'               => __( 'Only %d left!', 'aggressive-apparel' ),
-					'addedSuccessAnnounce'    => __( 'Product added to cart successfully', 'aggressive-apparel' ),
-					'addToCartError'          => __( 'Could not add to cart.', 'aggressive-apparel' ),
+					'onlyNLeft'               => __( 'Only %d left', 'aggressive-apparel' ),
+					'addedSuccessAnnounce'    => __( 'Added to your cart.', 'aggressive-apparel' ),
+					'addToCartError'          => __( 'Couldn’t add this to your cart. Try again.', 'aggressive-apparel' ),
 					/* translators: %s: error message from the cart API. */
 					'errorAnnounce'           => __( 'Error: %s', 'aggressive-apparel' ),
 					'unavailableLabel'        => __( 'Unavailable', 'aggressive-apparel' ),
@@ -660,7 +660,7 @@ class Quick_View_Renderer {
 					id="aggressive-apparel-cart-success-title"
 					class="aggressive-apparel-quick-view-success__title"
 					data-wp-text="state.addedToCartMessage"
-				><?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?></h2>
+				><?php esc_html_e( 'Added to your cart', 'aggressive-apparel' ); ?></h2>
 
 				<div
 					id="aggressive-apparel-cart-success-product"

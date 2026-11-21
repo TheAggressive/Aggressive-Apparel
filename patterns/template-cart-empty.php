@@ -12,11 +12,11 @@
 
 ?>
 <!-- wp:heading {"textAlign":"center","className":"with-empty-cart-icon wc-block-cart__empty-cart__title"} -->
-<h2 class="wp-block-heading has-text-align-center with-empty-cart-icon wc-block-cart__empty-cart__title"><?php echo esc_html__( 'Your cart is currently empty!', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading has-text-align-center with-empty-cart-icon wc-block-cart__empty-cart__title"><?php echo esc_html__( 'Your cart is empty.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"align":"center"} -->
-<p class="has-text-align-center"><a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php echo esc_html__( 'Browse store', 'aggressive-apparel' ); ?></a></p>
+<p class="has-text-align-center"><a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php echo esc_html__( 'Shop all products', 'aggressive-apparel' ); ?></a></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:separator {"className":"is-style-dots"} -->
@@ -24,5 +24,5 @@
 <!-- /wp:separator -->
 
 <!-- wp:heading {"textAlign":"center"} -->
-<h2 class="wp-block-heading has-text-align-center"><?php echo esc_html__( 'New in store', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading has-text-align-center"><?php echo esc_html__( 'New arrivals', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->

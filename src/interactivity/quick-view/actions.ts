@@ -610,7 +610,7 @@ store< QuickViewStore >( 'aggressive-apparel/quick-view', {
 
 						state.announcement = getLabel(
 							'addedSuccessAnnounce',
-							'Product added to cart successfully'
+							'Added to your cart.'
 						);
 						actions.openCartSuccess();
 
@@ -631,7 +631,10 @@ store< QuickViewStore >( 'aggressive-apparel/quick-view', {
 					}
 					state.cartError =
 						decodeEntities( err.message ) ||
-						getLabel( 'addToCartError', 'Could not add to cart.' );
+						getLabel(
+							'addToCartError',
+							'Couldn’t add this to your cart. Try again.'
+						);
 					const errorTemplate = getLabel(
 						'errorAnnounce',
 						'Error: %s'
@@ -706,7 +709,10 @@ store< QuickViewStore >( 'aggressive-apparel/quick-view', {
 				}
 				state.cartError =
 					decodeEntities( ( err as Error ).message ) ||
-					getLabel( 'addToCartError', 'Could not add to cart.' );
+					getLabel(
+						'addToCartError',
+						'Couldn’t add this to your cart. Try again.'
+					);
 				const errorTemplate = getLabel( 'errorAnnounce', 'Error: %s' );
 				state.announcement = errorTemplate.replace(
 					'%s',

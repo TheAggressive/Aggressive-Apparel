@@ -176,7 +176,7 @@ export const { state, actions } = store< QuickViewStore >(
 
 			get addToCartLabel(): string {
 				if ( state.isCartSuccess ) {
-					return getLabel( 'addedToCartText', '✓ Added!' );
+					return getLabel( 'addedToCartText', 'Added' );
 				}
 				if ( state.isAddingToCart ) {
 					return getLabel( 'addingToCartText', 'Adding…' );
@@ -211,7 +211,7 @@ export const { state, actions } = store< QuickViewStore >(
 			},
 
 			get addedToCartMessage(): string {
-				return getLabel( 'addedToCartMessage', 'Added to cart!' );
+				return getLabel( 'addedToCartMessage', 'Added to your cart' );
 			},
 
 			/**

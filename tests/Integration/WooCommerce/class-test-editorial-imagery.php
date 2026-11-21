@@ -185,6 +185,55 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( (string) get_permalink( $newest->get_id() ), $markup );
 	}
 
+	/** With two portrait photos the hero is a diptych, each photo named in the Shown line. */
+	public function test_hero_diptych_names_both_products(): void {
+		$this->create_product( array( 'image' => $this->create_image() ) );
+		$this->create_product( array( 'image' => $this->create_image() ) );
+		$this->create_product( array( 'image' => $this->create_image() ) );
+
+		$markup = $this->render_pattern( 'editorial-campaign-hero' );
+		$images = $this->find_all( parse_blocks( $markup ), 'core/image' );
+
+		$this->assertCount( 2, $images );
+		$this->assertSame( array( '2/3', '2/3' ), array_column( array_column( $images, 'attrs' ), 'aspectRatio' ) );
+		foreach ( $images as $image ) {
+			preg_match( '/href="([^"]+)"/', $image['innerHTML'], $link );
+			$this->assertSame( 2, substr_count( $markup, 'href="' . $link[1] . '"' ), 'Linked from the photo and the Shown line.' );
+		}
+	}
+
+	/** Each category tile carries a live count of in-stock pieces. */
+	public function test_category_tiles_show_in_stock_counts(): void {
+		$hoodies = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'hoodies',
+			)
+		);
+		$this->create_product( array( 'category' => $hoodies->term_id ) );
+		$this->create_product( array( 'category' => $hoodies->term_id ) );
+		$this->create_product(
+			array(
+				'category'     => $hoodies->term_id,
+				'stock_status' => 'outofstock',
+			)
+		);
+
+		$markup = $this->render_pattern( 'editorial-category-showcase' );
+
+		$this->assertStringContainsString( '2 pieces', $markup );
+		$this->assertStringContainsString( '"aspectRatio":"2/3"', $markup );
+	}
+
+	/** The New Arrivals lead grid is marked as the lead (larger name, 3:4 image). */
+	public function test_new_arrivals_lead_grid_is_marked_lead(): void {
+		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
+
+		$this->assertStringContainsString( 'aa-grid-lead', $grids[0]['attrs']['className'] );
+		$this->assertStringNotContainsString( 'aa-grid-lead', $grids[1]['attrs']['className'] );
+		$this->assertStringContainsString( '"fontSize":"x-large"', serialize_blocks( array( $grids[0] ) ) );
+	}
+
 	/** Without a portrait photo the hero is the slogan alone: no empty frame. */
 	public function test_hero_without_photography_is_type_only(): void {
 		$this->create_product( array( 'image' => $this->create_image( 800, 800 ) ) );

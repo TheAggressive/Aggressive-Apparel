@@ -3,8 +3,7 @@
  * Partial of blocks.css.
  *
  * The category name is the tile's one link, stretched over the whole tile, so
- * a tile two-up on a phone needs no separate button. WooCommerce pads tile
- * content 48px a side, which leaves a 150px tile ~50px for text.
+ * a tile needs no separate button.
  *
  * @package Aggressive_Apparel
  */
@@ -41,13 +40,30 @@
 	}
 }
 
-/* Two-up on a phone, an odd tile count would orphan the last tile; the first
-   tile spans the row instead. Each tile sits in its own Animate on Scroll
-   wrapper, so the grid item is matched by position, not block class. The grid
-   is its own size container (core sets container-type on responsive grids). */
-@container (width < 36rem) {
-	.aa-editorial-tiles > :first-child:nth-last-child(odd) {
-		grid-column: 1 / -1;
+/* Phones: a swipe rail of large tiles (the lookbook's rail) instead of a
+   2 x 2 of ~170px tiles; the next tile's edge shows there is more. Specificity
+   0,3,0 beats core's grid display. The bleed needs !important: core's
+   constrained layout sets margin-inline auto !important on its children. */
+@media (width < 782px) {
+	.wp-block-group.aa-editorial-tiles.is-layout-grid {
+		display: flex;
+		/* stylelint-disable-next-line declaration-no-important -- beats core constrained-layout margin-inline:auto!important */
+		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter)) !important;
+		padding-inline: var(--wp--preset--spacing--gutter);
+		scroll-padding-inline: var(--wp--preset--spacing--gutter);
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		& > * {
+			flex: 0 0 72%;
+			scroll-snap-align: start;
+		}
 	}
 }
 

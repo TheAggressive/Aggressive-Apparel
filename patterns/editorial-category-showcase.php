@@ -64,7 +64,7 @@ foreach ( $aa_tiles as $aa_tile ) {
 $aa_grid_attributes = array(
 	'align'     => 'wide',
 	'className' => 'aa-editorial-tiles',
-	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|4' ) ),
+	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|2' ) ),
 	'layout'    => array(
 		'type'               => 'grid',
 		'columnCount'        => max( 1, count( $aa_found ) ),
@@ -84,7 +84,8 @@ foreach ( $aa_found as $aa_term ) {
 		'overlayGradient' => 'var(--wp--preset--gradient--dark-overlay)',
 		'categoryId'      => $aa_term->term_id,
 		'backgroundColor' => 'black',
-		'style'           => array( 'dimensions' => array( 'aspectRatio' => '3/4' ) ),
+		// Tall 2:3, the shape of the portrait photography it carries.
+		'style'           => array( 'dimensions' => array( 'aspectRatio' => '2/3' ) ),
 	);
 	// The category's own image, else its newest product photo not already
 	// shown higher on the page (the hero's); claimed so later slots skip it.
@@ -95,9 +96,23 @@ foreach ( $aa_found as $aa_term ) {
 	}
 	?>
 <!-- wp:woocommerce/featured-category <?php echo serialize_block_attributes( $aa_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
-<!-- wp:heading {"level":3,"textColor":"white"} -->
-<h3 class="wp-block-heading has-white-color has-text-color"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
+<!-- wp:heading {"level":3,"textColor":"white","fontSize":"fluid-xxxxx-large"} -->
+<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxxxx-large-font-size"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
 <!-- /wp:heading -->
+	<?php
+	$aa_count = Editorial_Catalog::visible_count( $aa_term );
+	if ( $aa_count > 0 ) :
+		?>
+
+<!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
+<p class="is-style-meta has-white-color has-text-color">
+		<?php
+		/* translators: %d: number of in-stock products in a category. */
+		echo esc_html( sprintf( _n( '%d piece', '%d pieces', $aa_count, 'aggressive-apparel' ), $aa_count ) );
+		?>
+</p>
+<!-- /wp:paragraph -->
+	<?php endif; ?>
 <!-- /wp:woocommerce/featured-category -->
 	<?php
 }

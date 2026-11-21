@@ -32,10 +32,11 @@ final class Editorial_Product_Grid {
 	 * the first N, e.g. after a lead card), columns, order_by, featured, term
 	 * (filters by a category, tag or attribute),
 	 * collection (a WooCommerce preset such as new-arrivals), align, label,
-	 * centered (centre a row shorter than the column count).
+	 * centered (centre a row shorter than the column count), lead (a single
+	 * large card: name and price set larger).
 	 *
 	 * @param array<string, mixed> $args Grid options.
-	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool} $args
+	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool} $args
 	 */
 	public static function markup( array $args ): string {
 		$term    = $args['term'] ?? null;
@@ -87,19 +88,23 @@ final class Editorial_Product_Grid {
 		}
 		// A centred section centres a short row (aa-grid-centered, editorial.css
 		// in blocks.css) instead of leaving it flush left under its heading.
-		$class_name              = 'is-style-editorial-grid' . ( ! empty( $args['centered'] ) ? ' aa-grid-centered' : '' );
+		$class_name              = 'is-style-editorial-grid' . ( ! empty( $args['centered'] ) ? ' aa-grid-centered' : '' ) . ( ! empty( $args['lead'] ) ? ' aa-grid-lead' : '' );
 		$attributes['className'] = $class_name;
 
 		$classes = 'wp-block-woocommerce-product-collection' . ( '' !== $align ? ' align' . $align : '' ) . ' ' . $class_name;
 
 		return '<!-- wp:woocommerce/product-collection ' . self::json( $attributes ) . ' -->' . "\n"
-			. '<div class="' . esc_attr( $classes ) . '">' . self::card() . '</div>' . "\n"
+			. '<div class="' . esc_attr( $classes ) . '">' . self::card( ! empty( $args['lead'] ) ) . '</div>' . "\n"
 			. '<!-- /wp:woocommerce/product-collection -->';
 	}
 
-	/** The shared card: media well, linked title, price, color swatches. */
-	private static function card(): string {
-		return <<<'HTML'
+	/**
+	 * The shared card: media well, linked title, price, color swatches.
+	 *
+	 * @param bool $lead A lead card: name and price one step larger.
+	 */
+	private static function card( bool $lead = false ): string {
+		$card = <<<'HTML'
 <!-- wp:woocommerce/product-template -->
 <!-- wp:group {"className":"aa-editorial-card","style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
 <div class="wp-block-group aa-editorial-card"><!-- wp:group {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"backgroundColor":"surface-muted","layout":{"type":"default"}} -->
@@ -116,6 +121,8 @@ final class Editorial_Product_Grid {
 <!-- /wp:group -->
 <!-- /wp:woocommerce/product-template -->
 HTML;
+
+		return $lead ? str_replace( '"fontSize":"medium"', '"fontSize":"x-large"', $card ) : $card;
 	}
 
 	/**

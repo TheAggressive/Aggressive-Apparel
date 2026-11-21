@@ -48,6 +48,7 @@ $aa_lead = Editorial_Product_Grid::markup(
 		'collection' => 'new-arrivals',
 		'align'      => '',
 		'label'      => __( 'Newest arrival', 'aggressive-apparel' ),
+		'lead'       => true,
 	)
 );
 echo $aa_lead; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.

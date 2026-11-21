@@ -14,14 +14,15 @@
  * @package Aggressive_Apparel
  */
 
-/* Campaign hero. Beside its photo the slogan is set at display scale
-   sized to the text column; with no portrait photo in the store the hero
-   has no image and the slogan becomes the image: full-width display type.
+/* Campaign hero. Beside its photos the slogan is stacked at display scale
+   sized to the 40% text column (9 condensed capitals, "REBELLION", fit it
+   from 782px up); with no portrait photo in the store the hero has no
+   image and the slogan becomes the image: full-width display type.
    Editor font-size picks still win (preset classes carry !important). */
 .aa-campaign-hero {
 	& .wp-block-heading.is-style-campaign {
 		max-width: none;
-		font-size: clamp(3.75rem, 1.25rem + 6.5vw, 8.5rem);
+		font-size: clamp(3.5rem, 1rem + 6vw, 8rem);
 		line-height: 0.88;
 	}
 
@@ -32,6 +33,27 @@
 
 	& .is-style-lead {
 		max-width: 38rem;
+	}
+}
+
+/* The hero's photos run the full height of the band. When the copy column
+   is taller than the photos' 2:3 height they stretch and crop (cover) rather
+   than leave a black strip under them. Side by side only; stacked on
+   phones they keep their ratio. */
+@media (width >= 782px) {
+	/* The column keeps height auto so the row stretches it (an explicit
+	   height on a flex item turns stretch off); its contents fill it. */
+	.aa-campaign-hero
+		> .wp-block-columns
+		> .wp-block-column:last-child
+		:is(
+			.wp-block-columns,
+			.wp-block-column,
+			.wp-block-image,
+			.wp-block-image > a,
+			img
+		) {
+		height: 100%;
 	}
 }
 
@@ -46,13 +68,15 @@
 /* Lookbook on phones. Stacked, three portrait looks made a ~2,400px column
    of image; a swipeable rail shows the first look whole and the next one's
    edge, at about a third of the height. Core stacks columns below 782px
-   with `flex-wrap: wrap !important` and `flex-basis: 100% !important`;
-   !important here beats exactly those two declarations. */
+   with `flex-wrap: wrap !important` and `flex-basis: 100% !important`, and
+   its constrained layout pins children with margin-inline auto !important;
+   !important here beats exactly those three declarations. */
 @media (width < 782px) {
 	.wp-block-columns.aa-editorial-looks {
 		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
 		flex-wrap: nowrap !important;
-		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter));
+		/* stylelint-disable-next-line declaration-no-important -- beats core constrained-layout margin-inline:auto!important */
+		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter)) !important;
 		padding-inline: var(--wp--preset--spacing--gutter);
 		scroll-padding-inline: var(--wp--preset--spacing--gutter);
 		overflow-x: auto;

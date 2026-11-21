@@ -1,0 +1,76 @@
+/**
+ * Editorial category tiles (pattern: editorial-category-showcase).
+ * Partial of blocks.css.
+ *
+ * The category name is the tile's one link, stretched over the whole tile, so
+ * a tile two-up on a phone needs no separate button. WooCommerce pads tile
+ * content 48px a side, which leaves a 150px tile ~50px for text.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-editorial-tiles .wc-block-featured-category {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Name sits on the darkened lower edge, not mid-image. */
+.aa-editorial-tiles
+	.wc-block-featured-category
+	.wc-block-featured-category__wrapper {
+	/* WooCommerce's wrapper is a wrapping flex row: align-content places the line. */
+	align-content: flex-end;
+	align-items: flex-end;
+}
+
+.aa-editorial-tiles
+	.wc-block-featured-category
+	.wc-block-featured-category__inner-blocks {
+	padding: var(--wp--preset--spacing--5);
+}
+
+.aa-editorial-tiles .wc-block-featured-category__background-image {
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+	.aa-editorial-tiles
+		.wc-block-featured-category:hover
+		.wc-block-featured-category__background-image {
+		transform: scale(1.03);
+	}
+}
+
+/* Two-up on a phone, an odd tile count would orphan the last tile; the first
+   tile spans the row instead. The grid is its own size container (core sets
+   container-type on responsive grids). */
+@container (width < 36rem) {
+	.aa-editorial-tiles
+		> .wc-block-featured-category:first-child:nth-last-child(odd) {
+		grid-column: 1 / -1;
+	}
+}
+
+.aa-editorial-tiles .wc-block-featured-category .wp-block-heading a {
+	color: inherit;
+	text-decoration: none;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	&:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+
+	&:focus-visible {
+		outline: none;
+	}
+}
+
+.aa-editorial-tiles .wc-block-featured-category:has(a:focus-visible) {
+	box-shadow: var(--aa-focus-ring);
+}

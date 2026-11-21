@@ -176,10 +176,12 @@ Text domain `aggressive-apparel` (`Domain Path: /languages`). Tooling in
   completed checks means nothing ran, not that anything passed.
 
 - **Customer copy follows [`docs/brand-voice.md`](docs/brand-voice.md)**:
+  The Aggressive is a premium independent apparel label shaped by alternative
+  culture (not a graphic-tee or single-scene brand; don't list subcultures),
   plain language in cart/checkout/errors, no unverifiable claims (materials,
   stock, shipping, popularity), no invented people — starter patterns use
   `[bracketed]` prompts. `bin/i18n/voice.test.mjs` fails on retired phrases,
-  invented names and shouted short messages in the POT.
+  invented names, subculture lists and shouted short messages in the POT.
 
 Full runbook: [`languages/README.md`](languages/README.md).
 

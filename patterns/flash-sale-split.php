@@ -31,7 +31,7 @@
 			<!-- wp:aggressive-apparel/countdown-timer {"displayStyle":"strip","endDateTime":"2026-12-31T23:59:59","saleLabelColor":"var:preset|color|accent","timeValueColor":"var:preset|color|white","unitLabelColor":"var:preset|color|white","timerBorderColor":"var:preset|color|border","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} /-->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"medium"} -->
-			<p class="has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Up to 40% off select streetwear. No code needed — prices already slashed.', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Up to 40% off selected styles. No code needed.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

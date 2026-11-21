@@ -93,7 +93,7 @@
 					<!-- /wp:heading -->
 
 					<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'Dropped shoulders, extended body, and extra volume. The streetwear silhouette — size down one for a less dramatic drape.', 'aggressive-apparel' ); ?></p>
+					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'Dropped shoulders, extended body, and extra volume. The oversized silhouette — size down one for a less dramatic drape.', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 				</div>
 				<!-- /wp:group -->

@@ -101,7 +101,7 @@ One gutter and four section densities, all fluid spacing presets
 | `gutter`            | 16px → 48px     | Horizontal page padding on every template's `<main>` and the footer. |
 | `section-compact`   | 40px → 64px     | Utility bands: trust rows, marquee, newsletter, surface cards.       |
 | `section-standard`  | 64px → 128px    | Default merchandising section (product rows, category grids).        |
-| `section-editorial` | 80px → 160px    | Story-led sections: artwork spotlight, collection features, brand.   |
+| `section-editorial` | 80px → 160px    | Story-led sections: original-work feature, collections, brand.       |
 | `section-immersive` | 96px → 208px    | Rare campaign moments; never two in a row.                           |
 
 Rules:
@@ -119,7 +119,7 @@ Rules:
 | Ratio                  | Slug / source                      | Use                                                     |
 | ---------------------- | ---------------------------------- | ------------------------------------------------------- |
 | 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
-| 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, artwork close-ups.    |
+| 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, detail close-ups.     |
 | 3:4, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (3:4), tall looks (2:3), detail (1:1).   |
 | Product images         | 1:1 media slot on every card       | Product cards; shoot or upload catalog images square.   |
 
@@ -139,7 +139,7 @@ Rules:
 4. **Loading:** WordPress marks the first large content image
    `fetchpriority="high"` and lazy-loads the rest; don't add `loading` or
    priority attributes by hand.
-5. **Alt text:** describe the garment and artwork in product and editorial
+5. **Alt text:** describe the garment (and its artwork, where it has one) in product and editorial
    images; decorative Cover backgrounds keep empty alt.
 6. **Placeholders:** where approved photography isn't available, patterns ship
    an image-less Cover named `… (replace image)` in List View. Never substitute
@@ -157,7 +157,7 @@ insert any section alone.
 | 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop by newest; full-width display type until an image is set     |
 | 02  | `editorial-category-showcase` | standard → compact         | One row of stocked categories; category image, else newest product's    |
 | 03  | `editorial-new-arrivals`      | compact → standard         | Product Collection, newest, 4-up                                        |
-| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#artwork` anchor for the hero's second CTA                  |
+| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#the-label` anchor for the hero's second CTA                |
 | 05  | `editorial-best-sellers`      | standard, intro + 3-up     | Real sales → Best sellers; else Featured → Staff picks; else omitted    |
 | 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Stocked drop term (`dead-signal`, filterable); else omitted             |
 | 07  | `editorial-womens-collection` | editorial                  | Stocked `womens` collection or category → landing + 2-up; else omitted  |
@@ -185,7 +185,7 @@ Rules the library follows (new sections should too):
 4. **Store imagery for tiles, art direction for campaigns.** A tile that
    links to a category shows that category's own image, else its newest
    product's photo (`Editorial_Catalog::term_image_id()`), never an image
-   from outside it. Campaign slots (hero, artwork, drop, women's, Defiance
+   from outside it. Campaign slots (hero, original work, drop, women's, Defiance
    Division, looks) need art direction, so they ship as image-less Covers
    named `… (replace image)` in List View; in black sections they use
    `surface-muted`, because adaptive colors resolve dark there and

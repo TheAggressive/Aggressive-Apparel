@@ -21,7 +21,7 @@
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}},"typography":{"lineHeight":"1.8"}},"textColor":"foreground-muted","fontSize":"large"} -->
-	<p class="has-text-align-center has-foreground-muted-color has-text-color has-large-font-size" style="margin-top:var(--wp--preset--spacing--10);line-height:1.8"><?php echo esc_html__( 'Independent streetwear designed in-house. No hype cycles — just pieces that earn their place in your rotation.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-foreground-muted-color has-text-color has-large-font-size" style="margin-top:var(--wp--preset--spacing--10);line-height:1.8"><?php echo esc_html__( 'An independent label. No hype cycles: just pieces that earn their place in your rotation.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
@@ -74,7 +74,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"textColor":"foreground-muted","fontSize":"medium"} -->
-			<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Artwork rooted in skate, punk, tattoo and moto culture.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Rooted in alternative culture. Built for personal style.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

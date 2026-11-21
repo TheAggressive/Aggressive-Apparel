@@ -58,6 +58,25 @@ test( 'flags unsupported claims and invented attribution', () => {
 	);
 } );
 
+test( 'flags subculture lists but allows a single scene in context', () => {
+	assert.equal(
+		findVoiceViolations(
+			pot( 'Shaped by punk, metal, skate and motocross culture.' )
+		).length,
+		1
+	);
+	assert.deepEqual(
+		findVoiceViolations(
+			pot( 'Drawn from the pit lane and moto culture.' )
+		),
+		[]
+	);
+	assert.deepEqual(
+		findVoiceViolations( pot( 'Shaped by alternative culture.' ) ),
+		[]
+	);
+} );
+
 test( 'theme-owned copy in the POT follows the voice guide', () => {
 	const found = findVoiceViolations(
 		fs.readFileSync(

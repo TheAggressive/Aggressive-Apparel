@@ -52,6 +52,14 @@ export const VOICE_RULES = [
 	},
 ];
 
+/**
+ * Scenes the brand grew out of. Naming one is fine in context (a capsule's
+ * own world); listing three or more frames the label as one scene's merch,
+ * which the positioning rules out: say "alternative culture" instead.
+ */
+const SUBCULTURES =
+	/\b(skate\w*|punk\w*|tattoo\w*|moto\w*|metal|bmx|surf\w*|hip[- ]hop|rave\w*|grunge)\b/gi;
+
 /** Short confirmations and labels end calmly: "Added", not "Added!". */
 const SHOUTED_SHORT = /^[^.?]{1,60}!$/;
 
@@ -75,6 +83,14 @@ export function findVoiceViolations( content ) {
 			if ( pattern.test( msgid ) ) {
 				found.push( { msgid, reason, refs } );
 			}
+		}
+		const scenes = new Set(
+			( msgid.match( SUBCULTURES ) ?? [] ).map( ( word ) =>
+				word.toLowerCase().slice( 0, 4 )
+			)
+		);
+		if ( scenes.size >= 3 ) {
+			found.push( { msgid, reason: 'lists subcultures', refs } );
 		}
 		if ( SHOUTED_SHORT.test( msgid.trim() ) ) {
 			found.push( { msgid, reason: 'shouted short message', refs } );

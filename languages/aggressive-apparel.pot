@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T05:03:14+00:00\n"
+"POT-Creation-Date: 2026-11-21T05:20:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -4428,11 +4428,11 @@ msgid "Our Story"
 msgstr ""
 
 #: patterns/about-page.php:20
-msgid "Original artwork. Independent since 2010."
+msgid "Independent since 2010."
 msgstr ""
 
 #: patterns/about-page.php:24
-msgid "The Aggressive is an independent label built on original artwork. Skate, punk, tattoo and moto culture shaped where we came from; the artwork is where we are going."
+msgid "The Aggressive is an independent apparel label shaped by alternative culture. It informs what we make; it doesn’t fence it in."
 msgstr ""
 
 #: patterns/about-page.php:44
@@ -4440,11 +4440,11 @@ msgid "What we make"
 msgstr ""
 
 #: patterns/about-page.php:48
-msgid "Art first. Garment second."
+msgid "Clothing with a point of view."
 msgstr ""
 
 #: patterns/about-page.php:52
-msgid "Every design starts as an original drawing. The garment is how it leaves the studio."
+msgid "Original design and our own creative direction, from the first sketch to the finished piece."
 msgstr ""
 
 #: patterns/about-page.php:56
@@ -4481,11 +4481,11 @@ msgid "Designed and sold by The Aggressive."
 msgstr ""
 
 #: patterns/about-page.php:128
-msgid "Who we draw for"
+msgid "Who it’s for"
 msgstr ""
 
 #: patterns/about-page.php:132
-msgid "The culture we came from: skaters, punks, tattooers and riders."
+msgid "People who would rather choose their uniform than be issued one."
 msgstr ""
 
 #: patterns/aftercare-icon-row.php
@@ -4591,7 +4591,7 @@ msgid "Featured Collection"
 msgstr ""
 
 #: patterns/bento-product-feature.php:35
-msgid "Streetwear Essentials"
+msgid "Essentials"
 msgstr ""
 
 #: patterns/bento-product-feature.php:41
@@ -4735,11 +4735,11 @@ msgstr ""
 
 #: patterns/brand-values.php:33
 #: patterns/editorial-artwork-spotlight.php:26
-msgid "Original artwork"
+msgid "Original work"
 msgstr ""
 
 #: patterns/brand-values.php:37
-msgid "If it isn’t ours, it isn’t on the shirt."
+msgid "If it isn’t ours, it doesn’t carry our name."
 msgstr ""
 
 #: patterns/brand-values.php:49
@@ -4751,11 +4751,11 @@ msgid "Since 2010, the only approval it needs is ours."
 msgstr ""
 
 #: patterns/brand-values.php:65
-msgid "Worn, not framed"
+msgid "Yours to define"
 msgstr ""
 
 #: patterns/brand-values.php:69
-msgid "Art belongs on a back, not behind glass."
+msgid "Built for personal style, not a dress code."
 msgstr ""
 
 #: patterns/cart-upsell-strip.php
@@ -5034,12 +5034,14 @@ msgid "Built With the Culture"
 msgstr ""
 
 #: patterns/creators-roster.php:30
-msgid "Athletes &middot; Skaters &middot; DJs"
+msgid "The people we work with"
 msgstr ""
 
 #: patterns/creators-roster.php:43
+#: patterns/creators-roster.php:63
+#: patterns/creators-roster.php:83
 #: patterns/creators-roster.php:103
-msgid "Athlete"
+msgid "[Role]"
 msgstr ""
 
 #: patterns/creators-roster.php:47
@@ -5054,14 +5056,6 @@ msgstr ""
 #: patterns/creators-roster.php:91
 #: patterns/creators-roster.php:111
 msgid "Shop their picks &rarr;"
-msgstr ""
-
-#: patterns/creators-roster.php:63
-msgid "Skater"
-msgstr ""
-
-#: patterns/creators-roster.php:83
-msgid "DJ"
 msgstr ""
 
 #: patterns/design-system-preview.php
@@ -5402,24 +5396,24 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern title"
-msgid "Editorial — Artwork Spotlight"
+msgid "Editorial — Original Work"
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern description"
-msgid "Dark, immersive split: a large portrait artwork close-up (replace the image) beside a sans headline about original artwork."
+msgid "Dark, immersive split: a large portrait image (replace the image) beside a statement about original design and creative independence."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:30
-msgid "Every line is ours."
+msgid "Nothing here is borrowed."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:34
-msgid "No stock graphics. No template packs. If it’s on the garment, it started as an original drawing."
+msgid "Original design, our own creative direction, no trend report to answer to. If it carries our name, we made the call."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:39
-msgid "Shop the artwork"
+msgid "Shop the collection"
 msgstr ""
 
 #: patterns/editorial-best-sellers.php
@@ -5476,7 +5470,7 @@ msgstr ""
 
 #: patterns/editorial-brand-story.php
 msgctxt "Pattern description"
-msgid "A spacious closing brand statement: a large sans headline about original artwork and independence, and a link to the About page when one exists."
+msgid "A spacious closing brand statement: a large sans headline about independence and alternative culture, and a link to the About page when one exists."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:23
@@ -5488,7 +5482,7 @@ msgid "Independent since 2010. Still drawing our own lines."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:31
-msgid "Skate decks, tattoo flash, punk flyers, race numbers: that’s where the artwork comes from. Nobody signs off on it but us."
+msgid "Alternative culture raised us. It doesn’t fence us in. What we make next, and how it looks, is nobody’s call but ours."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:37
@@ -5523,7 +5517,7 @@ msgid "Shop new arrivals"
 msgstr ""
 
 #: patterns/editorial-campaign-hero.php:37
-msgid "See the artwork"
+msgid "Inside the label"
 msgstr ""
 
 #: patterns/editorial-category-showcase.php
@@ -5593,7 +5587,7 @@ msgid "Featured drop"
 msgstr ""
 
 #: patterns/editorial-featured-drop.php:44
-msgid "One body of artwork, released as a set."
+msgid "One idea, released as a set."
 msgstr ""
 
 #: patterns/editorial-featured-drop.php:49
@@ -5649,7 +5643,7 @@ msgstr ""
 
 #: patterns/editorial-homepage.php
 msgctxt "Pattern description"
-msgid "Twelve-section editorial storefront: campaign, categories, new arrivals, artwork, best sellers, featured drop, women's, hoodies, Defiance Division, accessories, looks and brand story. Each section is its own pattern, so sections can be reordered, removed or inserted alone."
+msgid "Twelve-section editorial storefront: campaign, categories, new arrivals, original work, best sellers, featured drop, women's, hoodies, Defiance Division, accessories, looks and brand story. Each section is its own pattern, so sections can be reordered, removed or inserted alone."
 msgstr ""
 
 #: patterns/editorial-hoodies-feature.php
@@ -5732,7 +5726,7 @@ msgid "The newest in-stock products from the live catalog in a spacious four-up 
 msgstr ""
 
 #: patterns/editorial-new-arrivals.php:20
-msgid "Latest artwork"
+msgid "New in"
 msgstr ""
 
 #: patterns/editorial-new-arrivals.php:24
@@ -5766,7 +5760,7 @@ msgid "Cut for women, not shrunk for them."
 msgstr ""
 
 #: patterns/editorial-womens-collection.php:47
-msgid "The same original artwork, on fits made for women."
+msgid "Women’s fits, nothing toned down."
 msgstr ""
 
 #: patterns/editorial-womens-collection.php:52
@@ -5954,7 +5948,7 @@ msgid "Ends at midnight"
 msgstr ""
 
 #: patterns/flash-sale-split.php:34
-msgid "Up to 40% off select streetwear. No code needed — prices already slashed."
+msgid "Up to 40% off selected styles. No code needed."
 msgstr ""
 
 #: patterns/flash-sale-split.php:44
@@ -5972,7 +5966,7 @@ msgid "Multi-column footer with navigation links, contact info, newsletter signu
 msgstr ""
 
 #: patterns/footer-columns.php:23
-msgid "Original artwork since 2010. Rebellion has a uniform."
+msgid "Independent since 2010. Rebellion has a uniform."
 msgstr ""
 
 #: patterns/footer-columns.php:41
@@ -6078,7 +6072,7 @@ msgid "Promotional section for gift cards with bold messaging, price options, an
 msgstr ""
 
 #: patterns/gift-card-promo.php:16
-msgid "Give the artwork"
+msgid "Give them the choice"
 msgstr ""
 
 #: patterns/gift-card-promo.php:20
@@ -6116,7 +6110,7 @@ msgid "Under $100"
 msgstr ""
 
 #: patterns/gift-guide-grid.php:38
-msgid "Tees, caps, and everyday heat."
+msgid "Tees, caps and everyday staples."
 msgstr ""
 
 #: patterns/gift-guide-grid.php:44
@@ -6162,7 +6156,7 @@ msgid "New Drop"
 msgstr ""
 
 #: patterns/hero-carousel-product-launch.php:22
-msgid "The New Standard in Streetwear"
+msgid "Made on our terms."
 msgstr ""
 
 #: patterns/hero-carousel-product-launch.php:28
@@ -6192,7 +6186,7 @@ msgid "Members Only"
 msgstr ""
 
 #: patterns/hero-carousel-product-launch.php:70
-msgid "New artwork, first."
+msgid "New pieces, first look."
 msgstr ""
 
 #: patterns/hero-carousel-product-launch.php:76
@@ -6214,7 +6208,7 @@ msgid "SS26 &middot; Issue 04"
 msgstr ""
 
 #: patterns/hero-editorial-asymmetric.php:40
-msgid "Shot on location in downtown LA, the SS26 editorial pairs raw urban textures with precision-cut streetwear. Every frame is a study in controlled aggression."
+msgid "[Where, when and how this editorial was shot. Real details only.]"
 msgstr ""
 
 #: patterns/hero-editorial-asymmetric.php:46
@@ -6304,7 +6298,7 @@ msgid "Explore New Arrivals"
 msgstr ""
 
 #: patterns/home-storefront.php:59
-msgid "New artwork, when it’s ready."
+msgid "New pieces, when they’re ready."
 msgstr ""
 
 #: patterns/home-storefront.php:80
@@ -6341,7 +6335,7 @@ msgid "For the Unruled"
 msgstr ""
 
 #: patterns/home-storefront.php:131
-msgid "The Aggressive is independent graphic apparel shaped by punk, metal, skate and motocross culture. Designed for people who carry their edge naturally—not people trying to manufacture one."
+msgid "The Aggressive is an independent apparel label shaped by alternative culture. Made for people who carry their edge naturally, not people trying to manufacture one."
 msgstr ""
 
 #: patterns/homepage-brand-led.php
@@ -6355,7 +6349,7 @@ msgid "Quiet editorial brand homepage with minimal typography hero, founder quot
 msgstr ""
 
 #: patterns/homepage-brand-led.php:24
-msgid "Independent streetwear designed in-house. No hype cycles — just pieces that earn their place in your rotation."
+msgid "An independent label. No hype cycles: just pieces that earn their place in your rotation."
 msgstr ""
 
 #: patterns/homepage-brand-led.php:40
@@ -6379,7 +6373,7 @@ msgid "Identity"
 msgstr ""
 
 #: patterns/homepage-brand-led.php:77
-msgid "Artwork rooted in skate, punk, tattoo and moto culture."
+msgid "Rooted in alternative culture. Built for personal style."
 msgstr ""
 
 #: patterns/homepage-brand-led.php:89
@@ -6439,7 +6433,7 @@ msgid "View Hoodies"
 msgstr ""
 
 #: patterns/homepage-drop-composition.php:54
-msgid "VOL. 08 &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; ORIGINAL ARTWORK &nbsp;&nbsp;★&nbsp;&nbsp; VOL. 08 &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; ORIGINAL ARTWORK &nbsp;&nbsp;★&nbsp;&nbsp;"
+msgid "VOL. 08 &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; NEW COLLECTION &nbsp;&nbsp;★&nbsp;&nbsp; VOL. 08 &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; NEW COLLECTION &nbsp;&nbsp;★&nbsp;&nbsp;"
 msgstr ""
 
 #: patterns/homepage-drop-composition.php:130
@@ -6706,7 +6700,7 @@ msgid "and ship it before the hype cools."
 msgstr ""
 
 #: patterns/manifesto-type-wall.php:38
-msgid "Original artwork. Independent since 2010. Nothing borrowed."
+msgid "Independent since 2010. Nothing borrowed. Nothing toned down."
 msgstr ""
 
 #: patterns/manifesto-type-wall.php:42
@@ -6724,7 +6718,7 @@ msgid "Animated scrolling text ticker banner for promotions, announcements, and 
 msgstr ""
 
 #: patterns/marquee-banner.php:16
-msgid "ORIGINAL ARTWORK &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT SINCE 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp; ORIGINAL ARTWORK &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT SINCE 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp;"
+msgid "THE AGGRESSIVE &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT SINCE 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp; THE AGGRESSIVE &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT SINCE 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp;"
 msgstr ""
 
 #: patterns/mega-menu-panel.php
@@ -6772,7 +6766,7 @@ msgid "Product section with header row and WooCommerce product collection showin
 msgstr ""
 
 #: patterns/new-arrivals-row.php:24
-msgid "The latest artwork, newest first."
+msgid "The latest pieces, newest first."
 msgstr ""
 
 #: patterns/newsletter-drop-access.php
@@ -6794,7 +6788,7 @@ msgid "First Access to Drops"
 msgstr ""
 
 #: patterns/newsletter-drop-access.php:24
-msgid "New artwork, straight to your inbox. No feed, no algorithm."
+msgid "New releases, straight to your inbox. No feed, no algorithm."
 msgstr ""
 
 #: patterns/newsletter-drop-access.php:36
@@ -7367,7 +7361,7 @@ msgid "Tapered through the body with a clean line. Hugs without restricting — 
 msgstr ""
 
 #: patterns/size-fit-finder.php:96
-msgid "Dropped shoulders, extended body, and extra volume. The streetwear silhouette — size down one for a less dramatic drape."
+msgid "Dropped shoulders, extended body, and extra volume. The oversized silhouette — size down one for a less dramatic drape."
 msgstr ""
 
 #: patterns/size-guide-cards.php

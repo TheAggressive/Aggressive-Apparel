@@ -44,7 +44,7 @@ $aa_url = 'pa_collection' === $aa_term->taxonomy
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'The same original artwork, on fits made for women.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Women’s fits, nothing toned down.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons -->

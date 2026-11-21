@@ -17,11 +17,11 @@
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","level":1,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxxx-large"} -->
-	<h1 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Original artwork. Independent since 2010.', 'aggressive-apparel' ); ?></h1>
+	<h1 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Independent since 2010.', 'aggressive-apparel' ); ?></h1>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-	<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'The Aggressive is an independent label built on original artwork. Skate, punk, tattoo and moto culture shaped where we came from; the artwork is where we are going.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'The Aggressive is an independent apparel label shaped by alternative culture. It informs what we make; it doesn’t fence it in.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
@@ -45,11 +45,11 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxx-large"} -->
-			<h2 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Art first. Garment second.', 'aggressive-apparel' ); ?></h2>
+			<h2 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Clothing with a point of view.', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Every design starts as an original drawing. The garment is how it leaves the studio.', 'aggressive-apparel' ); ?></p>
+			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Original design and our own creative direction, from the first sketch to the finished piece.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
@@ -125,11 +125,11 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Who we draw for', 'aggressive-apparel' ); ?></h4>
+			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Who it’s for', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'The culture we came from: skaters, punks, tattooers and riders.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'People who would rather choose their uniform than be issued one.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

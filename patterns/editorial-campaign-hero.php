@@ -34,7 +34,7 @@ $aa_new_arrivals = Editorial_Catalog::shop_url( array( 'orderby' => 'date' ) );
 <!-- /wp:button -->
 
 <!-- wp:button {"className":"is-style-cta-outline-on-dark"} -->
-<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="#artwork"><?php echo esc_html__( 'See the artwork', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="#the-label"><?php echo esc_html__( 'Inside the label', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:group --></div></div>

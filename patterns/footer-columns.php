@@ -20,7 +20,7 @@
 			<!-- wp:site-title {"level":0,"style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"white","fontSize":"large"} /-->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Original artwork since 2010. Rebellion has a uniform.', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Independent since 2010. Rebellion has a uniform.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:social-links {"iconColor":"white","iconColorValue":"var(--wp--preset--color--white)","size":"has-small-icon-size","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"},"blockGap":{"left":"var:preset|spacing|4"}}},"className":"is-style-logos-only"} -->

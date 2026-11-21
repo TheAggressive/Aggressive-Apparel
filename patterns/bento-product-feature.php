@@ -32,7 +32,7 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
-				<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Streetwear Essentials', 'aggressive-apparel' ); ?></h3>
+				<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Essentials', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->

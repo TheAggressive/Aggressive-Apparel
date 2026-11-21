@@ -56,7 +56,7 @@
 
 <!-- wp:group {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|fluid-16"}}},"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 <div class="wp-block-group" style="margin-top:var(--wp--preset--spacing--2);margin-bottom:var(--wp--preset--spacing--fluid-16)"><!-- wp:paragraph {"style":{"typography":{"lineHeight":"1"}},"fontSize":"small"} -->
-<p class="has-small-font-size" style="line-height:1"><?php echo esc_html__( 'Fresh graphics. No recycled attitude.', 'aggressive-apparel' ); ?></p>
+<p class="has-small-font-size" style="line-height:1"><?php echo esc_html__( 'New artwork, added as it is finished.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 

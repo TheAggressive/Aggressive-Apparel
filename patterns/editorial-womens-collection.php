@@ -40,11 +40,11 @@ $aa_url = 'pa_collection' === $aa_term->taxonomy
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Made for her. Original by design.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Cut for women.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Original graphics on fits made for women, from tees to layers.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'Original artwork on women’s fits.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons -->

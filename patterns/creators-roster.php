@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Creators Roster
- * Description: Culture-forward roster of creators with cover portraits, roles, and shop-their-picks links. Not a corporate team grid.
+ * Description: Roster of the real creators you work with: cover portraits, roles and shop-their-picks links. Replace every bracketed name.
  * Slug: aggressive-apparel/creators-roster
  * Categories: aggressive, aggressive-drops, aggressive-social-proof, aggressive-informational
  * Keywords: creators, roster, athletes, skaters, culture, streetwear, collaborators
@@ -44,7 +44,7 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"textColor":"white","fontSize":"x-large"} -->
-				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Kai Mercer', 'aggressive-apparel' ); ?></h3>
+				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( '[Creator name]', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"white","fontSize":"x-small"} -->
@@ -64,7 +64,7 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"textColor":"white","fontSize":"x-large"} -->
-				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Rico Vale', 'aggressive-apparel' ); ?></h3>
+				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( '[Creator name]', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"white","fontSize":"x-small"} -->
@@ -84,7 +84,7 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"textColor":"white","fontSize":"x-large"} -->
-				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Nia Flux', 'aggressive-apparel' ); ?></h3>
+				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( '[Creator name]', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"white","fontSize":"x-small"} -->
@@ -104,7 +104,7 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"textColor":"white","fontSize":"x-large"} -->
-				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Jules Park', 'aggressive-apparel' ); ?></h3>
+				<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( '[Creator name]', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"white","fontSize":"x-small"} -->

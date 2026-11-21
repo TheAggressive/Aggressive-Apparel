@@ -33,7 +33,7 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.15","fontStyle":"normal","fontWeight":"800"}},"fontSize":"fluid-xxxx-large"} -->
-			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:800;line-height:1.15"><?php echo esc_html__( 'Built Different: Inside the Studio After Dark', 'aggressive-apparel' ); ?></h2>
+			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:800;line-height:1.15"><?php echo esc_html__( 'Inside the studio after dark', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.75"}},"textColor":"foreground-muted","fontSize":"medium"} -->

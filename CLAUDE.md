@@ -175,6 +175,12 @@ Text domain `aggressive-apparel` (`Domain Path: /languages`). Tooling in
   `i18n:compile`. **MT draft PRs never arrive pre-validated** — a PR showing no
   completed checks means nothing ran, not that anything passed.
 
+- **Customer copy follows [`docs/brand-voice.md`](docs/brand-voice.md)**:
+  plain language in cart/checkout/errors, no unverifiable claims (materials,
+  stock, shipping, popularity), no invented people — starter patterns use
+  `[bracketed]` prompts. `bin/i18n/voice.test.mjs` fails on retired phrases,
+  invented names and shouted short messages in the POT.
+
 Full runbook: [`languages/README.md`](languages/README.md).
 
 ## Full-page-cache correctness rule
@@ -254,6 +260,7 @@ making it runnable locally is a build failure, by design.** Detail:
 | Architecture, blocks, build, testing, tasks | [`docs/architecture.md`](docs/architecture.md) |
 | Navigation, overlays, debug tooling | [`docs/navigation.md`](docs/navigation.md) |
 | WooCommerce, swatches, caching prerequisites | [`docs/woocommerce.md`](docs/woocommerce.md) |
+| Brand voice & UX copy | [`docs/brand-voice.md`](docs/brand-voice.md) |
 | theme.json tokens & override contract | [`docs/design-tokens.md`](docs/design-tokens.md) |
 | Full design system | [`docs/design-system.md`](docs/design-system.md) |
 | Versioning & release · block placement | [`docs/versioning.md`](docs/versioning.md) · [`docs/block-placement.md`](docs/block-placement.md) |

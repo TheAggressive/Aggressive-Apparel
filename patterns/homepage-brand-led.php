@@ -37,7 +37,7 @@
 	<!-- /wp:spacer -->
 
 	<!-- wp:quote {"style":{"typography":{"fontStyle":"italic","lineHeight":"1.7"}},"fontSize":"fluid-xxx-large"} -->
-	<blockquote class="wp-block-quote has-fluid-xxx-large-font-size" style="font-style:italic;line-height:1.7"><p><?php echo esc_html__( '"We don\'t chase trends. We build uniforms for people who show up — every day, every rep, every block."', 'aggressive-apparel' ); ?></p><cite><?php echo esc_html__( '— Alex Rivera, Founder', 'aggressive-apparel' ); ?></cite></blockquote>
+	<blockquote class="wp-block-quote has-fluid-xxx-large-font-size" style="font-style:italic;line-height:1.7"><p><?php echo esc_html__( '"[A line from the founder in their own words. Use a real quote, or remove this block.]"', 'aggressive-apparel' ); ?></p><cite><?php echo esc_html__( '— [Founder name]', 'aggressive-apparel' ); ?></cite></blockquote>
 	<!-- /wp:quote -->
 </div>
 <!-- /wp:group -->
@@ -74,7 +74,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"textColor":"foreground-muted","fontSize":"medium"} -->
-			<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Design language rooted in street culture — bold without being loud, intentional without trying.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Artwork rooted in skate, punk, tattoo and moto culture.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

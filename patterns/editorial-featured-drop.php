@@ -41,7 +41,7 @@ $aa_url   = Editorial_Catalog::url( $aa_drop );
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"textColor":"white"} -->
-<p class="has-white-color has-text-color"><?php echo esc_html__( 'A new set of original graphics, released together and printed in limited runs.', 'aggressive-apparel' ); ?></p>
+<p class="has-white-color has-text-color"><?php echo esc_html__( 'A new set of original graphics, released together.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->

@@ -17,7 +17,7 @@ $aa_new_arrivals = Editorial_Catalog::shop_url( array( 'orderby' => 'date' ) );
 ?><!-- wp:cover {"dimRatio":40,"overlayColor":"black","isUserOverlayColor":true,"minHeight":88,"minHeightUnit":"vh","contentPosition":"bottom left","isDark":true,"metadata":{"name":"01 Campaign Hero (replace image)"},"align":"full","style":{"color":{"background":"var:preset|color|black"},"spacing":{"padding":{"top":"var:preset|spacing|section-editorial","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-cover alignfull is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-editorial);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter);min-height:88vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"align":"wide","layout":{"type":"constrained","contentSize":"880px","justifyContent":"left"}} -->
 <div class="wp-block-group alignwide"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
-<p class="is-style-meta has-white-color has-text-color"><?php echo esc_html__( 'New season', 'aggressive-apparel' ); ?></p>
+<p class="is-style-meta has-white-color has-text-color"><?php echo esc_html__( 'The Aggressive', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":1,"className":"is-style-campaign","textColor":"white"} -->
@@ -25,7 +25,7 @@ $aa_new_arrivals = Editorial_Catalog::shop_url( array( 'orderby' => 'date' ) );
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"white"} -->
-<p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'Original artwork on apparel made to be worn hard. Designed independently, released in limited runs.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'Original artwork on everyday clothing, designed independently.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->

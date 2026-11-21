@@ -21,7 +21,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"textColor":"foreground-muted","fontSize":"medium"} -->
-			<p class="has-foreground-muted-color has-text-color has-medium-font-size"><?php echo esc_html__( 'Fresh drops, just landed.', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-medium-font-size"><?php echo esc_html__( 'The latest artwork, newest first.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->

@@ -23,7 +23,7 @@ $aa_about = $aa_about instanceof WP_Post && 'publish' === $aa_about->post_status
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Independent since 2010. Built on original artwork, made for the people who wear it hard.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Independent since 2010. Built on original artwork.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->

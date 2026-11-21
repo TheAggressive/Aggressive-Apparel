@@ -695,7 +695,7 @@ describe( 'editorial category tiles', () => {
 			'src/styles/woocommerce/blocks.css'
 		);
 		const [ span ] = await blocks.declarations(
-			'.aa-editorial-tiles > .wc-block-featured-category:first-child:nth-last-child(odd)',
+			'.aa-editorial-tiles > :first-child:nth-last-child(odd)',
 			'grid-column'
 		);
 

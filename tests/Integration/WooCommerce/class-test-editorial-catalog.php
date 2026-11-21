@@ -253,7 +253,14 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$blocks = parse_blocks( $this->render_pattern( 'editorial-category-showcase' ) );
 		$grid   = $this->find_block( $blocks, static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-editorial-tiles' ) );
 		$this->assertNotNull( $grid );
-		$tiles = array_values( array_filter( $grid['innerBlocks'], static fn( $block ) => 'woocommerce/featured-category' === $block['blockName'] ) );
+		$tiles = array();
+		foreach ( $grid['innerBlocks'] as $item ) {
+			// Each tile is a grid item wrapped in its own scroll reveal.
+			$this->assertSame( 'aggressive-blocks/animate-on-scroll', $item['blockName'] );
+			$tile = $this->find_block( $item['innerBlocks'], static fn( $block ) => 'woocommerce/featured-category' === $block['blockName'] );
+			$this->assertNotNull( $tile );
+			$tiles[] = $tile;
+		}
 
 		$this->assertCount( 1, $tiles, 'Empty Accessories category gets no tile.' );
 		$this->assertSame( 1, $grid['attrs']['layout']['columnCount'] );

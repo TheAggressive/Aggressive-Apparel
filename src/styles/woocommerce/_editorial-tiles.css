@@ -42,11 +42,11 @@
 }
 
 /* Two-up on a phone, an odd tile count would orphan the last tile; the first
-   tile spans the row instead. The grid is its own size container (core sets
-   container-type on responsive grids). */
+   tile spans the row instead. Each tile sits in its own Animate on Scroll
+   wrapper, so the grid item is matched by position, not block class. The grid
+   is its own size container (core sets container-type on responsive grids). */
 @container (width < 36rem) {
-	.aa-editorial-tiles
-		> .wc-block-featured-category:first-child:nth-last-child(odd) {
+	.aa-editorial-tiles > :first-child:nth-last-child(odd) {
 		grid-column: 1 / -1;
 	}
 }

@@ -32,6 +32,7 @@ use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
 
+<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"align":"wide"} -->
 <?php
 $aa_grid = Editorial_Product_Grid::markup(
 	array(
@@ -44,5 +45,6 @@ $aa_grid = Editorial_Product_Grid::markup(
 );
 echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
 ?>
+<!-- /wp:aggressive-blocks/animate-on-scroll -->
 </div>
 <!-- /wp:group -->

@@ -45,6 +45,7 @@ $aa_looks = array(
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
+<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"align":"wide"} -->
 <!-- wp:columns {"verticalAlignment":"bottom","align":"wide","className":"aa-editorial-looks","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-8"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-bottom aa-editorial-looks">
 <?php foreach ( $aa_looks as $aa_look ) : ?>
@@ -65,5 +66,6 @@ $aa_looks = array(
 <!-- /wp:column -->
 <?php endforeach; ?>
 </div>
-<!-- /wp:columns --></div>
+<!-- /wp:columns -->
+<!-- /wp:aggressive-blocks/animate-on-scroll --></div>
 <!-- /wp:group -->

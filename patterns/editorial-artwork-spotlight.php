@@ -21,7 +21,8 @@ use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 <!-- /wp:column -->
 
 <!-- wp:column {"verticalAlignment":"center","width":"42%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:42%"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:42%"><!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"staggerChildren":true,"staggerDelay":0.08} -->
+<!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
 <p class="is-style-meta has-white-color has-text-color"><?php echo esc_html__( 'Original artwork', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
@@ -37,7 +38,8 @@ use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)"><!-- wp:button {"className":"is-style-outline-on-dark"} -->
 <div class="wp-block-button is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Editorial_Catalog::shop_url() ); ?>"><?php echo esc_html__( 'Shop the collection', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
-<!-- /wp:buttons --></div>
+<!-- /wp:buttons -->
+<!-- /wp:aggressive-blocks/animate-on-scroll --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>
 <!-- /wp:group -->

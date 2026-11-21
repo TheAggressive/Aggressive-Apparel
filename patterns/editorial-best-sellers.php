@@ -23,7 +23,8 @@ if ( ! $aa_ranked && ! $aa_featured ) {
 ?><!-- wp:group {"metadata":{"name":"05 Best Sellers"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"backgroundColor":"surface-muted","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull has-surface-muted-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:columns {"align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
 <div class="wp-block-columns alignwide"><!-- wp:column {"width":"30%","style":{"spacing":{"blockGap":"var:preset|spacing|6"}}} -->
-<div class="wp-block-column" style="flex-basis:30%"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+<div class="wp-block-column" style="flex-basis:30%"><!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"staggerChildren":true,"staggerDelay":0.08,"style":{"spacing":{"blockGap":"var:preset|spacing|6"}}} -->
+<!-- wp:paragraph {"className":"is-style-eyebrow"} -->
 <p class="is-style-eyebrow"><?php echo esc_html( $aa_ranked ? __( 'Most ordered', 'aggressive-apparel' ) : __( 'Chosen by the studio', 'aggressive-apparel' ) ); ?></p>
 <!-- /wp:paragraph -->
 
@@ -39,7 +40,8 @@ if ( ! $aa_ranked && ! $aa_featured ) {
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)"><!-- wp:button {"className":"is-style-ghost"} -->
 <div class="wp-block-button is-style-ghost"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( $aa_ranked ? Editorial_Catalog::shop_url( array( 'orderby' => 'popularity' ) ) : Editorial_Catalog::shop_url() ); ?>"><?php echo esc_html__( 'Shop the list', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
-<!-- /wp:buttons --></div>
+<!-- /wp:buttons -->
+<!-- /wp:aggressive-blocks/animate-on-scroll --></div>
 <!-- /wp:column -->
 
 <!-- wp:column {"width":"70%"} -->

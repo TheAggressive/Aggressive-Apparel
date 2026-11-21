@@ -74,7 +74,16 @@ $aa_grid_attributes = array(
 <!-- wp:group <?php echo serialize_block_attributes( $aa_grid_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <div class="wp-block-group alignwide aa-editorial-tiles">
 <?php
-foreach ( $aa_found as $aa_term ) {
+foreach ( $aa_found as $aa_index => $aa_term ) {
+	// Tiles rise in sequence as the row scrolls in (aggressive-blocks
+	// Animate on Scroll; static without JS and under reduced motion).
+	$aa_motion     = array(
+		'animation'     => 'slide',
+		'direction'     => 'up',
+		'slideDistance' => 24,
+		'duration'      => 0.7,
+		'initialDelay'  => round( 0.08 * $aa_index, 2 ),
+	);
 	$aa_attributes = array(
 		'contentAlign'    => 'left',
 		'dimRatio'        => 100,
@@ -91,11 +100,13 @@ foreach ( $aa_found as $aa_term ) {
 		$aa_attributes['imageFit'] = 'cover';
 	}
 	?>
+<!-- wp:aggressive-blocks/animate-on-scroll <?php echo serialize_block_attributes( $aa_motion ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <!-- wp:woocommerce/featured-category <?php echo serialize_block_attributes( $aa_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <!-- wp:heading {"level":3,"textColor":"white"} -->
 <h3 class="wp-block-heading has-white-color has-text-color"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
 <!-- /wp:heading -->
 <!-- /wp:woocommerce/featured-category -->
+<!-- /wp:aggressive-blocks/animate-on-scroll -->
 	<?php
 }
 ?>

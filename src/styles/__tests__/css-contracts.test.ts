@@ -653,6 +653,30 @@ describe( 'responsive product grid columns', () => {
 	} );
 } );
 
+describe( 'product card names', () => {
+	it( 'set listing names in the body face, sentence case, unlayered at (0,2,0) so they beat the global post-title style but not editor picks', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const name =
+			'.wp-block-woocommerce-product-template .wp-block-post-title';
+
+		const [ family ] = await blocks.declarations( name, 'font-family' );
+		expect( family ).toEqual(
+			expect.objectContaining( {
+				value: 'var(--wp--preset--font-family--space-grotesk)',
+				important: false,
+				layer: null,
+			} )
+		);
+		expect( await blocks.declarations( name, 'text-transform' ) ).toEqual( [
+			expect.objectContaining( { value: 'none', important: false } ),
+		] );
+		// Size is the editor's (template fontSize attribute), never restated here.
+		expect( await blocks.declarations( name, 'font-size' ) ).toEqual( [] );
+	} );
+} );
+
 describe( 'product gallery thumbnails', () => {
 	it( 'align the desktop strip to the top of a portrait frame', async () => {
 		const thumbs = await CompiledCss.load(

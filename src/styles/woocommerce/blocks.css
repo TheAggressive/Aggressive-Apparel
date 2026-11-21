@@ -201,6 +201,21 @@
 	color: var(--aa-color-accent);
 }
 
+/* Product names on listing cards are product information, not headlines:
+   the body face, sentence case, product-title weight — condensed display type
+   stays with section and page headings. (0,2,0) beats the global
+   core/post-title style (`:root :where(.wp-block-post-title)`, Bebas); the
+   editor's font-family and font-size preset classes (!important) and inline
+   typography still win. */
+.wp-block-woocommerce-product-template .wp-block-post-title {
+	font-family: var(--wp--preset--font-family--space-grotesk);
+	font-weight: 500;
+	letter-spacing: -0.005em;
+	line-height: 1.3;
+	text-transform: none;
+	text-wrap: pretty;
+}
+
 /* Price language.
    font-size is only set on the outermost block wrappers so the editor's
    .has-X-font-size class (which targets those same elements with !important)

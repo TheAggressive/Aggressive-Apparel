@@ -894,7 +894,7 @@ describe( 'editorial sections', () => {
 		).toEqual( expect.arrayContaining( [ '4.5', '2.5', '1.6' ] ) );
 	} );
 
-	it( 'show every card photo whole, in a slot shaped like the catalog', async () => {
+	it( 'show every card photo whole, in a square slot', async () => {
 		const blocks = await CompiledCss.load(
 			'src/styles/woocommerce/blocks.css'
 		);
@@ -902,16 +902,14 @@ describe( 'editorial sections', () => {
 			'.wp-block-woocommerce-product-template .wp-block-post-featured-image';
 
 		expect( await blocks.declarations( slot, 'aspect-ratio' ) ).toEqual( [
-			expect.objectContaining( {
-				value: expect.stringMatching( /var\(--aa-card-media-h,\s*1\)/ ),
-			} ),
+			expect.objectContaining( { value: '1' } ),
 		] );
 		expect(
 			await blocks.declarations( `${ slot } img`, 'object-fit' )
 		).toEqual( [ expect.objectContaining( { value: 'contain' } ) ] );
 	} );
 
-	it( 'end the lead card image level with the 2 x 2 beside it (catalog ratio + 0.11)', async () => {
+	it( 'end the lead card image level with the 2 x 2 beside it (1:1.11)', async () => {
 		const blocks = await CompiledCss.load(
 			'src/styles/woocommerce/blocks.css'
 		);
@@ -923,9 +921,7 @@ describe( 'editorial sections', () => {
 			)
 		).toEqual( [
 			expect.objectContaining( {
-				value: expect.stringMatching(
-					/calc\(var\(--aa-card-media-h,\s*1\)\s*\+\s*\.11\)/
-				),
+				value: '1/1.11',
 			} ),
 		] );
 	} );

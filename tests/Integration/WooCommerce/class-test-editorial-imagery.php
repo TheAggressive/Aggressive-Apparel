@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\Tests\Support\Builds_Editorial_Fixtures;
-use Aggressive_Apparel\WooCommerce\Card_Media_Ratio;
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 use WP_UnitTestCase;
@@ -223,7 +222,7 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$markup = $this->render_pattern( 'editorial-category-showcase' );
 
 		$this->assertStringContainsString( '2 pieces', $markup );
-		$this->assertStringContainsString( '"aspectRatio":"' . Card_Media_Ratio::aspect_ratio() . '"', $markup, 'Tiles take the catalog photo shape, so cover never crops.' );
+		$this->assertStringContainsString( '"aspectRatio":"1/1"', $markup, 'Square like the product images, so cover never crops.' );
 	}
 
 	/** The New Arrivals lead grid is marked as the lead (larger name, 3:4 image). */

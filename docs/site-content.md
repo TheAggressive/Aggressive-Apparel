@@ -98,9 +98,9 @@ mode. Nothing is written to production.
 
 What production merchandise changes, and what to look at:
 
-- **Product photos are square 2000 × 2000 mockups** (front and back). Cards,
-  category tiles and the product gallery take that shape automatically
-  (`Card_Media_Ratio`, `Product_Gallery_Frame`) and show the whole image.
+- **Product photos are designed square** (2000 × 2000). Cards and category
+  tiles are square and show the whole image; the product gallery frame
+  follows the main photo.
 - **There is no portrait photography** in the catalog. The photo-led homepage
   sections fall back to their type and grid layouts until campaign or
   lifestyle photos are added: the hero becomes the type-only slogan, Women's

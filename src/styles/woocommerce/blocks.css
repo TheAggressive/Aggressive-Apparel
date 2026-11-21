@@ -144,12 +144,11 @@
 	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
-/* Every listing card's media slot takes the catalog's own photo shape
-   (--aa-card-media-h, height / width, printed by Card_Media_Ratio: square
-   for 2000 x 2000 mockups) and shows the photo whole: contain, never a crop
-   that could cut a sleeve or a print. Also reserves space before load. */
+/* Square media slot on every listing card: the product images are designed
+   square. The photo shows whole (contain), never a crop that could cut a
+   sleeve or a print; reserves space before load (CLS). */
 .wp-block-woocommerce-product-template .wp-block-post-featured-image {
-	aspect-ratio: 1 / var(--aa-card-media-h, 1);
+	aspect-ratio: 1;
 	overflow: hidden;
 }
 

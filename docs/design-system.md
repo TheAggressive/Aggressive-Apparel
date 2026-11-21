@@ -121,18 +121,16 @@ Rules:
 | 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
 | 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, detail close-ups.     |
 | 3:4, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (3:4), tall looks (2:3), detail (1:1).   |
-| Product images         | Catalog-shaped slot, contain       | Every card; the slot follows the catalog's photo shape. |
+| Product images         | 1:1 slot, contain                  | Every card; product images are designed square.         |
 
 Rules:
 
-1. **Product photography is shown whole.** Every product card's media slot
-   takes the catalog's own photo shape (`Card_Media_Ratio`: the median of
-   the newest products' main photos, snapped to 1:1, 4:5, 3:4 or 2:3 and
-   printed as `--aa-card-media-h`) and shows the photo with `contain`, never
-   a crop that could cut a sleeve or a print. Production's 2000 × 2000
-   mockups get square slots; 2:3 model shots get 2:3 slots. Category tiles
-   take the same shape, and the product gallery frame follows the main
-   photo. Patterns do not override the card slot.
+1. **Product photography is shown whole, in a square.** The product images
+   are designed square, so every product card's media slot is 1:1 and shows
+   the photo with `contain`, never a crop that could cut a sleeve or a
+   print. Category tiles are square too; the New Arrivals lead card is
+   1:1.11 so it lines up with the 2 × 2 beside it. The product gallery frame
+   follows the main photo. Patterns do not override the card slot.
 2. Hero and campaign images are Covers with a **min-height in `svh`/`vh`**
    (60–90) rather than a fixed ratio, and a **focal point** set on the subject.
    Avoid thin banner strips: no campaign Cover under 60svh on desktop.

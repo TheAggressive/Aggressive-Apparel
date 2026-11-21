@@ -652,3 +652,16 @@ describe( 'responsive product grid columns', () => {
 		}
 	} );
 } );
+
+describe( 'desktop navigation menubar', () => {
+	it( "caps the item gap at the editor's block gap and tightens it on narrow desktops", async () => {
+		const nav = await CompiledCss.load(
+			'src/blocks-interactivity/navigation/style.css'
+		);
+		const [ gap ] = await nav.declarations( '.aa-nav__menubar', 'gap' );
+
+		expect( gap.value.replace( /\s+/g, '' ) ).toBe(
+			'min(var(--navigation-gap),2.25vw - .5rem)'.replace( /\s+/g, '' )
+		);
+	} );
+} );

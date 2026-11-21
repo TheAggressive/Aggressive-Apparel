@@ -152,41 +152,53 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface           | Live data                                                            |
-| --- | ----------------------------- | -------------------------- | -------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop sorted by newest                                          |
-| 02  | `editorial-category-showcase` | standard                   | Featured Category tiles (category images); the whole tile links      |
-| 03  | `editorial-new-arrivals`      | standard                   | Product Collection, newest, 4-up                                     |
-| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#artwork` anchor for the hero's second CTA               |
-| 05  | `editorial-best-sellers`      | standard, surface-muted    | Real sales → Best sellers; else Featured → Staff picks; else omitted |
-| 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Drop term (`dead-signal`, filterable); else links to newest          |
-| 07  | `editorial-womens-collection` | editorial                  | `pa_collection` / category `womens` → landing page + 2-up grid       |
-| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | `hoodies` category, 3-up                                             |
-| 09  | `editorial-defiance-division` | editorial, black           | `defiance-division` (collection, category or tag) when present       |
-| 10  | `editorial-accessories`       | compact → standard         | `accessories` category, 5-up; omitted if the category is absent      |
-| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Three 2:3 look placeholders                                          |
-| 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                 |
+| #   | Pattern                       | Rhythm / surface           | Live data                                                               |
+| --- | ----------------------------- | -------------------------- | ----------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop sorted by newest                                             |
+| 02  | `editorial-category-showcase` | standard → compact         | One row of stocked categories; category image, else newest product's    |
+| 03  | `editorial-new-arrivals`      | compact → standard         | Product Collection, newest, 4-up                                        |
+| 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#artwork` anchor for the hero's second CTA                  |
+| 05  | `editorial-best-sellers`      | standard, intro + 3-up     | Real sales → Best sellers; else Featured → Staff picks; else omitted    |
+| 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Stocked drop term (`dead-signal`, filterable); else omitted             |
+| 07  | `editorial-womens-collection` | editorial                  | Stocked `womens` collection or category → landing + 2-up; else omitted  |
+| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | Stocked `hoodies` category, 3-up; else omitted                          |
+| 09  | `editorial-defiance-division` | editorial, black           | Stocked `defiance-division` (collection, category or tag); else omitted |
+| 10  | `editorial-accessories`       | compact → standard         | Stocked `accessories` category, 5-up; else omitted                      |
+| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Lead 4:5 look + two 2:3 looks on its baseline (placeholders)            |
+| 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                    |
 
 Rules the library follows (new sections should too):
 
 1. **No hardcoded store data.** Term IDs and archive URLs differ between
    environments, so patterns resolve them at render time through
    `WooCommerce\Editorial_Catalog` (term by slug → real archive URL, or the
-   Shop page). A grid is only filtered by a term that exists; a section whose
-   subject the store lacks drops its grid rather than showing unrelated
-   products under that heading.
+   Shop page). A section whose CTA names a collection ("Shop women's",
+   "Shop the drop") renders only when the store has that term **with
+   products** (`Editorial_Catalog::stocked_term()`); otherwise it renders
+   nothing, rather than a CTA to the whole catalog.
 2. **No invented merchandising.** Best Sellers ranks by recorded sales only;
    without sales it becomes "Staff picks" over the store's Featured flag.
    Copy makes no claims about materials, process or stock.
 3. **One card.** `WooCommerce\Editorial_Product_Grid` emits every grid with
    the Editorial Grid card the Shop archive uses (media well, title, price,
    swatches). Editors can retune each query in the block inspector.
-4. **Placeholders, not stock photos.** Image slots ship as image-less Covers
-   named `… (replace image)` in List View.
-5. **One red accent per section.** The eyebrow carries the brand red;
+4. **Store imagery for tiles, art direction for campaigns.** A tile that
+   links to a category shows that category's own image, else its newest
+   product's photo (`Editorial_Catalog::term_image_id()`), never an image
+   from outside it. Campaign slots (hero, artwork, drop, women's, Defiance
+   Division, looks) need art direction, so they ship as image-less Covers
+   named `… (replace image)` in List View; in black sections they use
+   `surface-muted`, because adaptive colors resolve dark there and
+   `surface-sunken` would vanish.
+5. **Grids declare their gap.** Core sizes a responsive grid's tracks
+   (Column count + Minimum width) from the block's own gap and assumes 0.5em
+   when none is set; against the theme's 48px gap that drops a column. Set
+   Block spacing on every responsive Grid group.
+6. **One red accent per section.** The eyebrow carries the brand red;
    headings take the section's text color (Headline and Campaign Display
    inherit it; plain headings set Foreground).
-6. The slogan appears once, in the hero.
+7. The slogan appears once, in the hero. Copy follows
+   [`brand-voice.md`](brand-voice.md).
 
 **Adopting the homepage on an existing site.** A Blog Home (`home`) template
 customised in the Site Editor is stored in the database and overrides

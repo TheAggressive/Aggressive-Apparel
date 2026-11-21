@@ -39,8 +39,8 @@ $aa_looks = array(
 	),
 );
 
-?><!-- wp:group {"metadata":{"name":"11 Featured Looks"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-editorial","bottom":"var:preset|spacing|section-editorial","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-16"}},"backgroundColor":"surface-muted","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull has-surface-muted-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-editorial);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-editorial);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"layout":{"type":"constrained","contentSize":"720px"}} -->
+?><!-- wp:group {"metadata":{"name":"11 Featured Looks"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-16"}},"backgroundColor":"surface-muted","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull has-surface-muted-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"layout":{"type":"constrained","contentSize":"720px"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"align":"center","className":"is-style-eyebrow"} -->
 <p class="has-text-align-center is-style-eyebrow"><?php echo esc_html__( 'Lookbook', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
@@ -50,8 +50,8 @@ $aa_looks = array(
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:columns {"verticalAlignment":"bottom","align":"wide","className":"aa-editorial-looks","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-8"}}}} -->
-<div class="wp-block-columns alignwide are-vertically-aligned-bottom aa-editorial-looks">
+<!-- wp:columns {"verticalAlignment":"bottom","align":"wide","className":"aa-editorial-looks aa-tablet-split","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-8"}}}} -->
+<div class="wp-block-columns alignwide are-vertically-aligned-bottom aa-editorial-looks aa-tablet-split">
 <?php foreach ( $aa_looks as $aa_index => $aa_look ) : ?>
 <!-- wp:column {"verticalAlignment":"bottom","width":"<?php echo esc_attr( $aa_look['width'] ); ?>","style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
 <div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:<?php echo esc_attr( $aa_look['width'] ); ?>"><?php echo Editorial_Imagery::image_markup( $aa_leads[ $aa_index ], $aa_look['ratio'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>

@@ -152,20 +152,20 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface         | Live data                                                                                |
-| --- | ----------------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | compact, black, split    | Slogan + newest portrait product photo (not the newest arrival's); type only without one |
-| 02  | `editorial-category-showcase` | standard → compact       | One row of stocked categories; category image, else newest product's                     |
-| 03  | `editorial-new-arrivals`      | compact → standard       | Newest product as a lead card + the next four 2 × 2 (two collections, offset 1)          |
-| 04  | `editorial-artwork-spotlight` | standard, black          | "The name": typographic statement + paragraph; `#the-label`                              |
-| 05  | `editorial-best-sellers`      | standard, intro + 2–3-up | Real sales → Best sellers; else Featured products; else omitted                          |
-| 06  | `editorial-featured-drop`     | 75vh Cover + grid        | Stocked drop term (`dead-signal`, filterable); else omitted                              |
-| 07  | `editorial-womens-collection` | editorial                | Stocked `womens` term: portrait photo + name + 2-up (from 2 products)                    |
-| 08  | `editorial-hoodies-feature`   | standard, surface-muted  | Stocked `hoodies`: 3+ → centred row; 1–2 → large cards beside headline                   |
-| 09  | `editorial-defiance-division` | editorial, black         | Stocked `defiance-division` (collection, category or tag); else omitted                  |
-| 10  | `editorial-accessories`       | compact → standard       | Stocked `accessories` category, up to 4-up; else omitted                                 |
-| 11  | `editorial-featured-looks`    | editorial, surface-muted | Three portrait photos (Fig. 01–03) linked to products; phone rail                        |
-| 12  | `editorial-brand-story`       | editorial                | Closing line + Shop all; About link when an `about` page exists                          |
+| #   | Pattern                       | Rhythm / surface         | Live data                                                                                               |
+| --- | ----------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | black spread             | Slogan beside two full-height portrait product photos (diptych), "Shown" line; type only without photos |
+| 02  | `editorial-category-showcase` | standard → compact       | One row of stocked categories, 2:3 tiles, piece counts; swipe rail on phones                            |
+| 03  | `editorial-new-arrivals`      | compact → standard       | Newest product as a 3:4 lead card + the next four 2 × 2 (two collections, offset 1)                     |
+| 04  | `editorial-artwork-spotlight` | standard, black          | "The name": typographic statement + paragraph; `#the-label`                                             |
+| 05  | `editorial-best-sellers`      | standard, intro + 2–3-up | Real sales → Best sellers; else Featured products; else omitted                                         |
+| 06  | `editorial-featured-drop`     | black spread / band      | Drop photo (left) + name + row of two, or title row over a stock-sized grid; else omitted               |
+| 07  | `editorial-womens-collection` | light spread             | Copy + row of two beside a full-height photo (right); else copy + grid                                  |
+| 08  | `editorial-hoodies-feature`   | standard, surface-muted  | 3+ → centred row; 1–2 → third-width cards beside a large headline                                       |
+| 09  | `editorial-defiance-division` | black spread / band      | As the drop band (`Editorial_Collection_Band`); else omitted                                            |
+| 10  | `editorial-accessories`       | compact → standard       | Up to four in a row; more scroll as a rail of up to eight (4.5 visible)                                 |
+| 11  | `editorial-featured-looks`    | standard, surface-muted  | Three portrait photos (Fig. 01–03) linked to products; phone rail                                       |
+| 12  | `editorial-brand-story`       | standard                 | Closing line + Shop all on the wide column's edge; About link if it exists                              |
 
 Rules the library follows (new sections should too):
 
@@ -196,11 +196,9 @@ Rules the library follows (new sections should too):
    the hero showed; a collection slot (women's) may reuse a photo because it
    must show that collection; the lookbook tops up with shown photos rather
    than disappear. A slot that can't be filled changes the layout (the hero
-   becomes type only, the lookbook is omitted below three portraits). Covers
-   named `… (replace image)` remain only in the campaign collection sections
-   (drop, Defiance Division); in black sections they use `surface-muted`,
-   because adaptive colors resolve dark there and `surface-sunken` would
-   vanish.
+   becomes type only, the lookbook is omitted below three portraits). No homepage section ships an image-less
+   placeholder Cover any more; the collection bands (drop, Defiance
+   Division) use the collection's own portrait photo or drop the photo.
 5. **Grids declare their gap.** Core sizes a responsive grid's tracks
    (Column count + Minimum width) from the block's own gap and assumes 0.5em
    when none is set; against the theme's 48px gap that drops a column. Set
@@ -230,11 +228,22 @@ Rules the library follows (new sections should too):
    the plain heading set to Foreground, or Campaign Display where the
    section is a feature; a heading that makes a statement ("Pick your
    issue.", "Aggressive used to be a compliment.") is Headline (Sans).
-10. **Light surfaces alternate.** Below the hero, light sections alternate
+10. **Spreads alternate; grids don't repeat.** Photo sections are
+    edge-to-edge spreads (`aa-bleed-photo` column: the photo runs the full
+    row height and crops to cover): hero photo right, drop band photo left,
+    Women's photo right, so on phones photo and copy alternate instead of two
+    photos stacking. Beside a photo, products show as one row of two, never
+    a 2 × 2 that would stretch the photo. Product sections take distinct
+    shapes: lead + 2 × 2 (New Arrivals), intro + cards (Featured), headline
+    - third-width cards (Hoodies), rail (Accessories), title row + grid
+      (collection bands without a photo). Copy beside a full-bleed photo lines
+      up with the wide column through
+      `max(gutter, (100% - wide-size) / 2)` padding.
+11. **Light surfaces alternate.** Below the hero, light sections alternate
     `surface` and `surface-muted` (black bands break the run; categories and
     new arrivals share one surface as a single shopping block); no section
     uses `surface-elevated` white.
-11. The slogan appears once, in the hero. Copy follows
+12. The slogan appears once, in the hero. Copy follows
     [`brand-voice.md`](brand-voice.md).
 
 **Adopting the homepage on an existing site.** A Blog Home (`home`) template

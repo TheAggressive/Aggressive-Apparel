@@ -8,13 +8,13 @@
  * @package Aggressive_Apparel
  */
 
-/* Homepage editorial grids of 3+ columns go two-up below desktop: not four
-   150px cards or 3 + 1 orphans. A one-card lead grid stays one card.
+/* Homepage editorial grids of 4+ columns go two-up below desktop: not four
+   150px cards. Three-column grids stay three (a two-up would orphan the
+   third card); a one-card lead grid stays one card.
    Specificity 0,4,0 beats the .columns-N rules that load after it. */
 @media (width < 1024px) {
 	.is-style-editorial-grid
 		.wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(
-			.columns-3,
 			.columns-4,
 			.columns-5,
 			.columns-6
@@ -55,4 +55,40 @@
 	.wp-block-woocommerce-product-template
 	.wp-block-post-featured-image {
 	aspect-ratio: 3 / 4;
+}
+
+/* A rail (Editorial_Product_Grid `rail`): one row that scrolls sideways and
+   shows a fraction of the next card, so a longer range reads as more than a
+   row. Keeps a thin visible scrollbar for mouse users; arrow keys and focus
+   scroll it natively. 0,3,0 beats WooCommerce's grid display. */
+.aa-grid-rail
+	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-rail-visible: 4.5;
+
+	display: flex;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: thin;
+	padding-block-end: var(--wp--preset--spacing--4);
+
+	& > li {
+		flex: 0 0
+			calc(
+				(
+						100% - (var(--aa-rail-visible) - 1) *
+							var(--aa-product-grid-gap)
+					) /
+					var(--aa-rail-visible)
+			);
+		scroll-snap-align: start;
+	}
+
+	@media (width < 1024px) {
+		--aa-rail-visible: 2.5;
+	}
+
+	@media (width < 600px) {
+		--aa-rail-visible: 1.6;
+	}
 }

@@ -33,10 +33,11 @@ final class Editorial_Product_Grid {
 	 * (filters by a category, tag or attribute),
 	 * collection (a WooCommerce preset such as new-arrivals), align, label,
 	 * centered (centre a row shorter than the column count), lead (a single
-	 * large card: name and price set larger).
+	 * large card: name and price set larger), rail (one scrolling row that
+	 * shows four and a half cards, so a longer range reads as more).
 	 *
 	 * @param array<string, mixed> $args Grid options.
-	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool} $args
+	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool, rail?: bool} $args
 	 */
 	public static function markup( array $args ): string {
 		$term    = $args['term'] ?? null;
@@ -88,7 +89,7 @@ final class Editorial_Product_Grid {
 		}
 		// A centred section centres a short row (aa-grid-centered, editorial.css
 		// in blocks.css) instead of leaving it flush left under its heading.
-		$class_name              = 'is-style-editorial-grid' . ( ! empty( $args['centered'] ) ? ' aa-grid-centered' : '' ) . ( ! empty( $args['lead'] ) ? ' aa-grid-lead' : '' );
+		$class_name              = 'is-style-editorial-grid' . ( ! empty( $args['centered'] ) ? ' aa-grid-centered' : '' ) . ( ! empty( $args['lead'] ) ? ' aa-grid-lead' : '' ) . ( ! empty( $args['rail'] ) ? ' aa-grid-rail' : '' );
 		$attributes['className'] = $class_name;
 
 		$classes = 'wp-block-woocommerce-product-collection' . ( '' !== $align ? ' align' . $align : '' ) . ' ' . $class_name;

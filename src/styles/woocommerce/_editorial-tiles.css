@@ -64,6 +64,13 @@
 			flex: 0 0 72%;
 			scroll-snap-align: start;
 		}
+
+		/* Tablets: two and a half tiles, not one 530px tile. */
+		@media (width >= 600px) {
+			& > * {
+				flex-basis: 40%;
+			}
+		}
 	}
 }
 

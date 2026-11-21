@@ -373,7 +373,7 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( 2, $grid['attrs']['displayLayout']['columns'] );
 	}
 
-	/** Accessories: four across at most. */
+	/** Accessories: four across at most; more than four scroll as a rail. */
 	public function test_accessories_row_is_at_most_four_across(): void {
 		$accessories = self::factory()->term->create_and_get(
 			array(
@@ -388,7 +388,56 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$grid = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-accessories' ) ), 'woocommerce/product-collection' )[0];
 
 		$this->assertSame( 4, $grid['attrs']['displayLayout']['columns'] );
-		$this->assertSame( 4, $grid['attrs']['query']['perPage'] );
+		$this->assertSame( 5, $grid['attrs']['query']['perPage'], 'More than four become a rail of all of them, up to eight.' );
+		$this->assertStringContainsString( 'aa-grid-rail', $grid['attrs']['className'] );
+	}
+
+	/**
+	 * A collection band with a portrait photo is a spread: the photo in a
+	 * full-height column beside one row of two products. No placeholder.
+	 */
+	public function test_collection_band_with_a_photo_is_a_spread(): void {
+		$defiance = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_tag',
+				'slug'     => 'defiance-division',
+			)
+		);
+		for ( $i = 0; $i < 5; $i++ ) {
+			$product = $this->create_product( array( 'image' => $this->create_image() ) );
+			wp_set_object_terms( $product->get_id(), array( $defiance->term_id ), 'product_tag' );
+		}
+
+		$markup = $this->render_pattern( 'editorial-defiance-division' );
+		$blocks = parse_blocks( $markup );
+
+		$this->assertCount( 1, $this->find_all( $blocks, 'core/image' ) );
+		$this->assertStringContainsString( 'aa-bleed-photo', $markup );
+		$this->assertStringNotContainsString( 'wp:cover', $markup );
+		$this->assertSame( 2, $this->find_all( $blocks, 'woocommerce/product-collection' )[0]['attrs']['query']['perPage'] );
+	}
+
+	/** Without a portrait photo the band is a header row over a stock-sized grid. */
+	public function test_collection_band_without_a_photo_sizes_its_grid(): void {
+		$defiance = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_tag',
+				'slug'     => 'defiance-division',
+			)
+		);
+		for ( $i = 0; $i < 3; $i++ ) {
+			$product = $this->create_product( array( 'image' => $this->create_image( 800, 800 ) ) );
+			wp_set_object_terms( $product->get_id(), array( $defiance->term_id ), 'product_tag' );
+		}
+
+		$markup = $this->render_pattern( 'editorial-defiance-division' );
+		$blocks = parse_blocks( $markup );
+		$grid   = $this->find_all( $blocks, 'woocommerce/product-collection' )[0];
+
+		$this->assertSame( array(), $this->find_all( $blocks, 'core/image' ) );
+		$this->assertStringNotContainsString( 'wp:cover', $markup );
+		$this->assertSame( 3, $grid['attrs']['displayLayout']['columns'] );
+		$this->assertSame( 3, $grid['attrs']['query']['perPage'] );
 	}
 
 	/**

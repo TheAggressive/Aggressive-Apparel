@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T10:38:42+00:00\n"
+"POT-Creation-Date: 2026-11-21T11:21:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2383,7 +2383,7 @@ msgstr ""
 #: includes/WooCommerce/class-garment-kinds.php:152
 #: patterns/animated-category-mosaic.php:31
 #: patterns/category-landing-composition.php:21
-#: patterns/editorial-hoodies-feature.php:59
+#: patterns/editorial-hoodies-feature.php:61
 #: patterns/homepage-seasonal-shop.php:83
 #: patterns/mega-menu-panel.php:24
 #: patterns/no-results-browse.php:38
@@ -2634,7 +2634,8 @@ msgstr ""
 #: includes/WooCommerce/class-product-filter-renderer.php:41
 #: includes/WooCommerce/class-product-filter-renderer.php:141
 #: patterns/collection-landing-hero.php:18
-#: patterns/editorial-womens-collection.php:60
+#: patterns/editorial-womens-collection.php:57
+#: patterns/editorial-womens-collection.php:100
 msgid "Collection"
 msgstr ""
 
@@ -4562,7 +4563,7 @@ msgid "Outerwear"
 msgstr ""
 
 #: patterns/animated-category-mosaic.php:71
-#: patterns/editorial-accessories.php:35
+#: patterns/editorial-accessories.php:38
 #: patterns/homepage-seasonal-shop.php:143
 #: patterns/lookbook-grid.php:79
 #: patterns/mega-menu-panel.php:36
@@ -5380,18 +5381,18 @@ msgstr ""
 
 #: patterns/editorial-accessories.php
 msgctxt "Pattern description"
-msgid "A row of up to four accessories actually in stock, with a short header and one link to the category."
+msgid "The accessories actually in stock, with a short header and one link to the category: a row of up to four, or a sideways-scrolling rail of up to eight that shows four and a half."
 msgstr ""
 
-#: patterns/editorial-accessories.php:31
+#: patterns/editorial-accessories.php:34
 msgid "The small stuff"
 msgstr ""
 
-#: patterns/editorial-accessories.php:41
+#: patterns/editorial-accessories.php:44
 msgid "Shop accessories"
 msgstr ""
 
-#: patterns/editorial-accessories.php:53
+#: patterns/editorial-accessories.php:57
 msgid "Accessories row"
 msgstr ""
 
@@ -5562,26 +5563,26 @@ msgstr ""
 
 #: patterns/editorial-defiance-division.php
 msgctxt "Pattern description"
-msgid "The motocross capsule's own treatment: a wide 16:9 action image (replace the image), racing-stripe accent and the capsule's products. Renders nothing when the store has no Defiance Division products."
+msgid "Black band for the motocross capsule: its title, line and CTA beside a full-height portrait photo of the collection and a two-up grid, or the title band above a grid sized to the collection's stock. Renders nothing without stocked Defiance Division products."
 msgstr ""
 
-#: patterns/editorial-defiance-division.php:32
+#: patterns/editorial-defiance-division.php:29
 msgid "Capsule collection"
 msgstr ""
 
-#: patterns/editorial-defiance-division.php:36
+#: patterns/editorial-defiance-division.php:30
 msgid "Defiance Division"
 msgstr ""
 
-#: patterns/editorial-defiance-division.php:42
+#: patterns/editorial-defiance-division.php:31
 msgid "Drawn from the pit lane, not the showroom."
 msgstr ""
 
-#: patterns/editorial-defiance-division.php:47
+#: patterns/editorial-defiance-division.php:32
 msgid "Shop Defiance Division"
 msgstr ""
 
-#: patterns/editorial-defiance-division.php:63
+#: patterns/editorial-defiance-division.php:33
 msgid "Defiance Division products"
 msgstr ""
 
@@ -5592,23 +5593,23 @@ msgstr ""
 
 #: patterns/editorial-featured-drop.php
 msgctxt "Pattern description"
-msgid "Campaign Cover for the current release (replace the image) plus its products. Reads the drop from the store by slug (default \"dead-signal\"); renders nothing when the store has no such drop with products."
+msgid "Black band for the current drop: its name, line and CTA beside a full-height portrait photo of the drop and a two-up grid, or the title band above a grid sized to the drop's stock. Renders nothing without a stocked drop term (slugs filterable)."
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:36
+#: patterns/editorial-featured-drop.php:35
 msgid "Featured drop"
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:44
+#: patterns/editorial-featured-drop.php:37
 msgid "One idea, released as a set."
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:49
+#: patterns/editorial-featured-drop.php:38
 #: patterns/mega-menu-panel.php:84
 msgid "Shop the drop"
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:64
+#: patterns/editorial-featured-drop.php:39
 msgid "Drop products"
 msgstr ""
 
@@ -5666,15 +5667,15 @@ msgstr ""
 msgid "Hoodies grid"
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:55
+#: patterns/editorial-hoodies-feature.php:57
 msgid "Heavy rotation"
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:63
+#: patterns/editorial-hoodies-feature.php:65
 msgid "For the cold walk home."
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:74
+#: patterns/editorial-hoodies-feature.php:76
 msgid "Shop all hoodies"
 msgstr ""
 
@@ -5768,19 +5769,21 @@ msgstr ""
 
 #: patterns/editorial-womens-collection.php
 msgctxt "Pattern description"
-msgid "A tall portrait photo of the collection beside the collection name and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place."
+msgid "A light editorial spread: a full-height portrait photo of the collection running off the right edge, beside the collection name and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place."
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:64
+#: patterns/editorial-womens-collection.php:61
+#: patterns/editorial-womens-collection.php:104
 msgid "Women’s"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:70
+#: patterns/editorial-womens-collection.php:66
+#: patterns/editorial-womens-collection.php:109
 msgid "Shop women's"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:83
-#: patterns/editorial-womens-collection.php:103
+#: patterns/editorial-womens-collection.php:79
+#: patterns/editorial-womens-collection.php:126
 msgid "Women's products"
 msgstr ""
 

@@ -652,14 +652,14 @@ describe( 'responsive product grid columns', () => {
 		}
 	} );
 
-	it( 'give homepage editorial grids of 3+ columns two large cards per row below desktop', async () => {
+	it( 'give homepage editorial grids of 4+ columns two large cards per row below desktop', async () => {
 		const blocks = await CompiledCss.load(
 			'src/styles/woocommerce/blocks.css'
 		);
 
 		expect(
 			await blocks.declarations(
-				'.is-style-editorial-grid .wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(.columns-3,.columns-4,.columns-5,.columns-6)',
+				'.is-style-editorial-grid .wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(.columns-4,.columns-5,.columns-6)',
 				'--aa-product-grid-columns'
 			)
 		).toEqual( [
@@ -797,14 +797,14 @@ describe( 'editorial sections', () => {
 				.sort()
 		).toEqual( [ 'flex-basis', 'flex-wrap', 'margin-inline' ] );
 		expect(
-			rail.every( ( d ) => /782px/.test( d.conditions.join() ) )
+			rail.every( ( d ) => /600px/.test( d.conditions.join() ) )
 		).toBe( true );
 		expect( rail.map( ( d ) => d.prop ) ).toEqual(
 			expect.arrayContaining( [ 'overflow-x', 'scroll-snap-type' ] )
 		);
 	} );
 
-	it( 'run the hero photos the full band height without turning off the column stretch', async () => {
+	it( 'run bleed photos the full row height without turning off the column stretch', async () => {
 		const editorial = await CompiledCss.load(
 			'src/styles/components/editorial.css'
 		);
@@ -812,18 +812,17 @@ describe( 'editorial sections', () => {
 			.all()
 			.filter(
 				( d ) =>
-					d.selector.startsWith(
-						'.aa-campaign-hero>.wp-block-columns>.wp-block-column:last-child'
-					) && d.prop === 'height'
+					d.selector.startsWith( '.aa-bleed-photo' ) &&
+					d.prop === 'height'
 			);
 
 		expect( fill.length ).toBeGreaterThan( 0 );
 		// The column itself must keep height:auto, or flex stretch stops.
-		expect( fill.some( ( d ) => /:last-child$/.test( d.selector ) ) ).toBe(
-			false
-		);
 		expect(
-			fill.every( ( d ) => /782px/.test( d.conditions.join() ) )
+			fill.some( ( d ) => /^\.aa-bleed-photo$/.test( d.selector ) )
+		).toBe( false );
+		expect(
+			fill.every( ( d ) => /600px/.test( d.conditions.join() ) )
 		).toBe( true );
 	} );
 
@@ -847,6 +846,52 @@ describe( 'editorial sections', () => {
 		expect(
 			rail.every( ( d ) => /782px/.test( d.conditions.join() ) )
 		).toBe( true );
+	} );
+
+	it( 'keep editorial splits side by side on tablets, overriding only core stacking', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const split = editorial
+			.all()
+			.filter( ( d ) => d.selector.includes( '.aa-tablet-split' ) );
+
+		expect(
+			split
+				.filter( ( d ) => d.important )
+				.map( ( d ) => d.prop )
+				.sort()
+		).toEqual( [ 'flex-basis', 'flex-wrap' ] );
+		expect(
+			split.every(
+				( d ) =>
+					/600px/.test( d.conditions.join() ) &&
+					/782px/.test( d.conditions.join() )
+			)
+		).toBe( true );
+	} );
+
+	it( 'scroll a rail grid sideways with a fraction of the next card showing', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const rail = blocks
+			.all()
+			.filter( ( d ) => d.selector.startsWith( '.aa-grid-rail' ) );
+
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [
+				'display',
+				'overflow-x',
+				'scroll-snap-type',
+				'flex',
+			] )
+		);
+		expect(
+			rail
+				.filter( ( d ) => d.prop === '--aa-rail-visible' )
+				.map( ( d ) => d.value )
+		).toEqual( expect.arrayContaining( [ '4.5', '2.5', '1.6' ] ) );
 	} );
 
 	it( 'end the lead card image level with the 2 x 2 beside it (3:4)', async () => {

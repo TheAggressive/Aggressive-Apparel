@@ -39,15 +39,17 @@ $aa_grid    = Editorial_Product_Grid::markup(
 	)
 );
 $aa_align   = $aa_row ? 'center' : 'left';
-// Beside the headline (which comes first, so phones read it before the cards).
-$aa_grid_width = 1 === $aa_count ? '50%' : '60%';
-$aa_text_width = 1 === $aa_count ? '50%' : '40%';
+// Beside the headline (which comes first, so phones read it before the
+// cards): a third of the row per card, so one or two hoodies keep the card
+// size of a three-up row instead of growing to fill half the page.
+$aa_grid_width = 1 === $aa_count ? '33.33%' : '66.66%';
+$aa_text_width = 1 === $aa_count ? '66.66%' : '33.33%';
 
 ?><!-- wp:group {"metadata":{"name":"08 Hoodies"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"backgroundColor":"surface-muted","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull has-surface-muted-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)">
 <?php if ( ! $aa_row ) : ?>
-<!-- wp:columns {"verticalAlignment":"center","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
-<div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"<?php echo esc_attr( $aa_text_width ); ?>"} -->
+<!-- wp:columns {"className":"aa-tablet-split","verticalAlignment":"center","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
+<div class="wp-block-columns aa-tablet-split alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"<?php echo esc_attr( $aa_text_width ); ?>"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:<?php echo esc_attr( $aa_text_width ); ?>">
 <?php endif; ?>
 <!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"constrained","contentSize":"760px"<?php echo $aa_row ? '' : ',"justifyContent":"left"'; ?>}} -->

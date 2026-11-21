@@ -28,8 +28,8 @@ foreach ( $aa_leads as $aa_lead ) {
 ?><!-- wp:group {"metadata":{"name":"01 Campaign Hero"},"align":"full","className":"aa-campaign-hero","style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"},"margin":{"top":"0","bottom":"0"}},"elements":{"link":{"color":{"text":"var:preset|color|white"}}}},"backgroundColor":"black","textColor":"white","layout":{"type":"default"}} -->
 <div class="wp-block-group alignfull aa-campaign-hero has-white-color has-black-background-color has-text-color has-background has-link-color" style="margin-top:0;margin-bottom:0;padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 <?php if ( array() !== $aa_leads ) : ?>
-<!-- wp:columns {"align":"full","style":{"spacing":{"blockGap":{"top":"0","left":"0"},"margin":{"top":"0","bottom":"0"}}}} -->
-<div class="wp-block-columns alignfull" style="margin-top:0;margin-bottom:0"><!-- wp:column {"width":"40%","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","right":"var:preset|spacing|gutter","bottom":"var:preset|spacing|section-compact","left":"max(var(--wp--preset--spacing--gutter), calc((100% - var(--wp--style--global--wide-size)) / 2))"}}}} -->
+<!-- wp:columns {"className":"aa-tablet-split","align":"full","style":{"spacing":{"blockGap":{"top":"0","left":"0"},"margin":{"top":"0","bottom":"0"}}}} -->
+<div class="wp-block-columns aa-tablet-split alignfull" style="margin-top:0;margin-bottom:0"><!-- wp:column {"width":"40%","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","right":"var:preset|spacing|gutter","bottom":"var:preset|spacing|section-compact","left":"max(var(--wp--preset--spacing--gutter), calc((100% - var(--wp--style--global--wide-size)) / 2))"}}}} -->
 <div class="wp-block-column" style="padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:max(var(--wp--preset--spacing--gutter), calc((100% - var(--wp--style--global--wide-size)) / 2));flex-basis:40%"><!-- wp:group {"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch","verticalAlignment":"space-between"}} -->
 <div class="wp-block-group" style="min-height:100%">
 <?php else : ?>
@@ -76,8 +76,8 @@ foreach ( $aa_leads as $aa_lead ) {
 <!-- /wp:group --></div>
 <!-- /wp:column -->
 
-<!-- wp:column {"width":"60%"} -->
-<div class="wp-block-column" style="flex-basis:60%">
+<!-- wp:column {"width":"60%","className":"aa-bleed-photo"} -->
+<div class="wp-block-column aa-bleed-photo" style="flex-basis:60%">
 	<?php if ( 1 === count( $aa_leads ) ) : ?>
 		<?php echo Editorial_Imagery::image_markup( $aa_leads[0], '4/5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>
 	<?php else : ?>

@@ -32,8 +32,8 @@ use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
 
-<!-- wp:columns {"align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|8","left":"var:preset|spacing|8"}}}} -->
-<div class="wp-block-columns alignwide"><!-- wp:column {"width":"50%"} -->
+<!-- wp:columns {"className":"aa-tablet-split","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|8","left":"var:preset|spacing|8"}}}} -->
+<div class="wp-block-columns aa-tablet-split alignwide"><!-- wp:column {"width":"50%"} -->
 <div class="wp-block-column" style="flex-basis:50%">
 <?php
 // The newest piece, large; the next four beside it. Two Product

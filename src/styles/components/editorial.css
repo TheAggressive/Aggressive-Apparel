@@ -36,16 +36,15 @@
 	}
 }
 
-/* The hero's photos run the full height of the band. When the copy column
-   is taller than the photos' 2:3 height they stretch and crop (cover) rather
-   than leave a black strip under them. Side by side only; stacked on
-   phones they keep their ratio. */
-@media (width >= 782px) {
-	/* The column keeps height auto so the row stretches it (an explicit
-	   height on a flex item turns stretch off); its contents fill it. */
-	.aa-campaign-hero
-		> .wp-block-columns
-		> .wp-block-column:last-child
+/* Full-height photo column (className `aa-bleed-photo`, the hero's and the
+   Women's spread). Its photos run the full height of the row: when the copy
+   beside them is taller than the photos' own ratio they stretch and crop
+   (cover) rather than leave a strip under them. The column keeps height
+   auto so the row stretches it (an explicit height on a flex item turns
+   stretch off); its contents fill it. Side by side only (from 600px, see
+   aa-tablet-split): stacked on phones the photos keep their ratio. */
+@media (width >= 600px) {
+	.aa-bleed-photo
 		:is(
 			.wp-block-columns,
 			.wp-block-column,
@@ -57,6 +56,24 @@
 	}
 }
 
+/* Tablets (600-781px) keep the editorial splits side by side (className
+   `aa-tablet-split`: hero, New Arrivals, the collection bands, Women's,
+   Hoodies) instead of stacking them into 768px-wide photos and cards; phones
+   still stack. Core stacks columns below 782px with flex-wrap:wrap!important
+   and flex-basis:100%!important; !important here beats exactly those two. */
+@media (600px <= width < 782px) {
+	.wp-block-columns.aa-tablet-split {
+		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
+		flex-wrap: nowrap !important;
+
+		& > .wp-block-column {
+			/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-basis:100%!important */
+			flex-basis: 0 !important;
+			flex-grow: 1;
+		}
+	}
+}
+
 /* A linked image set to 100% width (editorial photo slots, and any image
    the editor sizes that way) fills its column. Core makes the link
    inline-block, a shrink-to-fit box, so the image's percentage width
@@ -65,13 +82,14 @@
 	display: block;
 }
 
-/* Lookbook on phones. Stacked, three portrait looks made a ~2,400px column
+/* Lookbook on phones (tablets keep it side by side: aa-tablet-split).
+   Stacked, three portrait looks made a ~2,400px column
    of image; a swipeable rail shows the first look whole and the next one's
    edge, at about a third of the height. Core stacks columns below 782px
    with `flex-wrap: wrap !important` and `flex-basis: 100% !important`, and
    its constrained layout pins children with margin-inline auto !important;
    !important here beats exactly those three declarations. */
-@media (width < 782px) {
+@media (width < 600px) {
 	.wp-block-columns.aa-editorial-looks {
 		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
 		flex-wrap: nowrap !important;

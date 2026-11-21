@@ -144,17 +144,19 @@
 	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
-/* Portrait 4:5 media slot on every listing card: apparel is shot on people,
-   so square cut heads and feet; also reserves space before images load. */
+/* Every listing card's media slot takes the catalog's own photo shape
+   (--aa-card-media-h, height / width, printed by Card_Media_Ratio: square
+   for 2000 x 2000 mockups) and shows the photo whole: contain, never a crop
+   that could cut a sleeve or a print. Also reserves space before load. */
 .wp-block-woocommerce-product-template .wp-block-post-featured-image {
-	aspect-ratio: 4 / 5;
+	aspect-ratio: 1 / var(--aa-card-media-h, 1);
 	overflow: hidden;
 }
 
 .wp-block-woocommerce-product-template .wp-block-post-featured-image img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	object-fit: contain;
 }
 
 @media (hover: hover) and (pointer: fine) {

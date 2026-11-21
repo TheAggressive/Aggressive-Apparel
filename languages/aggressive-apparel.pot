@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T11:21:34+00:00\n"
+"POT-Creation-Date: 2026-11-21T19:57:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -5536,20 +5536,20 @@ msgctxt "Pattern description"
 msgid "Portrait category tiles, one per stocked category, showing the category's own image (or its newest product's); the whole tile links to the category."
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:38
+#: patterns/editorial-category-showcase.php:39
 msgid "Shop by category"
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:42
+#: patterns/editorial-category-showcase.php:43
 msgid "Pick your issue."
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:48
+#: patterns/editorial-category-showcase.php:49
 msgid "All products"
 msgstr ""
 
 #. translators: %d: number of in-stock products in a category.
-#: patterns/editorial-category-showcase.php:111
+#: patterns/editorial-category-showcase.php:113
 #, php-format
 msgid "%d piece"
 msgid_plural "%d pieces"

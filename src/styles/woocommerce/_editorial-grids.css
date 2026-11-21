@@ -48,13 +48,13 @@
 }
 
 /* A lead card (Editorial_Product_Grid `lead`, New Arrivals' newest piece) is
-   3:4 rather than the cards' 4:5: beside a 2 x 2 of half-width cards, that
-   ends its image level with the second row's images (within ~20px from 1024
-   to 1920px) instead of ~150px short of them. */
+   a step taller than the cards (catalog ratio + 0.11): beside a 2 x 2 of
+   half-width cards that ends its image level with the second row's images
+   (within ~20px from 1024 to 1920px) instead of short of them. */
 .aa-grid-lead
 	.wp-block-woocommerce-product-template
 	.wp-block-post-featured-image {
-	aspect-ratio: 3 / 4;
+	aspect-ratio: 1 / calc(var(--aa-card-media-h, 1) + 0.11);
 }
 
 /* A rail (Editorial_Product_Grid `rail`): one row that scrolls sideways and

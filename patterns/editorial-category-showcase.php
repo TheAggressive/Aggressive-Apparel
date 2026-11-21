@@ -10,6 +10,7 @@
  * @package Aggressive_Apparel
  */
 
+use Aggressive_Apparel\WooCommerce\Card_Media_Ratio;
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
@@ -84,8 +85,9 @@ foreach ( $aa_found as $aa_term ) {
 		'overlayGradient' => 'var(--wp--preset--gradient--dark-overlay)',
 		'categoryId'      => $aa_term->term_id,
 		'backgroundColor' => 'black',
-		// Tall 2:3, the shape of the portrait photography it carries.
-		'style'           => array( 'dimensions' => array( 'aspectRatio' => '2/3' ) ),
+		// The catalog's own photo shape (square mockups, 2:3 model shots), so
+		// the tile's cover fit never crops the product it shows.
+		'style'           => array( 'dimensions' => array( 'aspectRatio' => Card_Media_Ratio::aspect_ratio() ) ),
 	);
 	// The category's own image, else its newest product photo not already
 	// shown higher on the page (the hero's); claimed so later slots skip it.

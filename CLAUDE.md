@@ -266,6 +266,7 @@ making it runnable locally is a build failure, by design.** Detail:
 | theme.json tokens & override contract | [`docs/design-tokens.md`](docs/design-tokens.md) |
 | Full design system | [`docs/design-system.md`](docs/design-system.md) |
 | Versioning & release · block placement | [`docs/versioning.md`](docs/versioning.md) · [`docs/block-placement.md`](docs/block-placement.md) |
+| Saved Site Editor content that overrides theme files | [`docs/site-content.md`](docs/site-content.md) |
 
 Entry points: [functions.php](functions.php) (bootstrap) ·
 [theme.json](theme.json) (block config) · [style.css](style.css) (version source

@@ -154,17 +154,17 @@ insert any section alone.
 
 | #   | Pattern                       | Rhythm / surface           | Live data                                                               |
 | --- | ----------------------------- | -------------------------- | ----------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop sorted by newest                                             |
+| 01  | `editorial-campaign-hero`     | 88vh Cover, black          | CTA → Shop by newest; full-width display type until an image is set     |
 | 02  | `editorial-category-showcase` | standard → compact         | One row of stocked categories; category image, else newest product's    |
 | 03  | `editorial-new-arrivals`      | compact → standard         | Product Collection, newest, 4-up                                        |
 | 04  | `editorial-artwork-spotlight` | editorial, black           | Shop link; `#artwork` anchor for the hero's second CTA                  |
 | 05  | `editorial-best-sellers`      | standard, intro + 3-up     | Real sales → Best sellers; else Featured → Staff picks; else omitted    |
 | 06  | `editorial-featured-drop`     | 75vh Cover + grid          | Stocked drop term (`dead-signal`, filterable); else omitted             |
 | 07  | `editorial-womens-collection` | editorial                  | Stocked `womens` collection or category → landing + 2-up; else omitted  |
-| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | Stocked `hoodies` category, 3-up; else omitted                          |
+| 08  | `editorial-hoodies-feature`   | standard, surface-elevated | Stocked `hoodies` category, 3-up, short rows centred; else omitted      |
 | 09  | `editorial-defiance-division` | editorial, black           | Stocked `defiance-division` (collection, category or tag); else omitted |
 | 10  | `editorial-accessories`       | compact → standard         | Stocked `accessories` category, 5-up; else omitted                      |
-| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Lead 4:5 look + two 2:3 looks on its baseline (placeholders)            |
+| 11  | `editorial-featured-looks`    | editorial, surface-muted   | Lead 4:5 look + two 2:3 looks; swipe rail on phones (placeholders)      |
 | 12  | `editorial-brand-story`       | immersive                  | About page link when a published `about` page exists                    |
 
 Rules the library follows (new sections should too):
@@ -197,7 +197,19 @@ Rules the library follows (new sections should too):
 6. **One red accent per section.** The eyebrow carries the brand red;
    headings take the section's text color (Headline and Campaign Display
    inherit it; plain headings set Foreground).
-7. The slogan appears once, in the hero. Copy follows
+7. **Motion is a reveal, not a show.** Below-the-fold sections rise into
+   place with aggressive-blocks **Animate on Scroll** at one house setting:
+   `slide` up 24px over 0.7s, children staggered 0.08s. The hero never
+   animates (it is the page's largest paint). Staggered grid items get one
+   wrapper each (the wrapper is the grid item); content inside a horizontal
+   scroller is revealed as one block, because items parked offscreen never
+   trigger. The block renders content visible without JavaScript and holds
+   still under reduced motion.
+8. **Placeholders degrade on purpose.** An image-less campaign hero
+   (`aa-campaign-hero`) sets the slogan as full-width display type; a short
+   product row under a centred heading (`Editorial_Product_Grid` `centered`)
+   centres at card width instead of sitting flush left.
+9. The slogan appears once, in the hero. Copy follows
    [`brand-voice.md`](brand-voice.md).
 
 **Adopting the homepage on an existing site.** A Blog Home (`home`) template

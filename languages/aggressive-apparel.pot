@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T04:12:16+00:00\n"
+"POT-Creation-Date: 2026-11-21T04:55:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -4737,7 +4737,7 @@ msgid "Three things we do not compromise on."
 msgstr ""
 
 #: patterns/brand-values.php:33
-#: patterns/editorial-artwork-spotlight.php:25
+#: patterns/editorial-artwork-spotlight.php:26
 msgid "Original artwork"
 msgstr ""
 
@@ -5413,15 +5413,15 @@ msgctxt "Pattern description"
 msgid "Dark, immersive split: a large portrait artwork close-up (replace the image) beside a sans headline about original artwork."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:29
+#: patterns/editorial-artwork-spotlight.php:30
 msgid "Look closer. The detail is the point."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:33
+#: patterns/editorial-artwork-spotlight.php:34
 msgid "Every graphic in the collection is original to The Aggressive. No stock art, no templates."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:38
+#: patterns/editorial-artwork-spotlight.php:39
 msgid "Shop the collection"
 msgstr ""
 
@@ -5435,39 +5435,39 @@ msgctxt "Pattern description"
 msgid "Products ranked by real sales. Without sales data it shows the store's Featured products as Staff Picks, and with neither it renders nothing — popularity is never invented."
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:27
+#: patterns/editorial-best-sellers.php:28
 msgid "Most ordered"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:27
+#: patterns/editorial-best-sellers.php:28
 msgid "Chosen by the studio"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:31
+#: patterns/editorial-best-sellers.php:32
 msgid "Best sellers"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:31
+#: patterns/editorial-best-sellers.php:32
 msgid "Staff picks"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:35
+#: patterns/editorial-best-sellers.php:36
 msgid "The pieces ordered most, ranked by real orders."
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:35
+#: patterns/editorial-best-sellers.php:36
 msgid "Pieces picked by the studio from the current collection."
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:40
+#: patterns/editorial-best-sellers.php:41
 msgid "Shop the list"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:57
+#: patterns/editorial-best-sellers.php:59
 msgid "Best sellers grid"
 msgstr ""
 
-#: patterns/editorial-best-sellers.php:66
+#: patterns/editorial-best-sellers.php:68
 msgid "Staff picks grid"
 msgstr ""
 
@@ -5481,20 +5481,20 @@ msgctxt "Pattern description"
 msgid "A spacious closing brand statement: a large sans headline about original artwork and independence, and a link to the About page when one exists."
 msgstr ""
 
-#: patterns/editorial-brand-story.php:22
+#: patterns/editorial-brand-story.php:23
 #: patterns/editorial-campaign-hero.php:20
 msgid "The Aggressive"
 msgstr ""
 
-#: patterns/editorial-brand-story.php:26
+#: patterns/editorial-brand-story.php:27
 msgid "Independent since 2010. Built on original artwork."
 msgstr ""
 
-#: patterns/editorial-brand-story.php:30
+#: patterns/editorial-brand-story.php:31
 msgid "Skate, punk, tattoo and moto culture shaped where we came from. The artwork is where we are going, and every design is ours."
 msgstr ""
 
-#: patterns/editorial-brand-story.php:36
+#: patterns/editorial-brand-story.php:37
 msgid "Our story"
 msgstr ""
 
@@ -5636,7 +5636,7 @@ msgstr ""
 msgid "Featured looks"
 msgstr ""
 
-#: patterns/editorial-featured-looks.php:62
+#: patterns/editorial-featured-looks.php:63
 msgid "Shop the look"
 msgstr ""
 
@@ -5672,7 +5672,7 @@ msgstr ""
 msgid "Hoodies grid"
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:52
+#: patterns/editorial-hoodies-feature.php:53
 msgid "Shop all hoodies"
 msgstr ""
 
@@ -5739,7 +5739,7 @@ msgstr ""
 msgid "New arrivals"
 msgstr ""
 
-#: patterns/editorial-new-arrivals.php:42
+#: patterns/editorial-new-arrivals.php:43
 msgid "New arrivals grid"
 msgstr ""
 

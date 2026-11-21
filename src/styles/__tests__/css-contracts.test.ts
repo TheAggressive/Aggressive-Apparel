@@ -653,6 +653,23 @@ describe( 'responsive product grid columns', () => {
 	} );
 } );
 
+describe( 'product gallery thumbnails', () => {
+	it( 'align the desktop strip to the top of a portrait frame', async () => {
+		const thumbs = await CompiledCss.load(
+			'src/styles/woocommerce/product-gallery-thumbnails.css'
+		);
+		const [ align ] = await thumbs.declarations(
+			'.wc-block-product-gallery .wc-block-product-gallery-thumbnails',
+			'align-self'
+		);
+
+		expect( align.value ).toBe( 'flex-start' );
+		expect( align.conditions ).toEqual( [
+			expect.stringMatching( /width\s*>\s*600px|min-width/ ),
+		] );
+	} );
+} );
+
 describe( 'desktop navigation menubar', () => {
 	it( "caps the item gap at the editor's block gap and tightens it on narrow desktops", async () => {
 		const nav = await CompiledCss.load(

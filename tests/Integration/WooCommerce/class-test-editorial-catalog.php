@@ -158,10 +158,100 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertSame( $markup, serialize_blocks( parse_blocks( $markup ) ) );
 	}
 
+	/** An empty category is skipped for the next candidate that has products. */
+	public function test_stocked_term_skips_empty_categories(): void {
+		self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'editorial-empty',
+			)
+		);
+		$stocked = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'editorial-stocked',
+			)
+		);
+		$this->create_product( array( 'category' => $stocked->term_id ) );
+
+		$found = Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'editorial-empty', 'editorial-stocked' ) );
+
+		$this->assertInstanceOf( \WP_Term::class, $found );
+		$this->assertSame( $stocked->term_id, $found->term_id );
+		$this->assertNull( Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'editorial-empty' ) ) );
+	}
+
+	/** A term shows the merchant's own image first, else its newest product's, never another term's. */
+	public function test_term_image_prefers_the_term_thumbnail_then_its_newest_product(): void {
+		$term  = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
+		$other = self::factory()->term->create_and_get( array( 'taxonomy' => 'product_cat' ) );
+		$this->create_product(
+			array(
+				'category' => $other->term_id,
+				'image'    => $this->create_image(),
+			)
+		);
+		$this->assertSame( 0, Editorial_Catalog::term_image_id( $term ) );
+
+		$product_image = $this->create_image();
+		$this->create_product(
+			array(
+				'category' => $term->term_id,
+				'image'    => $product_image,
+			)
+		);
+		wp_cache_flush();
+		$this->assertSame( $product_image, Editorial_Catalog::term_image_id( $term ) );
+
+		$thumbnail = $this->create_image();
+		update_term_meta( $term->term_id, 'thumbnail_id', $thumbnail );
+		$this->assertSame( $thumbnail, Editorial_Catalog::term_image_id( $term ) );
+	}
+
+	/**
+	 * One tile per stocked category in a single row, with the grid's real gap
+	 * declared (core assumes 0.5em without it and drops a column), store
+	 * imagery on the tile, and an overlay WooCommerce can print as CSS.
+	 */
+	public function test_category_showcase_renders_one_row_of_stocked_tiles(): void {
+		$hoodies = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'hoodies',
+			)
+		);
+		$image   = $this->create_image();
+		$this->create_product(
+			array(
+				'category' => $hoodies->term_id,
+				'image'    => $image,
+			)
+		);
+		self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'accessories',
+			)
+		);
+
+		$blocks = parse_blocks( $this->render_pattern( 'editorial-category-showcase' ) );
+		$grid   = $this->find_block( $blocks, static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-editorial-tiles' ) );
+		$this->assertNotNull( $grid );
+		$tiles = array_values( array_filter( $grid['innerBlocks'], static fn( $block ) => 'woocommerce/featured-category' === $block['blockName'] ) );
+
+		$this->assertCount( 1, $tiles, 'Empty Accessories category gets no tile.' );
+		$this->assertSame( 1, $grid['attrs']['layout']['columnCount'] );
+		$this->assertNotEmpty( $grid['attrs']['style']['spacing']['blockGap'] );
+		$this->assertSame( $hoodies->term_id, $tiles[0]['attrs']['categoryId'] );
+		$this->assertSame( $image, $tiles[0]['attrs']['mediaId'] );
+		$this->assertSame( 'cover', $tiles[0]['attrs']['imageFit'] );
+		$this->assertMatchesRegularExpression( '/^(var\(|linear-gradient\()/', $tiles[0]['attrs']['overlayGradient'] );
+	}
+
 	/**
 	 * Create a published simple product.
 	 *
-	 * @param array{featured?: bool, total_sales?: int} $props Product properties.
+	 * @param array{featured?: bool, total_sales?: int, category?: int, image?: int} $props Product properties.
 	 */
 	private function create_product( array $props = array() ): WC_Product_Simple {
 		$product = new WC_Product_Simple();
@@ -170,9 +260,56 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$product->set_regular_price( '20' );
 		$product->set_featured( $props['featured'] ?? false );
 		$product->set_total_sales( $props['total_sales'] ?? 0 );
+		if ( isset( $props['category'] ) ) {
+			$product->set_category_ids( array( $props['category'] ) );
+		}
+		if ( isset( $props['image'] ) ) {
+			$product->set_image_id( $props['image'] );
+		}
 		$product->save();
 
 		return $product;
+	}
+
+	/** Create an image attachment with real dimensions. */
+	private function create_image(): int {
+		$id = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'editorial-probe.jpg',
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+		wp_update_attachment_metadata(
+			$id,
+			array(
+				'width'  => 504,
+				'height' => 757,
+				'file'   => 'editorial-probe.jpg',
+			)
+		);
+
+		return $id;
+	}
+
+	/**
+	 * Depth-first search of parsed blocks.
+	 *
+	 * @param array<int, array<string, mixed>> $blocks    Parsed blocks.
+	 * @param callable                         $predicate Match test.
+	 * @return array<string, mixed>|null
+	 */
+	private function find_block( array $blocks, callable $predicate ): ?array {
+		foreach ( $blocks as $block ) {
+			if ( null !== $block['blockName'] && $predicate( $block ) ) {
+				return $block;
+			}
+			$inner = $this->find_block( $block['innerBlocks'], $predicate );
+			if ( null !== $inner ) {
+				return $inner;
+			}
+		}
+
+		return null;
 	}
 
 	/**

@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Category Showcase
- * Description: Portrait category tiles that read each category's own image from the store; the whole tile links to the category.
+ * Description: Portrait category tiles, one per stocked category, showing the category's own image (or its newest product's); the whole tile links to the category.
  * Slug: aggressive-apparel/editorial-category-showcase
  * Categories: aggressive-editorial, aggressive-homepage
  * Keywords: categories, shop, tiles, editorial, homepage
@@ -13,10 +13,11 @@
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 
 // Candidate slugs per tile, first match wins; a tile is left out when the
-// store has no such category, so every tile links somewhere real.
+// store has no such category or it has no products, so every tile links to
+// a real, non-empty archive.
 $aa_tiles = array(
 	array(
-		'slugs' => array( 't-shirts', 'tshirts', 'tees' ),
+		'slugs' => array( 't-shirts', 'tshirts', 'tees', 'shirts' ),
 	),
 	array(
 		'slugs' => array( 'hoodies', 'hoodie', 'sweatshirts' ),
@@ -29,8 +30,8 @@ $aa_tiles = array(
 	),
 );
 
-?><!-- wp:group {"metadata":{"name":"02 Shop Categories"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
+?><!-- wp:group {"metadata":{"name":"02 Shop Categories"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
 <div class="wp-block-group alignwide"><!-- wp:group {"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
 <p class="is-style-eyebrow"><?php echo esc_html__( 'Shop by category', 'aggressive-apparel' ); ?></p>
@@ -48,22 +49,47 @@ $aa_tiles = array(
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
 
-<!-- wp:group {"align":"wide","className":"aa-editorial-tiles","layout":{"type":"grid","columnCount":4,"minimumColumnWidth":"9rem"}} -->
+<?php
+$aa_found = array();
+foreach ( $aa_tiles as $aa_tile ) {
+	$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), $aa_tile['slugs'] );
+	if ( null !== $aa_term ) {
+		$aa_found[] = $aa_term;
+	}
+}
+// One row of however many categories exist: four tiles never wrap 3 + 1.
+// The gap is explicit because core sizes responsive grid tracks from the
+// block's own gap and assumes 0.5em when none is set.
+$aa_grid_attributes = array(
+	'align'     => 'wide',
+	'className' => 'aa-editorial-tiles',
+	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|4' ) ),
+	'layout'    => array(
+		'type'               => 'grid',
+		'columnCount'        => max( 1, count( $aa_found ) ),
+		'minimumColumnWidth' => '9rem',
+	),
+);
+?>
+<!-- wp:group <?php echo serialize_block_attributes( $aa_grid_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <div class="wp-block-group alignwide aa-editorial-tiles">
 <?php
-foreach ( $aa_tiles as $aa_tile ) {
-	$aa_term = Editorial_Catalog::term( array( 'product_cat' ), $aa_tile['slugs'] );
-	if ( null === $aa_term ) {
-		continue;
-	}
+foreach ( $aa_found as $aa_term ) {
 	$aa_attributes = array(
 		'contentAlign'    => 'left',
 		'dimRatio'        => 100,
-		'overlayGradient' => 'dark-overlay-strong',
+		// A CSS value, not a slug: WooCommerce prints it straight into
+		// `background-image`. Darkens only the lower half, where the name sits.
+		'overlayGradient' => 'var(--wp--preset--gradient--dark-overlay)',
 		'categoryId'      => $aa_term->term_id,
 		'backgroundColor' => 'black',
 		'style'           => array( 'dimensions' => array( 'aspectRatio' => '3/4' ) ),
 	);
+	$aa_image      = Editorial_Catalog::term_image_id( $aa_term );
+	if ( $aa_image > 0 ) {
+		$aa_attributes['mediaId']  = $aa_image;
+		$aa_attributes['imageFit'] = 'cover';
+	}
 	?>
 <!-- wp:woocommerce/featured-category <?php echo serialize_block_attributes( $aa_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
 <!-- wp:heading {"level":3,"textColor":"white"} -->

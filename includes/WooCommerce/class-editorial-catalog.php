@@ -51,6 +51,82 @@ final class Editorial_Catalog {
 	}
 
 	/**
+	 * Like term(), but only a term with published products: a tile or grid
+	 * must never lead to an empty archive.
+	 *
+	 * @param array<int, string> $taxonomies Taxonomies to search, most specific first.
+	 * @param array<int, string> $slugs      Candidate slugs, preferred first.
+	 */
+	public static function stocked_term( array $taxonomies, array $slugs ): ?\WP_Term {
+		foreach ( $taxonomies as $taxonomy ) {
+			foreach ( $slugs as $slug ) {
+				$term = self::term( array( $taxonomy ), array( $slug ) );
+				if ( null !== $term && $term->count > 0 ) {
+					return $term;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Image for a term: its own thumbnail (the image the merchant chose), else
+	 * the newest catalog-visible product in it that has one. Never an image
+	 * from outside the term, so a tile always shows what it links to.
+	 *
+	 * @param \WP_Term $term Term.
+	 * @return int Attachment ID, or 0 when the term has no image to show.
+	 */
+	public static function term_image_id( \WP_Term $term ): int {
+		$thumbnail = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
+		if ( $thumbnail > 0 && wp_attachment_is_image( $thumbnail ) ) {
+			return $thumbnail;
+		}
+
+		return (int) Request_Cache::remember(
+			'editorial-catalog:term-image:' . $term->term_id,
+			static function () use ( $term ): int {
+				$query = new \WP_Query(
+					array(
+						'post_type'              => 'product',
+						'post_status'            => 'publish',
+						'posts_per_page'         => 1,
+						'fields'                 => 'ids',
+						'orderby'                => 'date',
+						'order'                  => 'DESC',
+						'no_found_rows'          => true,
+						'update_post_term_cache' => false,
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- One indexed lookup per tile, memoised per request.
+						'meta_query'             => array(
+							array(
+								'key'     => '_thumbnail_id',
+								'compare' => 'EXISTS',
+							),
+						),
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed lookup per tile, memoised per request.
+						'tax_query'              => array(
+							array(
+								'taxonomy' => $term->taxonomy,
+								'terms'    => array( $term->term_id ),
+							),
+							array(
+								'taxonomy' => 'product_visibility',
+								'field'    => 'name',
+								'terms'    => array( 'exclude-from-catalog' ),
+								'operator' => 'NOT IN',
+							),
+						),
+					)
+				);
+				$product = $query->posts[0] ?? 0;
+
+				return $product > 0 ? (int) get_post_thumbnail_id( $product ) : 0;
+			}
+		);
+	}
+
+	/**
 	 * Archive URL for a term, or the Shop page when there is none.
 	 *
 	 * @param \WP_Term|null $term Term.

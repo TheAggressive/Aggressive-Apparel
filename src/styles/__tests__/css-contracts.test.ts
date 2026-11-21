@@ -677,6 +677,35 @@ describe( 'product card names', () => {
 	} );
 } );
 
+describe( 'editorial category tiles', () => {
+	it( 'seat the category name on the lower edge of the tile', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const wrapper =
+			'.aa-editorial-tiles .wc-block-featured-category .wc-block-featured-category__wrapper';
+
+		expect( await blocks.declarations( wrapper, 'align-content' ) ).toEqual(
+			[ expect.objectContaining( { value: 'flex-end' } ) ]
+		);
+	} );
+
+	it( 'span an odd first tile across a two-up phone grid instead of orphaning the last', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const [ span ] = await blocks.declarations(
+			'.aa-editorial-tiles > .wc-block-featured-category:first-child:nth-last-child(odd)',
+			'grid-column'
+		);
+
+		expect( span.value ).toBe( '1/-1' );
+		expect( span.conditions ).toEqual( [
+			expect.stringMatching( /^@container .*36rem/ ),
+		] );
+	} );
+} );
+
 describe( 'product gallery thumbnails', () => {
 	it( 'align the desktop strip to the top of a portrait frame', async () => {
 		const thumbs = await CompiledCss.load(

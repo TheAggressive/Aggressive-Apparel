@@ -15,8 +15,13 @@ use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 
 // The Collection attribute drives the /shop/womens/ landing page; a
 // category of the same name is the fallback.
-$aa_term = Editorial_Catalog::term( array( 'pa_collection', 'product_cat' ), array( 'womens', 'women', 'womens-2' ) );
-$aa_url  = ( null !== $aa_term && 'pa_collection' === $aa_term->taxonomy )
+$aa_term = Editorial_Catalog::stocked_term( array( 'pa_collection', 'product_cat' ), array( 'womens', 'women', 'womens-2' ) );
+
+// "Shop women's" must lead to women's products, not the whole catalog.
+if ( null === $aa_term ) {
+	return;
+}
+$aa_url = 'pa_collection' === $aa_term->taxonomy
 	? Editorial_Catalog::audience_url( $aa_term->slug )
 	: Editorial_Catalog::url( $aa_term );
 
@@ -49,19 +54,17 @@ $aa_url  = ( null !== $aa_term && 'pa_collection' === $aa_term->taxonomy )
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
 <?php
-if ( null !== $aa_term ) {
-	$aa_grid = Editorial_Product_Grid::markup(
-		array(
-			'query_id' => 307,
-			'per_page' => 4,
-			'columns'  => 2,
-			'term'     => $aa_term,
-			'align'    => '',
-			'label'    => __( "Women's products", 'aggressive-apparel' ),
-		)
-	);
-	echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
-}
+$aa_grid = Editorial_Product_Grid::markup(
+	array(
+		'query_id' => 307,
+		'per_page' => 4,
+		'columns'  => 2,
+		'term'     => $aa_term,
+		'align'    => '',
+		'label'    => __( "Women's products", 'aggressive-apparel' ),
+	)
+);
+echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
 ?>
 </div>
 <!-- /wp:column --></div>

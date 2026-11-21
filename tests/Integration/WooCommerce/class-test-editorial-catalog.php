@@ -249,6 +249,50 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Sections whose CTA names a collection render nothing when the store has
+	 * no stocked term to send it to, rather than a CTA to the whole catalog.
+	 *
+	 * @dataProvider provide_collection_sections
+	 *
+	 * @param string $slug Pattern file slug.
+	 */
+	public function test_collection_sections_render_nothing_without_a_stocked_term( string $slug ): void {
+		$this->create_product();
+
+		$this->assertSame( '', trim( $this->render_pattern( $slug ) ) );
+	}
+
+	/**
+	 * Collection-led sections.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_collection_sections(): array {
+		return array(
+			'featured drop'     => array( 'editorial-featured-drop' ),
+			'defiance division' => array( 'editorial-defiance-division' ),
+			'womens'            => array( 'editorial-womens-collection' ),
+			'hoodies'           => array( 'editorial-hoodies-feature' ),
+			'accessories'       => array( 'editorial-accessories' ),
+		);
+	}
+
+	/** With its term stocked, a collection section links to that term. */
+	public function test_collection_section_links_to_its_stocked_term(): void {
+		$hoodies = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'hoodies',
+			)
+		);
+		$this->create_product( array( 'category' => $hoodies->term_id ) );
+
+		$markup = $this->render_pattern( 'editorial-hoodies-feature' );
+
+		$this->assertStringContainsString( esc_url( (string) get_term_link( $hoodies ) ), $markup );
+	}
+
+	/**
 	 * Create a published simple product.
 	 *
 	 * @param array{featured?: bool, total_sales?: int, category?: int, image?: int} $props Product properties.

@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Featured Drop
- * Description: Campaign Cover for the current release (replace the image) plus its products. Reads the drop from the store by slug (default "dead-signal"); without it, the section links to the newest products instead.
+ * Description: Campaign Cover for the current release (replace the image) plus its products. Reads the drop from the store by slug (default "dead-signal"); renders nothing when the store has no such drop with products.
  * Slug: aggressive-apparel/editorial-featured-drop
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-drops
  * Keywords: drop, release, collection, campaign, capsule, homepage
@@ -19,9 +19,15 @@ use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
  * @param array<int, string> $slugs Candidate slugs, preferred first.
  */
 $aa_slugs = (array) apply_filters( 'aggressive_apparel_featured_drop_slugs', array( 'dead-signal' ) );
-$aa_drop  = Editorial_Catalog::term( array( 'pa_collection', 'product_cat', 'product_tag' ), array_map( 'strval', $aa_slugs ) );
-$aa_title = null !== $aa_drop ? $aa_drop->name : __( 'The latest drop', 'aggressive-apparel' );
-$aa_url   = null !== $aa_drop ? Editorial_Catalog::url( $aa_drop ) : Editorial_Catalog::shop_url( array( 'orderby' => 'date' ) );
+$aa_drop  = Editorial_Catalog::stocked_term( array( 'pa_collection', 'product_cat', 'product_tag' ), array_map( 'strval', $aa_slugs ) );
+
+// No drop in the store, no section: "Shop the drop" must lead to a drop, and
+// New Arrivals already covers the newest products.
+if ( null === $aa_drop ) {
+	return;
+}
+$aa_title = $aa_drop->name;
+$aa_url   = Editorial_Catalog::url( $aa_drop );
 
 ?><!-- wp:group {"metadata":{"name":"06 Featured Drop"},"align":"full","style":{"spacing":{"padding":{"top":"0","bottom":"var:preset|spacing|section-standard","left":"0","right":"0"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-16"}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:0;padding-right:0;padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:0"><!-- wp:cover {"dimRatio":30,"overlayColor":"black","isUserOverlayColor":true,"minHeight":75,"minHeightUnit":"vh","contentPosition":"center right","isDark":true,"metadata":{"name":"Drop campaign image (replace image)"},"align":"full","style":{"color":{"background":"var:preset|color|black"},"spacing":{"padding":{"top":"var:preset|spacing|section-editorial","bottom":"var:preset|spacing|section-editorial","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"}}},"layout":{"type":"constrained"}} -->
@@ -45,7 +51,6 @@ $aa_url   = null !== $aa_drop ? Editorial_Catalog::url( $aa_drop ) : Editorial_C
 <!-- /wp:buttons --></div>
 <!-- /wp:group --></div></div>
 <!-- /wp:cover -->
-<?php if ( null !== $aa_drop ) : ?>
 
 <!-- wp:group {"style":{"spacing":{"padding":{"left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group" style="padding-right:var(--wp--preset--spacing--gutter);padding-left:var(--wp--preset--spacing--gutter)">
@@ -63,6 +68,5 @@ $aa_url   = null !== $aa_drop ? Editorial_Catalog::url( $aa_drop ) : Editorial_C
 	?>
 </div>
 <!-- /wp:group -->
-<?php endif; ?>
 </div>
 <!-- /wp:group -->

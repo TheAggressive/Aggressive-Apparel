@@ -13,7 +13,7 @@
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 
-$aa_term = Editorial_Catalog::term( array( 'product_cat' ), array( 'accessories' ) );
+$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'accessories' ) );
 if ( null === $aa_term ) {
 	return;
 }

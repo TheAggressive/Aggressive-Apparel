@@ -77,8 +77,8 @@ if ( $aa_row ) {
 ?>
 
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"<?php echo esc_attr( $aa_align ); ?>"}} -->
-<div class="wp-block-buttons"><!-- wp:button {"className":"is-style-cta"} -->
-<div class="wp-block-button is-style-cta"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html__( 'Shop all hoodies', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-buttons"><!-- wp:button {"className":"is-style-ghost"} -->
+<div class="wp-block-button is-style-ghost"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html__( 'Shop all hoodies', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons -->
 <?php if ( ! $aa_row ) : ?>

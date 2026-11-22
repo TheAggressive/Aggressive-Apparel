@@ -307,4 +307,32 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 
 		return $attributes['query'];
 	}
+
+	/**
+	 * The closing row states the label and leads into the catalog; Our story
+	 * appears only when a published About page exists, never as a dead link.
+	 */
+	public function test_closing_row_links_our_story_only_to_a_published_about_page(): void {
+		$markup = $this->render_pattern( 'editorial-brand-story' );
+
+		$this->assertStringContainsString( 'Without the edges sanded off.', $markup );
+		$this->assertStringContainsString( 'is-style-cta', $markup, 'The closing row carries the page\'s final filled CTA.' );
+		$this->assertStringNotContainsString( 'Our story', $markup );
+
+		$about = self::factory()->post->create(
+			array(
+				'post_type'   => 'page',
+				'post_name'   => 'about',
+				'post_title'  => 'About',
+				'post_status' => 'draft',
+			)
+		);
+		$this->assertStringNotContainsString( 'Our story', $this->render_pattern( 'editorial-brand-story' ), 'A draft About page is not linked.' );
+
+		wp_publish_post( $about );
+		$markup = $this->render_pattern( 'editorial-brand-story' );
+
+		$this->assertStringContainsString( 'Our story', $markup );
+		$this->assertStringContainsString( esc_url( (string) get_permalink( $about ) ), $markup );
+	}
 }

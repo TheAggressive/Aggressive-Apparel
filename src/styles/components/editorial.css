@@ -189,19 +189,17 @@
    button red in dark mode; a full-width band of that reads as a sale
    banner, so the band keeps the light scheme's oxblood. Its text is set
    white in the pattern. */
-
-/* The two brand statements (The name, the closing row) scale with the
-   viewport: the fluid presets keep a fixed minimum (4.5rem) that is wider
-   than "compliment." on a phone, and overflow-wrap then split the word.
-   Editor font-size picks still win (preset classes carry !important). */
 .aa-statement {
 	color-scheme: light;
-
-	& .wp-block-heading.is-style-headline {
-		font-size: clamp(2.75rem, 1.25rem + 5.5vw, 6rem);
-	}
 }
 
-.aa-page-section .wp-block-heading.is-style-headline {
+/* The two brand statements (The name and the closing row) share one scale,
+   a step under the hero slogan and above the section headings, so the red
+   band adds to the hierarchy without outweighing the products around it.
+   It scales with the viewport: the fluid presets keep a fixed minimum
+   (4.5rem) wider than "compliment." on a phone, and overflow-wrap then
+   split the word. Editor font-size picks still win (preset classes carry
+   !important). */
+:is(.aa-statement, .aa-page-section) .wp-block-heading.is-style-headline {
 	font-size: clamp(2.25rem, 1rem + 3.6vw, 4.5rem);
 }

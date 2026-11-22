@@ -160,7 +160,7 @@ insert any section alone.
 | 01  | `editorial-campaign-hero`     | black spread                   | Slogan sized to its column beside two full-height portrait photos (diptych, most of a screen tall); below 782px it stacks, photos first; "Shown" line; type only without photos |
 | 02  | `editorial-category-showcase` | compact                        | One row of stocked categories, 4:5 tiles (square photo + name band), piece counts; swipe rail on phones; omitted when no category is stocked                                    |
 | 03  | `editorial-new-arrivals`      | compact                        | 5+ in stock: newest as a lead card + the next four 2 × 2 (stacked below 782px); 1–4: one row sized to the count; none: omitted                                                  |
-| 04  | `editorial-artwork-spotlight` | standard, deep brand red       | Masthead rule (The name / Est. 2010) over "Aggressive is a compliment." + paragraph, no sales button; oxblood in both schemes (`aa-statement`); `#the-label`                    |
+| 04  | `editorial-artwork-spotlight` | compact, deep brand red        | Masthead rule (The name / Est. 2010) over "Aggressive is a compliment." + paragraph, no sales button; oxblood in both schemes (`aa-statement`); `#the-label`                    |
 | 05  | `editorial-best-sellers`      | compact, intro + 2–3-up        | Real sales → Best sellers; else Featured products; else omitted                                                                                                                 |
 | 06  | `editorial-featured-drop`     | black spread / band            | Drop photo (left) + name + row of two, or title row over a stock-sized grid; else omitted                                                                                       |
 | 07  | `editorial-womens-collection` | white spread                   | Copy + row of two beside a full-height photo (right) on static white, light in both schemes; else copy + grid                                                                   |
@@ -168,7 +168,7 @@ insert any section alone.
 | 09  | `editorial-defiance-division` | black spread / band            | As the drop band (`Editorial_Collection_Band`); else omitted                                                                                                                    |
 | 10  | `editorial-accessories`       | compact                        | Up to four in a row; more scroll as a rail of up to eight (3.5 visible)                                                                                                         |
 | 11  | `editorial-featured-looks`    | standard, black                | Three portrait photos (Fig. 01–03) linked to products; phone rail                                                                                                               |
-| 12  | `editorial-brand-story`       | compact                        | One row: "Nobody needs another hoodie. / We made one anyway." left, Shop all (+ Our story) right                                                                                |
+| 12  | `editorial-brand-story`       | compact                        | One row: "Without the edges sanded off. / Graphic pieces, plain essentials and accessories from an independent label." left, Shop all (+ Our story) right                       |
 
 Rules the library follows (new sections should too):
 
@@ -260,7 +260,15 @@ Rules the library follows (new sections should too):
     are Large (18px), the New Arrivals lead XX-Large; eyebrow-to-heading
     spacing is 12px in every section header.
 12. The slogan appears once, in the hero. Copy follows
-    [`brand-voice.md`](brand-voice.md).
+    [`brand-voice.md`](brand-voice.md). The two brand statements (The
+    name and the closing row) share one Headline scale, a step under the
+    slogan and above the section headings; the red band is compact so it
+    paces the page without outweighing the products beside it.
+13. **One action role per position.** A link beside a section heading
+    (All products, Shop new arrivals, Shop accessories) is the Text button
+    style; a feature's copy column (Featured, Women's, Hoodies) carries a
+    Ghost button, Outline on Dark on the black bands. The filled CTA opens
+    and closes the page (hero, closing row) and appears nowhere between.
 
 **Adopting the homepage on an existing site.** A Blog Home (`home`) template
 customised in the Site Editor is stored in the database and overrides

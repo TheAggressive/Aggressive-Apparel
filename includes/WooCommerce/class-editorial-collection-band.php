@@ -130,7 +130,10 @@ final class Editorial_Collection_Band {
 	 * @param string               $url  Collection archive URL.
 	 */
 	private static function text( array $args, string $url ): string {
+		// Eyebrow, title and line sit 12px apart like every section header;
+		// the CTA keeps the group's larger gap below them.
 		return '<!-- wp:group {"layout":{"type":"constrained","contentSize":"720px","justifyContent":"left"}} -->' . "\n"
+			. '<div class="wp-block-group"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->' . "\n"
 			. '<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->' . "\n"
 			. '<p class="is-style-meta has-white-color has-text-color">' . esc_html( (string) $args['eyebrow'] ) . '</p>' . "\n"
 			. '<!-- /wp:paragraph -->' . "\n\n"
@@ -139,7 +142,8 @@ final class Editorial_Collection_Band {
 			. '<!-- /wp:heading -->' . "\n\n"
 			. '<!-- wp:paragraph {"className":"is-style-lead","textColor":"white"} -->' . "\n"
 			. '<p class="is-style-lead has-white-color has-text-color">' . esc_html( (string) $args['line'] ) . '</p>' . "\n"
-			. '<!-- /wp:paragraph -->' . "\n\n"
+			. '<!-- /wp:paragraph --></div>' . "\n"
+			. '<!-- /wp:group -->' . "\n\n"
 			. '<!-- wp:buttons -->' . "\n"
 			. '<div class="wp-block-buttons"><!-- wp:button {"className":"is-style-outline-on-dark"} -->' . "\n"
 			. '<div class="wp-block-button is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $url ) . '">' . esc_html( (string) $args['cta'] ) . '</a></div>' . "\n"
@@ -158,12 +162,14 @@ final class Editorial_Collection_Band {
 	private static function header( array $args, string $url ): string {
 		return '<!-- wp:columns {"verticalAlignment":"bottom","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|8","left":"var:preset|spacing|fluid-16"}}}} -->' . "\n"
 			. '<div class="wp-block-columns are-vertically-aligned-bottom"><!-- wp:column {"verticalAlignment":"bottom","width":"60%"} -->' . "\n"
-			. '<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:60%"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->' . "\n"
+			. '<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:60%"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->' . "\n"
+			. '<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->' . "\n"
 			. '<p class="is-style-meta has-white-color has-text-color">' . esc_html( (string) $args['eyebrow'] ) . '</p>' . "\n"
 			. '<!-- /wp:paragraph -->' . "\n\n"
 			. '<!-- wp:heading {"className":"is-style-campaign","textColor":"white"} -->' . "\n"
 			. '<h2 class="wp-block-heading is-style-campaign has-white-color has-text-color">' . esc_html( (string) $args['title'] ) . '</h2>' . "\n"
 			. '<!-- /wp:heading --></div>' . "\n"
+			. '<!-- /wp:group --></div>' . "\n"
 			. '<!-- /wp:column -->' . "\n\n"
 			. '<!-- wp:column {"verticalAlignment":"bottom","width":"40%"} -->' . "\n"
 			. '<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:40%"><!-- wp:paragraph {"className":"is-style-lead","textColor":"white"} -->' . "\n"

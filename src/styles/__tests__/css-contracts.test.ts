@@ -1108,4 +1108,23 @@ describe( 'fixed-scheme editorial sections', () => {
 			await editorial.declarations( '.aa-statement', 'color-scheme' )
 		).toEqual( [ expect.objectContaining( { value: 'light' } ) ] );
 	} );
+
+	it( 'gives both brand statements one scale, below the hero slogan', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const sizes = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.prop === 'font-size' &&
+					d.selector.includes( 'is-style-headline' ) &&
+					/aa-statement|aa-page-section/.test( d.selector )
+			);
+
+		expect( sizes ).toHaveLength( 1 );
+		expect( sizes[ 0 ].selector ).toMatch( /aa-statement/ );
+		expect( sizes[ 0 ].selector ).toMatch( /aa-page-section/ );
+		expect( sizes[ 0 ].value ).toMatch( /4\.5rem\)$/ );
+	} );
 } );

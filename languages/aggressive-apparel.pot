@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-22T01:25:23+00:00\n"
+"POT-Creation-Date: 2026-11-22T03:17:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -5407,7 +5407,7 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern description"
-msgid "Deep brand-red typographic band, the one place the brand explains itself: a masthead rule (The name / Est. 2010), a large statement about the name and a short paragraph, with no sales call. Anchor #the-label, the hero's second link."
+msgid "Compact deep brand-red typographic band, the one place the brand explains itself: a masthead rule (The name / Est. 2010), a large statement about the name and a short paragraph, with no sales call. Anchor #the-label, the hero's second link."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:16
@@ -5426,7 +5426,7 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:33
 #: patterns/home-storefront.php:131
-msgid "It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is sanded down to suit everyone."
+msgid "It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is toned down to suit everyone."
 msgstr ""
 
 #: patterns/editorial-best-sellers.php
@@ -5475,7 +5475,7 @@ msgstr ""
 
 #: patterns/editorial-brand-story.php
 msgctxt "Pattern description"
-msgid "One compact closing row: a short blunt line on the left, a link into the catalog (and the About page when one exists) on the right."
+msgid "One compact closing row: the label's positioning in one statement on the left, a link into the catalog (and the About page when one exists) on the right."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:22
@@ -5483,11 +5483,11 @@ msgid "The Aggressive"
 msgstr ""
 
 #: patterns/editorial-brand-story.php:26
-msgid "Nobody needs another hoodie."
+msgid "Without the edges sanded off."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:30
-msgid "We made one anyway."
+msgid "Graphic pieces, plain essentials and accessories from an independent label."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:36

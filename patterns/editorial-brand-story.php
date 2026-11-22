@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — The Aggressive Story
- * Description: One compact closing row: a short blunt line on the left, a link into the catalog (and the About page when one exists) on the right.
+ * Description: One compact closing row: the label's positioning in one statement on the left, a link into the catalog (and the About page when one exists) on the right.
  * Slug: aggressive-apparel/editorial-brand-story
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-informational
  * Keywords: brand, story, about, manifesto, independent, homepage
@@ -23,11 +23,11 @@ $aa_about = $aa_about instanceof WP_Post && 'publish' === $aa_about->post_status
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Nobody needs another hoodie.', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Without the edges sanded off.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-lead"} -->
-<p class="is-style-lead"><?php echo esc_html__( 'We made one anyway.', 'aggressive-apparel' ); ?></p>
+<p class="is-style-lead"><?php echo esc_html__( 'Graphic pieces, plain essentials and accessories from an independent label.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 

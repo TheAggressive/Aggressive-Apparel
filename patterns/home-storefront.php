@@ -128,6 +128,6 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8","textAlign":"center"}},"fontSize":"medium"} -->
-<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is sanded down to suit everyone.', 'aggressive-apparel' ); ?></p>
+<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is toned down to suit everyone.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->

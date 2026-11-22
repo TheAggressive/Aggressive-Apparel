@@ -41,18 +41,18 @@ merchant edits to menus and links.
 
 Following [`brand-voice.md`](brand-voice.md):
 
-| Where                             | Saved text now                                        | Change to                                                                                                                                             |
-| --------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Header ticker                     | LATEST DROP LIVE NOW                                  | EST. 2010 (or name the current product: "NEW: SKULL CAMO HOODIES")                                                                                    |
-| Header ticker                     | TRENDS DIE. ATTITUDE DOESN'T.                         | BLACK. AGAIN.                                                                                                                                         |
-| Header ticker                     | Free-shipping message block                           | Keep: its amount comes from the shipping settings                                                                                                     |
-| Footer trust badge                | INDEPENDENT BY DESIGN / Premium, confident, authentic | EST. 2010 / Independent label                                                                                                                         |
-| Footer newsletter                 | NEW RELEASES. RESTOCKS. EXCLUSIVES.                   | NEW RELEASES. RESTOCKS. NOTHING ELSE.                                                                                                                 |
-| Footer newsletter                 | NO SPAM. JUST WHAT'S WORTH WEARING.                   | Keep                                                                                                                                                  |
-| Footer badge                      | WRONG OR DAMAGED? / We'll make it right.              | Keep only if the returns policy says so                                                                                                               |
-| Footer badge                      | FREE SHIPPING OVER $75                                | Must equal the free-shipping minimum in WooCommerce → Shipping (local: $150). Confirm on staging; the ticker's live message already reads the setting |
-| Single product, under Add to cart | (nothing)                                             | Insert the **Free Shipping Message** block (live "$X away from free shipping")                                                                        |
-| Home                              | Old customised homepage                               | Reset to the theme (adopts the 12-section editorial homepage), or insert the Editorial Homepage pattern                                               |
+| Where                             | Saved text now                                        | Change to                                                                                                              |
+| --------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Header ticker                     | LATEST DROP LIVE NOW                                  | EST. 2010 (approved)                                                                                                   |
+| Header ticker                     | TRENDS DIE. ATTITUDE DOESN'T.                         | Remove the item and its icon (a retired phrase; "BLACK. AGAIN." was declined as a permanent announcement)              |
+| Header ticker                     | Free-shipping message block                           | Keep: its amount comes from the shipping settings                                                                      |
+| Footer trust badge                | INDEPENDENT BY DESIGN / Premium, confident, authentic | EST. 2010 / Independent label (approved)                                                                               |
+| Footer newsletter                 | NEW RELEASES. RESTOCKS. EXCLUSIVES.                   | Keep until confirmed against what subscribers actually receive                                                         |
+| Footer newsletter                 | NO SPAM. JUST WHAT'S WORTH WEARING.                   | Keep                                                                                                                   |
+| Footer badge                      | WRONG OR DAMAGED? / We'll make it right.              | Keep (approved, within the published returns policy)                                                                   |
+| Footer badge                      | FREE SHIPPING OVER $75                                | Keep: $75 is the intended minimum. Confirm WooCommerce → Shipping on production says $75 (local sample data says $150) |
+| Single product, under Add to cart | (nothing)                                             | Insert the **Free Shipping Message** block (live "$X away from free shipping")                                         |
+| Home                              | Old customised homepage                               | Reset to the theme (adopts the 12-section editorial homepage), or insert the Editorial Homepage pattern                |
 
 The theme's own `parts/header.html` and `parts/footer.html` already carry the
 new defaults, so a fresh install or a reset part shows them.
@@ -127,6 +127,14 @@ production.
 
     ```bash
     pnpm build && pnpm ci:package   # → aggressive-apparel.zip, verified
+    ```
+
+    Without Docker, run the same lane's steps natively (the container only
+    compiles the catalogs):
+
+    ```bash
+    pnpm build && pnpm i18n:compile
+    bash bin/release/package.sh && bash bin/release/verify-package.sh aggressive-apparel.zip
     ```
 
 2. **Saved content:** run the procedure above on staging (`copy` and

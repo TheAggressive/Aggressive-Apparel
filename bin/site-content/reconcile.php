@@ -229,6 +229,72 @@ function aa_replace_copy( string $content, array $map, array &$log ): string {
 	return $content;
 }
 
+/**
+ * Remove one ticker item (a paragraph with exactly this text) and the icon
+ * separating it from the item before. Retired slogans are removed, not
+ * replaced with a new one nobody approved.
+ *
+ * @param string        $content Saved content.
+ * @param string        $text    The item's exact text.
+ * @param array<string> $log     Change log, appended to.
+ */
+function aa_drop_ticker_item( string $content, string $text, array &$log ): string {
+	$blocks  = parse_blocks( $content );
+	$dropped = false;
+	aa_walk(
+		$blocks,
+		static function ( array &$block ) use ( $text, &$dropped ): void {
+			if ( $dropped || 'aggressive-blocks/ticker' !== $block['blockName'] ) {
+				return;
+			}
+			foreach ( $block['innerBlocks'] as $index => $child ) {
+				if ( 'core/paragraph' !== $child['blockName'] || trim( wp_strip_all_tags( $child['innerHTML'] ) ) !== $text ) {
+					continue;
+				}
+				$remove = array( $index );
+				if ( $index > 0 && 'aggressive-apparel/icon' === $block['innerBlocks'][ $index - 1 ]['blockName'] ) {
+					$remove[] = $index - 1;
+				}
+				aa_remove_inner_blocks( $block, $remove );
+				$dropped = true;
+				return;
+			}
+		}
+	);
+	if ( ! $dropped ) {
+		return $content;
+	}
+	$log[] = sprintf( 'Removed ticker item "%s" and its separator icon', $text );
+	return serialize_blocks( $blocks );
+}
+
+/**
+ * Remove inner blocks by index, with their placeholders in innerContent and
+ * the whitespace that preceded each.
+ *
+ * @param array<string, mixed> $block   Container block, edited in place.
+ * @param array<int>           $indexes Inner block indexes to remove.
+ */
+function aa_remove_inner_blocks( array &$block, array $indexes ): void {
+	$content = array();
+	$seen    = -1;
+	foreach ( $block['innerContent'] as $piece ) {
+		if ( null === $piece && in_array( ++$seen, $indexes, true ) ) {
+			$last = array_key_last( $content );
+			if ( null !== $last && is_string( $content[ $last ] ) && '' === trim( $content[ $last ] ) ) {
+				array_pop( $content );
+			}
+			continue;
+		}
+		$content[] = $piece;
+	}
+	$block['innerContent'] = $content;
+	foreach ( $indexes as $index ) {
+		unset( $block['innerBlocks'][ $index ] );
+	}
+	$block['innerBlocks'] = array_values( $block['innerBlocks'] );
+}
+
 $aa_jobs = array(
 	array(
 		'slug'   => 'single-product',
@@ -239,21 +305,20 @@ $aa_jobs = array(
 	),
 );
 
-// Copy from docs/site-content.md "Copy to change". Opt-in: copy is approved
-// separately from layout.
+// Copy from docs/site-content.md "Copy to change", as approved 2026-11-22.
+// Opt-in: copy is approved separately from layout.
 if ( in_array( 'copy', $aa_flags, true ) ) {
 	$aa_jobs[] = array(
 		'slug' => 'header',
 		'type' => 'wp_template_part',
-		'edit' => static fn( string $c, array &$log ): string => aa_replace_copy(
-			$c,
-			array(
-				'>LATEST DROP LIVE NOW<'          => '>EST. 2010<',
-				'>TRENDS DIE. ATTITUDE DOESN’T.<' => '>BLACK. AGAIN.<',
-			),
+		'edit' => static fn( string $c, array &$log ): string => aa_drop_ticker_item(
+			aa_replace_copy( $c, array( '>LATEST DROP LIVE NOW<' => '>EST. 2010<' ), $log ),
+			'TRENDS DIE. ATTITUDE DOESN’T.',
 			$log
 		),
 	);
+	// The newsletter promise ("NEW RELEASES. RESTOCKS. EXCLUSIVES.") stays
+	// until it is confirmed against what subscribers actually receive.
 	$aa_jobs[] = array(
 		'slug' => 'footer',
 		'type' => 'wp_template_part',
@@ -262,7 +327,6 @@ if ( in_array( 'copy', $aa_flags, true ) ) {
 			array(
 				'>INDEPENDENT BY DESIGN<'         => '>EST. 2010<',
 				'>Premium, confident, authentic<' => '>Independent label<',
-				'RESTOCKS. EXCLUSIVES.'           => 'RESTOCKS. NOTHING ELSE.',
 			),
 			$log
 		),

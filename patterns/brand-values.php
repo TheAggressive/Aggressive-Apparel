@@ -50,7 +50,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"medium"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Since 2010, the only approval it needs is ours.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Est. 2010. The only approval it needs is ours.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

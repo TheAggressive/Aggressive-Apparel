@@ -13,7 +13,20 @@
 	overflow: hidden;
 }
 
-/* Name sits on the darkened lower edge, not mid-image. */
+/* The photo is a square at the top of the 4:5 tile, whole (the product
+   images are designed square); the name and count share the black band
+   below it, so no type sits on the artwork and no gradient dims it. No
+   hover zoom: a scaled photo would spill into the band. (0,3,0) beats
+   WooCommerce's full-bleed image rule (0,2,0). */
+.aa-editorial-tiles
+	.wc-block-featured-category
+	.wc-block-featured-category__background-image {
+	inset: 0 0 auto;
+	height: auto;
+	aspect-ratio: 1;
+	object-fit: cover;
+}
+
 .aa-editorial-tiles
 	.wc-block-featured-category
 	.wc-block-featured-category__wrapper {
@@ -25,18 +38,19 @@
 .aa-editorial-tiles
 	.wc-block-featured-category
 	.wc-block-featured-category__inner-blocks {
-	padding: var(--wp--preset--spacing--5);
-}
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0 var(--wp--preset--spacing--3);
+	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4);
 
-.aa-editorial-tiles .wc-block-featured-category__background-image {
-	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
-}
+	& > * {
+		margin-block: 0;
+	}
 
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-	.aa-editorial-tiles
-		.wc-block-featured-category:hover
-		.wc-block-featured-category__background-image {
-		transform: scale(1.03);
+	& .wp-block-heading {
+		line-height: 1;
 	}
 }
 

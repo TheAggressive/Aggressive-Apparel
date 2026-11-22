@@ -11,6 +11,7 @@
 @import "./_saved-for-later.css";
 @import "./_editorial-tiles.css";
 @import "./_editorial-grids.css";
+@import "./_listing-price.css";
 
 /* Allow collection headings and their CTA to wrap when text is enlarged. */
 .wp-block-woocommerce-product-collection.is-style-commerce-grid

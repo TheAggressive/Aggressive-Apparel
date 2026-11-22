@@ -245,6 +245,14 @@ class Theme_Support {
 		);
 
 		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'text-on-dark',
+				'label' => __( 'Tertiary on Dark (Text)', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
 			'core/group',
 			array(
 				'name'  => 'frosted',

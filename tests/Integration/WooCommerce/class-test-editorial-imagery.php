@@ -222,7 +222,7 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$markup = $this->render_pattern( 'editorial-category-showcase' );
 
 		$this->assertStringContainsString( '2 pieces', $markup );
-		$this->assertStringContainsString( '"aspectRatio":"1/1"', $markup, 'Square like the product images, so cover never crops.' );
+		$this->assertStringContainsString( '"aspectRatio":"4/5"', $markup, 'A square photo over a name band.' );
 	}
 
 	/** The New Arrivals lead grid is marked as the lead (larger name, 3:4 image). */
@@ -337,7 +337,11 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( 2, $grids[0]['attrs']['query']['perPage'] );
 	}
 
-	/** One or two hoodies sit beside the headline (headline first); three make a centred row. */
+	/**
+	 * One hoodie is a half-and-half spread with a lead card, two sit beside the
+	 * headline (headline first), three or four make a centred row, five or
+	 * more a rail.
+	 */
 	public function test_hoodies_layout_follows_the_stock(): void {
 		$hoodies = self::factory()->term->create_and_get(
 			array(
@@ -352,6 +356,8 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertCount( 1, $columns );
 		$this->assertLessThan( strpos( $markup, 'wp:woocommerce/product-collection' ), strpos( $markup, 'is-style-campaign' ), 'Headline precedes the cards.' );
 		$this->assertSame( 1, $this->find_all( parse_blocks( $markup ), 'woocommerce/product-collection' )[0]['attrs']['query']['perPage'] );
+		$this->assertSame( '50%', $columns[0]['innerBlocks'][1]['attrs']['width'], 'One card gets half the row, not a third beside a void.' );
+		$this->assertStringContainsString( 'aa-grid-lead', $this->find_all( parse_blocks( $markup ), 'woocommerce/product-collection' )[0]['attrs']['className'] );
 
 		$this->create_product( array( 'category' => $hoodies->term_id ) );
 		$this->create_product( array( 'category' => $hoodies->term_id ) );
@@ -360,6 +366,13 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/columns' ) );
 		$this->assertSame( 3, $grid['attrs']['query']['perPage'] );
 		$this->assertStringContainsString( 'aa-grid-centered', $grid['attrs']['className'] );
+
+		$this->create_product( array( 'category' => $hoodies->term_id ) );
+		$this->create_product( array( 'category' => $hoodies->term_id ) );
+		$grid = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-hoodies-feature' ) ), 'woocommerce/product-collection' )[0];
+		$this->assertSame( 5, $grid['attrs']['query']['perPage'] );
+		$this->assertStringContainsString( 'aa-grid-rail', $grid['attrs']['className'] );
+		$this->assertStringNotContainsString( 'aa-grid-centered', $grid['attrs']['className'] );
 	}
 
 	/** Staff picks fill their column with the picks that exist. */

@@ -47,8 +47,8 @@ if ( null !== $aa_lead ) {
 // full height off the right edge (the drop band above puts its photo left,
 // so on phones photo and copy alternate). The copy's left padding lines it
 // up with the wide column on very wide screens.
-?><!-- wp:group {"metadata":{"name":"07 Women's Collection"},"align":"full","style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"default"}} -->
-<div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
+?><!-- wp:group {"metadata":{"name":"07 Women's Collection"},"align":"full","style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"white","layout":{"type":"default"}} -->
+<div class="wp-block-group alignfull has-white-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 <?php if ( null !== $aa_lead ) : ?>
 <!-- wp:columns {"className":"aa-tablet-split","align":"full","style":{"spacing":{"blockGap":{"top":"0","left":"0"},"margin":{"top":"0","bottom":"0"}}}} -->
 <div class="wp-block-columns aa-tablet-split alignfull" style="margin-top:0;margin-bottom:0"><!-- wp:column {"verticalAlignment":"center","width":"55%","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","right":"var:preset|spacing|gutter","bottom":"var:preset|spacing|section-standard","left":"max(var(--wp--preset--spacing--gutter), calc((100% - var(--wp--style--global--wide-size)) / 2))"},"blockGap":"var:preset|spacing|fluid-12"}}} -->

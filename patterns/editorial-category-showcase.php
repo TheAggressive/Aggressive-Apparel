@@ -31,8 +31,8 @@ $aa_tiles = array(
 	),
 );
 
-?><!-- wp:group {"metadata":{"name":"02 Shop Categories"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
+?><!-- wp:group {"metadata":{"name":"02 Shop Categories"},"align":"full","className":"aa-shop-section","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull aa-shop-section" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
 <div class="wp-block-group alignwide"><!-- wp:group {"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
 <p class="is-style-eyebrow"><?php echo esc_html__( 'Shop by category', 'aggressive-apparel' ); ?></p>
@@ -64,7 +64,7 @@ foreach ( $aa_tiles as $aa_tile ) {
 $aa_grid_attributes = array(
 	'align'     => 'wide',
 	'className' => 'aa-editorial-tiles',
-	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|2' ) ),
+	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|4' ) ),
 	'layout'    => array(
 		'type'               => 'grid',
 		'columnCount'        => max( 1, count( $aa_found ) ),
@@ -78,15 +78,14 @@ $aa_grid_attributes = array(
 foreach ( $aa_found as $aa_term ) {
 	$aa_attributes = array(
 		'contentAlign'    => 'left',
-		'dimRatio'        => 100,
-		// A CSS value, not a slug: WooCommerce prints it straight into
-		// `background-image`. Darkens only the lower half, where the name sits.
-		'overlayGradient' => 'var(--wp--preset--gradient--dark-overlay)',
+		'dimRatio'        => 0,
 		'categoryId'      => $aa_term->term_id,
 		'backgroundColor' => 'black',
-		// Square, the shape the product images are designed in, so the
-		// tile's cover fit never crops the product it shows.
-		'style'           => array( 'dimensions' => array( 'aspectRatio' => '1/1' ) ),
+		// A 4:5 tile: the photo fills its top as a square (the shape the
+		// product images are designed in, so nothing is cropped or covered)
+		// and the name sits on the black band below it, never over the
+		// artwork (_editorial-tiles.css).
+		'style'           => array( 'dimensions' => array( 'aspectRatio' => '4/5' ) ),
 	);
 	// The category's own image, else its newest product photo not already
 	// shown higher on the page (the hero's); claimed so later slots skip it.

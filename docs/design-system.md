@@ -120,7 +120,7 @@ Rules:
 | ---------------------- | ---------------------------------- | ------------------------------------------------------- |
 | 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
 | 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, detail close-ups.     |
-| 3:4, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (3:4), tall looks (2:3), detail (1:1).   |
+| 4:5, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (4:5), tall looks (2:3), detail (1:1).   |
 | Product images         | 1:1 slot, contain                  | Every card; product images are designed square.         |
 
 Rules:
@@ -128,8 +128,10 @@ Rules:
 1. **Product photography is shown whole, in a square.** The product images
    are designed square, so every product card's media slot is 1:1 and shows
    the photo with `contain`, never a crop that could cut a sleeve or a
-   print. Category tiles are square too; the New Arrivals lead card is
-   1:1.11 so it lines up with the 2 × 2 beside it. The product gallery frame
+   print. Category tiles are 4:5: the photo is a whole square at the top
+   and the name sits on the black band under it, never over the artwork.
+   The New Arrivals lead card is 1:1.11 so it lines up with the 2 × 2
+   beside it. The product gallery frame
    follows the main photo. Patterns do not override the card slot.
 2. Hero and campaign images are Covers with a **min-height in `svh`/`vh`**
    (60–90) rather than a fixed ratio, and a **focal point** set on the subject.
@@ -153,20 +155,20 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface         | Live data                                                                                               |
-| --- | ----------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | black spread             | Slogan beside two full-height portrait product photos (diptych), "Shown" line; type only without photos |
-| 02  | `editorial-category-showcase` | standard → compact       | One row of stocked categories, 2:3 tiles, piece counts; swipe rail on phones                            |
-| 03  | `editorial-new-arrivals`      | compact → standard       | Newest product as a 3:4 lead card + the next four 2 × 2 (two collections, offset 1)                     |
-| 04  | `editorial-artwork-spotlight` | standard, black          | "The name": typographic statement + paragraph; `#the-label`                                             |
-| 05  | `editorial-best-sellers`      | standard, intro + 2–3-up | Real sales → Best sellers; else Featured products; else omitted                                         |
-| 06  | `editorial-featured-drop`     | black spread / band      | Drop photo (left) + name + row of two, or title row over a stock-sized grid; else omitted               |
-| 07  | `editorial-womens-collection` | light spread             | Copy + row of two beside a full-height photo (right); else copy + grid                                  |
-| 08  | `editorial-hoodies-feature`   | standard, surface-muted  | 3+ → centred row; 1–2 → third-width cards beside a large headline                                       |
-| 09  | `editorial-defiance-division` | black spread / band      | As the drop band (`Editorial_Collection_Band`); else omitted                                            |
-| 10  | `editorial-accessories`       | compact → standard       | Up to four in a row; more scroll as a rail of up to eight (4.5 visible)                                 |
-| 11  | `editorial-featured-looks`    | standard, surface-muted  | Three portrait photos (Fig. 01–03) linked to products; phone rail                                       |
-| 12  | `editorial-brand-story`       | standard                 | Closing line + Shop all on the wide column's edge; About link if it exists                              |
+| #   | Pattern                       | Rhythm / surface        | Live data                                                                                                                                                   |
+| --- | ----------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | black spread            | Slogan sized to its column beside two full-height portrait photos (diptych, most of a screen tall; first on phones), "Shown" line; type only without photos |
+| 02  | `editorial-category-showcase` | compact                 | One row of stocked categories, 4:5 tiles (square photo + name band), piece counts; swipe rail on phones                                                     |
+| 03  | `editorial-new-arrivals`      | compact                 | Newest product as a lead card + the next four 2 × 2 (two collections, offset 1); stacked below 782px                                                        |
+| 04  | `editorial-artwork-spotlight` | standard, brand red     | "The name": "Aggressive is a compliment." (display size) + paragraph; `#the-label`                                                                          |
+| 05  | `editorial-best-sellers`      | compact, intro + 2–3-up | Real sales → Best sellers; else Featured products; else omitted                                                                                             |
+| 06  | `editorial-featured-drop`     | black spread / band     | Drop photo (left) + name + row of two, or title row over a stock-sized grid; else omitted                                                                   |
+| 07  | `editorial-womens-collection` | white spread            | Copy + row of two beside a full-height photo (right) on static white, light in both schemes; else copy + grid                                               |
+| 08  | `editorial-hoodies-feature`   | compact                 | 1 → half-and-half spread, one large card; 2 → two cards beside the headline; 3–4 → centred row; 5+ → rail                                                   |
+| 09  | `editorial-defiance-division` | black spread / band     | As the drop band (`Editorial_Collection_Band`); else omitted                                                                                                |
+| 10  | `editorial-accessories`       | compact                 | Up to four in a row; more scroll as a rail of up to eight (3.5 visible)                                                                                     |
+| 11  | `editorial-featured-looks`    | standard, black         | Three portrait photos (Fig. 01–03) linked to products; phone rail                                                                                           |
+| 12  | `editorial-brand-story`       | standard                | "Nobody needs another hoodie. / We made one anyway." + Shop all on the wide column's edge; About link if it exists                                          |
 
 Rules the library follows (new sections should too):
 
@@ -219,16 +221,17 @@ Rules the library follows (new sections should too):
 8. **Sections size to their stock.** Grids count what they can actually
    show (`Editorial_Catalog::visible_count()`: catalog-visible, in stock),
    not the term's raw count. Two staff picks are two large cards, not a
-   third of an empty row; one or two hoodies sit large beside the headline;
+   third of an empty row; one hoodie is a half-and-half spread, two sit
+   beside the headline, five or more become a rail;
    a one-product women's collection is carried by its photo. Below 1024px
    editorial grids of three or more columns are two-up. The campaign hero
-   (`aa-campaign-hero`) sizes the slogan to its column beside the photo, and
-   to the full width when there is no photo.
+   (`aa-campaign-hero`) sizes the slogan to its column (container units)
+   beside the photo, and to the full width when there is no photo.
 9. **Two heading roles.** A heading that names a product set (New arrivals,
    Featured, Women's, Hoodies, Accessories, How it's worn) is display type:
    the plain heading set to Foreground, or Campaign Display where the
    section is a feature; a heading that makes a statement ("Pick your
-   issue.", "Aggressive used to be a compliment.") is Headline (Sans).
+   issue.", "Aggressive is a compliment.") is Headline (Sans).
 10. **Spreads alternate; grids don't repeat.** Photo sections are
     edge-to-edge spreads (`aa-bleed-photo` column: the photo runs the full
     row height and crops to cover): hero photo right, drop band photo left,
@@ -236,14 +239,22 @@ Rules the library follows (new sections should too):
     photos stacking. Beside a photo, products show as one row of two, never
     a 2 × 2 that would stretch the photo. Product sections take distinct
     shapes: lead + 2 × 2 (New Arrivals), intro + cards (Featured), headline
-    - third-width cards (Hoodies), rail (Accessories), title row + grid
-      (collection bands without a photo). Copy beside a full-bleed photo lines
+    - cards sized to the count (Hoodies), rail (Accessories), title row +
+      grid (collection bands without a photo). Copy beside a full-bleed photo lines
       up with the wide column through
       `max(gutter, (100% - wide-size) / 2)` padding.
-11. **Light surfaces alternate.** Below the hero, light sections alternate
-    `surface` and `surface-muted` (black bands break the run; categories and
-    new arrivals share one surface as a single shopping block); no section
-    uses `surface-elevated` white.
+11. **Shopping follows the scheme; editorial moments are fixed colors.**
+    Shopping sections (`aa-shop-section`: categories, New Arrivals,
+    Featured, Hoodies, Accessories) share the page `surface` with compact
+    padding, so the products fill the section. Editorial moments take a
+    static color that holds in both schemes: black (hero, the drop and
+    Defiance bands, the lookbook), brand red (The name) and white (the
+    Women's spread). A white-background block is light in both schemes and
+    a black one dark (`adaptive-block-colors.css`), so their text, buttons
+    and cards resolve the right values in dark mode. Two shopping sections
+    that meet are divided by a hairline at the wide column's width
+    (`.aa-shop-section + .aa-shop-section`). Listing-card names are Large
+    (18px), the New Arrivals lead XX-Large.
 12. The slogan appears once, in the hero. Copy follows
     [`brand-voice.md`](brand-voice.md).
 
@@ -298,19 +309,19 @@ Aliases in `src/styles/base/tokens.css` use the `--aa-*` prefix. Status colors c
 
 Registered in `includes/Core/class-theme-support.php`:
 
-| Block                            | Variations                                                                                                     |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `core/button`                    | ghost, cta-ghost, text, small, cta, cta-small, outline-on-dark, cta-outline-on-dark, cta-small-outline-on-dark |
-| `core/group`                     | frosted, surface-card, bordered, frosted-dark                                                                  |
-| `core/heading`                   | display, campaign, headline, overflow, text-mask                                                               |
-| `core/image`                     | editorial                                                                                                      |
-| `core/cover`                     | cinematic                                                                                                      |
-| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, lead, legal, price                                                 |
-| `core/separator`                 | brand-stripe, subtle                                                                                           |
-| `woocommerce/product-collection` | commerce-grid, editorial-grid                                                                                  |
-| `woocommerce/product-template`   | commerce-cards                                                                                                 |
-| `woocommerce/product-image`      | product-frame                                                                                                  |
-| `woocommerce/product-price`      | commerce-price                                                                                                 |
+| Block                            | Variations                                                                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `core/button`                    | ghost, cta-ghost, text, small, cta, cta-small, outline-on-dark, cta-outline-on-dark, cta-small-outline-on-dark, text-on-dark |
+| `core/group`                     | frosted, surface-card, bordered, frosted-dark                                                                                |
+| `core/heading`                   | display, campaign, headline, overflow, text-mask                                                                             |
+| `core/image`                     | editorial                                                                                                                    |
+| `core/cover`                     | cinematic                                                                                                                    |
+| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, lead, legal, price                                                               |
+| `core/separator`                 | brand-stripe, subtle                                                                                                         |
+| `woocommerce/product-collection` | commerce-grid, editorial-grid                                                                                                |
+| `woocommerce/product-template`   | commerce-cards                                                                                                               |
+| `woocommerce/product-image`      | product-frame                                                                                                                |
+| `woocommerce/product-price`      | commerce-price                                                                                                               |
 
 ### Reusable section styles
 
@@ -389,6 +400,7 @@ Do not place two primary buttons beside each other. In quick view and the sticky
 | Link-like action                                | registered `core/button` text style                                                 |
 | Hero or merchandising CTA                       | registered `core/button` CTA / CTA Small styles                                     |
 | CTA over dark media                             | `outline-on-dark`, `cta-outline-on-dark`, or `cta-small-outline-on-dark`            |
+| Text link on a black section                    | `text-on-dark` (white, underlined; the accent red is too dark on black)             |
 | Destructive confirm CTA (delete, remove)        | `.aggressive-apparel-button--danger`                                                |
 | Positive confirm CTA (saved, applied)           | `.aggressive-apparel-button--success`                                               |
 | Low-emphasis action between CTA and text link   | `.aggressive-apparel-button--ghost`                                                 |

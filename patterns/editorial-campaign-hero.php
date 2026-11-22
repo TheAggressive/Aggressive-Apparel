@@ -49,13 +49,13 @@ foreach ( $aa_leads as $aa_lead ) {
 <p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'This season’s is in.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->
+<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"},"blockGap":"var:preset|spacing|6"}},"layout":{"type":"flex","verticalAlignment":"center"}} -->
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)"><!-- wp:button {"className":"is-style-cta"} -->
 <div class="wp-block-button is-style-cta"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( $aa_new_arrivals ); ?>"><?php echo esc_html__( 'Shop new arrivals', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button -->
 
-<!-- wp:button {"className":"is-style-cta-outline-on-dark"} -->
-<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="#the-label"><?php echo esc_html__( 'About the name', 'aggressive-apparel' ); ?></a></div>
+<!-- wp:button {"className":"is-style-text-on-dark"} -->
+<div class="wp-block-button is-style-text-on-dark"><a class="wp-block-button__link wp-element-button" href="#the-label"><?php echo esc_html__( 'About the name', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons -->
 <?php if ( array() !== $aa_shown ) : ?>

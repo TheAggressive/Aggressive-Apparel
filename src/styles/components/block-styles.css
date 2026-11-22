@@ -55,6 +55,30 @@
 	}
 }
 
+/* core/button — Text / tertiary on dark: the underlined link of a dark
+   section (the accent red is too dark to read on black). */
+.is-style-text-on-dark .wp-block-button__link {
+	min-height: var(--aa-button-height-md);
+	padding-inline: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: var(--aa-color-white);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.35em;
+
+	&:hover:not([aria-disabled="true"]) {
+		background: transparent;
+		color: var(--aa-color-white);
+		text-decoration-thickness: 2px;
+	}
+}
+
 /* core/button — CTA */
 .is-style-cta .wp-block-button__link {
 	min-height: var(--aa-button-height-lg);

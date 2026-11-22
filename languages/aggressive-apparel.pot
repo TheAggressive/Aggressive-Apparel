@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T20:39:35+00:00\n"
+"POT-Creation-Date: 2026-11-22T00:37:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -636,111 +636,115 @@ msgid "Small Secondary on Dark"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:251
-msgid "Frosted Glass"
+msgid "Tertiary on Dark (Text)"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:259
-msgid "Surface Card"
+msgid "Frosted Glass"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:267
-msgid "Bordered"
+msgid "Surface Card"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:275
-msgid "Display"
+msgid "Bordered"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:283
+msgid "Display"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:291
 #: patterns/homepage-seasonal-shop.php:210
 msgid "Editorial"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:291
+#: includes/Core/class-theme-support.php:299
 msgid "Brand Stripe"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:299
+#: includes/Core/class-theme-support.php:307
 #: includes/WooCommerce/class-badge-studio-rest.php:90
 #: includes/WooCommerce/class-badge-system-defaults.php:31
 msgid "Badge"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:307
+#: includes/Core/class-theme-support.php:315
 msgid "Badge Muted"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:315
+#: includes/Core/class-theme-support.php:323
 msgid "Eyebrow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:323
+#: includes/Core/class-theme-support.php:331
 msgid "Caption"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:331
+#: includes/Core/class-theme-support.php:339
 msgid "Meta"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:339
+#: includes/Core/class-theme-support.php:347
 msgid "Legal"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:347
+#: includes/Core/class-theme-support.php:355
 #: includes/WooCommerce/class-product-filter-renderer.php:67
 #: includes/WooCommerce/class-product-filter-renderer.php:206
 msgid "Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:355
+#: includes/Core/class-theme-support.php:363
 msgid "Subtle"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:364
+#: includes/Core/class-theme-support.php:372
 msgid "Commerce Grid"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:372
+#: includes/Core/class-theme-support.php:380
 msgid "Editorial Grid"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:380
+#: includes/Core/class-theme-support.php:388
 msgid "Commerce Cards"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:388
+#: includes/Core/class-theme-support.php:396
 msgid "Product Frame"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:396
+#: includes/Core/class-theme-support.php:404
 msgid "Commerce Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:406
+#: includes/Core/class-theme-support.php:414
 msgid "Overflow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:414
+#: includes/Core/class-theme-support.php:422
 msgid "Text Mask"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:422
+#: includes/Core/class-theme-support.php:430
 msgid "Headline (Sans)"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:430
+#: includes/Core/class-theme-support.php:438
 msgid "Campaign Display"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:438
+#: includes/Core/class-theme-support.php:446
 msgid "Lead"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:446
+#: includes/Core/class-theme-support.php:454
 msgid "Cinematic"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:454
+#: includes/Core/class-theme-support.php:462
 msgid "Frosted Dark"
 msgstr ""
 
@@ -2383,7 +2387,7 @@ msgstr ""
 #: includes/WooCommerce/class-garment-kinds.php:152
 #: patterns/animated-category-mosaic.php:31
 #: patterns/category-landing-composition.php:21
-#: patterns/editorial-hoodies-feature.php:61
+#: patterns/editorial-hoodies-feature.php:66
 #: patterns/homepage-seasonal-shop.php:83
 #: patterns/mega-menu-panel.php:24
 #: patterns/no-results-browse.php:38
@@ -4431,7 +4435,7 @@ msgid "Our Story"
 msgstr ""
 
 #: patterns/about-page.php:20
-msgid "Independent since 2010."
+msgid "Independent. Est. 2010."
 msgstr ""
 
 #: patterns/about-page.php:24
@@ -4443,11 +4447,11 @@ msgid "What we make"
 msgstr ""
 
 #: patterns/about-page.php:48
-msgid "Clothing with a point of view."
+msgid "Graphic pieces, plain essentials, accessories."
 msgstr ""
 
 #: patterns/about-page.php:52
-msgid "Original design and our own creative direction, from the first sketch to the finished piece."
+msgid "[Say who designs the pieces and how. State only what you can show.]"
 msgstr ""
 
 #: patterns/about-page.php:56
@@ -4488,7 +4492,7 @@ msgid "Who it’s for"
 msgstr ""
 
 #: patterns/about-page.php:132
-msgid "People who would rather choose their uniform than be issued one."
+msgid "Anyone. We don’t check."
 msgstr ""
 
 #: patterns/aftercare-icon-row.php
@@ -4749,7 +4753,7 @@ msgid "Independent"
 msgstr ""
 
 #: patterns/brand-values.php:53
-msgid "Since 2010, the only approval it needs is ours."
+msgid "Est. 2010. The only approval it needs is ours."
 msgstr ""
 
 #: patterns/brand-values.php:65
@@ -5381,7 +5385,7 @@ msgstr ""
 
 #: patterns/editorial-accessories.php
 msgctxt "Pattern description"
-msgid "The accessories actually in stock, with a short header and one link to the category: a row of up to four, or a sideways-scrolling rail of up to eight that shows four and a half."
+msgid "The accessories actually in stock, with a short header and one link to the category: a row of up to four, or a sideways-scrolling rail of up to eight that shows three and a half."
 msgstr ""
 
 #: patterns/editorial-accessories.php:34
@@ -5403,7 +5407,7 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern description"
-msgid "Black typographic band, the one place the brand explains itself: a large statement about the name beside a short paragraph and a link into the catalog. Anchor #the-label, the hero's second CTA."
+msgid "Brand-red typographic band, the one place the brand explains itself: a large statement about the name beside a short paragraph and a link into the catalog. Anchor #the-label, the hero's second CTA."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:19
@@ -5412,11 +5416,12 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:23
 #: patterns/home-storefront.php:127
-msgid "Aggressive used to be a compliment."
+msgid "Aggressive is a compliment."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:29
-msgid "It meant nobody softened it: the riff, the line, the work. We named a label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither one is sorry."
+#: patterns/home-storefront.php:131
+msgid "It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is sanded down to suit everyone."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:34
@@ -5470,7 +5475,7 @@ msgstr ""
 
 #: patterns/editorial-brand-story.php
 msgctxt "Pattern description"
-msgid "A short closing line that hands the page back to the clothes, a link into the catalog, and a link to the About page when one exists."
+msgid "A short blunt closing line that hands the page on to the shop, a link into the catalog, and a link to the About page when one exists."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:25
@@ -5478,11 +5483,11 @@ msgid "The Aggressive"
 msgstr ""
 
 #: patterns/editorial-brand-story.php:29
-msgid "That’s all the explaining we’ll do."
+msgid "Nobody needs another hoodie."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:33
-msgid "The rest is in the clothes."
+msgid "We made one anyway."
 msgstr ""
 
 #: patterns/editorial-brand-story.php:43
@@ -5549,7 +5554,7 @@ msgid "All products"
 msgstr ""
 
 #. translators: %d: number of in-stock products in a category.
-#: patterns/editorial-category-showcase.php:112
+#: patterns/editorial-category-showcase.php:111
 #, php-format
 msgid "%d piece"
 msgid_plural "%d pieces"
@@ -5620,7 +5625,7 @@ msgstr ""
 
 #: patterns/editorial-featured-looks.php
 msgctxt "Pattern description"
-msgid "Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three."
+msgid "Asymmetric lookbook on black: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three."
 msgstr ""
 
 #. translators: Lookbook figure number, as in a catalogue caption.
@@ -5660,22 +5665,22 @@ msgstr ""
 
 #: patterns/editorial-hoodies-feature.php
 msgctxt "Pattern description"
-msgid "Oversized category headline with real hoodies and a single shopping CTA. Three or more hoodies sit in a centred row under the headline; one or two become large cards beside it."
+msgid "Oversized category headline with real hoodies and a single shopping CTA, composed for the count: one hoodie is a half-and-half spread with one large card, two sit beside the headline, three or four make a centred row, and five or more a rail."
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:37
+#: patterns/editorial-hoodies-feature.php:43
 msgid "Hoodies grid"
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:57
+#: patterns/editorial-hoodies-feature.php:62
 msgid "Heavy rotation"
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:65
+#: patterns/editorial-hoodies-feature.php:70
 msgid "For the cold walk home."
 msgstr ""
 
-#: patterns/editorial-hoodies-feature.php:76
+#: patterns/editorial-hoodies-feature.php:81
 msgid "Shop all hoodies"
 msgstr ""
 
@@ -5982,7 +5987,7 @@ msgid "Multi-column footer with navigation links, contact info, newsletter signu
 msgstr ""
 
 #: patterns/footer-columns.php:23
-msgid "Independent since 2010. Rebellion has a uniform."
+msgid "Independent label, est. 2010. Rebellion has a uniform."
 msgstr ""
 
 #: patterns/footer-columns.php:41
@@ -6351,10 +6356,6 @@ msgstr ""
 msgid "Shop Women's"
 msgstr ""
 
-#: patterns/home-storefront.php:131
-msgid "We named a label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither one is sorry."
-msgstr ""
-
 #: patterns/homepage-brand-led.php
 msgctxt "Pattern title"
 msgid "Homepage Brand Led"
@@ -6717,7 +6718,7 @@ msgid "and ship it before the hype cools."
 msgstr ""
 
 #: patterns/manifesto-type-wall.php:38
-msgid "Independent since 2010. Nothing borrowed. Nothing toned down."
+msgid "Independent label, est. 2010. Nothing borrowed. Nothing toned down."
 msgstr ""
 
 #: patterns/manifesto-type-wall.php:42
@@ -6735,7 +6736,7 @@ msgid "Animated scrolling text ticker banner for promotions, announcements, and 
 msgstr ""
 
 #: patterns/marquee-banner.php:16
-msgid "THE AGGRESSIVE &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT SINCE 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp; THE AGGRESSIVE &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT SINCE 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp;"
+msgid "THE AGGRESSIVE &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT · EST. 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp; THE AGGRESSIVE &nbsp;&nbsp;★&nbsp;&nbsp; INDEPENDENT · EST. 2010 &nbsp;&nbsp;★&nbsp;&nbsp; REBELLION HAS A UNIFORM &nbsp;&nbsp;★&nbsp;&nbsp;"
 msgstr ""
 
 #: patterns/mega-menu-panel.php

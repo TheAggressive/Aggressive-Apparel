@@ -51,6 +51,11 @@ test( 'flags unsupported claims and invented attribution', () => {
 	assert.equal( findVoiceViolations( pot( 'Limited runs.' ) ).length, 1 );
 	assert.equal( findVoiceViolations( pot( 'Staff picks' ) ).length, 1 );
 	assert.equal(
+		findVoiceViolations( pot( 'Independent since 2010.' ) ).length,
+		1
+	);
+	assert.deepEqual( findVoiceViolations( pot( 'Est. 2010' ) ), [] );
+	assert.equal(
 		findVoiceViolations( pot( 'PREMIUM QUALITY GUARANTEED' ) ).length,
 		1
 	);

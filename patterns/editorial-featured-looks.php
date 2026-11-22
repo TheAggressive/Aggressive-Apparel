@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Featured Looks
- * Description: Asymmetric lookbook: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three.
+ * Description: Asymmetric lookbook on black: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three.
  * Slug: aggressive-apparel/editorial-featured-looks
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-drops
  * Keywords: lookbook, looks, outfits, editorial, style, homepage
@@ -39,14 +39,14 @@ $aa_looks = array(
 	),
 );
 
-?><!-- wp:group {"metadata":{"name":"11 Featured Looks"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-16"}},"backgroundColor":"surface-muted","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull has-surface-muted-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"layout":{"type":"constrained","contentSize":"720px"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"align":"center","className":"is-style-eyebrow"} -->
-<p class="has-text-align-center is-style-eyebrow"><?php echo esc_html__( 'Lookbook', 'aggressive-apparel' ); ?></p>
+?><!-- wp:group {"metadata":{"name":"11 Featured Looks"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-16"},"elements":{"link":{"color":{"text":"var:preset|color|white"}}}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background has-link-color" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"layout":{"type":"constrained","contentSize":"720px"}} -->
+<div class="wp-block-group"><!-- wp:paragraph {"align":"center","className":"is-style-meta","textColor":"white"} -->
+<p class="has-text-align-center is-style-meta has-white-color has-text-color"><?php echo esc_html__( 'Lookbook', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"textAlign":"center","textColor":"foreground"} -->
-<h2 class="wp-block-heading has-text-align-center has-foreground-color has-text-color"><?php echo esc_html__( 'How it’s worn', 'aggressive-apparel' ); ?></h2>
+<!-- wp:heading {"textAlign":"center","textColor":"white"} -->
+<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color"><?php echo esc_html__( 'How it’s worn', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
@@ -57,8 +57,8 @@ $aa_looks = array(
 <div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:<?php echo esc_attr( $aa_look['width'] ); ?>"><?php echo Editorial_Imagery::image_markup( $aa_leads[ $aa_index ], $aa_look['ratio'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>
 
 <!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-meta"} -->
-<p class="is-style-meta"><?php echo esc_html( $aa_look['label'] ); ?></p>
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
+<p class="is-style-meta has-white-color has-text-color"><?php echo esc_html( $aa_look['label'] ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->

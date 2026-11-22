@@ -26,7 +26,7 @@ essentials and accessories, without the edges sanded off to please everyone.
 - **Divisions keep their own worlds.** Defiance Division is motocross: pit
   lanes and race numbers belong there, not in brand copy. Drops may be
   numbered as issues ("Issue 07").
-- **The name is explained once** ("Aggressive used to be a compliment."):
+- **The name is explained once** ("Aggressive is a compliment."):
   homepage section 04 and the About page. Nowhere else.
 
 ## The voice
@@ -119,7 +119,7 @@ lines:
 | --------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Buttons and CTAs            | Verb + object, sentence case in source (CSS sets display case). Say where it goes. | Shop new arrivals · Shop women's · Back to home                       |
 | Eyebrows                    | Two or three words that classify, not decorate.                                    | Shop by category · New in · Heavy rotation                            |
-| Headlines                   | One idea. Campaign tier may provoke; merchandising tier names.                     | Aggressive used to be a compliment. · Pick your issue. · Accessories  |
+| Headlines                   | One idea. Campaign tier may provoke; merchandising tier names.                     | Aggressive is a compliment. · Pick your issue. · Accessories          |
 | Confirmations               | Past tense, no exclamation mark.                                                   | Added · Added to your cart · All items added to your cart.            |
 | Errors                      | What failed, then what to do. No blame, no "Oops".                                 | Couldn't add this to your cart. Try again.                            |
 | Empty states                | State it plainly, then offer the next step.                                        | Your cart is empty. → Shop all products                               |

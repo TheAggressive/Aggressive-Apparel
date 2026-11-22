@@ -707,6 +707,70 @@ describe( 'editorial category tiles', () => {
 			[ expect.objectContaining( { value: 'flex-end' } ) ]
 		);
 	} );
+
+	it( 'show the photo whole as a square above the name band, never zoomed into it', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const image =
+			'.aa-editorial-tiles .wc-block-featured-category .wc-block-featured-category__background-image';
+
+		expect( await blocks.declarations( image, 'aspect-ratio' ) ).toEqual( [
+			expect.objectContaining( { value: '1' } ),
+		] );
+		expect( await blocks.declarations( image, 'height' ) ).toEqual( [
+			expect.objectContaining( { value: 'auto' } ),
+		] );
+		expect(
+			blocks
+				.all()
+				.filter(
+					( d ) =>
+						d.selector.includes(
+							'featured-category__background-image'
+						) && d.prop === 'transform'
+				)
+		).toEqual( [] );
+	} );
+} );
+
+describe( 'listing card price line', () => {
+	it( 'keeps the Save label in one piece as an outlined tag', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+
+		expect(
+			await blocks.declarations(
+				'.aggressive-apparel-price-save',
+				'white-space'
+			)
+		).toEqual( [ expect.objectContaining( { value: 'nowrap' } ) ] );
+		expect(
+			await blocks.declarations(
+				'.aggressive-apparel-price-save',
+				'border'
+			)
+		).toEqual( [ expect.objectContaining( { value: '1px solid' } ) ] );
+	} );
+
+	it( 'sets swatches beside the price on a row, not 20px under it', async () => {
+		const swatches = await CompiledCss.load(
+			'src/blocks-interactivity/product-color-swatches/style.css'
+		);
+		const row = swatches
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.startsWith( '.is-layout-flex' ) &&
+					/\+\s*\.aa-product-color-swatches$/.test( d.selector ) &&
+					/^margin-(block-start|top)$/.test( d.prop )
+			);
+
+		expect( row.map( ( d ) => d.value ) ).toEqual( [
+			expect.stringMatching( /^0(px)?$/ ),
+		] );
+	} );
 } );
 
 describe( 'product gallery thumbnails', () => {
@@ -782,13 +846,67 @@ describe( 'editorial sections', () => {
 		expect( campaign.every( ( d ) => ! d.important ) ).toBe( true );
 	} );
 
+	it( 'fit the slogan to its own column and lead with the photos on phones', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const all = editorial.all();
+
+		expect(
+			all.some(
+				( d ) =>
+					d.selector.startsWith( '.aa-campaign-hero' ) &&
+					d.prop === 'container-type' &&
+					d.value === 'inline-size'
+			)
+		).toBe( true );
+		expect(
+			all.some(
+				( d ) =>
+					d.selector.includes( '.is-style-campaign' ) &&
+					d.prop === 'font-size' &&
+					/cqi/.test( d.value )
+			)
+		).toBe( true );
+		const order = all.find(
+			( d ) =>
+				d.selector === '.aa-campaign-hero .aa-bleed-photo' &&
+				d.prop === 'order'
+		);
+		expect( order?.value ).toBe( '-1' );
+		expect( order?.conditions.join( ' ' ) ).toMatch( /600px/ );
+	} );
+
+	it( 'mark the seam between two shopping sections without outranking editor backgrounds', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const seam = editorial
+			.all()
+			.filter( ( d ) =>
+				/aa-shop-section\s*\+\s*\.aa-shop-section/.test( d.selector )
+			);
+
+		expect( seam.length ).toBeGreaterThan( 0 );
+		expect(
+			seam.every( ( d ) => d.selector.startsWith( ':where(' ) )
+		).toBe( true );
+		expect(
+			seam.find( ( d ) => d.prop === 'background-size' )?.value
+		).toMatch( /1px$/ );
+	} );
+
 	it( 'make the lookbook a phone rail, overriding only core’s mobile stacking and margin pinning', async () => {
 		const editorial = await CompiledCss.load(
 			'src/styles/components/editorial.css'
 		);
 		const rail = editorial
 			.all()
-			.filter( ( d ) => d.selector.includes( '.aa-editorial-looks' ) );
+			.filter(
+				( d ) =>
+					d.selector.includes( '.aa-editorial-looks' ) &&
+					! d.selector.includes( '.is-style-meta' )
+			);
 
 		expect(
 			rail
@@ -891,7 +1009,7 @@ describe( 'editorial sections', () => {
 			rail
 				.filter( ( d ) => d.prop === '--aa-rail-visible' )
 				.map( ( d ) => d.value )
-		).toEqual( expect.arrayContaining( [ '4.5', '2.5', '1.6' ] ) );
+		).toEqual( expect.arrayContaining( [ '3.5', '2.5', '1.6' ] ) );
 	} );
 
 	it( 'show every card photo whole, in a square slot', async () => {
@@ -939,5 +1057,28 @@ describe( 'editorial sections', () => {
 		).toEqual( [
 			expect.objectContaining( { value: 'block', important: false } ),
 		] );
+	} );
+} );
+
+describe( 'fixed-color sections', () => {
+	it( 'keep white-background blocks light in dark mode, text included', async () => {
+		const adaptive = await CompiledCss.load(
+			'src/styles/components/adaptive-block-colors.css'
+		);
+		const white = adaptive
+			.all()
+			.filter( ( d ) =>
+				d.selector.includes( '.has-white-background-color' )
+			);
+
+		expect( white.find( ( d ) => d.prop === 'color-scheme' )?.value ).toBe(
+			'light'
+		);
+		expect( white.find( ( d ) => d.prop === 'color' )?.value ).toMatch(
+			/--wp--preset--color--foreground/
+		);
+		expect(
+			white.every( ( d ) => d.selector.startsWith( ':where(' ) )
+		).toBe( true );
 	} );
 } );

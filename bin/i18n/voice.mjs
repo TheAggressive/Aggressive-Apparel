@@ -47,6 +47,10 @@ export const VOICE_RULES = [
 	},
 	{ pattern: /\bcut for women\b/i, reason: 'unverified fit claim' },
 	{
+		pattern: /\bsince 2010\b/i,
+		reason: 'implies an unbroken run nobody has confirmed: say "Est. 2010"',
+	},
+	{
 		pattern: /\bevery conviction\b/i,
 		reason: 'retired: philosophy where a wink was needed',
 	},

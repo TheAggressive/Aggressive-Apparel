@@ -246,7 +246,8 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertSame( $hoodies->term_id, $tiles[0]['attrs']['categoryId'] );
 		$this->assertSame( $image, $tiles[0]['attrs']['mediaId'] );
 		$this->assertSame( 'cover', $tiles[0]['attrs']['imageFit'] );
-		$this->assertMatchesRegularExpression( '/^(var\(|linear-gradient\()/', $tiles[0]['attrs']['overlayGradient'] );
+		$this->assertSame( 0, $tiles[0]['attrs']['dimRatio'], 'No gradient over the artwork: the name sits on its own band.' );
+		$this->assertSame( '4/5', $tiles[0]['attrs']['style']['dimensions']['aspectRatio'] );
 	}
 
 	/**

@@ -34,7 +34,7 @@ final class Editorial_Product_Grid {
 	 * collection (a WooCommerce preset such as new-arrivals), align, label,
 	 * centered (centre a row shorter than the column count), lead (a single
 	 * large card: name and price set larger), rail (one scrolling row that
-	 * shows four and a half cards, so a longer range reads as more).
+	 * shows three and a half cards, so a longer range reads as more).
 	 *
 	 * @param array<string, mixed> $args Grid options.
 	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool, rail?: bool} $args
@@ -100,7 +100,8 @@ final class Editorial_Product_Grid {
 	}
 
 	/**
-	 * The shared card: media well, linked title, price, color swatches.
+	 * The shared card: media well, linked title, then price and color swatches
+	 * on one row (the catalog templates' card).
 	 *
 	 * @param bool $lead A lead card: name and price one step larger.
 	 */
@@ -113,17 +114,19 @@ final class Editorial_Product_Grid {
 <!-- /wp:group -->
 
 <!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|1"}},"layout":{"type":"default"}} -->
-<div class="wp-block-group"><!-- wp:post-title {"level":3,"isLink":true,"style":{"elements":{"link":{"color":{"text":"var:preset|color|foreground"},":hover":{"color":{"text":"var:preset|color|accent"}}}}},"fontSize":"medium","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<div class="wp-block-group"><!-- wp:post-title {"level":3,"isLink":true,"style":{"elements":{"link":{"color":{"text":"var:preset|color|foreground"},":hover":{"color":{"text":"var:preset|color|accent"}}}}},"fontSize":"large","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
 
-<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true,"textAlign":"left","fontSize":"medium"} /-->
+<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|2"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
+<div class="wp-block-group"><!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true,"textAlign":"left","fontSize":"medium"} /-->
 
-<!-- wp:aggressive-apparel/product-color-swatches {"swatchSize":"xxs","showTooltip":false,"swatchAlignment":"left"} /--></div>
+<!-- wp:aggressive-apparel/product-color-swatches {"swatchSize":"xxs","showTooltip":false,"swatchAlignment":"right"} /--></div>
+<!-- /wp:group --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group -->
 <!-- /wp:woocommerce/product-template -->
 HTML;
 
-		return $lead ? str_replace( '"fontSize":"medium"', '"fontSize":"x-large"', $card ) : $card;
+		return $lead ? str_replace( array( '"fontSize":"large"', '"fontSize":"medium"' ), array( '"fontSize":"xx-large"', '"fontSize":"x-large"' ), $card ) : $card;
 	}
 
 	/**

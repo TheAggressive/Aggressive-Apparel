@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Hoodies Feature
- * Description: Oversized category headline with real hoodies and a single shopping CTA. Three or more hoodies sit in a centred row under the headline; one or two become large cards beside it.
+ * Description: Oversized category headline with real hoodies and a single shopping CTA, composed for the count: one hoodie is a half-and-half spread with one large card, two sit beside the headline, three or four make a centred row, and five or more a rail.
  * Slug: aggressive-apparel/editorial-hoodies-feature
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-products
  * Keywords: hoodies, sweatshirts, category, products, homepage
@@ -23,30 +23,35 @@ $aa_count = Editorial_Catalog::visible_count( $aa_term );
 if ( 0 === $aa_count ) {
 	return;
 }
-// A row needs three; fewer read as a gap under a centred headline, so one
-// or two hoodies become large cards beside it instead.
-$aa_row     = $aa_count >= 3;
-$aa_columns = $aa_row ? min( 4, $aa_count ) : $aa_count;
-$aa_grid    = Editorial_Product_Grid::markup(
+// One composition per range, so any count reads as designed:
+// - one hoodie: a balanced half-and-half spread, the headline beside one
+// large card (a third-width card left the row two-thirds empty);
+// - two: the headline in a third, two cards in the rest;
+// - three or four: a centred row under the headline;
+// - five or more: the centred headline over a rail that shows four and a
+// half (up to eight), so the range reads as a range.
+$aa_row        = $aa_count >= 3;
+$aa_rail       = $aa_count > 4;
+$aa_columns    = $aa_row ? min( 4, $aa_count ) : $aa_count;
+$aa_grid       = Editorial_Product_Grid::markup(
 	array(
 		'query_id' => 308,
-		'per_page' => $aa_columns,
+		'per_page' => $aa_rail ? min( 8, $aa_count ) : $aa_columns,
 		'columns'  => $aa_columns,
 		'term'     => $aa_term,
 		'align'    => $aa_row ? 'wide' : '',
 		'label'    => __( 'Hoodies grid', 'aggressive-apparel' ),
-		'centered' => $aa_row,
+		'centered' => $aa_row && ! $aa_rail,
+		'lead'     => 1 === $aa_count,
+		'rail'     => $aa_rail,
 	)
 );
-$aa_align   = $aa_row ? 'center' : 'left';
-// Beside the headline (which comes first, so phones read it before the
-// cards): a third of the row per card, so one or two hoodies keep the card
-// size of a three-up row instead of growing to fill half the page.
-$aa_grid_width = 1 === $aa_count ? '33.33%' : '66.66%';
-$aa_text_width = 1 === $aa_count ? '66.66%' : '33.33%';
+$aa_align      = $aa_row ? 'center' : 'left';
+$aa_grid_width = 1 === $aa_count ? '50%' : '66.66%';
+$aa_text_width = 1 === $aa_count ? '50%' : '33.33%';
 
-?><!-- wp:group {"metadata":{"name":"08 Hoodies"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"backgroundColor":"surface-muted","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull has-surface-muted-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)">
+?><!-- wp:group {"metadata":{"name":"08 Hoodies"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"className":"aa-shop-section","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull aa-shop-section" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)">
 <?php if ( ! $aa_row ) : ?>
 <!-- wp:columns {"className":"aa-tablet-split","verticalAlignment":"center","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
 <div class="wp-block-columns aa-tablet-split alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"<?php echo esc_attr( $aa_text_width ); ?>"} -->

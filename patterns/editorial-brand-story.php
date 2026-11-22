@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — The Aggressive Story
- * Description: A short closing line that hands the page back to the clothes, a link into the catalog, and a link to the About page when one exists.
+ * Description: A short blunt closing line that hands the page on to the shop, a link into the catalog, and a link to the About page when one exists.
  * Slug: aggressive-apparel/editorial-brand-story
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-informational
  * Keywords: brand, story, about, manifesto, independent, homepage
@@ -25,12 +25,12 @@ $aa_about = $aa_about instanceof WP_Post && 'publish' === $aa_about->post_status
 <p class="is-style-eyebrow"><?php echo esc_html__( 'The Aggressive', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'That’s all the explaining we’ll do.', 'aggressive-apparel' ); ?></h2>
+<!-- wp:heading {"className":"is-style-headline","fontSize":"fluid-xxxxxxx-large"} -->
+<h2 class="wp-block-heading is-style-headline has-fluid-xxxxxxx-large-font-size"><?php echo esc_html__( 'Nobody needs another hoodie.', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph {"className":"is-style-lead","textColor":"foreground-muted"} -->
-<p class="is-style-lead has-foreground-muted-color has-text-color"><?php echo esc_html__( 'The rest is in the clothes.', 'aggressive-apparel' ); ?></p>
+<!-- wp:paragraph {"className":"is-style-lead"} -->
+<p class="is-style-lead"><?php echo esc_html__( 'We made one anyway.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons -->

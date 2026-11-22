@@ -14,16 +14,28 @@
  * @package Aggressive_Apparel
  */
 
-/* Campaign hero. Beside its photos the slogan is stacked at display scale
-   sized to the 40% text column (9 condensed capitals, "REBELLION", fit it
-   from 782px up); with no portrait photo in the store the hero has no
-   image and the slogan becomes the image: full-width display type.
-   Editor font-size picks still win (preset classes carry !important). */
+/* Campaign hero. Beside its photos the slogan is stacked at display scale,
+   sized to its own column (container units: "REBELLION", the longest word,
+   fills the column at every width, phones included); with no portrait photo
+   in the store the hero has no image and the slogan becomes the image:
+   full-width display type. The row is most of a screen tall from 782px so
+   the photos carry the opening, capped so a tall monitor doesn't crop them
+   to slivers. Editor font-size picks still win (preset classes carry
+   !important). */
 .aa-campaign-hero {
+	& > .wp-block-columns > .wp-block-column:not(.aa-bleed-photo) {
+		container-type: inline-size;
+	}
+
 	& .wp-block-heading.is-style-campaign {
 		max-width: none;
 		font-size: clamp(3.5rem, 1rem + 6vw, 8rem);
-		line-height: 0.88;
+		line-height: 0.86;
+		letter-spacing: -0.005em;
+	}
+
+	& .wp-block-column .wp-block-heading.is-style-campaign {
+		font-size: clamp(3.5rem, 30cqi, 11rem);
 	}
 
 	&:not(:has(.wp-block-image)) .wp-block-heading.is-style-campaign {
@@ -33,6 +45,22 @@
 
 	& .is-style-lead {
 		max-width: 38rem;
+		margin-block-start: var(--wp--preset--spacing--5);
+		font-size: var(--wp--preset--font-size--x-large);
+	}
+
+	@media (width >= 782px) {
+		& > .wp-block-columns {
+			min-height: clamp(36rem, 100svh - 8rem, 56rem);
+		}
+	}
+
+	/* Phones stack the split: the photos lead, so the first screen is a
+	   photograph with the slogan under it rather than type alone. */
+	@media (width < 600px) {
+		& .aa-bleed-photo {
+			order: -1;
+		}
 	}
 }
 
@@ -57,9 +85,10 @@
 }
 
 /* Tablets (600-781px) keep the editorial splits side by side (className
-   `aa-tablet-split`: hero, New Arrivals, the collection bands, Women's,
-   Hoodies) instead of stacking them into 768px-wide photos and cards; phones
-   still stack. Core stacks columns below 782px with flex-wrap:wrap!important
+   `aa-tablet-split`: hero, the collection bands, Women's, Hoodies, the
+   lookbook) instead of stacking them into 768px-wide photos and cards; phones
+   still stack. New Arrivals stacks: side by side its 2 x 2 shrank to ~150px
+   cards. Core stacks columns below 782px with flex-wrap:wrap!important
    and flex-basis:100%!important; !important here beats exactly those two. */
 @media (600px <= width < 782px) {
 	.wp-block-columns.aa-tablet-split {
@@ -80,6 +109,12 @@
    resolved to its natural size: a 504px photo sat in a 624px column. */
 .wp-block-image > a:has(> img[style*="width:100%"]) {
 	display: block;
+}
+
+/* Lookbook captions keep "Fig. 03" on one line beside a long product name. */
+.aa-editorial-looks .is-style-meta {
+	flex-shrink: 0;
+	white-space: nowrap;
 }
 
 /* Lookbook on phones (tablets keep it side by side: aa-tablet-split).
@@ -113,4 +148,24 @@
 			scroll-snap-align: start;
 		}
 	}
+}
+
+/* Homepage rhythm: shopping sections (className `aa-shop-section`) share
+   the page surface and editorial moments sit on black, so the page
+   alternates between browsing and looking. Where two shopping sections meet
+   (Categories and New Arrivals; Hoodies and Accessories when Defiance
+   Division is absent) a hairline at the wide column's width marks the
+   seam. Zero specificity: an editor background (a gradient) still wins. */
+:where(.aa-shop-section + .aa-shop-section) {
+	background-image: linear-gradient(
+		var(--aa-color-border-muted),
+		var(--aa-color-border-muted)
+	);
+	background-position: top center;
+	background-repeat: no-repeat;
+	background-size: min(
+			100% - 2 * var(--wp--preset--spacing--gutter),
+			var(--wp--style--global--wide-size)
+		)
+		1px;
 }

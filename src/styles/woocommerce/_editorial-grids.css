@@ -63,7 +63,7 @@
    scroll it natively. 0,3,0 beats WooCommerce's grid display. */
 .aa-grid-rail
 	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
-	--aa-rail-visible: 4.5;
+	--aa-rail-visible: 3.5;
 
 	display: flex;
 	overflow-x: auto;

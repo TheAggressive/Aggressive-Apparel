@@ -18,7 +18,7 @@ test.beforeAll( () => {
     ));
     echo wp_json_encode(array(
       'id' => $id, 'url' => get_permalink($id),
-      'products' => array_map(static fn($p) => array('id' => $p->get_id(), 'name' => $p->get_name(), 'url' => $p->get_permalink()), wc_get_products(array('limit' => 2, 'status' => 'publish', 'type' => 'simple'))),
+      'products' => array_map(static fn($p) => array('id' => $p->get_id(), 'name' => html_entity_decode(get_the_title($p->get_id()), ENT_QUOTES, 'UTF-8'), 'url' => $p->get_permalink()), wc_get_products(array('limit' => 2, 'status' => 'publish', 'type' => 'simple'))),
     ));
   `,
 		] )

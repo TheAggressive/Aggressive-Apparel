@@ -162,6 +162,7 @@ function createSimpleProducts( startIndex: number, count: number ): void {
 for ($offset = 0; $offset < ${ count }; $offset++) {
 	$index = ${ startIndex } + $offset;
 	$product = new WC_Product_Simple();
+	$product->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
 	$product->set_name('E2E Catalog Product ' . $index);
 	$product->set_regular_price((string) (10 + ($index % 50)));
 	$product->set_status('publish');

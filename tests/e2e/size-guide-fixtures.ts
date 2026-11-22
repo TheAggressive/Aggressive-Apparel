@@ -128,6 +128,7 @@ if (!post_type_exists('aa_size_guide')) {
 // Sized like the store's apparel: the guide opens from the "(Guide)" link
 // beside the Size options.
 $product = new WC_Product_Variable();
+$product->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
 $product->set_name('E2E Size Guide Product');
 $product->set_sku('${ FIXTURE_SKU }');
 $product->set_status('publish');
@@ -210,6 +211,7 @@ if (!function_exists('wc_get_product') || !post_type_exists('aa_size_guide')) {
 }
 
 $product = new WC_Product_Variable();
+$product->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
 $product->set_name('E2E Chart Product');
 // The Product Specs block (compact) shows Fit and the picked size's line.
 $product->set_description('<!-- wp:aggressive-apparel/product-specs {"layout":"compact","scales":["fit"]} /-->');

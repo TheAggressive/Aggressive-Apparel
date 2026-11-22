@@ -767,6 +767,31 @@ describe( 'listing card price line', () => {
 		] );
 	} );
 
+	it( 'capitalises Product Specs size labels but keeps the prompt in sentence case', async () => {
+		const specs = await CompiledCss.load(
+			'src/blocks/product-specs/style.css'
+		);
+		const capitalised = specs
+			.all()
+			.filter(
+				( d ) => d.prop === 'text-transform' && d.value === 'capitalize'
+			)
+			.map( ( d ) => d.selector );
+
+		// "Pick a size to see its measurements." sits in __fit / __measure.
+		expect( capitalised ).not.toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /__(measure|fit)(\b(?!-)|$)/ ),
+			] )
+		);
+		expect( capitalised ).toEqual(
+			expect.arrayContaining( [
+				expect.stringContaining( '.aa-product-specs__fit-size' ),
+				expect.stringContaining( '.aa-product-specs__fit-item' ),
+			] )
+		);
+	} );
+
 	it( 'sets swatches beside the price on a row, not 20px under it', async () => {
 		const swatches = await CompiledCss.load(
 			'src/blocks-interactivity/product-color-swatches/style.css'

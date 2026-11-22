@@ -41,17 +41,18 @@ merchant edits to menus and links.
 
 Following [`brand-voice.md`](brand-voice.md):
 
-| Where                             | Saved text now                                        | Change to                                                                                               |
-| --------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Header ticker                     | LATEST DROP LIVE NOW                                  | EST. 2010 (or name the current product: "NEW: SKULL CAMO HOODIES")                                      |
-| Header ticker                     | TRENDS DIE. ATTITUDE DOESN'T.                         | BLACK. AGAIN.                                                                                           |
-| Header ticker                     | Free-shipping message block                           | Keep: its amount comes from the shipping settings                                                       |
-| Footer trust badge                | INDEPENDENT BY DESIGN / Premium, confident, authentic | EST. 2010 / Independent label                                                                           |
-| Footer newsletter                 | NEW RELEASES. RESTOCKS. EXCLUSIVES.                   | NEW RELEASES. RESTOCKS. NOTHING ELSE.                                                                   |
-| Footer newsletter                 | NO SPAM. JUST WHAT'S WORTH WEARING.                   | Keep                                                                                                    |
-| Footer badge                      | WRONG OR DAMAGED? / We'll make it right.              | Keep only if the returns policy says so                                                                 |
-| Single product, under Add to cart | (nothing)                                             | Insert the **Free Shipping Message** block (live "$X away from free shipping")                          |
-| Home                              | Old customised homepage                               | Reset to the theme (adopts the 12-section editorial homepage), or insert the Editorial Homepage pattern |
+| Where                             | Saved text now                                        | Change to                                                                                                                                             |
+| --------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header ticker                     | LATEST DROP LIVE NOW                                  | EST. 2010 (or name the current product: "NEW: SKULL CAMO HOODIES")                                                                                    |
+| Header ticker                     | TRENDS DIE. ATTITUDE DOESN'T.                         | BLACK. AGAIN.                                                                                                                                         |
+| Header ticker                     | Free-shipping message block                           | Keep: its amount comes from the shipping settings                                                                                                     |
+| Footer trust badge                | INDEPENDENT BY DESIGN / Premium, confident, authentic | EST. 2010 / Independent label                                                                                                                         |
+| Footer newsletter                 | NEW RELEASES. RESTOCKS. EXCLUSIVES.                   | NEW RELEASES. RESTOCKS. NOTHING ELSE.                                                                                                                 |
+| Footer newsletter                 | NO SPAM. JUST WHAT'S WORTH WEARING.                   | Keep                                                                                                                                                  |
+| Footer badge                      | WRONG OR DAMAGED? / We'll make it right.              | Keep only if the returns policy says so                                                                                                               |
+| Footer badge                      | FREE SHIPPING OVER $75                                | Must equal the free-shipping minimum in WooCommerce → Shipping (local: $150). Confirm on staging; the ticker's live message already reads the setting |
+| Single product, under Add to cart | (nothing)                                             | Insert the **Free Shipping Message** block (live "$X away from free shipping")                                                                        |
+| Home                              | Old customised homepage                               | Reset to the theme (adopts the 12-section editorial homepage), or insert the Editorial Homepage pattern                                               |
 
 The theme's own `parts/header.html` and `parts/footer.html` already carry the
 new defaults, so a fresh install or a reset part shows them.
@@ -70,43 +71,83 @@ buttons: edit in place.
 
 ## Procedure (staging, then production)
 
-1. **Back up** each entry you will touch:
+`bin/site-content/reconcile.php` makes the layout and copy changes above
+**in place** with WP-CLI. It finds each saved entry by slug (IDs differ
+between sites), never resets one, and refuses to write a template whose
+PayPal smart buttons or Add to cart block count would change. It is a dry run
+until given `apply`, writes a backup of every entry before changing it, and a
+second run reports "already reconciled".
+
+1. **Dry run** and read what it would change:
 
     ```bash
-    wp post get <ID> --field=post_content > backup-<slug>.html
+    wp eval-file wp-content/themes/aggressive-apparel/bin/site-content/reconcile.php copy
     ```
 
-    The Site Editor also keeps revisions (template ⋮ → Revisions).
+2. **Apply** the approved groups. Layout (single product: four related
+   columns, gutter padding, the free-shipping line after the purchase
+   buttons) always runs; header and footer copy only with `copy`; the
+   homepage reset only with `adopt-home` (moves the saved home template to
+   the trash, so the editorial homepage shows):
 
-2. **Edit in place** in Site Editor → Patterns → Template parts → Header /
-   Footer: select the ticker or footer text and retype it. For the product
-   page: Site Editor → Templates → Single Product, select Add to cart with
-   Options, insert **Free Shipping Message** after it, save. Keep the PayPal
-   buttons block where it is.
+    ```bash
+    wp eval-file …/reconcile.php apply            # layout only
+    wp eval-file …/reconcile.php apply copy       # + approved copy
+    wp eval-file …/reconcile.php apply adopt-home # + editorial homepage
+    ```
 
-3. **Adopt the homepage** (only when the editorial homepage is approved):
-   Site Editor → Templates → Blog Home → ⋮ → **Reset**. This discards the
-   saved homepage; the backup from step 1 restores it if needed.
+    Backups land in `./site-content-backup-<time>/<slug>-<ID>.html`. The
+    Site Editor also keeps revisions (template ⋮ → Revisions).
 
-4. **Verify** on staging: header ticker and footer on three pages, a product
-   page (free-shipping line, PayPal buttons still present, Add to cart
-   works), cart and checkout totals, light and dark modes, phone width.
+3. **Verify** with the storefront audit (below) and by eye: header ticker and
+   footer on three pages, a product page (free-shipping line, PayPal buttons
+   still present, Add to cart works), cart and checkout totals.
 
-5. **Repeat on production** after approval. Template content does not travel
-   with a database-less theme deploy, so repeat steps 1–4 there (or apply the
-   approved staging content with `wp post update <ID> backup-<slug>.html`
-   after checking the IDs match).
+4. **Repeat on production** after approval, with the same commands.
 
-**Rollback:** Site Editor revisions, or
-`wp post update <ID> backup-<slug>.html` from step 1.
+**Rollback:** `wp post update <ID> site-content-backup-<time>/<slug>-<ID>.html`;
+for the homepage, `wp post update <ID> --post_status=publish`.
+
+Editing by hand instead: Site Editor → Templates → Single Product, select the
+related products collection (Columns 4) and its group (padding left/right
+Gutter), insert **Free Shipping Message** after the PayPal buttons, save; the
+header and footer copy is retyped in Patterns → Template parts.
 
 ## Final review with production merchandise
 
 The visual review of the finished design needs real products and photos.
 Local development uses WooCommerce sample data on purpose, so the review runs
-on **staging**: a copy of the production database and uploads, the
-`feat/shopping-experience` theme branch deployed there, and payments in test
-mode. Nothing is written to production.
+on **staging**: a copy of the production database and uploads, payments in
+test (sandbox) mode, outgoing email off, and nothing written back to
+production.
+
+1. **Theme:** build the same verified ZIP the release pipeline ships, from the
+   branch under review, and upload it on staging (Appearance → Themes → Add
+   New → Upload, replace the active theme):
+
+    ```bash
+    pnpm build && pnpm ci:package   # → aggressive-apparel.zip, verified
+    ```
+
+2. **Saved content:** run the procedure above on staging (`copy` and
+   `adopt-home` only once approved).
+
+3. **Audit** every page type from the live catalog (Store API discovery, no
+   fixtures) at 375 / 768 / 1440 / 1920 in light and dark: HTTP errors,
+   sideways scroll, broken or placeholder images, script errors, WCAG 2.2 AA
+   (axe), PayPal smart buttons on product pages, and a real add to cart
+   through to the checkout page (never submitted):
+
+    ```bash
+    node bin/audit/storefront.mjs https://<staging> --cart
+    ```
+
+    Full-page screenshots and `report.md` land in `./storefront-audit-<time>/`.
+    The script exits 1 on any failure. Locally, where PayPal is inactive, add
+    `--no-paypal`.
+
+4. **By eye**, from the screenshots: photo crops, the homepage sections that
+   depend on merchandise, wishlist, and the product summary column.
 
 What production merchandise changes, and what to look at:
 

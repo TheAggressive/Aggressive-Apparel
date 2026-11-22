@@ -56,6 +56,18 @@ Following [`brand-voice.md`](brand-voice.md):
 The theme's own `parts/header.html` and `parts/footer.html` already carry the
 new defaults, so a fresh install or a reset part shows them.
 
+## Layout to change
+
+| Where                               | Saved setting now                                 | Change to                                                                                     |
+| ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Single product, Related products    | Product Collection **Columns 5**                  | Columns **4** (four related products then fill the row instead of leaving a fifth slot empty) |
+| Single product, the group around it | Padding top and bottom only                       | Add left and right padding **Gutter**, so the first card doesn't touch the screen edge        |
+| Single product, wishlist heart      | On its own row under Add to cart, with a 32px gap | Leave until the summary column is reviewed on staging with production products                |
+
+The theme's `templates/single-product.html` already has 4 columns and the
+gutter, so a reset would fix both, but it would also remove the PayPal smart
+buttons: edit in place.
+
 ## Procedure (staging, then production)
 
 1. **Back up** each entry you will touch:

@@ -23,7 +23,9 @@
 /* "Save 20%" (Price_Display::savings_text(), and the same label built in
    Quick View, the sticky bar, Recently Viewed and the lookbook popover): a
    small outlined tag that stays in one piece beside the price instead of
-   reading as more price text or breaking across lines. */
+   reading as more price text or breaking across lines. Three quarters of
+   the price, but never under 12px: beside a small listing price that
+   fraction fell to 10px. */
 .aggressive-apparel-price-save {
 	display: inline-block;
 	margin-inline-start: 0.5em;
@@ -31,7 +33,7 @@
 	border: 1px solid currentcolor;
 	border-radius: var(--aa-radius-sm);
 	color: var(--aa-commerce-sale-text);
-	font-size: 0.75em;
+	font-size: max(0.75rem, 0.75em);
 	font-weight: 600;
 	line-height: 1.4;
 	letter-spacing: 0.02em;

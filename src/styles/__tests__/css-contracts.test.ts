@@ -752,6 +752,19 @@ describe( 'listing card price line', () => {
 				'border'
 			)
 		).toEqual( [ expect.objectContaining( { value: '1px solid' } ) ] );
+		// Never under 12px, however small the price beside it.
+		expect(
+			await blocks.declarations(
+				'.aggressive-apparel-price-save',
+				'font-size'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: expect.stringMatching(
+					/^max\(\.?0?\.75rem,\s*\.?0?\.75em\)$/
+				),
+			} ),
+		] );
 	} );
 
 	it( 'sets swatches beside the price on a row, not 20px under it', async () => {

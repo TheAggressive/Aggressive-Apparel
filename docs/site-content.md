@@ -121,9 +121,48 @@ on **staging**: a copy of the production database and uploads, payments in
 test (sandbox) mode, outgoing email off, and nothing written back to
 production.
 
-1. **Theme:** build the same verified ZIP the release pipeline ships, from the
-   branch under review, and upload it on staging (Appearance → Themes → Add
-   New → Upload, replace the active theme):
+1. **Clone (Cloudways).** On the production application, Staging Management →
+   create a staging application. It copies files and database, so the real
+   catalog and images come with it. **Never use "Push" from staging to live.**
+   On the staging application, turn **Varnish off** (Application Settings), so
+   no cached page bypasses the access key.
+
+2. **Lock it down before anything else**, over SSH in the staging
+   application's `public_html`. The scripts are not in the theme ZIP, so copy
+   `bin/staging/` and `bin/site-content/reconcile.php` to the server first:
+
+    ```bash
+    wp config set WP_ENVIRONMENT_TYPE staging
+    wp eval-file ~/aa-release/staging/lockdown.php          # dry run
+    wp eval-file ~/aa-release/staging/lockdown.php apply    # prints the access link
+    ```
+
+    The script refuses to run on theaggressive.com. It installs a must-use
+    plugin that:
+
+    - puts the site behind an access key (logged-in users and the key's
+      cookie only);
+    - sets noindex and no-store on every response;
+    - suppresses all outgoing email;
+    - forces WooPayments into test mode;
+    - while PayPal is on its live connection, removes PayPal from checkout and
+      answers the endpoints that create or approve payments with 403;
+    - blocks any change to PayPal's webhooks, so production keeps receiving
+      its PayPal events.
+
+    It also turns off search engine visibility, deactivates the marketing and
+    ad-sync plugins (Omnisend, Google, Pinterest, TikTok, Facebook) and pauses
+    every WooCommerce webhook, so no order reaches fulfilment or marketing.
+    `revert` undoes exactly what it changed.
+
+    If Jetpack or WooPayments asks about the changed site address, choose
+    **staging / safe mode**, never "move connection". To see working PayPal
+    buttons, connect a PayPal **sandbox** account in PayPal Payments. Until
+    then they stay blocked by design.
+
+3. **Theme:** build the same verified ZIP the release pipeline ships, from the
+   branch under review, and install it on staging
+   (`wp theme install aggressive-apparel.zip --force`):
 
     ```bash
     pnpm build && pnpm ci:package   # → aggressive-apparel.zip, verified
@@ -137,24 +176,24 @@ production.
     bash bin/release/package.sh && bash bin/release/verify-package.sh aggressive-apparel.zip
     ```
 
-2. **Saved content:** run the procedure above on staging (`copy` and
-   `adopt-home` only once approved).
+4. **Saved content:** run the procedure above on staging (dry run, then
+   `apply copy adopt-home`; the backups land beside the command).
 
-3. **Audit** every page type from the live catalog (Store API discovery, no
+5. **Audit** every page type from the live catalog (Store API discovery, no
    fixtures) at 375 / 768 / 1440 / 1920 in light and dark: HTTP errors,
    sideways scroll, broken or placeholder images, script errors, WCAG 2.2 AA
    (axe), PayPal smart buttons on product pages, and a real add to cart
    through to the checkout page (never submitted):
 
     ```bash
-    node bin/audit/storefront.mjs https://<staging> --cart
+    node bin/audit/storefront.mjs https://<staging> --cart --key <access key>
     ```
 
     Full-page screenshots and `report.md` land in `./storefront-audit-<time>/`.
     The script exits 1 on any failure. Locally, where PayPal is inactive, add
     `--no-paypal`.
 
-4. **By eye**, from the screenshots: photo crops, the homepage sections that
+6. **By eye**, from the screenshots: photo crops, the homepage sections that
    depend on merchandise, wishlist, and the product summary column.
 
 What production merchandise changes, and what to look at:

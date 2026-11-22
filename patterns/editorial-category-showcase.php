@@ -30,10 +30,21 @@ $aa_tiles = array(
 		'slugs' => array( 'accessories' ),
 	),
 );
+$aa_found = array();
+foreach ( $aa_tiles as $aa_tile ) {
+	$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), $aa_tile['slugs'] );
+	if ( null !== $aa_term ) {
+		$aa_found[] = $aa_term;
+	}
+}
+// No stocked category, no section: a heading over an empty row reads as broken.
+if ( array() === $aa_found ) {
+	return;
+}
 
 ?><!-- wp:group {"metadata":{"name":"02 Shop Categories"},"align":"full","className":"aa-shop-section","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull aa-shop-section" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
-<div class="wp-block-group alignwide"><!-- wp:group {"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
+<div class="wp-block-group alignwide"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
 <p class="is-style-eyebrow"><?php echo esc_html__( 'Shop by category', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
@@ -51,13 +62,6 @@ $aa_tiles = array(
 <!-- /wp:group -->
 
 <?php
-$aa_found = array();
-foreach ( $aa_tiles as $aa_tile ) {
-	$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), $aa_tile['slugs'] );
-	if ( null !== $aa_term ) {
-		$aa_found[] = $aa_term;
-	}
-}
 // One row of however many categories exist: four tiles never wrap 3 + 1.
 // The gap is explicit because core sizes responsive grid tracks from the
 // block's own gap and assumes 0.5em when none is set.

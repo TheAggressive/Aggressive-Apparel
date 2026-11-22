@@ -155,20 +155,20 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface        | Live data                                                                                                                                                   |
-| --- | ----------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | black spread            | Slogan sized to its column beside two full-height portrait photos (diptych, most of a screen tall; first on phones), "Shown" line; type only without photos |
-| 02  | `editorial-category-showcase` | compact                 | One row of stocked categories, 4:5 tiles (square photo + name band), piece counts; swipe rail on phones                                                     |
-| 03  | `editorial-new-arrivals`      | compact                 | Newest product as a lead card + the next four 2 × 2 (two collections, offset 1); stacked below 782px                                                        |
-| 04  | `editorial-artwork-spotlight` | standard, brand red     | "The name": "Aggressive is a compliment." (display size) + paragraph; `#the-label`                                                                          |
-| 05  | `editorial-best-sellers`      | compact, intro + 2–3-up | Real sales → Best sellers; else Featured products; else omitted                                                                                             |
-| 06  | `editorial-featured-drop`     | black spread / band     | Drop photo (left) + name + row of two, or title row over a stock-sized grid; else omitted                                                                   |
-| 07  | `editorial-womens-collection` | white spread            | Copy + row of two beside a full-height photo (right) on static white, light in both schemes; else copy + grid                                               |
-| 08  | `editorial-hoodies-feature`   | compact                 | 1 → half-and-half spread, one large card; 2 → two cards beside the headline; 3–4 → centred row; 5+ → rail                                                   |
-| 09  | `editorial-defiance-division` | black spread / band     | As the drop band (`Editorial_Collection_Band`); else omitted                                                                                                |
-| 10  | `editorial-accessories`       | compact                 | Up to four in a row; more scroll as a rail of up to eight (3.5 visible)                                                                                     |
-| 11  | `editorial-featured-looks`    | standard, black         | Three portrait photos (Fig. 01–03) linked to products; phone rail                                                                                           |
-| 12  | `editorial-brand-story`       | standard                | "Nobody needs another hoodie. / We made one anyway." + Shop all on the wide column's edge; About link if it exists                                          |
+| #   | Pattern                       | Rhythm / surface               | Live data                                                                                                                                                                       |
+| --- | ----------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | black spread                   | Slogan sized to its column beside two full-height portrait photos (diptych, most of a screen tall); below 782px it stacks, photos first; "Shown" line; type only without photos |
+| 02  | `editorial-category-showcase` | compact                        | One row of stocked categories, 4:5 tiles (square photo + name band), piece counts; swipe rail on phones; omitted when no category is stocked                                    |
+| 03  | `editorial-new-arrivals`      | compact                        | 5+ in stock: newest as a lead card + the next four 2 × 2 (stacked below 782px); 1–4: one row sized to the count; none: omitted                                                  |
+| 04  | `editorial-artwork-spotlight` | standard, deep brand red       | Masthead rule (The name / Est. 2010) over "Aggressive is a compliment." + paragraph, no sales button; oxblood in both schemes (`aa-statement`); `#the-label`                    |
+| 05  | `editorial-best-sellers`      | compact, intro + 2–3-up        | Real sales → Best sellers; else Featured products; else omitted                                                                                                                 |
+| 06  | `editorial-featured-drop`     | black spread / band            | Drop photo (left) + name + row of two, or title row over a stock-sized grid; else omitted                                                                                       |
+| 07  | `editorial-womens-collection` | white spread                   | Copy + row of two beside a full-height photo (right) on static white, light in both schemes; else copy + grid                                                                   |
+| 08  | `editorial-hoodies-feature`   | compact, stone (light in both) | 1 → half-and-half spread, one large card; 2 → two cards beside the headline; 3–4 → centred row; 5+ → rail                                                                       |
+| 09  | `editorial-defiance-division` | black spread / band            | As the drop band (`Editorial_Collection_Band`); else omitted                                                                                                                    |
+| 10  | `editorial-accessories`       | compact                        | Up to four in a row; more scroll as a rail of up to eight (3.5 visible)                                                                                                         |
+| 11  | `editorial-featured-looks`    | standard, black                | Three portrait photos (Fig. 01–03) linked to products; phone rail                                                                                                               |
+| 12  | `editorial-brand-story`       | compact                        | One row: "Nobody needs another hoodie. / We made one anyway." left, Shop all (+ Our story) right                                                                                |
 
 Rules the library follows (new sections should too):
 
@@ -245,16 +245,20 @@ Rules the library follows (new sections should too):
       `max(gutter, (100% - wide-size) / 2)` padding.
 11. **Shopping follows the scheme; editorial moments are fixed colors.**
     Shopping sections (`aa-shop-section`: categories, New Arrivals,
-    Featured, Hoodies, Accessories) share the page `surface` with compact
-    padding, so the products fill the section. Editorial moments take a
-    static color that holds in both schemes: black (hero, the drop and
-    Defiance bands, the lookbook), brand red (The name) and white (the
-    Women's spread). A white-background block is light in both schemes and
-    a black one dark (`adaptive-block-colors.css`), so their text, buttons
-    and cards resolve the right values in dark mode. Two shopping sections
-    that meet are divided by a hairline at the wide column's width
-    (`.aa-shop-section + .aa-shop-section`). Listing-card names are Large
-    (18px), the New Arrivals lead XX-Large.
+    Featured, Accessories) share the page `surface` with compact padding,
+    so the products fill the section. Editorial and feature sections take
+    a surface that holds in both schemes: black (hero, the drop and
+    Defiance bands, the lookbook), deep brand red (The name, `aa-statement`
+    keeps the light scheme's oxblood), white (the Women's spread) and stone
+    (Hoodies: `surface-sunken` with `aa-scheme-light`). White-background
+    blocks and `aa-scheme-light` are light in both schemes and black ones
+    dark (`adaptive-block-colors.css`), so text, buttons and cards inside
+    resolve the right values. Dark mode therefore keeps a light chapter
+    mid-page instead of black after charcoal. Two same-surface sections
+    that meet (`aa-shop-section` or the closing `aa-page-section`) are
+    divided by a hairline at the wide column's width. Listing-card names
+    are Large (18px), the New Arrivals lead XX-Large; eyebrow-to-heading
+    spacing is 12px in every section header.
 12. The slogan appears once, in the hero. Copy follows
     [`brand-voice.md`](brand-voice.md).
 

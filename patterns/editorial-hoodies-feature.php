@@ -50,8 +50,8 @@ $aa_align      = $aa_row ? 'center' : 'left';
 $aa_grid_width = 1 === $aa_count ? '50%' : '66.66%';
 $aa_text_width = 1 === $aa_count ? '50%' : '33.33%';
 
-?><!-- wp:group {"metadata":{"name":"08 Hoodies"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"className":"aa-shop-section","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull aa-shop-section" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)">
+?><!-- wp:group {"metadata":{"name":"08 Hoodies"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"className":"aa-scheme-light","backgroundColor":"surface-sunken","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull aa-scheme-light has-surface-sunken-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)">
 <?php if ( ! $aa_row ) : ?>
 <!-- wp:columns {"className":"aa-tablet-split","verticalAlignment":"center","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
 <div class="wp-block-columns aa-tablet-split alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"<?php echo esc_attr( $aa_text_width ); ?>"} -->

@@ -38,6 +38,14 @@
 		font-size: clamp(3.5rem, 30cqi, 11rem);
 	}
 
+	/* Stacked on a tablet the column is the full width: fill it as on a
+	   phone, but stop short of a slogan taller than the photos above it. */
+	@media (600px <= width < 782px) {
+		& .wp-block-column .wp-block-heading.is-style-campaign {
+			font-size: clamp(3.5rem, 30cqi, 8rem);
+		}
+	}
+
 	&:not(:has(.wp-block-image)) .wp-block-heading.is-style-campaign {
 		font-size: clamp(4.5rem, 2rem + 11vw, 13rem);
 		line-height: 0.86;
@@ -55,9 +63,11 @@
 		}
 	}
 
-	/* Phones stack the split: the photos lead, so the first screen is a
-	   photograph with the slogan under it rather than type alone. */
-	@media (width < 600px) {
+	/* Below 782px the split stacks and the photos lead, so the first screen
+	   is a photograph with the slogan under it rather than type alone. Side
+	   by side on a tablet the copy column grew so tall that each portrait
+	   cropped to a ~180px sliver. */
+	@media (width < 782px) {
 		& .aa-bleed-photo {
 			order: -1;
 		}
@@ -85,10 +95,10 @@
 }
 
 /* Tablets (600-781px) keep the editorial splits side by side (className
-   `aa-tablet-split`: hero, the collection bands, Women's, Hoodies, the
-   lookbook) instead of stacking them into 768px-wide photos and cards; phones
-   still stack. New Arrivals stacks: side by side its 2 x 2 shrank to ~150px
-   cards. Core stacks columns below 782px with flex-wrap:wrap!important
+   `aa-tablet-split`: the collection bands, Women's, Hoodies, the lookbook)
+   instead of stacking them into 768px-wide photos and cards; phones still
+   stack. The hero and New Arrivals stack: side by side the hero's portraits
+   cropped to slivers and New Arrivals' 2 x 2 shrank to ~150px cards. Core stacks columns below 782px with flex-wrap:wrap!important
    and flex-basis:100%!important; !important here beats exactly those two. */
 @media (600px <= width < 782px) {
 	.wp-block-columns.aa-tablet-split {
@@ -154,9 +164,13 @@
    the page surface and editorial moments sit on black, so the page
    alternates between browsing and looking. Where two shopping sections meet
    (Categories and New Arrivals; Hoodies and Accessories when Defiance
-   Division is absent) a hairline at the wide column's width marks the
-   seam. Zero specificity: an editor background (a gradient) still wins. */
-:where(.aa-shop-section + .aa-shop-section) {
+   Division is absent; any of them and the closing row, className
+   `aa-page-section`, when a section between is omitted) a hairline at the
+   wide column's width marks the seam. Zero specificity: an editor background (a gradient) still wins. */
+:where(
+	:is(.aa-shop-section, .aa-page-section)
+		+ :is(.aa-shop-section, .aa-page-section)
+) {
 	background-image: linear-gradient(
 		var(--aa-color-border-muted),
 		var(--aa-color-border-muted)
@@ -168,4 +182,26 @@
 			var(--wp--style--global--wide-size)
 		)
 		1px;
+}
+
+/* The name (className `aa-statement`): the deep brand red in both schemes.
+   Accent backgrounds resolve the accent fill, which brightens to a
+   button red in dark mode; a full-width band of that reads as a sale
+   banner, so the band keeps the light scheme's oxblood. Its text is set
+   white in the pattern. */
+
+/* The two brand statements (The name, the closing row) scale with the
+   viewport: the fluid presets keep a fixed minimum (4.5rem) that is wider
+   than "compliment." on a phone, and overflow-wrap then split the word.
+   Editor font-size picks still win (preset classes carry !important). */
+.aa-statement {
+	color-scheme: light;
+
+	& .wp-block-heading.is-style-headline {
+		font-size: clamp(2.75rem, 1.25rem + 5.5vw, 6rem);
+	}
+}
+
+.aa-page-section .wp-block-heading.is-style-headline {
+	font-size: clamp(2.25rem, 1rem + 3.6vw, 4.5rem);
 }

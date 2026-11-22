@@ -88,10 +88,12 @@
 		color-scheme: dark;
 	}
 
-	/* The mirror: white-background blocks are light in both schemes, so a
-	   section can stay a bright moment in dark mode with its text, buttons
-	   and cards resolving their light values. */
-	:where(.has-white-background-color) {
+	/* The mirror: white-background blocks, and any block given the class
+	   `aa-scheme-light`, are light in both schemes, so a section can stay a
+	   bright moment in dark mode with its text, buttons and cards resolving
+	   their light values (e.g. a `surface-sunken` stone band, which would
+	   otherwise go near-black). */
+	:where(.has-white-background-color, .aa-scheme-light) {
 		color-scheme: light;
 
 		/* Text inherited from a dark page would be white on white: take the

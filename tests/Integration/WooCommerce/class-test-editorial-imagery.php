@@ -227,6 +227,10 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 
 	/** The New Arrivals lead grid is marked as the lead (larger name, 3:4 image). */
 	public function test_new_arrivals_lead_grid_is_marked_lead(): void {
+		for ( $i = 0; $i < 5; $i++ ) {
+			$this->create_product();
+		}
+
 		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
 
 		$this->assertStringContainsString( 'aa-grid-lead', $grids[0]['attrs']['className'] );
@@ -246,6 +250,10 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 
 	/** New Arrivals: the newest product as a lead card, the next four beside it. */
 	public function test_new_arrivals_leads_with_the_newest_then_the_next_four(): void {
+		for ( $i = 0; $i < 5; $i++ ) {
+			$this->create_product();
+		}
+
 		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
 
 		$this->assertCount( 2, $grids );
@@ -470,5 +478,39 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		}
 
 		return $found;
+	}
+	/**
+	 * With nothing in stock, the shopping sections that list products are
+	 * omitted rather than printing a heading over an empty row.
+	 */
+	public function test_empty_catalog_omits_category_and_new_arrival_sections(): void {
+		self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'hoodies',
+			)
+		);
+
+		$this->assertSame( '', trim( $this->render_pattern( 'editorial-category-showcase' ) ) );
+		$this->assertSame( '', trim( $this->render_pattern( 'editorial-new-arrivals' ) ) );
+	}
+
+	/** Fewer than five new arrivals make one row sized to the count, never a lead with holes beside it. */
+	public function test_new_arrivals_short_catalog_is_one_row(): void {
+		for ( $i = 0; $i < 3; $i++ ) {
+			$this->create_product();
+		}
+
+		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
+		$this->assertCount( 1, $grids );
+		$this->assertSame( 3, $grids[0]['attrs']['query']['perPage'] );
+		$this->assertSame( 3, $grids[0]['attrs']['displayLayout']['columns'] );
+		$this->assertStringNotContainsString( 'aa-grid-lead', $grids[0]['attrs']['className'] );
+
+		$this->create_product();
+		$this->create_product();
+		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
+		$this->assertCount( 2, $grids, 'Five or more: the lead card beside a 2 x 2.' );
+		$this->assertStringContainsString( 'aa-grid-lead', $grids[0]['attrs']['className'] );
 	}
 }

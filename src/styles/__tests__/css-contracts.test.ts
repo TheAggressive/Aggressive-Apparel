@@ -874,7 +874,7 @@ describe( 'editorial sections', () => {
 				d.prop === 'order'
 		);
 		expect( order?.value ).toBe( '-1' );
-		expect( order?.conditions.join( ' ' ) ).toMatch( /600px/ );
+		expect( order?.conditions.join( ' ' ) ).toMatch( /782px/ );
 	} );
 
 	it( 'mark the seam between two shopping sections without outranking editor backgrounds', async () => {
@@ -884,7 +884,9 @@ describe( 'editorial sections', () => {
 		const seam = editorial
 			.all()
 			.filter( ( d ) =>
-				/aa-shop-section\s*\+\s*\.aa-shop-section/.test( d.selector )
+				/aa-shop-section[^)]*\)\s*\+\s*:is\(\.aa-shop-section/.test(
+					d.selector
+				)
 			);
 
 		expect( seam.length ).toBeGreaterThan( 0 );
@@ -1080,5 +1082,30 @@ describe( 'fixed-color sections', () => {
 		expect(
 			white.every( ( d ) => d.selector.startsWith( ':where(' ) )
 		).toBe( true );
+	} );
+} );
+
+describe( 'fixed-scheme editorial sections', () => {
+	it( 'pin the stone feature light and the name band to the oxblood red', async () => {
+		const adaptive = await CompiledCss.load(
+			'src/styles/components/adaptive-block-colors.css'
+		);
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+
+		expect(
+			adaptive
+				.all()
+				.some(
+					( d ) =>
+						d.selector.includes( '.aa-scheme-light' ) &&
+						d.prop === 'color-scheme' &&
+						d.value === 'light'
+				)
+		).toBe( true );
+		expect(
+			await editorial.declarations( '.aa-statement', 'color-scheme' )
+		).toEqual( [ expect.objectContaining( { value: 'light' } ) ] );
 	} );
 } );

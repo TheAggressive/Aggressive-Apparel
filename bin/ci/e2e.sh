@@ -96,6 +96,34 @@ if [[ "${installed_fluentform}" != "${FLUENTFORM_VERSION}" ]]; then
 	rmdir "${staging}"
 fi
 
+# Aggressive Blocks, the companion plugin that owns the marketing blocks theme
+# patterns place (aggressive-blocks/*). Without it pattern-validity.spec.ts sees
+# those blocks as core/missing. Not on wordpress.org, so the GitHub release
+# archive is pinned by version and SHA-256.
+AGGRESSIVE_BLOCKS_VERSION="2.2.1"
+AGGRESSIVE_BLOCKS_SHA256="ddabca61010b903a694cd552322e5e9b43793c87b25860d260447684130d3dbf"
+AGGRESSIVE_BLOCKS_URL="https://github.com/TheAggressive/Aggressive-Blocks/releases/download/v${AGGRESSIVE_BLOCKS_VERSION}/aggressive-blocks-${AGGRESSIVE_BLOCKS_VERSION}.zip"
+blocks_file="${WP_DIR}/wp-content/plugins/aggressive-blocks/aggressive-blocks.php"
+installed_blocks="$(grep -m1 -E '^ \* Version:' "${blocks_file}" 2>/dev/null | sed -E 's/^ \* Version:[[:space:]]*//' || true)"
+if [[ "${installed_blocks}" != "${AGGRESSIVE_BLOCKS_VERSION}" ]]; then
+	echo "e2e: downloading Aggressive Blocks ${AGGRESSIVE_BLOCKS_VERSION}"
+	archive=".cache/local/aggressive-blocks-${AGGRESSIVE_BLOCKS_VERSION}.zip"
+	staging=".cache/local/aggressive-blocks-${AGGRESSIVE_BLOCKS_VERSION}.staging"
+	mkdir -p ".cache/local" "${WP_DIR}/wp-content/plugins"
+	curl --fail --location --silent --show-error "${AGGRESSIVE_BLOCKS_URL}" --output "${archive}"
+	echo "${AGGRESSIVE_BLOCKS_SHA256}  ${archive}" | sha256sum --check --status || {
+		echo "e2e: Aggressive Blocks archive failed its SHA-256 check." >&2
+		rm -f "${archive}"
+		exit 1
+	}
+	rm -rf "${staging}"
+	mkdir -p "${staging}"
+	unzip -q "${archive}" -d "${staging}"
+	rm -rf "${WP_DIR}/wp-content/plugins/aggressive-blocks"
+	mv "${staging}/aggressive-blocks" "${WP_DIR}/wp-content/plugins/aggressive-blocks"
+	rmdir "${staging}"
+fi
+
 # A stable executable the Playwright fixtures call (WP_CLI_RUNNER=native), with
 # PHP notices on stderr so they never corrupt the JSON the fixtures parse.
 cat > "${WP_CLI}" <<-SH
@@ -139,7 +167,7 @@ done < <(
 # inside this checkout (its path already contains wp-content) as a subdirectory.
 "${WP_CLI}" option update siteurl "${BASE_URL}"
 "${WP_CLI}" option update home "${BASE_URL}"
-"${WP_CLI}" plugin activate woocommerce fluentform
+"${WP_CLI}" plugin activate woocommerce fluentform aggressive-blocks
 "${WP_CLI}" theme activate aggressive-apparel
 "${WP_CLI}" rewrite structure '/%postname%/'
 

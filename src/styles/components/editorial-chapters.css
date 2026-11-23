@@ -24,10 +24,12 @@
 }
 
 /* Section titles at display scale: the chapters' second voice after the
-   cover's slogan. */
+   cover's slogan. A long word may break rather than push the page sideways
+   when text is enlarged (200% text on a phone). */
 .wp-block-heading.aa-chapter-title {
 	font-size: clamp(3rem, 1.75rem + 4.2vw, 6rem);
 	line-height: 0.88;
+	overflow-wrap: anywhere;
 }
 
 /* Cover: the slogan at poster scale, sized to the viewport (no container
@@ -99,6 +101,7 @@
 		margin: 0;
 		font-size: clamp(2.75rem, 1.25rem + 5vw, 7rem);
 		line-height: 1;
+		overflow-wrap: anywhere;
 
 		& a {
 			color: inherit;
@@ -219,6 +222,7 @@
 
 	& .is-style-meta {
 		color: inherit;
+		white-space: normal;
 	}
 
 	& .aa-more-tile__count {

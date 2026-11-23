@@ -72,6 +72,14 @@
 	scrollbar-width: thin;
 	padding-block-end: var(--wp--preset--spacing--4);
 
+	/* Runs to the screen's edge (through the section's gutter), so the
+	   next card is cut by the screen, not the column; the last card can
+	   still scroll to the gutter line. */
+	width: calc(100% + var(--wp--preset--spacing--gutter));
+	max-width: none;
+	margin-inline-end: calc(-1 * var(--wp--preset--spacing--gutter));
+	padding-inline-end: var(--wp--preset--spacing--gutter);
+
 	& > li {
 		flex: 0 0
 			calc(

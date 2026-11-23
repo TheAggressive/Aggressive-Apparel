@@ -68,7 +68,7 @@ if ( array() === $aa_found ) {
 }
 
 ?><!-- wp:group {"metadata":{"name":"03 Shop by Line"},"align":"full","className":"aa-shop-section aa-line-index","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|8"}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull aa-shop-section aa-line-index" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
+<div class="wp-block-group alignfull aa-shop-section aa-line-index" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 <div class="wp-block-group alignwide"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
 <p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'Shop by line', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->

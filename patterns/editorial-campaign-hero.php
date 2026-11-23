@@ -26,13 +26,15 @@ $aa_hero = Editorial_Imagery::cover();
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"54%","className":"aa-cover-copy"} -->
 <div class="wp-block-column is-vertically-aligned-center aa-cover-copy" style="flex-basis:54%">
 <?php endif; ?>
-<!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
+<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
 <p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'Est. 2010', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":1,"className":"is-style-campaign"} -->
 <h1 class="wp-block-heading is-style-campaign"><?php echo esc_html__( 'Rebellion has a uniform.', 'aggressive-apparel' ); ?></h1>
-<!-- /wp:heading -->
+<!-- /wp:heading --></div>
+<!-- /wp:group -->
 
 <!-- wp:paragraph {"className":"is-style-lead"} -->
 <p class="is-style-lead"><?php echo esc_html__( 'This season’s is in.', 'aggressive-apparel' ); ?></p>

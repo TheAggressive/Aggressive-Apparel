@@ -174,22 +174,70 @@
 	margin: 0;
 }
 
-/* Lookbook gallery: square photos in one swipeable row, each captioned. */
-.aa-photo-rail {
-	gap: var(--wp--preset--spacing--4);
-	overflow-x: auto;
-	overscroll-behavior-x: contain;
-	scroll-snap-type: x mandatory;
-	scrollbar-width: thin;
-	padding-block-end: var(--wp--preset--spacing--3);
+/* Lookbook: the looks are slides of the Aggressive Blocks horizontal scroll
+   (pinned and scrubbed on desktop, a swipe carousel with its own controls
+   on touch). The block sets its slide width inline from one attribute
+   (34vw, right for desktop); a phone needs most of the screen per look.
+   !important beats the block's inline custom property. */
 
-	& .aa-photo-rail__look {
-		flex: 0 0 clamp(16rem, 36vw, 34rem);
-		scroll-snap-align: start;
+/* The gallery runs edge to edge through the section's gutter, its first
+   look starting on the gutter line under the heading, so looks are cut by
+   the screen rather than the column. 0,3,0 outranks core's constrained
+   layout rule for wide blocks (0,2,0, margin-inline auto !important). */
+.wp-block-group .aa-hscroll.aa-lookbook-scroll {
+	/* stylelint-disable-next-line declaration-no-important -- beats core constrained-layout margin-inline:auto!important on wide blocks */
+	margin-inline: calc(-1 * var(--wp--preset--spacing--gutter)) !important;
 
-		& .wp-block-image {
-			margin: 0;
+	--aa-lookbook-inset: max(
+		var(--wp--preset--spacing--gutter),
+		(100vw - var(--wp--style--global--wide-size)) / 2
+	);
+
+	max-width: none;
+
+	/* The first look starts on the heading's line at every width (the wide
+	   column's edge on large screens), and swipe snapping keeps it there. */
+	& .aa-hscroll__viewport {
+		scroll-padding-inline: var(--aa-lookbook-inset);
+	}
+
+	& .aa-hscroll__track {
+		padding-inline: var(--aa-lookbook-inset);
+
+		/* A flex track's end padding doesn't count toward its scroll
+		   length: a spacer does, so the last look stops on the right
+		   gutter line as the first starts on the left (the inset less the
+		   track's gap before it). */
+		&::after {
+			content: "";
+			flex: 0 0 max(1px, var(--aa-lookbook-inset) - var(--aa-hscroll-gap));
+			margin-inline-start: min(
+				0px,
+				var(--aa-lookbook-inset) - var(--aa-hscroll-gap)
+			);
 		}
+	}
+
+	@media (width < 782px), (pointer: coarse) {
+		/* stylelint-disable-next-line declaration-no-important -- beats the horizontal-scroll block's inline --aa-hscroll-item-width */
+		--aa-hscroll-item-width: 80vw !important;
+
+		/* Swiping, the scroll length is the track's own box: sized to its
+		   looks, its end padding keeps the last look off the screen edge
+		   (the desktop spacer isn't needed). */
+		& .aa-hscroll__track {
+			width: max-content;
+
+			&::after {
+				display: none;
+			}
+		}
+	}
+}
+
+.aa-photo-rail__look {
+	& .wp-block-image {
+		margin: 0;
 	}
 
 	& .aa-photo-rail__caption {
@@ -208,9 +256,39 @@
 	}
 }
 
-/* Accessories: the rest of the range counted on one square tile, the
-   whole tile its link. Stacked under the cards on phones it is a short bar,
-   not a second full-width square. */
+/* Section header rows (eyebrow and title, a link at the far end) wrap the
+   link under the title on phones: keep it 12px under, like the title under
+   its eyebrow, rather than a full section gap. Any header row with a link,
+   whether it sits in the section or in a column (Accessories); 0,3,0 beats
+   core's generated flex gap. */
+.aa-shop-section
+	.wp-block-group.alignwide.is-layout-flex:has(> .wp-block-buttons) {
+	row-gap: var(--wp--preset--spacing--3);
+}
+
+/* Accessories: two cards and the count tile on three equal tracks, the
+   collection spanning two, so the tile is one card wide and every gap is
+   the grid's. Phones: the cards take the row, the tile a bar under them. */
+.wp-block-group.aa-acc-grid {
+	align-items: start;
+
+	& > .wp-block-woocommerce-product-collection {
+		grid-column: span 2;
+		margin: 0;
+	}
+
+	@media (width < 782px) {
+		grid-template-columns: minmax(0, 1fr);
+
+		& > .wp-block-woocommerce-product-collection {
+			grid-column: auto;
+		}
+	}
+}
+
+/* Accessories: the rest of the range counted on one tile the size of a
+   card's photo, the whole tile its link. Stacked under the cards on phones
+   it is a short bar, not a second full-width square. */
 .aa-more-tile {
 	position: relative;
 	aspect-ratio: 1;

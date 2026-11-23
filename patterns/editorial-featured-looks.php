@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Featured Looks
- * Description: The lookbook as a swipe gallery on a light studio band: up to five of the store's own on-figure photos, square, each linked to and named for its product. Needs three photos, else it is omitted.
+ * Description: The lookbook on a light studio band: three to five approved photos in the Aggressive Blocks horizontal scroll (pinned and scrubbed by scrolling on desktop, a swipe carousel with controls on touch), each linked to and named for its product. Needs three photos, else it is omitted.
  * Slug: aggressive-apparel/editorial-featured-looks
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-drops
  * Keywords: lookbook, looks, outfits, editorial, style, homepage
@@ -30,8 +30,7 @@ if ( count( $aa_leads ) < 3 ) {
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:group {"align":"wide","className":"aa-photo-rail","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"top"}} -->
-<div class="wp-block-group alignwide aa-photo-rail">
+<!-- wp:aggressive-blocks/horizontal-scroll {"align":"wide","ariaLabel":"<?php echo esc_attr__( 'How it’s worn', 'aggressive-apparel' ); ?>","itemWidth":"34vw","speed":0.6,"showProgress":true,"showControls":true,"activation":"center","desktopBehavior":"pinned","snapBehavior":"off","swipeHintStyle":"cue","className":"aa-lookbook-scroll"} -->
 <?php foreach ( $aa_leads as $aa_look ) : ?>
 <!-- wp:group {"className":"aa-photo-rail__look","style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
 <div class="wp-block-group aa-photo-rail__look"><?php echo Editorial_Imagery::image_markup( $aa_look, '1' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>
@@ -41,6 +40,5 @@ if ( count( $aa_leads ) < 3 ) {
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 <?php endforeach; ?>
-</div>
-<!-- /wp:group --></div>
+<!-- /wp:aggressive-blocks/horizontal-scroll --></div>
 <!-- /wp:group -->

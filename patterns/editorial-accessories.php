@@ -62,10 +62,12 @@ $aa_more  = $aa_count - 2;
 <!-- /wp:group -->
 <?php if ( null !== $aa_photo ) : ?>
 
-<!-- wp:columns {"style":{"spacing":{"blockGap":{"top":"var:preset|spacing|4","left":"var:preset|spacing|4"}}}} -->
-<div class="wp-block-columns"><!-- wp:column {"width":"<?php echo $aa_more > 0 ? '66.66%' : '100%'; ?>"} -->
-<div class="wp-block-column" style="flex-basis:<?php echo $aa_more > 0 ? '66.66%' : '100%'; ?>">
+<!-- wp:group {"className":"aa-acc-grid","style":{"spacing":{"blockGap":"var:preset|spacing|8"}},"layout":{"type":"grid","columnCount":3}} -->
+<div class="wp-block-group aa-acc-grid">
 	<?php
+	// Two cards and the count tile on three equal tracks (the collection
+	// spans two, editorial-chapters.css), so the tile is exactly one card
+	// wide and every gap is the grid's.
 	$aa_grid = Editorial_Product_Grid::markup(
 		array(
 			'query_id' => 310,
@@ -78,12 +80,9 @@ $aa_more  = $aa_count - 2;
 	);
 	echo $aa_grid; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; attributes encoded by core's serializer, classes escaped.
 	?>
-</div>
-<!-- /wp:column -->
 	<?php if ( $aa_more > 0 ) : ?>
 
-<!-- wp:column {"width":"33.33%"} -->
-<div class="wp-block-column" style="flex-basis:33.33%"><!-- wp:group {"className":"aa-more-tile","style":{"spacing":{"padding":{"top":"var:preset|spacing|5","bottom":"var:preset|spacing|5","left":"var:preset|spacing|5","right":"var:preset|spacing|5"}}},"backgroundColor":"foreground","textColor":"surface","layout":{"type":"flex","orientation":"vertical","justifyContent":"left","verticalAlignment":"space-between"}} -->
+<!-- wp:group {"className":"aa-more-tile","style":{"spacing":{"padding":{"top":"var:preset|spacing|5","bottom":"var:preset|spacing|5","left":"var:preset|spacing|5","right":"var:preset|spacing|5"}}},"backgroundColor":"foreground","textColor":"surface","layout":{"type":"flex","orientation":"vertical","justifyContent":"left","verticalAlignment":"space-between"}} -->
 <div class="wp-block-group aa-more-tile has-surface-color has-foreground-background-color has-text-color has-background" style="padding-top:var(--wp--preset--spacing--5);padding-right:var(--wp--preset--spacing--5);padding-bottom:var(--wp--preset--spacing--5);padding-left:var(--wp--preset--spacing--5)"><!-- wp:paragraph {"className":"aa-more-tile__count"} -->
 <p class="aa-more-tile__count"><?php echo esc_html( '+' . number_format_i18n( $aa_more ) ); ?></p>
 <!-- /wp:paragraph -->
@@ -91,11 +90,11 @@ $aa_more  = $aa_count - 2;
 <!-- wp:paragraph {"className":"is-style-meta"} -->
 <p class="is-style-meta"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html__( 'Shop accessories', 'aggressive-apparel' ); ?></a></p>
 <!-- /wp:paragraph --></div>
-<!-- /wp:group --></div>
-<!-- /wp:column -->
+<!-- /wp:group -->
 	<?php endif; ?>
 </div>
-<!-- /wp:columns --></div>
+<!-- /wp:group -->
+</div>
 <!-- /wp:column --></div>
 <!-- /wp:columns -->
 <?php else : ?>

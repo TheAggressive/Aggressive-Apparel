@@ -24,13 +24,15 @@ $aa_image = static function ( int $index, string $ratio ) use ( $aa_photos ): st
 ?><!-- wp:group {"metadata":{"name":"04 The Name"},"anchor":"the-label","align":"full","className":"aa-statement aa-name","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"white","layout":{"type":"constrained"}} -->
 <div id="the-label" class="wp-block-group alignfull aa-statement aa-name has-white-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:columns {"align":"wide","className":"aa-tablet-split","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
 <div class="wp-block-columns alignwide aa-tablet-split"><!-- wp:column {"width":"<?php echo array() === $aa_photos ? '62%' : '44%'; ?>"} -->
-<div class="wp-block-column" style="flex-basis:<?php echo array() === $aa_photos ? '62%' : '44%'; ?>"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
+<div class="wp-block-column" style="flex-basis:<?php echo array() === $aa_photos ? '62%' : '44%'; ?>"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
 <p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'The name', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-headline"} -->
 <h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Aggressive is a compliment.', 'aggressive-apparel' ); ?></h2>
-<!-- /wp:heading -->
+<!-- /wp:heading --></div>
+<!-- /wp:group -->
 
 <!-- wp:paragraph {"className":"is-style-lead"} -->
 <p class="is-style-lead"><?php echo esc_html__( 'It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is toned down to suit everyone.', 'aggressive-apparel' ); ?></p>

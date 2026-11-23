@@ -26,6 +26,14 @@ $aa_tiles = array(
 	array(
 		'slugs' => array( 'outerwear', 'jackets' ),
 	),
+	// Swimwear and leggings are whole lines in the catalog; without a tile
+	// they had no route from the homepage's category row.
+	array(
+		'slugs' => array( 'swimwear', 'swim', 'swimsuits' ),
+	),
+	array(
+		'slugs' => array( 'leggings' ),
+	),
 	array(
 		'slugs' => array( 'accessories' ),
 	),
@@ -40,6 +48,21 @@ foreach ( $aa_tiles as $aa_tile ) {
 // No stocked category, no section: a heading over an empty row reads as broken.
 if ( array() === $aa_found ) {
 	return;
+}
+
+// Four tiles at most: the row is designed for four (the names stay on one
+// line and nothing wraps 4 + 2). With more, the four best-stocked lines win,
+// then keep the order above.
+if ( count( $aa_found ) > 4 ) {
+	$aa_counts = array();
+	foreach ( $aa_found as $aa_index => $aa_term ) {
+		$aa_counts[ $aa_index ] = Editorial_Catalog::visible_count( $aa_term );
+	}
+	// Stable sort (PHP 8): equal counts keep the order above.
+	arsort( $aa_counts, SORT_NUMERIC );
+	$aa_keep = array_slice( array_keys( $aa_counts ), 0, 4 );
+	sort( $aa_keep );
+	$aa_found = array_values( array_intersect_key( $aa_found, array_flip( $aa_keep ) ) );
 }
 
 ?><!-- wp:group {"metadata":{"name":"02 Shop Categories"},"align":"full","className":"aa-shop-section","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->

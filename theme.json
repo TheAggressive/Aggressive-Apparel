@@ -651,6 +651,11 @@
 					"color": "oklch(0 0 0)"
 				},
 				{
+					"name": "Product Media",
+					"slug": "product-media",
+					"color": "oklch(97.5% 0 0)"
+				},
+				{
 					"name": "Transparent",
 					"slug": "transparent",
 					"color": "transparent"

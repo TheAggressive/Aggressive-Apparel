@@ -109,8 +109,8 @@ final class Editorial_Product_Grid {
 		$card = <<<'HTML'
 <!-- wp:woocommerce/product-template -->
 <!-- wp:group {"className":"aa-editorial-card","style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
-<div class="wp-block-group aa-editorial-card"><!-- wp:group {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"backgroundColor":"surface-muted","layout":{"type":"default"}} -->
-<div class="wp-block-group has-surface-muted-background-color has-background" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0"><!-- wp:post-featured-image {"isLink":true,"sizeSlug":"full"} /--></div>
+<div class="wp-block-group aa-editorial-card"><!-- wp:group {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"backgroundColor":"product-media","layout":{"type":"default"}} -->
+<div class="wp-block-group has-product-media-background-color has-background" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0"><!-- wp:post-featured-image {"isLink":true,"sizeSlug":"full"} /--></div>
 <!-- /wp:group -->
 
 <!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|1"}},"layout":{"type":"default"}} -->

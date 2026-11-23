@@ -8,9 +8,16 @@
  * @package Aggressive_Apparel
  */
 
+/* clip, not hidden: a clipping box is not a scroll container, so the 4:5
+   aspect ratio becomes a minimum and the tile can grow when its name band
+   needs more room than the 4:5 leaves (narrow desktop tiles). */
 .aa-editorial-tiles .wc-block-featured-category {
 	position: relative;
-	overflow: hidden;
+
+	/* A grid item with an aspect ratio does not stretch by default, so a
+	   tile whose name wraps would stand taller than its neighbours. */
+	align-self: stretch;
+	overflow: clip;
 }
 
 /* The photo is a square at the top of the 4:5 tile, whole (the product
@@ -33,6 +40,12 @@
 	/* WooCommerce's wrapper is a wrapping flex row: align-content places the line. */
 	align-content: flex-end;
 	align-items: flex-end;
+
+	/* The name band starts below the square photo (percentage padding is
+	   relative to the tile's width), so the name never sits on the photo;
+	   clip instead of WooCommerce's hidden lets the band's height count. */
+	padding-block-start: 100%;
+	overflow: clip;
 }
 
 .aa-editorial-tiles

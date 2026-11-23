@@ -251,6 +251,45 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Swimwear and leggings are lines with their own tiles, and the row never
+	 * holds more than four: with more stocked lines, the four best-stocked
+	 * win and keep the showcase's order. Ties keep that order too.
+	 */
+	public function test_category_showcase_keeps_the_four_best_stocked_lines(): void {
+		$stock = array(
+			't-shirts'    => 4,
+			'hoodies'     => 1,
+			'swimwear'    => 3,
+			'leggings'    => 1,
+			'accessories' => 2,
+		);
+		$terms = array();
+		foreach ( $stock as $slug => $count ) {
+			$terms[ $slug ] = self::factory()->term->create(
+				array(
+					'taxonomy' => 'product_cat',
+					'slug'     => $slug,
+				)
+			);
+			for ( $i = 0; $i < $count; $i++ ) {
+				$this->create_product( array( 'category' => $terms[ $slug ] ) );
+			}
+		}
+
+		$blocks = parse_blocks( $this->render_pattern( 'editorial-category-showcase' ) );
+		$grid   = $this->find_block( $blocks, static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-editorial-tiles' ) );
+		$this->assertNotNull( $grid );
+		$shown = array_map( static fn( $tile ) => $tile['attrs']['categoryId'], $grid['innerBlocks'] );
+
+		$this->assertSame(
+			array( $terms['t-shirts'], $terms['hoodies'], $terms['swimwear'], $terms['accessories'] ),
+			$shown,
+			'Leggings (1) loses the tie with Hoodies (1) by order; Swimwear gets a tile.'
+		);
+		$this->assertSame( 4, $grid['attrs']['layout']['columnCount'] );
+	}
+
+	/**
 	 * Sections whose CTA names a collection render nothing when the store has
 	 * no stocked term to send it to, rather than a CTA to the whole catalog.
 	 *

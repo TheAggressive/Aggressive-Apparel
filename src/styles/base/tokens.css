@@ -93,6 +93,12 @@
 		--wp--preset--color--accent-on-foreground
 	);
 
+	/* The studio surface behind every product photo, the same in both
+	   schemes: the scheme changes the page, not the merchandise. Production
+	   photos are transparent cut-outs, so this is their background; opaque
+	   photos cover it. */
+	--aa-product-media-surface: var(--wp--preset--color--product-media);
+
 	/* Accent text on raised dark surfaces (striped rows, tinted panels): the
 	   brand accent clears 4.5:1 on the page surface but not on a lighter one
 	   (4.24:1 on #252525). Same hue at max in-gamut chroma, lightness +2.5 —

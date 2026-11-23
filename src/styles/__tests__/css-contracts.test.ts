@@ -734,6 +734,63 @@ describe( 'editorial category tiles', () => {
 	} );
 } );
 
+describe( 'product media surface', () => {
+	it( 'puts every product photo on the product-media surface, at zero specificity in aa-components', async () => {
+		const css = await CompiledCss.load(
+			'src/styles/components/product-media.css'
+		);
+		const backgrounds = css
+			.all()
+			.filter( ( d ) => d.prop === 'background-color' );
+
+		expect( backgrounds.length ).toBeGreaterThan( 0 );
+		for ( const declaration of backgrounds ) {
+			expect( declaration ).toEqual(
+				expect.objectContaining( {
+					value: 'var(--aa-product-media-surface)',
+					important: false,
+					layer: 'aa-components',
+				} )
+			);
+			// Overridable by anything the Site Editor saves.
+			expect( declaration.selector ).toMatch( /:where\(/ );
+		}
+		const selectors = backgrounds.map( ( d ) => d.selector ).join( ',' );
+		for ( const surface of [
+			'.wc-block-components-product-image',
+			'.wc-block-cart-item__image',
+			'.wc-block-product-gallery-large-image',
+			'.wc-block-featured-category__background-image',
+		] ) {
+			expect( selectors ).toContain( surface );
+		}
+	} );
+} );
+
+describe( 'editorial category tiles grow to fit their name', () => {
+	it( 'start the name band below the square photo and let the tile grow', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const tile = '.aa-editorial-tiles .wc-block-featured-category';
+		const wrapper = `${ tile } .wc-block-featured-category__wrapper`;
+
+		expect(
+			await blocks.declarations( wrapper, 'padding-block-start' )
+		).toEqual( [ expect.objectContaining( { value: '100%' } ) ] );
+		// clip, not hidden: a scroll container could not grow with its band.
+		expect( await blocks.declarations( wrapper, 'overflow' ) ).toEqual( [
+			expect.objectContaining( { value: 'clip' } ),
+		] );
+		expect( await blocks.declarations( tile, 'overflow' ) ).toEqual( [
+			expect.objectContaining( { value: 'clip' } ),
+		] );
+		expect( await blocks.declarations( tile, 'align-self' ) ).toEqual( [
+			expect.objectContaining( { value: 'stretch' } ),
+		] );
+	} );
+} );
+
 describe( 'listing card price line', () => {
 	it( 'keeps the Save label in one piece as an outlined tag', async () => {
 		const blocks = await CompiledCss.load(

@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Shop by Line
- * Description: A typographic index of the store's lines: one row per stocked category, best-stocked first, with the line's name at display scale, how many pieces it holds and three of its newest products. The whole row links to the category.
+ * Description: A typographic index of the store's lines: the categories marked "Show in Shop by line", in WooCommerce's category order (drag to reorder in Products → Categories), each with its name at display scale, a live count of in-stock pieces and three of its newest products. Until any are marked, the theme's standard lines in a fixed order. The whole row links to the category.
  * Slug: aggressive-apparel/editorial-category-showcase
  * Categories: aggressive-editorial, aggressive-homepage
  * Keywords: categories, shop, index, lines, editorial, homepage
@@ -11,27 +11,54 @@
  */
 
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
+use Aggressive_Apparel\WooCommerce\Editorial_Controls;
 use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
-// Candidate slugs per line, first match wins; a line is left out when the
-// store has no such category or it has no products, so every row links to
-// a real, non-empty archive.
-$aa_lines = array(
-	array( 't-shirts', 'tshirts', 'tees', 'shirts' ),
-	array( 'hoodies', 'hoodie', 'sweatshirts' ),
-	array( 'outerwear', 'jackets' ),
-	array( 'swimwear', 'swim', 'swimsuits' ),
-	array( 'leggings' ),
-	array( 'accessories' ),
+// The merchant's lines: categories marked "Show in Shop by line", in
+// WooCommerce's own category order. A stable order, never re-sorted by stock.
+$aa_terms = get_terms(
+	array(
+		'taxonomy'   => 'product_cat',
+		'hide_empty' => false,
+		'orderby'    => 'menu_order',
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- A handful of categories, once per page.
+		'meta_query' => array(
+			array(
+				'key'   => Editorial_Controls::LINE_META,
+				'value' => 'yes',
+			),
+		),
+	)
 );
+$aa_terms = is_array( $aa_terms ) ? array_values( array_filter( $aa_terms, static fn( $term ): bool => $term instanceof \WP_Term ) ) : array();
 
+// None marked yet: the theme's standard lines, the first stocked slug of
+// each, in this fixed order.
+if ( array() === $aa_terms ) {
+	foreach ( array(
+		array( 't-shirts', 'tshirts', 'tees', 'shirts' ),
+		array( 'hoodies', 'hoodie', 'sweatshirts' ),
+		array( 'outerwear', 'jackets' ),
+		array( 'swimwear', 'swim', 'swimsuits' ),
+		array( 'leggings' ),
+		array( 'accessories' ),
+	) as $aa_slugs ) {
+		$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), $aa_slugs );
+		if ( null !== $aa_term ) {
+			$aa_terms[] = $aa_term;
+		}
+	}
+}
+
+// A line with nothing in stock is left out, so every row links to a real,
+// non-empty archive; the count stays live.
 $aa_found = array();
-foreach ( $aa_lines as $aa_slugs ) {
-	$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), $aa_slugs );
-	if ( null !== $aa_term ) {
+foreach ( $aa_terms as $aa_term ) {
+	$aa_count = Editorial_Catalog::visible_count( $aa_term );
+	if ( $aa_count > 0 ) {
 		$aa_found[] = array(
 			'term'  => $aa_term,
-			'count' => Editorial_Catalog::visible_count( $aa_term ),
+			'count' => $aa_count,
 		);
 	}
 }
@@ -39,8 +66,6 @@ foreach ( $aa_lines as $aa_slugs ) {
 if ( array() === $aa_found ) {
 	return;
 }
-// Best-stocked first (a stable sort: equal counts keep the order above).
-usort( $aa_found, static fn( array $a, array $b ): int => $b['count'] <=> $a['count'] );
 
 ?><!-- wp:group {"metadata":{"name":"03 Shop by Line"},"align":"full","className":"aa-shop-section aa-line-index","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|8"}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull aa-shop-section aa-line-index" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->

@@ -43,12 +43,14 @@ trait Builds_Editorial_Fixtures {
 	}
 
 	/**
-	 * Create an image attachment with real dimensions (portrait by default).
+	 * Create an image attachment with real dimensions (portrait by default),
+	 * approved for editorial use unless told otherwise.
 	 *
-	 * @param int $width  Pixel width.
-	 * @param int $height Pixel height.
+	 * @param int    $width  Pixel width.
+	 * @param int    $height Pixel height.
+	 * @param string $choice Homepage use: approved, cover, excluded or '' (not reviewed).
 	 */
-	private function create_image( int $width = 504, int $height = 757 ): int {
+	private function create_image( int $width = 504, int $height = 757, string $choice = 'approved' ): int {
 		$id = self::factory()->attachment->create_object(
 			array(
 				'file'           => 'editorial-probe.jpg',
@@ -63,6 +65,7 @@ trait Builds_Editorial_Fixtures {
 				'file'   => 'editorial-probe.jpg',
 			)
 		);
+		\Aggressive_Apparel\WooCommerce\Editorial_Controls::set_use( $id, $choice );
 
 		return $id;
 	}
@@ -152,5 +155,24 @@ trait Builds_Editorial_Fixtures {
 		include get_theme_file_path( 'patterns/' . $slug . '.php' );
 
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Render a section after the ones above it in the same request, as the
+	 * homepage does (they share the page's claimed photos and cover choice).
+	 * Returns the last section's markup.
+	 *
+	 * @param array<int, string> $slugs Pattern file slugs, top to bottom.
+	 */
+	private function render_in_page( array $slugs ): string {
+		wp_cache_flush();
+		$markup = '';
+		foreach ( $slugs as $slug ) {
+			ob_start();
+			include get_theme_file_path( 'patterns/' . $slug . '.php' );
+			$markup = (string) ob_get_clean();
+		}
+
+		return $markup;
 	}
 }

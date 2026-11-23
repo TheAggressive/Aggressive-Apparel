@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — New Arrivals
- * Description: One scrolling rail of the newest in-stock products after the cover's garment, from the live catalog. Omitted when nothing follows the cover.
+ * Description: One scrolling rail of the newest in-stock products, from the live catalog; it starts after the cover's product when the cover shows the newest. Omitted when nothing is left to show.
  * Slug: aggressive-apparel/editorial-new-arrivals
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-products
  * Keywords: new arrivals, latest, products, woocommerce, homepage
@@ -11,11 +11,14 @@
  */
 
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
+use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 
-// The cover shows the newest product; with nothing after it there is no rail.
-$aa_count = Editorial_Catalog::visible_count();
-if ( $aa_count < 2 ) {
+// When the cover shows the newest product, the rail starts after it; with
+// nothing left to show there is no rail.
+$aa_offset = Editorial_Imagery::newest_on_cover() ? 1 : 0;
+$aa_count  = Editorial_Catalog::visible_count() - $aa_offset;
+if ( $aa_count < 1 ) {
 	return;
 }
 
@@ -45,8 +48,8 @@ if ( $aa_count < 2 ) {
 $aa_rail = Editorial_Product_Grid::markup(
 	array(
 		'query_id'   => 302,
-		'per_page'   => min( 8, $aa_count - 1 ),
-		'offset'     => 1,
+		'per_page'   => min( 8, $aa_count ),
+		'offset'     => $aa_offset,
 		'columns'    => 4,
 		'collection' => 'new-arrivals',
 		'rail'       => true,

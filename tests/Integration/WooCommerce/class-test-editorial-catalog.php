@@ -231,10 +231,11 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Every stocked line has a row, Swimwear and Leggings included, best-stocked
-	 * first; equal counts keep the index's order.
+	 * Until the merchant marks lines, every stocked standard line has a row,
+	 * Swimwear and Leggings included, in a fixed order that stock never
+	 * reshuffles.
 	 */
-	public function test_line_index_orders_lines_by_stock(): void {
+	public function test_line_index_default_order_is_fixed(): void {
 		$stock = array(
 			't-shirts'    => 4,
 			'hoodies'     => 1,
@@ -261,7 +262,49 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 			array_values( array_filter( $this->find_all( parse_blocks( $this->render_pattern( 'editorial-category-showcase' ) ), 'core/heading' ), static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-line-index__name' ) ) )
 		);
 
-		$this->assertSame( array( 'T-shirts', 'Swimwear', 'Accessories', 'Hoodies', 'Leggings' ), array_map( 'trim', $names ) );
+		$this->assertSame( array( 'T-shirts', 'Hoodies', 'Swimwear', 'Leggings', 'Accessories' ), array_map( 'trim', $names ) );
+	}
+
+	/**
+	 * Marked lines replace the default, in WooCommerce's category order; an
+	 * unmarked or empty category is left out; counts stay live.
+	 */
+	public function test_line_index_follows_the_merchants_lines_and_order(): void {
+		$lines = array();
+		foreach ( array(
+			'Swimwear' => 2,
+			'T-shirts' => 1,
+			'Hoodies'  => 0,
+			'Sales'    => 3,
+		) as $name => $order ) {
+			$lines[ $name ] = self::factory()->term->create(
+				array(
+					'taxonomy' => 'product_cat',
+					'name'     => $name,
+				)
+			);
+			update_term_meta( $lines[ $name ], 'order', $order );
+			$this->create_product( array( 'category' => $lines[ $name ] ) );
+		}
+		foreach ( array( 'Swimwear', 'T-shirts', 'Hoodies' ) as $name ) {
+			update_term_meta( $lines[ $name ], \Aggressive_Apparel\WooCommerce\Editorial_Controls::LINE_META, 'yes' );
+		}
+		$empty = self::factory()->term->create(
+			array(
+				'taxonomy' => 'product_cat',
+				'name'     => 'Outerwear',
+			)
+		);
+		update_term_meta( $empty, \Aggressive_Apparel\WooCommerce\Editorial_Controls::LINE_META, 'yes' );
+
+		$markup = $this->render_pattern( 'editorial-category-showcase' );
+		$names  = array_map(
+			static fn( $block ) => trim( wp_strip_all_tags( $block['innerHTML'] ) ),
+			array_values( array_filter( $this->find_all( parse_blocks( $markup ), 'core/heading' ), static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-line-index__name' ) ) )
+		);
+
+		$this->assertSame( array( 'Hoodies', 'T-shirts', 'Swimwear' ), $names, 'Category order; Sales unmarked, Outerwear empty.' );
+		$this->assertStringContainsString( '1 piece', $markup );
 	}
 
 	/**

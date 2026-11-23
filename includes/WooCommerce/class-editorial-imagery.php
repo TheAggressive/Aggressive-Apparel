@@ -24,12 +24,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * portraits) shows the store's own product photography instead of an empty
  * frame, and never generated or stock imagery.
  *
- * Only real photographs qualify: a product's main or gallery image that is
- * not a transparent cut-out or a packshot on a flat studio background (those
- * read as catalogue, and belong on product cards), and is large enough for a
- * slot. Orientation does not matter; slots crop to their own ratio. What an
- * image is gets worked out once from its corner pixels and cached on the
- * attachment. A section that can't fill its slot changes layout instead of
+ * Only photos the merchant approved qualify (Media Library, "Homepage use",
+ * Editorial_Controls): a product's own main or gallery image, so a photo is
+ * always shown with, and linked to, the product it belongs to. Approved
+ * photos show highest priority first, then newest product first, and must
+ * be large enough for a slot; orientation does not matter, slots crop to
+ * their own ratio. Whether an image looks like a photograph or a cut-out
+ * (corner pixels, cached on the attachment) only guides the merchant's
+ * review. A section that can't fill its slot changes layout instead of
  * showing a placeholder.
  *
  * Each photo is used once per page: earlier slots claim theirs first, and
@@ -40,6 +42,9 @@ final class Editorial_Imagery {
 
 	/** Request_Cache key of the attachment IDs used so far on this page. */
 	private const CLAIMED = 'editorial-imagery:claimed';
+
+	/** Request_Cache key of the product the cover shows. */
+	private const COVER_PRODUCT = 'editorial-imagery:cover-product';
 
 	/** Newest products considered per slot source. */
 	private const CANDIDATES = 48;
@@ -106,21 +111,6 @@ final class Editorial_Imagery {
 	}
 
 	/**
-	 * The newest in-stock product with a main image: the cover's garment.
-	 * Claims the image, so no later slot on the page repeats it.
-	 *
-	 * @return array{product: int, image: int}|null
-	 */
-	public static function newest_arrival(): ?array {
-		$newest = self::candidates( null, false )[0] ?? null;
-		if ( null !== $newest ) {
-			self::claim( $newest['image'] );
-		}
-
-		return $newest;
-	}
-
-	/**
 	 * A category's image: the term's own image, else its newest product
 	 * image not yet shown on this page (any kind: cut-outs suit a category
 	 * row), else its newest product image. Claims what it returns.
@@ -154,6 +144,79 @@ final class Editorial_Imagery {
 	 */
 	public static function term_images( \WP_Term $term, int $limit ): array {
 		return array_slice( array_values( array_unique( array_column( self::candidates( $term, false ), 'image' ) ) ), 0, max( 0, $limit ) );
+	}
+
+	/**
+	 * Whether an image may fill an editorial slot: approved by the merchant
+	 * and at least MIN_PHOTO_EDGE on its shorter side.
+	 *
+	 * @param int $image Attachment ID.
+	 */
+	public static function is_editorial( int $image ): bool {
+		if ( 'approved' !== Editorial_Controls::use_of( $image ) ) {
+			return false;
+		}
+		$meta = wp_get_attachment_metadata( $image );
+
+		return is_array( $meta ) && min( (int) ( $meta['width'] ?? 0 ), (int) ( $meta['height'] ?? 0 ) ) >= self::MIN_PHOTO_EDGE;
+	}
+
+	/**
+	 * The cover: the merchant's campaign photo (Homepage use "Cover") and
+	 * cover product ("Homepage cover" on the product), else the cover
+	 * product's own photo, else the newest arrival's. Claims the image and
+	 * remembers the product, so New Arrivals knows what opened the page.
+	 *
+	 * @return array{image: int, product: int, campaign: bool}|null
+	 */
+	public static function cover(): ?array {
+		$product = 0;
+		foreach ( Editorial_Controls::cover_products() as $candidate ) {
+			$item = wc_get_product( $candidate );
+			if ( $item instanceof \WC_Product && $item->is_visible() && $item->is_in_stock() ) {
+				$product = $candidate;
+				break;
+			}
+		}
+		$campaign = Editorial_Controls::attachments_with_use( 'cover' )[0] ?? 0;
+
+		if ( $campaign > 0 && wp_attachment_is_image( $campaign ) ) {
+			$cover = array(
+				'image'    => $campaign,
+				'product'  => $product,
+				'campaign' => true,
+			);
+		} elseif ( $product > 0 && (int) get_post_thumbnail_id( $product ) > 0 ) {
+			$cover = array(
+				'image'    => (int) get_post_thumbnail_id( $product ),
+				'product'  => $product,
+				'campaign' => false,
+			);
+		} else {
+			$newest = self::candidates( null, false )[0] ?? null;
+			if ( null === $newest ) {
+				return null;
+			}
+			$cover = array(
+				'image'    => $newest['image'],
+				'product'  => $newest['product'],
+				'campaign' => false,
+			);
+		}
+		self::claim( $cover['image'] );
+		Request_Cache::set( self::COVER_PRODUCT, $cover['product'] );
+
+		return $cover;
+	}
+
+	/**
+	 * Whether the cover already shows the newest arrival (New Arrivals then
+	 * starts after it).
+	 */
+	public static function newest_on_cover(): bool {
+		$newest = self::candidates( null, false )[0] ?? null;
+
+		return null !== $newest && (int) Request_Cache::get( self::COVER_PRODUCT, 0 ) === $newest['product'];
 	}
 
 	/**
@@ -212,22 +275,22 @@ final class Editorial_Imagery {
 			return '';
 		}
 		$alt = trim( (string) get_post_meta( $lead['image'], '_wp_attachment_image_alt', true ) );
-		if ( '' === $alt ) {
+		if ( '' === $alt && $lead['product'] > 0 ) {
 			$alt = get_the_title( $lead['product'] );
 		}
+		$link       = $lead['product'] > 0 ? (string) get_permalink( $lead['product'] ) : '';
 		$attributes = array(
 			'id'              => $lead['image'],
 			'aspectRatio'     => $ratio,
 			'width'           => '100%',
 			'scale'           => $scale,
 			'sizeSlug'        => 'large',
-			'linkDestination' => 'custom',
+			'linkDestination' => '' !== $link ? 'custom' : 'none',
 		);
+		$img        = '<img src="' . esc_url( $src ) . '" alt="' . esc_attr( $alt ) . '" class="wp-image-' . $lead['image'] . '" style="aspect-ratio:' . esc_attr( $ratio ) . ';object-fit:' . $scale . ';width:100%"/>';
 
 		return '<!-- wp:image ' . serialize_block_attributes( $attributes ) . ' -->' . "\n"
-			. '<figure class="wp-block-image size-large is-resized"><a href="' . esc_url( (string) get_permalink( $lead['product'] ) ) . '">'
-			. '<img src="' . esc_url( $src ) . '" alt="' . esc_attr( $alt ) . '" class="wp-image-' . $lead['image'] . '" style="aspect-ratio:' . esc_attr( $ratio ) . ';object-fit:' . $scale . ';width:100%"/>'
-			. '</a></figure>' . "\n"
+			. '<figure class="wp-block-image size-large is-resized">' . ( '' !== $link ? '<a href="' . esc_url( $link ) . '">' . $img . '</a>' : $img ) . '</figure>' . "\n"
 			. '<!-- /wp:image -->';
 	}
 
@@ -246,7 +309,7 @@ final class Editorial_Imagery {
 	 * Newest catalog-visible, in-stock products with an image.
 	 *
 	 * @param \WP_Term|null $term          Collection or null for the whole catalog.
-	 * @param bool          $photos_only   Only photographs from the main or gallery images (editorial slots); false for main images of any kind.
+	 * @param bool          $photos_only   Only approved photos from the main or gallery images (editorial slots); false for main images of any kind.
 	 * @return list<array{product: int, image: int}>
 	 */
 	private static function candidates( ?\WP_Term $term, bool $photos_only = true ): array {
@@ -308,17 +371,25 @@ final class Editorial_Imagery {
 						continue;
 					}
 					// On-figure photos often sit in the gallery behind a
-					// cut-out main image: the first photo of either qualifies.
+					// cut-out main image: the product's highest-priority
+					// approved photo of either qualifies.
 					$gallery = array_map( 'intval', array_filter( explode( ',', (string) get_post_meta( $product, '_product_image_gallery', true ) ) ) );
+					$best    = null;
 					foreach ( array_merge( array( $main ), $gallery ) as $image ) {
-						if ( $image > 0 && self::is_photo( $image ) ) {
-							$found[] = array(
-								'product' => $product,
-								'image'   => $image,
-							);
-							break;
+						if ( $image > 0 && self::is_editorial( $image ) && ( null === $best || Editorial_Controls::priority_of( $image ) > Editorial_Controls::priority_of( $best ) ) ) {
+							$best = $image;
 						}
 					}
+					if ( null !== $best ) {
+						$found[] = array(
+							'product' => $product,
+							'image'   => $best,
+						);
+					}
+				}
+				if ( $photos_only ) {
+					// Highest priority first; equal priorities keep newest first (stable sort).
+					usort( $found, static fn( array $a, array $b ): int => Editorial_Controls::priority_of( $b['image'] ) <=> Editorial_Controls::priority_of( $a['image'] ) );
 				}
 
 				return $found;

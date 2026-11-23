@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-23T04:47:43+00:00\n"
+"POT-Creation-Date: 2026-11-23T06:00:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -66,6 +66,7 @@ msgid "Premium apparel patterns for the Aggressive brand."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:71
+#: includes/WooCommerce/class-editorial-controls.php:361
 msgid "Homepage"
 msgstr ""
 
@@ -1725,6 +1726,89 @@ msgstr ""
 
 #: includes/WooCommerce/class-custom-badge-taxonomy.php:504
 msgid "Custom"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:145
+#: includes/WooCommerce/class-editorial-controls.php:210
+msgid "Not reviewed"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:146
+msgid "Approved for editorial sections"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:147
+msgid "Cover campaign photo"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:148
+#: includes/WooCommerce/class-editorial-controls.php:213
+msgid "Excluded"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:158
+msgid "Homepage use"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:162
+msgid "Looks like a photograph. Only approved photos appear on the homepage, always linked to the product they belong to."
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:163
+msgid "Looks like a product cut-out or packshot: these belong on product cards rather than editorial sections."
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:166
+msgid "Homepage priority"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:169
+msgid "Higher shows first among approved photos."
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:209
+msgid "All homepage uses"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:211
+msgid "Approved"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:212
+msgid "Cover"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:215
+msgid "Filter by homepage use"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:260
+msgid "Approve for homepage"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:261
+msgid "Exclude from homepage"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:298
+msgid "Homepage cover"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:299
+msgid "Show this product on the homepage cover. One product at a time: choosing this one replaces the last."
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:351
+#: includes/WooCommerce/class-editorial-controls.php:361
+msgid "Show in Shop by line"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:351
+msgid "Lists this category on the homepage index, in the category order set here by dragging."
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:361
+msgid "Lists this category on the homepage index, in the category order set by dragging categories in the list."
 msgstr ""
 
 #: includes/WooCommerce/class-feature-catalog.php:54
@@ -5393,12 +5477,12 @@ msgid "The small stuff"
 msgstr ""
 
 #: patterns/editorial-accessories.php:59
-#: patterns/editorial-accessories.php:91
+#: patterns/editorial-accessories.php:92
 msgid "Shop accessories"
 msgstr ""
 
 #: patterns/editorial-accessories.php:76
-#: patterns/editorial-accessories.php:110
+#: patterns/editorial-accessories.php:111
 msgid "Accessories row"
 msgstr ""
 
@@ -5508,31 +5592,31 @@ msgstr ""
 
 #: patterns/editorial-campaign-hero.php
 msgctxt "Pattern description"
-msgid "The opening spread on a light studio ground (light in both schemes): the slogan stacked at poster scale beside the newest arrival's product photo at garment scale, named with its live price, then the shopping call. With no product in stock the slogan runs full width."
+msgid "The opening spread on a light studio ground (light in both schemes): the slogan at poster scale beside the merchant's cover — a campaign photo (Media Library, Homepage use: Cover) and/or the product marked Homepage cover, named with its live price. With neither chosen, the newest arrival's product photo; with no stock, the slogan alone."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:29
+#: patterns/editorial-campaign-hero.php:30
 msgid "Est. 2010"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:33
+#: patterns/editorial-campaign-hero.php:34
 msgid "Rebellion has a uniform."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:37
+#: patterns/editorial-campaign-hero.php:38
 msgid "This season’s is in."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:42
-#: patterns/editorial-new-arrivals.php:36
+#: patterns/editorial-campaign-hero.php:43
+#: patterns/editorial-new-arrivals.php:39
 msgid "Shop new arrivals"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:46
+#: patterns/editorial-campaign-hero.php:47
 msgid "About the name"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:66
+#: patterns/editorial-campaign-hero.php:72
 msgid "Cover garment"
 msgstr ""
 
@@ -5543,19 +5627,19 @@ msgstr ""
 
 #: patterns/editorial-category-showcase.php
 msgctxt "Pattern description"
-msgid "A typographic index of the store's lines: one row per stocked category, best-stocked first, with the line's name at display scale, how many pieces it holds and three of its newest products. The whole row links to the category."
+msgid "A typographic index of the store's lines: the categories marked \"Show in Shop by line\", in WooCommerce's category order (drag to reorder in Products → Categories), each with its name at display scale, a live count of in-stock pieces and three of its newest products. Until any are marked, the theme's standard lines in a fixed order. The whole row links to the category."
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:48
+#: patterns/editorial-category-showcase.php:73
 msgid "Shop by line"
 msgstr ""
 
-#: patterns/editorial-category-showcase.php:53
+#: patterns/editorial-category-showcase.php:78
 msgid "All products"
 msgstr ""
 
 #. translators: %d: number of in-stock products in a category.
-#: patterns/editorial-category-showcase.php:73
+#: patterns/editorial-category-showcase.php:98
 #, php-format
 msgid "%d piece"
 msgid_plural "%d pieces"
@@ -5732,20 +5816,20 @@ msgstr ""
 
 #: patterns/editorial-new-arrivals.php
 msgctxt "Pattern description"
-msgid "One scrolling rail of the newest in-stock products after the cover's garment, from the live catalog. Omitted when nothing follows the cover."
+msgid "One scrolling rail of the newest in-stock products, from the live catalog; it starts after the cover's product when the cover shows the newest. Omitted when nothing is left to show."
 msgstr ""
 
-#: patterns/editorial-new-arrivals.php:26
+#: patterns/editorial-new-arrivals.php:29
 msgid "New in"
 msgstr ""
 
-#: patterns/editorial-new-arrivals.php:30
+#: patterns/editorial-new-arrivals.php:33
 #: patterns/homepage-drop-composition.php:66
 #: patterns/template-cart-empty.php:27
 msgid "New arrivals"
 msgstr ""
 
-#: patterns/editorial-new-arrivals.php:53
+#: patterns/editorial-new-arrivals.php:56
 msgid "New arrivals rail"
 msgstr ""
 

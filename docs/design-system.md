@@ -170,14 +170,32 @@ insert any section alone.
 | 11  | `editorial-featured-looks`    | studio (light in both)       | Swipe gallery of three to five square on-figure photos, each linked to and named for its product; fewer → omitted                                         |
 | 12  | `editorial-brand-story`       | compact                      | One row: "Without the edges sanded off. / Graphic pieces, plain essentials and accessories from an independent label." left, Shop all (+ Our story) right |
 
-Editorial photos come from the store's own products
-(`Editorial_Imagery`): a product's main or gallery image that is a real
-photograph, not a transparent cut-out or a packshot on a flat studio
-background (worked out once from its corner pixels and cached on the
-attachment as `_aa_photo_kind`), at least 480px on its shorter side, any
-orientation. Each photo appears once per page. Chapter numbers
-(`aa-chapter-index`, "01 / New in") are a CSS counter, so they stay in
-sequence when a section is omitted or reordered.
+**What the merchant controls** (`WooCommerce\Editorial_Controls`, no
+settings screen of its own: each control lives with its content):
+
+- **Editorial photos (Media Library).** Each image has _Homepage use_: Not
+  reviewed (default), Approved, Cover or Excluded, and a _Homepage priority_
+  (higher first). Only **approved** photos fill editorial slots (the name,
+  Women's, accessories, the lookbook, collection bands); nothing publishes
+  itself. The list view filters by homepage use and has bulk _Approve for
+  homepage_ / _Exclude from homepage_. A photo is always shown with, and
+  linked to, the product whose main or gallery image it is. The field's help
+  says whether an image looks like a photograph or a cut-out (corner pixels,
+  cached as `_aa_photo_kind`); approval is the merchant's call.
+- **Cover.** _Homepage use: Cover_ on one image (a campaign photo, any
+  image; choosing another returns the last to Approved) and _Homepage cover_
+  on one product (product edit screen, General tab). The campaign photo fills
+  a 4:5 frame named with the cover product's live price; with only a cover
+  product, its own photo is shown whole; with neither, the newest arrival.
+  New Arrivals starts after the cover's product only when it is the newest.
+- **Shop by line.** _Show in Shop by line_ on a product category; marked
+  categories appear in WooCommerce's category order (drag to reorder in
+  Products → Categories). Until any are marked, the standard lines (T-shirts,
+  Hoodies, Outerwear, Swimwear, Leggings, Accessories) in that fixed order.
+  Piece counts are live; an empty line is left out.
+
+Chapter numbers (`aa-chapter-index`, "01 / New in") are a CSS counter, so
+they stay in sequence when a section is omitted or reordered.
 
 Rules the library follows (new sections should too):
 

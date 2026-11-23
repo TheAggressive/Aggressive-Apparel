@@ -20,16 +20,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Store photography for the homepage's editorial image slots.
  *
  * Campaign photography is the merchant's to supply. Until it exists, an
- * editorial slot (the Original Work portrait, the Women's portrait, the
- * lookbook) shows the store's own product photography instead of an empty
- * frame, and never generated or stock imagery. Only portrait-format photos
- * qualify: the slots are portrait, and square images are packshots or flat
- * mockups that read as catalogue, not editorial. A section that can't fill
- * its slot changes layout instead of showing a placeholder.
+ * editorial slot (the name, the Women's photo, the lookbook, a collection's
+ * portraits) shows the store's own product photography instead of an empty
+ * frame, and never generated or stock imagery.
  *
- * Each photo is used once per page: the category tiles claim theirs first,
- * and later slots take the next unclaimed photo, so the homepage never
- * repeats an image down the scroll.
+ * Only real photographs qualify: a product's main or gallery image that is
+ * not a transparent cut-out or a packshot on a flat studio background (those
+ * read as catalogue, and belong on product cards), and is large enough for a
+ * slot. Orientation does not matter; slots crop to their own ratio. What an
+ * image is gets worked out once from its corner pixels and cached on the
+ * attachment. A section that can't fill its slot changes layout instead of
+ * showing a placeholder.
+ *
+ * Each photo is used once per page: earlier slots claim theirs first, and
+ * later slots take the next unclaimed photo, so the homepage never repeats
+ * an image down the scroll.
  */
 final class Editorial_Imagery {
 
@@ -39,11 +44,14 @@ final class Editorial_Imagery {
 	/** Newest products considered per slot source. */
 	private const CANDIDATES = 48;
 
-	/** Height must exceed width by this factor to count as portrait. */
-	private const PORTRAIT_RATIO = 1.15;
+	/** Shortest edge, in pixels, an image needs to fill an editorial slot. */
+	private const MIN_PHOTO_EDGE = 480;
+
+	/** Attachment meta caching what an image is: photo, cutout or packshot. */
+	private const KIND_META = '_aa_photo_kind';
 
 	/**
-	 * Newest shoppable products with a portrait photo, claimed for this page.
+	 * Newest shoppable products with a qualifying photo, claimed for this page.
 	 *
 	 * Catalog-wide slots (no term) only take unclaimed photos. A slot about
 	 * one collection prefers unclaimed photos but may reuse one already shown:
@@ -98,22 +106,24 @@ final class Editorial_Imagery {
 	}
 
 	/**
-	 * Keep the newest product's photo out of editorial slots.
+	 * The newest in-stock product with a main image: the cover's garment.
+	 * Claims the image, so no later slot on the page repeats it.
 	 *
-	 * New Arrivals opens with the newest product as a large card; the hero
-	 * calls this first so it never shows the same photo directly above it.
+	 * @return array{product: int, image: int}|null
 	 */
-	public static function reserve_newest_arrival(): void {
+	public static function newest_arrival(): ?array {
 		$newest = self::candidates( null, false )[0] ?? null;
 		if ( null !== $newest ) {
 			self::claim( $newest['image'] );
 		}
+
+		return $newest;
 	}
 
 	/**
-	 * A category tile's photo: the term's own image, else its newest product
-	 * photo not yet shown on this page (any orientation; tiles crop to 3:4),
-	 * else its newest product photo. Claims what it returns.
+	 * A category's image: the term's own image, else its newest product
+	 * image not yet shown on this page (any kind: cut-outs suit a category
+	 * row), else its newest product image. Claims what it returns.
 	 *
 	 * @param \WP_Term $term Category.
 	 */
@@ -134,11 +144,26 @@ final class Editorial_Imagery {
 	}
 
 	/**
-	 * Whether an image is portrait format (taller than wide by a clear margin).
+	 * Main images of a line's newest products, for its index row. Any kind
+	 * (cut-outs suit a row of thumbnails) and not claimed: a thumbnail
+	 * doesn't spend a photo another section needs.
+	 *
+	 * @param \WP_Term $term  Category.
+	 * @param int      $limit Images wanted.
+	 * @return list<int>
+	 */
+	public static function term_images( \WP_Term $term, int $limit ): array {
+		return array_slice( array_values( array_unique( array_column( self::candidates( $term, false ), 'image' ) ) ), 0, max( 0, $limit ) );
+	}
+
+	/**
+	 * Whether an image is a photograph that can fill an editorial slot: not
+	 * a cut-out or a studio packshot, and at least MIN_PHOTO_EDGE on its
+	 * shorter side.
 	 *
 	 * @param int $image Attachment ID.
 	 */
-	public static function is_portrait( int $image ): bool {
+	public static function is_photo( int $image ): bool {
 		$meta = wp_get_attachment_metadata( $image );
 		if ( ! is_array( $meta ) ) {
 			return false;
@@ -146,7 +171,24 @@ final class Editorial_Imagery {
 		$width  = (int) ( $meta['width'] ?? 0 );
 		$height = (int) ( $meta['height'] ?? 0 );
 
-		return $width > 0 && $height >= $width * self::PORTRAIT_RATIO;
+		return min( $width, $height ) >= self::MIN_PHOTO_EDGE && 'photo' === self::kind( $image );
+	}
+
+	/**
+	 * What an image is: "photo", "cutout" (transparent background) or
+	 * "packshot" (flat light background), cached on the attachment.
+	 *
+	 * @param int $image Attachment ID.
+	 */
+	public static function kind( int $image ): string {
+		$cached = get_post_meta( $image, self::KIND_META, true );
+		if ( in_array( $cached, array( 'photo', 'cutout', 'packshot' ), true ) ) {
+			return $cached;
+		}
+		$kind = self::detect_kind( $image );
+		update_post_meta( $image, self::KIND_META, $kind );
+
+		return $kind;
 	}
 
 	/**
@@ -156,11 +198,16 @@ final class Editorial_Imagery {
 	 * replaces it with campaign photography in the editor like any other
 	 * image.
 	 *
+	 * A cut-out is shown whole ($scale "contain"); a photo fills its slot
+	 * ("cover").
+	 *
 	 * @param array{product: int, image: int} $lead  Lead from leads().
 	 * @param string                          $ratio Slot aspect ratio, e.g. "4/5".
+	 * @param string                          $scale "cover" or "contain".
 	 */
-	public static function image_markup( array $lead, string $ratio ): string {
-		$src = wp_get_attachment_image_url( $lead['image'], 'large' );
+	public static function image_markup( array $lead, string $ratio, string $scale = 'cover' ): string {
+		$scale = 'contain' === $scale ? 'contain' : 'cover';
+		$src   = wp_get_attachment_image_url( $lead['image'], 'large' );
 		if ( false === $src ) {
 			return '';
 		}
@@ -172,14 +219,14 @@ final class Editorial_Imagery {
 			'id'              => $lead['image'],
 			'aspectRatio'     => $ratio,
 			'width'           => '100%',
-			'scale'           => 'cover',
+			'scale'           => $scale,
 			'sizeSlug'        => 'large',
 			'linkDestination' => 'custom',
 		);
 
 		return '<!-- wp:image ' . serialize_block_attributes( $attributes ) . ' -->' . "\n"
 			. '<figure class="wp-block-image size-large is-resized"><a href="' . esc_url( (string) get_permalink( $lead['product'] ) ) . '">'
-			. '<img src="' . esc_url( $src ) . '" alt="' . esc_attr( $alt ) . '" class="wp-image-' . $lead['image'] . '" style="aspect-ratio:' . esc_attr( $ratio ) . ';object-fit:cover;width:100%"/>'
+			. '<img src="' . esc_url( $src ) . '" alt="' . esc_attr( $alt ) . '" class="wp-image-' . $lead['image'] . '" style="aspect-ratio:' . esc_attr( $ratio ) . ';object-fit:' . $scale . ';width:100%"/>'
 			. '</a></figure>' . "\n"
 			. '<!-- /wp:image -->';
 	}
@@ -196,21 +243,21 @@ final class Editorial_Imagery {
 	}
 
 	/**
-	 * Newest catalog-visible, in-stock products with a main photo.
+	 * Newest catalog-visible, in-stock products with an image.
 	 *
 	 * @param \WP_Term|null $term          Collection or null for the whole catalog.
-	 * @param bool          $portrait_only Only portrait photos (editorial slots); false for any orientation (tiles).
+	 * @param bool          $photos_only   Only photographs from the main or gallery images (editorial slots); false for main images of any kind.
 	 * @return list<array{product: int, image: int}>
 	 */
-	private static function candidates( ?\WP_Term $term, bool $portrait_only = true ): array {
+	private static function candidates( ?\WP_Term $term, bool $photos_only = true ): array {
 		$candidates = Request_Cache::remember(
-			'editorial-imagery:candidates:' . ( null === $term ? 'all' : $term->term_id ) . ( $portrait_only ? ':portrait' : ':any' ),
+			'editorial-imagery:candidates:' . ( null === $term ? 'all' : $term->term_id ) . ( $photos_only ? ':photos' : ':any' ),
 			/**
 			 * Newest products' photos, filtered by orientation.
 			 *
 			 * @return list<array{product: int, image: int}>
 			 */
-			static function () use ( $term, $portrait_only ): array {
+			static function () use ( $term, $photos_only ): array {
 				$tax_query = array(
 					array(
 						'taxonomy' => 'product_visibility',
@@ -250,12 +297,27 @@ final class Editorial_Imagery {
 				$found = array();
 				foreach ( $query->posts as $post ) {
 					$product = $post instanceof \WP_Post ? $post->ID : $post;
-					$image   = (int) get_post_thumbnail_id( $product );
-					if ( $image > 0 && ( ! $portrait_only || self::is_portrait( $image ) ) ) {
-						$found[] = array(
-							'product' => $product,
-							'image'   => $image,
-						);
+					$main    = (int) get_post_thumbnail_id( $product );
+					if ( ! $photos_only ) {
+						if ( $main > 0 ) {
+							$found[] = array(
+								'product' => $product,
+								'image'   => $main,
+							);
+						}
+						continue;
+					}
+					// On-figure photos often sit in the gallery behind a
+					// cut-out main image: the first photo of either qualifies.
+					$gallery = array_map( 'intval', array_filter( explode( ',', (string) get_post_meta( $product, '_product_image_gallery', true ) ) ) );
+					foreach ( array_merge( array( $main ), $gallery ) as $image ) {
+						if ( $image > 0 && self::is_photo( $image ) ) {
+							$found[] = array(
+								'product' => $product,
+								'image'   => $image,
+							);
+							break;
+						}
 					}
 				}
 
@@ -264,5 +326,94 @@ final class Editorial_Imagery {
 		);
 
 		return is_array( $candidates ) ? $candidates : array();
+	}
+
+	/**
+	 * Classify an image from its corner pixels, read from its smallest
+	 * uncropped copy. Transparent corners make a cut-out; four near-identical
+	 * light corners make a packshot on a studio background. An unreadable
+	 * file in a format that can carry transparency is treated as a cut-out,
+	 * so it never fills an editorial slot by mistake; a JPEG is a photo.
+	 *
+	 * @param int $image Attachment ID.
+	 */
+	private static function detect_kind( int $image ): string {
+		$alpha  = in_array( (string) get_post_mime_type( $image ), array( 'image/png', 'image/webp', 'image/avif', 'image/gif' ), true );
+		$file   = self::sample_file( $image );
+		$pixels = null !== $file ? self::corner_pixels( $file ) : null;
+		if ( null === $pixels ) {
+			return $alpha ? 'cutout' : 'photo';
+		}
+		foreach ( $pixels as $pixel ) {
+			// GD alpha runs 0 (opaque) to 127 (transparent).
+			if ( $pixel['alpha'] > 100 ) {
+				return 'cutout';
+			}
+		}
+		$light = array_map( static fn( array $pixel ): float => ( $pixel['red'] + $pixel['green'] + $pixel['blue'] ) / 3, $pixels );
+		if ( array() !== $light && min( $light ) > 225 && max( $light ) - min( $light ) < 12 ) {
+			return 'packshot';
+		}
+
+		return 'photo';
+	}
+
+	/**
+	 * Path of the smallest proportional copy of an image (medium, else the
+	 * original); null when no file exists.
+	 *
+	 * @param int $image Attachment ID.
+	 */
+	private static function sample_file( int $image ): ?string {
+		$original = get_attached_file( $image );
+		if ( ! is_string( $original ) || '' === $original ) {
+			return null;
+		}
+		$meta   = wp_get_attachment_metadata( $image );
+		$medium = is_array( $meta ) ? (string) ( $meta['sizes']['medium']['file'] ?? '' ) : '';
+		$path   = '' !== $medium ? dirname( $original ) . '/' . $medium : $original;
+		if ( ! file_exists( $path ) ) {
+			$path = $original;
+		}
+
+		return file_exists( $path ) ? $path : null;
+	}
+
+	/**
+	 * RGBA of the four corner pixels (2px in), or null when GD can't read it.
+	 *
+	 * @param string $file Image path.
+	 * @return list<array{red: int, green: int, blue: int, alpha: int}>|null
+	 */
+	private static function corner_pixels( string $file ): ?array {
+		if ( ! function_exists( 'imagecreatefromstring' ) ) {
+			return null;
+		}
+		$data = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- A local upload, read once and cached as attachment meta.
+		if ( false === $data || '' === $data || false === getimagesizefromstring( $data ) ) {
+			return null;
+		}
+		$canvas = imagecreatefromstring( $data );
+		if ( false === $canvas ) {
+			return null;
+		}
+		$right  = max( 0, imagesx( $canvas ) - 3 );
+		$bottom = max( 0, imagesy( $canvas ) - 3 );
+		$pixels = array();
+		foreach ( array( array( 2, 2 ), array( $right, 2 ), array( 2, $bottom ), array( $right, $bottom ) ) as $point ) {
+			$index = imagecolorat( $canvas, min( $point[0], $right ), min( $point[1], $bottom ) );
+			$rgba  = false === $index ? false : imagecolorsforindex( $canvas, $index );
+			if ( ! is_array( $rgba ) ) {
+				return null;
+			}
+			$pixels[] = array(
+				'red'   => (int) $rgba['red'],
+				'green' => (int) $rgba['green'],
+				'blue'  => (int) $rgba['blue'],
+				'alpha' => (int) $rgba['alpha'],
+			);
+		}
+
+		return $pixels;
 	}
 }

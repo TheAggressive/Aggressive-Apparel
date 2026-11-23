@@ -204,25 +204,17 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 	}
 
 	/**
-	 * One tile per stocked category in a single row, with the grid's real gap
-	 * declared (core assumes 0.5em without it and drops a column), store
-	 * imagery on the tile, an overlay WooCommerce can print as CSS, and no
-	 * scroll reveal hiding the tiles.
+	 * Shop by line: one row per stocked line linking to its archive, an
+	 * empty category left out, never behind a scroll reveal.
 	 */
-	public function test_category_showcase_renders_one_row_of_stocked_tiles(): void {
+	public function test_line_index_lists_only_stocked_lines(): void {
 		$hoodies = self::factory()->term->create_and_get(
 			array(
 				'taxonomy' => 'product_cat',
 				'slug'     => 'hoodies',
 			)
 		);
-		$image   = $this->create_image();
-		$this->create_product(
-			array(
-				'category' => $hoodies->term_id,
-				'image'    => $image,
-			)
-		);
+		$this->create_product( array( 'category' => $hoodies->term_id ) );
 		self::factory()->term->create(
 			array(
 				'taxonomy' => 'product_cat',
@@ -230,32 +222,19 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 			)
 		);
 
-		$blocks = parse_blocks( $this->render_pattern( 'editorial-category-showcase' ) );
-		$grid   = $this->find_block( $blocks, static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-editorial-tiles' ) );
-		$this->assertNotNull( $grid );
-		$tiles = array();
-		foreach ( $grid['innerBlocks'] as $item ) {
-			// Each tile is a direct grid item: never held behind a scroll reveal.
-			$this->assertSame( 'woocommerce/featured-category', $item['blockName'] );
-			$tiles[] = $item;
-		}
+		$markup = $this->render_pattern( 'editorial-category-showcase' );
+		$names  = array_filter( $this->find_all( parse_blocks( $markup ), 'core/heading' ), static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-line-index__name' ) );
 
-		$this->assertCount( 1, $tiles, 'Empty Accessories category gets no tile.' );
-		$this->assertSame( 1, $grid['attrs']['layout']['columnCount'] );
-		$this->assertNotEmpty( $grid['attrs']['style']['spacing']['blockGap'] );
-		$this->assertSame( $hoodies->term_id, $tiles[0]['attrs']['categoryId'] );
-		$this->assertSame( $image, $tiles[0]['attrs']['mediaId'] );
-		$this->assertSame( 'cover', $tiles[0]['attrs']['imageFit'] );
-		$this->assertSame( 0, $tiles[0]['attrs']['dimRatio'], 'No gradient over the artwork: the name sits on its own band.' );
-		$this->assertSame( '4/5', $tiles[0]['attrs']['style']['dimensions']['aspectRatio'] );
+		$this->assertCount( 1, $names, 'Empty Accessories category gets no row.' );
+		$this->assertStringContainsString( 'href="' . get_term_link( $hoodies ) . '"', $markup );
+		$this->assertStringNotContainsString( 'animate-on-scroll', $markup );
 	}
 
 	/**
-	 * Swimwear and leggings are lines with their own tiles, and the row never
-	 * holds more than four: with more stocked lines, the four best-stocked
-	 * win and keep the showcase's order. Ties keep that order too.
+	 * Every stocked line has a row, Swimwear and Leggings included, best-stocked
+	 * first; equal counts keep the index's order.
 	 */
-	public function test_category_showcase_keeps_the_four_best_stocked_lines(): void {
+	public function test_line_index_orders_lines_by_stock(): void {
 		$stock = array(
 			't-shirts'    => 4,
 			'hoodies'     => 1,
@@ -269,6 +248,7 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 				array(
 					'taxonomy' => 'product_cat',
 					'slug'     => $slug,
+					'name'     => ucfirst( $slug ),
 				)
 			);
 			for ( $i = 0; $i < $count; $i++ ) {
@@ -276,17 +256,12 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 			}
 		}
 
-		$blocks = parse_blocks( $this->render_pattern( 'editorial-category-showcase' ) );
-		$grid   = $this->find_block( $blocks, static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-editorial-tiles' ) );
-		$this->assertNotNull( $grid );
-		$shown = array_map( static fn( $tile ) => $tile['attrs']['categoryId'], $grid['innerBlocks'] );
-
-		$this->assertSame(
-			array( $terms['t-shirts'], $terms['hoodies'], $terms['swimwear'], $terms['accessories'] ),
-			$shown,
-			'Leggings (1) loses the tie with Hoodies (1) by order; Swimwear gets a tile.'
+		$names = array_map(
+			static fn( $block ) => wp_strip_all_tags( $block['innerHTML'] ),
+			array_values( array_filter( $this->find_all( parse_blocks( $this->render_pattern( 'editorial-category-showcase' ) ), 'core/heading' ), static fn( $block ) => str_contains( $block['attrs']['className'] ?? '', 'aa-line-index__name' ) ) )
 		);
-		$this->assertSame( 4, $grid['attrs']['layout']['columnCount'] );
+
+		$this->assertSame( array( 'T-shirts', 'Swimwear', 'Accessories', 'Hoodies', 'Leggings' ), array_map( 'trim', $names ) );
 	}
 
 	/**

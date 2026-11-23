@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial Homepage
- * Description: Twelve-section editorial storefront: campaign, categories, new arrivals, original work, best sellers, featured drop, women's, hoodies, Defiance Division, accessories, looks and brand story. Each section is its own pattern, so sections can be reordered, removed or inserted alone.
+ * Description: Twelve-section editorial storefront: cover, new arrivals, shop by line, the name, best sellers, the drop, women’s, hoodies, Defiance Division, accessories, lookbook and brand story. Each section is its own pattern, so sections can be reordered, removed or inserted alone.
  * Slug: aggressive-apparel/editorial-homepage
  * Categories: aggressive-homepage, aggressive-editorial
  * Keywords: home, homepage, storefront, editorial, campaign
@@ -13,9 +13,9 @@
 ?>
 <!-- wp:pattern {"slug":"aggressive-apparel/editorial-campaign-hero"} /-->
 
-<!-- wp:pattern {"slug":"aggressive-apparel/editorial-category-showcase"} /-->
-
 <!-- wp:pattern {"slug":"aggressive-apparel/editorial-new-arrivals"} /-->
+
+<!-- wp:pattern {"slug":"aggressive-apparel/editorial-category-showcase"} /-->
 
 <!-- wp:pattern {"slug":"aggressive-apparel/editorial-artwork-spotlight"} /-->
 

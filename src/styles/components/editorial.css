@@ -184,11 +184,8 @@
 		1px;
 }
 
-/* The name (className `aa-statement`): the deep brand red in both schemes.
-   Accent backgrounds resolve the accent fill, which brightens to a
-   button red in dark mode; a full-width band of that reads as a sale
-   banner, so the band keeps the light scheme's oxblood. Its text is set
-   white in the pattern. */
+/* The name (className `aa-statement`): a white chapter, light in both
+   schemes, so its photographs and type read the same in dark mode. */
 .aa-statement {
 	color-scheme: light;
 }

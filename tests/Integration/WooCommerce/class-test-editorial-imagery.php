@@ -30,7 +30,7 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 
 	/** Square packshots and mockups never fill a portrait editorial slot. */
 	public function test_leads_take_only_portrait_photos(): void {
-		$this->create_product( array( 'image' => $this->create_image( 800, 800 ) ) );
+		$this->create_product( array( 'image' => $this->create_cutout() ) );
 		$portrait = $this->create_image();
 		$product  = $this->create_product( array( 'image' => $portrait ) );
 
@@ -151,24 +151,40 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		}
 	}
 
-	/** The name: a typographic statement, never a placeholder frame or a photo. */
-	public function test_the_name_section_is_typographic(): void {
-		$this->create_product( array( 'image' => $this->create_image() ) );
+	/** The name: the statement beside the store's photos, each named in a Shown line. */
+	public function test_the_name_sets_the_statement_beside_photos(): void {
+		$products = array();
+		for ( $i = 0; $i < 3; $i++ ) {
+			$products[] = $this->create_product( array( 'image' => $this->create_image( 1200, 1200 ) ) );
+		}
+
+		$markup = $this->render_pattern( 'editorial-artwork-spotlight' );
+		$images = $this->find_all( parse_blocks( $markup ), 'core/image' );
+
+		$this->assertCount( 3, $images, 'Square photos qualify: slots crop to their own ratio.' );
+		$this->assertStringContainsString( 'id="the-label"', $markup );
+		foreach ( $products as $product ) {
+			$this->assertSame( 2, substr_count( $markup, 'href="' . get_permalink( $product->get_id() ) . '"' ), 'Linked from its photo and the Shown line.' );
+		}
+	}
+
+	/** Without photos the name stays typographic: never an empty frame or a cut-out. */
+	public function test_the_name_without_photos_is_typographic(): void {
+		$this->create_product( array( 'image' => $this->create_cutout() ) );
 
 		$markup = $this->render_pattern( 'editorial-artwork-spotlight' );
 
 		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/image' ) );
-		$this->assertStringNotContainsString( 'wp:cover', $markup );
-		$this->assertStringContainsString( 'id="the-label"', $markup );
+		$this->assertStringContainsString( 'Aggressive is a compliment.', $markup );
 	}
 
 	/**
-	 * The hero shows a real product photo, linked to the product, but never
-	 * the newest product's: New Arrivals opens with that one directly below.
+	 * The cover shows the newest arrival whole (a cut-out is never cropped)
+	 * and names it with its live price: a one-product collection of it.
 	 */
-	public function test_hero_photo_skips_the_newest_arrival(): void {
+	public function test_cover_shows_the_newest_arrival_whole(): void {
 		$older  = $this->create_product( array( 'image' => $this->create_image() ) );
-		$newest = $this->create_product( array( 'image' => $this->create_image() ) );
+		$newest = $this->create_product( array( 'image' => $this->create_cutout() ) );
 		wp_update_post(
 			array(
 				'ID'            => $older->get_id(),
@@ -177,41 +193,60 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 			)
 		);
 
-		$markup = $this->render_pattern( 'editorial-campaign-hero' );
-		$images = $this->find_all( parse_blocks( $markup ), 'core/image' );
+		$blocks = parse_blocks( $this->render_pattern( 'editorial-campaign-hero' ) );
+		$images = $this->find_all( $blocks, 'core/image' );
+		$named  = $this->find_all( $blocks, 'woocommerce/product-collection' );
 
 		$this->assertCount( 1, $images );
-		$this->assertSame( (int) $older->get_image_id(), $images[0]['attrs']['id'] );
-		$this->assertStringNotContainsString( (string) get_permalink( $newest->get_id() ), $markup );
+		$this->assertSame( (int) $newest->get_image_id(), $images[0]['attrs']['id'] );
+		$this->assertSame( 'contain', $images[0]['attrs']['scale'] );
+		$this->assertCount( 1, $named );
+		$this->assertSame( array( $newest->get_id() ), $named[0]['attrs']['query']['woocommerceHandPickedProducts'] );
+		$this->assertStringContainsString( 'aa-grid-caption', $named[0]['attrs']['className'] );
 	}
 
-	/** With two portrait photos the hero is a diptych, each photo named in the Shown line. */
-	public function test_hero_diptych_names_both_products(): void {
-		$this->create_product( array( 'image' => $this->create_image() ) );
-		$this->create_product( array( 'image' => $this->create_image() ) );
-		$this->create_product( array( 'image' => $this->create_image() ) );
+	/** A product's first photo may sit in its gallery behind a cut-out main image. */
+	public function test_leads_find_a_gallery_photo_behind_a_cutout(): void {
+		$photo   = $this->create_image( 1200, 1200 );
+		$product = $this->create_product( array( 'image' => $this->create_cutout() ) );
+		$product->set_gallery_image_ids( array( $this->create_cutout(), $photo ) );
+		$product->save();
 
-		$markup = $this->render_pattern( 'editorial-campaign-hero' );
-		$images = $this->find_all( parse_blocks( $markup ), 'core/image' );
-
-		$this->assertCount( 2, $images );
-		$this->assertSame( array( '2/3', '2/3' ), array_column( array_column( $images, 'attrs' ), 'aspectRatio' ) );
-		foreach ( $images as $image ) {
-			preg_match( '/href="([^"]+)"/', $image['innerHTML'], $link );
-			$this->assertSame( 2, substr_count( $markup, 'href="' . $link[1] . '"' ), 'Linked from the photo and the Shown line.' );
-		}
+		$this->assertSame(
+			array(
+				array(
+					'product' => $product->get_id(),
+					'image'   => $photo,
+				),
+			),
+			Editorial_Imagery::leads( 3 )
+		);
 	}
 
-	/** Each category tile carries a live count of in-stock pieces. */
-	public function test_category_tiles_show_in_stock_counts(): void {
+	/** Cut-outs and undersized images never fill an editorial slot. */
+	public function test_photo_rule_rejects_cutouts_and_small_images(): void {
+		$this->assertFalse( Editorial_Imagery::is_photo( $this->create_cutout( 1200 ) ) );
+		$this->assertSame( 'cutout', Editorial_Imagery::kind( $this->create_cutout() ) );
+		$this->assertFalse( Editorial_Imagery::is_photo( $this->create_image( 400, 600 ) ) );
+		$this->assertTrue( Editorial_Imagery::is_photo( $this->create_image( 1200, 900 ) ) );
+	}
+
+	/** Each line's row carries a live count of in-stock pieces and up to three of its products. */
+	public function test_line_index_rows_count_stock_and_show_three_products(): void {
 		$hoodies = self::factory()->term->create_and_get(
 			array(
 				'taxonomy' => 'product_cat',
 				'slug'     => 'hoodies',
 			)
 		);
-		$this->create_product( array( 'category' => $hoodies->term_id ) );
-		$this->create_product( array( 'category' => $hoodies->term_id ) );
+		for ( $i = 0; $i < 4; $i++ ) {
+			$this->create_product(
+				array(
+					'category' => $hoodies->term_id,
+					'image'    => $this->create_cutout(),
+				)
+			);
+		}
 		$this->create_product(
 			array(
 				'category'     => $hoodies->term_id,
@@ -220,46 +255,35 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		);
 
 		$markup = $this->render_pattern( 'editorial-category-showcase' );
+		$thumbs = $this->find_all( parse_blocks( $markup ), 'core/image' );
 
-		$this->assertStringContainsString( '2 pieces', $markup );
-		$this->assertStringContainsString( '"aspectRatio":"4/5"', $markup, 'A square photo over a name band.' );
+		$this->assertStringContainsString( '4 pieces', $markup );
+		$this->assertCount( 3, $thumbs );
+		$this->assertSame( 'aa-line-index__thumb', $thumbs[0]['attrs']['className'] );
 	}
 
-	/** The New Arrivals lead grid is marked as the lead (larger name, 3:4 image). */
-	public function test_new_arrivals_lead_grid_is_marked_lead(): void {
-		for ( $i = 0; $i < 5; $i++ ) {
-			$this->create_product();
-		}
 
-		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
-
-		$this->assertStringContainsString( 'aa-grid-lead', $grids[0]['attrs']['className'] );
-		$this->assertStringNotContainsString( 'aa-grid-lead', $grids[1]['attrs']['className'] );
-		$this->assertStringContainsString( '"fontSize":"x-large"', serialize_blocks( array( $grids[0] ) ) );
-	}
-
-	/** Without a portrait photo the hero is the slogan alone: no empty frame. */
-	public function test_hero_without_photography_is_type_only(): void {
-		$this->create_product( array( 'image' => $this->create_image( 800, 800 ) ) );
-
+	/** With nothing in stock the cover is the slogan alone: no empty frame. */
+	public function test_cover_without_products_is_type_only(): void {
 		$markup = $this->render_pattern( 'editorial-campaign-hero' );
 
 		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/image' ) );
 		$this->assertStringContainsString( 'Rebellion has a uniform.', $markup );
 	}
 
-	/** New Arrivals: the newest product as a lead card, the next four beside it. */
-	public function test_new_arrivals_leads_with_the_newest_then_the_next_four(): void {
+	/** New Arrivals: one rail of the newest after the cover's garment, never behind a reveal. */
+	public function test_new_arrivals_is_a_rail_after_the_cover(): void {
 		for ( $i = 0; $i < 5; $i++ ) {
 			$this->create_product();
 		}
 
-		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
+		$blocks = parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) );
+		$grids  = $this->find_all( $blocks, 'woocommerce/product-collection' );
 
-		$this->assertCount( 2, $grids );
-		$this->assertSame( array( 1, 0 ), array( $grids[0]['attrs']['query']['perPage'], $grids[0]['attrs']['query']['offset'] ) );
-		$this->assertSame( array( 4, 1 ), array( $grids[1]['attrs']['query']['perPage'], $grids[1]['attrs']['query']['offset'] ) );
-		$this->assertSame( array(), $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'aggressive-blocks/animate-on-scroll' ), 'Products are never behind a reveal.' );
+		$this->assertCount( 1, $grids );
+		$this->assertSame( array( 4, 1 ), array( $grids[0]['attrs']['query']['perPage'], $grids[0]['attrs']['query']['offset'] ) );
+		$this->assertStringContainsString( 'aa-grid-rail', $grids[0]['attrs']['className'] );
+		$this->assertSame( array(), $this->find_all( $blocks, 'aggressive-blocks/animate-on-scroll' ), 'Products are never behind a reveal.' );
 	}
 
 	/**
@@ -278,7 +302,7 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( 0, Editorial_Imagery::term_image( $term ) );
 
 		$first  = $this->create_image();
-		$second = $this->create_image( 800, 800 );
+		$second = $this->create_cutout();
 		$this->create_product(
 			array(
 				'category' => $term->term_id,
@@ -346,11 +370,11 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 	}
 
 	/**
-	 * One hoodie is a half-and-half spread with a lead card, two sit beside the
-	 * headline (headline first), three or four make a centred row, five or
+	 * Hoodies are a lineup on one studio band: up to four side by side (a
+	 * short range centred at a third each, never one stretched card), five or
 	 * more a rail.
 	 */
-	public function test_hoodies_layout_follows_the_stock(): void {
+	public function test_hoodies_lineup_follows_the_stock(): void {
 		$hoodies = self::factory()->term->create_and_get(
 			array(
 				'taxonomy' => 'product_cat',
@@ -359,28 +383,24 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		);
 		$this->create_product( array( 'category' => $hoodies->term_id ) );
 
-		$markup  = $this->render_pattern( 'editorial-hoodies-feature' );
-		$columns = $this->find_all( parse_blocks( $markup ), 'core/columns' );
-		$this->assertCount( 1, $columns );
-		$this->assertLessThan( strpos( $markup, 'wp:woocommerce/product-collection' ), strpos( $markup, 'is-style-campaign' ), 'Headline precedes the cards.' );
-		$this->assertSame( 1, $this->find_all( parse_blocks( $markup ), 'woocommerce/product-collection' )[0]['attrs']['query']['perPage'] );
-		$this->assertSame( '50%', $columns[0]['innerBlocks'][1]['attrs']['width'], 'One card gets half the row, not a third beside a void.' );
-		$this->assertStringContainsString( 'aa-grid-lead', $this->find_all( parse_blocks( $markup ), 'woocommerce/product-collection' )[0]['attrs']['className'] );
-
-		$this->create_product( array( 'category' => $hoodies->term_id ) );
-		$this->create_product( array( 'category' => $hoodies->term_id ) );
-		$markup = $this->render_pattern( 'editorial-hoodies-feature' );
-		$grid   = $this->find_all( parse_blocks( $markup ), 'woocommerce/product-collection' )[0];
-		$this->assertSame( array(), $this->find_all( parse_blocks( $markup ), 'core/columns' ) );
-		$this->assertSame( 3, $grid['attrs']['query']['perPage'] );
+		$grid = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-hoodies-feature' ) ), 'woocommerce/product-collection' )[0];
+		$this->assertSame( 1, $grid['attrs']['query']['perPage'] );
+		$this->assertSame( 3, $grid['attrs']['displayLayout']['columns'] );
+		$this->assertStringContainsString( 'aa-grid-lineup', $grid['attrs']['className'] );
 		$this->assertStringContainsString( 'aa-grid-centered', $grid['attrs']['className'] );
 
-		$this->create_product( array( 'category' => $hoodies->term_id ) );
+		for ( $i = 0; $i < 3; $i++ ) {
+			$this->create_product( array( 'category' => $hoodies->term_id ) );
+		}
+		$grid = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-hoodies-feature' ) ), 'woocommerce/product-collection' )[0];
+		$this->assertSame( 4, $grid['attrs']['displayLayout']['columns'] );
+		$this->assertStringNotContainsString( 'aa-grid-centered', $grid['attrs']['className'] );
+		$this->assertStringNotContainsString( 'aa-grid-rail', $grid['attrs']['className'] );
+
 		$this->create_product( array( 'category' => $hoodies->term_id ) );
 		$grid = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-hoodies-feature' ) ), 'woocommerce/product-collection' )[0];
 		$this->assertSame( 5, $grid['attrs']['query']['perPage'] );
 		$this->assertStringContainsString( 'aa-grid-rail', $grid['attrs']['className'] );
-		$this->assertStringNotContainsString( 'aa-grid-centered', $grid['attrs']['className'] );
 	}
 
 	/** Staff picks fill their column with the picks that exist. */
@@ -447,7 +467,7 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 			)
 		);
 		for ( $i = 0; $i < 3; $i++ ) {
-			$product = $this->create_product( array( 'image' => $this->create_image( 800, 800 ) ) );
+			$product = $this->create_product( array( 'image' => $this->create_cutout() ) );
 			wp_set_object_terms( $product->get_id(), array( $defiance->term_id ), 'product_tag' );
 		}
 
@@ -461,24 +481,6 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( 3, $grid['attrs']['query']['perPage'] );
 	}
 
-	/**
-	 * Every block of a type, depth first.
-	 *
-	 * @param array<int, array<string, mixed>> $blocks Parsed blocks.
-	 * @param string                           $name   Block name.
-	 * @return list<array<string, mixed>>
-	 */
-	private function find_all( array $blocks, string $name ): array {
-		$found = array();
-		foreach ( $blocks as $block ) {
-			if ( $name === $block['blockName'] ) {
-				$found[] = $block;
-			}
-			array_push( $found, ...$this->find_all( $block['innerBlocks'], $name ) );
-		}
-
-		return $found;
-	}
 	/**
 	 * With nothing in stock, the shopping sections that list products are
 	 * omitted rather than printing a heading over an empty row.
@@ -495,22 +497,15 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( '', trim( $this->render_pattern( 'editorial-new-arrivals' ) ) );
 	}
 
-	/** Fewer than five new arrivals make one row sized to the count, never a lead with holes beside it. */
-	public function test_new_arrivals_short_catalog_is_one_row(): void {
-		for ( $i = 0; $i < 3; $i++ ) {
-			$this->create_product();
-		}
+	/** A short catalog: the rail holds what follows the cover; with nothing after it, no section. */
+	public function test_new_arrivals_short_catalog_follows_the_cover(): void {
+		$this->create_product();
+		$this->assertSame( '', trim( $this->render_pattern( 'editorial-new-arrivals' ) ), 'The only product is on the cover.' );
 
+		$this->create_product();
+		$this->create_product();
 		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
 		$this->assertCount( 1, $grids );
-		$this->assertSame( 3, $grids[0]['attrs']['query']['perPage'] );
-		$this->assertSame( 3, $grids[0]['attrs']['displayLayout']['columns'] );
-		$this->assertStringNotContainsString( 'aa-grid-lead', $grids[0]['attrs']['className'] );
-
-		$this->create_product();
-		$this->create_product();
-		$grids = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-new-arrivals' ) ), 'woocommerce/product-collection' );
-		$this->assertCount( 2, $grids, 'Five or more: the lead card beside a 2 x 2.' );
-		$this->assertStringContainsString( 'aa-grid-lead', $grids[0]['attrs']['className'] );
+		$this->assertSame( 2, $grids[0]['attrs']['query']['perPage'] );
 	}
 }

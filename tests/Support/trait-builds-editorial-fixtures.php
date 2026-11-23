@@ -68,6 +68,59 @@ trait Builds_Editorial_Fixtures {
 	}
 
 	/**
+	 * Create a product cut-out: a real PNG with a transparent background, as
+	 * the store's packshots are, so it never qualifies as an editorial photo.
+	 *
+	 * @param int $size Square edge in pixels.
+	 */
+	private function create_cutout( int $size = 800 ): int {
+		$canvas = imagecreatetruecolor( $size, $size );
+		imagesavealpha( $canvas, true );
+		imagefill( $canvas, 0, 0, (int) imagecolorallocatealpha( $canvas, 0, 0, 0, 127 ) );
+		imagefilledrectangle( $canvas, (int) ( $size / 4 ), (int) ( $size / 4 ), (int) ( $size * 3 / 4 ), (int) ( $size * 3 / 4 ), (int) imagecolorallocate( $canvas, 20, 20, 20 ) );
+		$uploads = wp_upload_dir();
+		$file    = trailingslashit( $uploads['path'] ) . wp_unique_filename( $uploads['path'], 'editorial-cutout.png' );
+		imagepng( $canvas, $file );
+
+		$id = self::factory()->attachment->create_object(
+			array(
+				'file'           => $file,
+				'post_mime_type' => 'image/png',
+			)
+		);
+		update_attached_file( $id, $file );
+		wp_update_attachment_metadata(
+			$id,
+			array(
+				'width'  => $size,
+				'height' => $size,
+				'file'   => _wp_relative_upload_path( $file ),
+			)
+		);
+
+		return $id;
+	}
+
+	/**
+	 * Every block of a type, depth first.
+	 *
+	 * @param array<int, array<string, mixed>> $blocks Parsed blocks.
+	 * @param string                           $name   Block name.
+	 * @return list<array<string, mixed>>
+	 */
+	private function find_all( array $blocks, string $name ): array {
+		$found = array();
+		foreach ( $blocks as $block ) {
+			if ( $name === $block['blockName'] ) {
+				$found[] = $block;
+			}
+			array_push( $found, ...$this->find_all( $block['innerBlocks'], $name ) );
+		}
+
+		return $found;
+	}
+
+	/**
 	 * Depth-first search of parsed blocks.
 	 *
 	 * @param array<int, array<string, mixed>> $blocks    Parsed blocks.

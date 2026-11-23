@@ -1,10 +1,10 @@
 <?php
 /**
- * Title: Editorial — Category Showcase
- * Description: Portrait category tiles, one per stocked category, showing the category's own image (or its newest product's); the whole tile links to the category.
+ * Title: Editorial — Shop by Line
+ * Description: A typographic index of the store's lines: one row per stocked category, best-stocked first, with the line's name at display scale, how many pieces it holds and three of its newest products. The whole row links to the category.
  * Slug: aggressive-apparel/editorial-category-showcase
  * Categories: aggressive-editorial, aggressive-homepage
- * Keywords: categories, shop, tiles, editorial, homepage
+ * Keywords: categories, shop, index, lines, editorial, homepage
  * Viewport Width: 1440
  *
  * @package Aggressive_Apparel
@@ -13,69 +13,40 @@
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
-// Candidate slugs per tile, first match wins; a tile is left out when the
-// store has no such category or it has no products, so every tile links to
+// Candidate slugs per line, first match wins; a line is left out when the
+// store has no such category or it has no products, so every row links to
 // a real, non-empty archive.
-$aa_tiles = array(
-	array(
-		'slugs' => array( 't-shirts', 'tshirts', 'tees', 'shirts' ),
-	),
-	array(
-		'slugs' => array( 'hoodies', 'hoodie', 'sweatshirts' ),
-	),
-	array(
-		'slugs' => array( 'outerwear', 'jackets' ),
-	),
-	// Swimwear and leggings are whole lines in the catalog; without a tile
-	// they had no route from the homepage's category row.
-	array(
-		'slugs' => array( 'swimwear', 'swim', 'swimsuits' ),
-	),
-	array(
-		'slugs' => array( 'leggings' ),
-	),
-	array(
-		'slugs' => array( 'accessories' ),
-	),
+$aa_lines = array(
+	array( 't-shirts', 'tshirts', 'tees', 'shirts' ),
+	array( 'hoodies', 'hoodie', 'sweatshirts' ),
+	array( 'outerwear', 'jackets' ),
+	array( 'swimwear', 'swim', 'swimsuits' ),
+	array( 'leggings' ),
+	array( 'accessories' ),
 );
+
 $aa_found = array();
-foreach ( $aa_tiles as $aa_tile ) {
-	$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), $aa_tile['slugs'] );
+foreach ( $aa_lines as $aa_slugs ) {
+	$aa_term = Editorial_Catalog::stocked_term( array( 'product_cat' ), $aa_slugs );
 	if ( null !== $aa_term ) {
-		$aa_found[] = $aa_term;
+		$aa_found[] = array(
+			'term'  => $aa_term,
+			'count' => Editorial_Catalog::visible_count( $aa_term ),
+		);
 	}
 }
-// No stocked category, no section: a heading over an empty row reads as broken.
+// No stocked line, no section: a heading over an empty index reads as broken.
 if ( array() === $aa_found ) {
 	return;
 }
+// Best-stocked first (a stable sort: equal counts keep the order above).
+usort( $aa_found, static fn( array $a, array $b ): int => $b['count'] <=> $a['count'] );
 
-// Four tiles at most: the row is designed for four (the names stay on one
-// line and nothing wraps 4 + 2). With more, the four best-stocked lines win,
-// then keep the order above.
-if ( count( $aa_found ) > 4 ) {
-	$aa_counts = array();
-	foreach ( $aa_found as $aa_index => $aa_term ) {
-		$aa_counts[ $aa_index ] = Editorial_Catalog::visible_count( $aa_term );
-	}
-	// Stable sort (PHP 8): equal counts keep the order above.
-	arsort( $aa_counts, SORT_NUMERIC );
-	$aa_keep = array_slice( array_keys( $aa_counts ), 0, 4 );
-	sort( $aa_keep );
-	$aa_found = array_values( array_intersect_key( $aa_found, array_flip( $aa_keep ) ) );
-}
-
-?><!-- wp:group {"metadata":{"name":"02 Shop Categories"},"align":"full","className":"aa-shop-section","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull aa-shop-section" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
-<div class="wp-block-group alignwide"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-<p class="is-style-eyebrow"><?php echo esc_html__( 'Shop by category', 'aggressive-apparel' ); ?></p>
+?><!-- wp:group {"metadata":{"name":"03 Shop by Line"},"align":"full","className":"aa-shop-section aa-line-index","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|8"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull aa-shop-section aa-line-index" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
+<div class="wp-block-group alignwide"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
+<p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'Shop by line', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
-
-<!-- wp:heading {"className":"is-style-headline"} -->
-<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Pick your issue.', 'aggressive-apparel' ); ?></h2>
-<!-- /wp:heading --></div>
-<!-- /wp:group -->
 
 <!-- wp:buttons -->
 <div class="wp-block-buttons"><!-- wp:button {"className":"is-style-text"} -->
@@ -84,63 +55,44 @@ if ( count( $aa_found ) > 4 ) {
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
 
+<!-- wp:group {"align":"wide","className":"aa-line-index__rows","layout":{"type":"default"}} -->
+<div class="wp-block-group alignwide aa-line-index__rows">
 <?php
-// One row of however many categories exist: four tiles never wrap 3 + 1.
-// The gap is explicit because core sizes responsive grid tracks from the
-// block's own gap and assumes 0.5em when none is set.
-$aa_grid_attributes = array(
-	'align'     => 'wide',
-	'className' => 'aa-editorial-tiles',
-	'style'     => array( 'spacing' => array( 'blockGap' => 'var:preset|spacing|4' ) ),
-	'layout'    => array(
-		'type'               => 'grid',
-		'columnCount'        => max( 1, count( $aa_found ) ),
-		'minimumColumnWidth' => '9rem',
-	),
-);
-?>
-<!-- wp:group <?php echo serialize_block_attributes( $aa_grid_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
-<div class="wp-block-group alignwide aa-editorial-tiles">
-<?php
-foreach ( $aa_found as $aa_term ) {
-	$aa_attributes = array(
-		'contentAlign'    => 'left',
-		'dimRatio'        => 0,
-		'categoryId'      => $aa_term->term_id,
-		'backgroundColor' => 'black',
-		// A 4:5 tile: the photo fills its top as a square (the shape the
-		// product images are designed in, so nothing is cropped or covered)
-		// and the name sits on the black band below it, never over the
-		// artwork (_editorial-tiles.css).
-		'style'           => array( 'dimensions' => array( 'aspectRatio' => '4/5' ) ),
-	);
-	// The category's own image, else its newest product photo not already
-	// shown higher on the page (the hero's); claimed so later slots skip it.
-	$aa_image = Editorial_Imagery::term_image( $aa_term );
-	if ( $aa_image > 0 ) {
-		$aa_attributes['mediaId']  = $aa_image;
-		$aa_attributes['imageFit'] = 'cover';
-	}
+foreach ( $aa_found as $aa_line ) {
+	$aa_term = $aa_line['term'];
 	?>
-<!-- wp:woocommerce/featured-category <?php echo serialize_block_attributes( $aa_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block attributes JSON-encoded by core's serializer. ?> -->
-<!-- wp:heading {"level":3,"textColor":"white","fontSize":"fluid-xxxxx-large"} -->
-<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxxxx-large-font-size"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
+<!-- wp:group {"className":"aa-line-index__row","layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
+<div class="wp-block-group aa-line-index__row"><!-- wp:heading {"level":3,"className":"aa-line-index__name","textColor":"foreground"} -->
+<h3 class="wp-block-heading aa-line-index__name has-foreground-color has-text-color"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
 <!-- /wp:heading -->
-	<?php
-	$aa_count = Editorial_Catalog::visible_count( $aa_term );
-	if ( $aa_count > 0 ) :
-		?>
 
-<!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
-<p class="is-style-meta has-white-color has-text-color">
-		<?php
-		/* translators: %d: number of in-stock products in a category. */
-		echo esc_html( sprintf( _n( '%d piece', '%d pieces', $aa_count, 'aggressive-apparel' ), $aa_count ) );
-		?>
+<!-- wp:paragraph {"className":"is-style-meta aa-line-index__count"} -->
+<p class="is-style-meta aa-line-index__count">
+	<?php
+	/* translators: %d: number of in-stock products in a category. */
+	echo esc_html( sprintf( _n( '%d piece', '%d pieces', $aa_line['count'], 'aggressive-apparel' ), $aa_line['count'] ) );
+	?>
 </p>
 <!-- /wp:paragraph -->
-	<?php endif; ?>
-<!-- /wp:woocommerce/featured-category -->
+
+<!-- wp:group {"className":"aa-line-index__thumbs","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+<div class="wp-block-group aa-line-index__thumbs">
+	<?php
+	foreach ( Editorial_Imagery::term_images( $aa_term, 3 ) as $aa_image ) {
+		$aa_src = wp_get_attachment_image_url( $aa_image, 'thumbnail' );
+		if ( false === $aa_src ) {
+			continue;
+		}
+		?>
+<!-- wp:image {"id":<?php echo (int) $aa_image; ?>,"sizeSlug":"thumbnail","linkDestination":"none","className":"aa-line-index__thumb"} -->
+<figure class="wp-block-image size-thumbnail aa-line-index__thumb"><img src="<?php echo esc_url( $aa_src ); ?>" alt="" class="wp-image-<?php echo (int) $aa_image; ?>"/></figure>
+<!-- /wp:image -->
+		<?php
+	}
+	?>
+</div>
+<!-- /wp:group --></div>
+<!-- /wp:group -->
 	<?php
 }
 ?>

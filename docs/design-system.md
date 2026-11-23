@@ -155,20 +155,29 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface               | Live data                                                                                                                                                                       |
-| --- | ----------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | black spread                   | Slogan sized to its column beside two full-height portrait photos (diptych, most of a screen tall); below 782px it stacks, photos first; "Shown" line; type only without photos |
-| 02  | `editorial-category-showcase` | compact                        | One row of stocked categories, 4:5 tiles (square photo + name band), piece counts; swipe rail on phones; omitted when no category is stocked                                    |
-| 03  | `editorial-new-arrivals`      | compact                        | 5+ in stock: newest as a lead card + the next four 2 × 2 (stacked below 782px); 1–4: one row sized to the count; none: omitted                                                  |
-| 04  | `editorial-artwork-spotlight` | compact, deep brand red        | Masthead rule (The name / Est. 2010) over "Aggressive is a compliment." + paragraph, no sales button; oxblood in both schemes (`aa-statement`); `#the-label`                    |
-| 05  | `editorial-best-sellers`      | compact, intro + 2–3-up        | Real sales → Best sellers; else Featured products; else omitted                                                                                                                 |
-| 06  | `editorial-featured-drop`     | black spread / band            | Drop photo (left) + name + row of two, or title row over a stock-sized grid; else omitted                                                                                       |
-| 07  | `editorial-womens-collection` | white spread                   | Copy + row of two beside a full-height photo (right) on static white, light in both schemes; else copy + grid                                                                   |
-| 08  | `editorial-hoodies-feature`   | compact, stone (light in both) | 1 → half-and-half spread, one large card; 2 → two cards beside the headline; 3–4 → centred row; 5+ → rail                                                                       |
-| 09  | `editorial-defiance-division` | black spread / band            | As the drop band (`Editorial_Collection_Band`); else omitted                                                                                                                    |
-| 10  | `editorial-accessories`       | compact                        | Up to four in a row; more scroll as a rail of up to eight (3.5 visible)                                                                                                         |
-| 11  | `editorial-featured-looks`    | standard, black                | Three portrait photos (Fig. 01–03) linked to products; phone rail                                                                                                               |
-| 12  | `editorial-brand-story`       | compact                        | One row: "Without the edges sanded off. / Graphic pieces, plain essentials and accessories from an independent label." left, Shop all (+ Our story) right                       |
+| #   | Pattern                       | Rhythm / surface             | Live data                                                                                                                                                 |
+| --- | ----------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | studio cover (light in both) | The slogan at poster scale beside the newest arrival's product photo, whole, named with its live price (one-product collection); no stock → slogan alone  |
+| 02  | `editorial-new-arrivals`      | compact                      | One rail of up to eight, newest first after the cover's garment; nothing after it → omitted                                                               |
+| 03  | `editorial-category-showcase` | compact                      | Shop by line: one ruled row per stocked line, best-stocked first, name at display scale, piece count, three of its products                               |
+| 04  | `editorial-artwork-spotlight` | white (light in both)        | "Aggressive is a compliment." + paragraph beside up to three on-figure photos with a Shown line; no photos → typographic                                  |
+| 05  | `editorial-best-sellers`      | compact                      | Three large numbered cards: real sales → Best sellers; else Featured; else omitted                                                                        |
+| 06  | `editorial-featured-drop`     | black spread / band          | Drop photo + name + row of two, or title row over a stock-sized grid; no stocked term → omitted                                                           |
+| 07  | `editorial-womens-collection` | white spread                 | Copy + row of two beside a full-height on-figure photo, light in both schemes; no stocked term → omitted                                                  |
+| 08  | `editorial-hoodies-feature`   | compact                      | Lineup on one studio band: up to four side by side (short ranges centred), five or more a rail                                                            |
+| 09  | `editorial-defiance-division` | black spread / band          | As the drop band (`Editorial_Collection_Band`); no stocked term → omitted                                                                                 |
+| 10  | `editorial-accessories`       | compact                      | With an on-figure accessory photo: photo + two products + a tile counting the rest; else up to four, or a rail                                            |
+| 11  | `editorial-featured-looks`    | studio (light in both)       | Swipe gallery of three to five square on-figure photos, each linked to and named for its product; fewer → omitted                                         |
+| 12  | `editorial-brand-story`       | compact                      | One row: "Without the edges sanded off. / Graphic pieces, plain essentials and accessories from an independent label." left, Shop all (+ Our story) right |
+
+Editorial photos come from the store's own products
+(`Editorial_Imagery`): a product's main or gallery image that is a real
+photograph, not a transparent cut-out or a packshot on a flat studio
+background (worked out once from its corner pixels and cached on the
+attachment as `_aa_photo_kind`), at least 480px on its shorter side, any
+orientation. Each photo appears once per page. Chapter numbers
+(`aa-chapter-index`, "01 / New in") are a CSS counter, so they stay in
+sequence when a section is omitted or reordered.
 
 Rules the library follows (new sections should too):
 

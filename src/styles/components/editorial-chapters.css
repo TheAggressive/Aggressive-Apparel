@@ -1,0 +1,240 @@
+/**
+ * Homepage chapters ("The Uniform Index").
+ *
+ * The cover, the line index, the name's photographs, the lookbook gallery
+ * and the accessories count tile. Unlayered like editorial.css, for the same
+ * reason: these rules must outrank the block-style headings
+ * (block-styles.css, unlayered). Editor typography still wins: font-size
+ * preset classes carry !important, inline sizes are inline.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Chapter numbers ("01 / New in"). A counter rather than typed numbers, so
+   they stay in sequence when a section is omitted (a collection with no
+   stock) or reordered in the editor. Decorative: the alt text after the
+   slash keeps screen readers to the eyebrow's words. */
+.wp-site-blocks {
+	counter-reset: aa-chapter;
+}
+
+.aa-chapter-index::before {
+	counter-increment: aa-chapter;
+	content: counter(aa-chapter, decimal-leading-zero) " / " / "";
+}
+
+/* Section titles at display scale: the chapters' second voice after the
+   cover's slogan. */
+.wp-block-heading.aa-chapter-title {
+	font-size: clamp(3rem, 1.75rem + 4.2vw, 6rem);
+	line-height: 0.88;
+}
+
+/* Cover: the slogan at poster scale, sized to the viewport (no container
+   query: a container's style containment would also isolate the chapter
+   counter), the newest garment beside it at garment scale, edging into the
+   type from 782px. Side by side the copy column is ~54% of the wide width,
+   so 13.5vw keeps "REBELLION" inside it; stacked, the slogan fills the
+   phone. */
+.aa-cover {
+	& .wp-block-heading.is-style-campaign {
+		max-width: none;
+		font-size: clamp(3.75rem, 27vw, 8rem);
+		line-height: 0.82;
+		letter-spacing: -0.005em;
+
+		@media (width >= 782px) {
+			font-size: clamp(4rem, 13.5vw, 14rem);
+		}
+	}
+
+	& .is-style-lead {
+		max-width: 38rem;
+		margin-block-start: var(--wp--preset--spacing--5);
+		font-size: var(--wp--preset--font-size--x-large);
+	}
+
+	& .aa-cover-garment .wp-block-image {
+		margin: 0;
+
+		& img {
+			width: 100%;
+			height: auto;
+		}
+	}
+
+	& .aa-grid-caption {
+		margin-block-start: var(--wp--preset--spacing--3);
+	}
+
+	@media (width >= 782px) {
+		& .aa-cover-garment {
+			position: relative;
+			z-index: 1;
+			margin-inline-start: -6%;
+		}
+	}
+}
+
+/* Shop by line: one ruled row per line, the name at display scale, the
+   whole row its link (the name's link stretched over it). The row selector
+   is doubled (0,2,0) to outrank core's `body .is-layout-flex` (0,1,1), which
+   would otherwise keep the phone layout a single overflowing line. */
+.aa-line-index__rows {
+	border-block-end: 1px solid var(--wp--preset--color--border);
+
+	& > * {
+		margin-block: 0;
+	}
+}
+
+.wp-block-group.aa-line-index__row {
+	position: relative;
+	gap: var(--wp--preset--spacing--6);
+	padding-block: var(--wp--preset--spacing--3);
+	border-block-start: 1px solid var(--wp--preset--color--border);
+
+	& .aa-line-index__name {
+		flex: 1 1 auto;
+		margin: 0;
+		font-size: clamp(2.75rem, 1.25rem + 5vw, 7rem);
+		line-height: 1;
+
+		& a {
+			color: inherit;
+			text-decoration: none;
+
+			&::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+			}
+
+			&:focus-visible {
+				outline: none;
+			}
+		}
+	}
+
+	&:hover .aa-line-index__name a {
+		color: var(--wp--preset--color--accent);
+	}
+
+	&:has(a:focus-visible) {
+		box-shadow: var(--aa-focus-ring);
+	}
+
+	& .aa-line-index__count {
+		flex: 0 0 9rem;
+		margin: 0;
+	}
+
+	& .aa-line-index__thumbs {
+		flex: none;
+		gap: var(--wp--preset--spacing--3);
+	}
+
+	& .aa-line-index__thumb {
+		width: clamp(3.5rem, 6vw, 6rem);
+		margin: 0;
+
+		& img {
+			display: block;
+			width: 100%;
+			height: auto;
+			aspect-ratio: 1;
+			object-fit: contain;
+		}
+	}
+
+	/* Phones: name over its count, two thumbnails beside them. */
+	@media (width < 782px) {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: var(--wp--preset--spacing--1) var(--wp--preset--spacing--4);
+
+		& .aa-line-index__thumbs {
+			grid-row: 1 / 3;
+			grid-column: 2;
+			align-self: center;
+		}
+
+		& .aa-line-index__thumb:nth-child(n + 3) {
+			display: none;
+		}
+	}
+}
+
+/* The name: its photographs fill their columns; the Shown line sits under
+   them. */
+.aa-name .aa-name__photos .wp-block-image {
+	margin: 0;
+}
+
+/* Lookbook gallery: square photos in one swipeable row, each captioned. */
+.aa-photo-rail {
+	gap: var(--wp--preset--spacing--4);
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: thin;
+	padding-block-end: var(--wp--preset--spacing--3);
+
+	& .aa-photo-rail__look {
+		flex: 0 0 clamp(16rem, 36vw, 34rem);
+		scroll-snap-align: start;
+
+		& .wp-block-image {
+			margin: 0;
+		}
+	}
+
+	& .aa-photo-rail__caption {
+		margin: 0;
+		font-weight: 600;
+
+		& a {
+			color: inherit;
+			text-decoration: none;
+
+			&:hover {
+				text-decoration: underline;
+				text-underline-offset: 0.2em;
+			}
+		}
+	}
+}
+
+/* Accessories: the rest of the range counted on one square tile, the
+   whole tile its link. Stacked under the cards on phones it is a short bar,
+   not a second full-width square. */
+.aa-more-tile {
+	position: relative;
+	aspect-ratio: 1;
+
+	@media (width < 782px) {
+		aspect-ratio: auto;
+		min-height: 7rem;
+	}
+
+	& .is-style-meta {
+		color: inherit;
+	}
+
+	& .aa-more-tile__count {
+		margin: 0;
+		font-family: var(--wp--preset--font-family--bebas-neue);
+		font-size: clamp(3rem, 2rem + 3vw, 5.5rem);
+		line-height: 0.9;
+	}
+
+	& a {
+		color: inherit;
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+	}
+}

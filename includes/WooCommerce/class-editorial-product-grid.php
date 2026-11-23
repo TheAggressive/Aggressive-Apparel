@@ -34,10 +34,14 @@ final class Editorial_Product_Grid {
 	 * collection (a WooCommerce preset such as new-arrivals), align, label,
 	 * centered (centre a row shorter than the column count), lead (a single
 	 * large card: name and price set larger), rail (one scrolling row that
-	 * shows three and a half cards, so a longer range reads as more).
+	 * shows three and a half cards, so a longer range reads as more),
+	 * products (hand-picked product IDs, in that order), caption (a card of
+	 * name and price only, no image: a product named beside its photo),
+	 * numbered (large 01, 02, 03 on each card's photo: a ranking or a short list),
+	 * lineup (cards side by side on one studio band, names centred below).
 	 *
 	 * @param array<string, mixed> $args Grid options.
-	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool, rail?: bool} $args
+	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool, rail?: bool, products?: list<int>, caption?: bool, numbered?: bool, lineup?: bool} $args
 	 */
 	public static function markup( array $args ): string {
 		$term    = $args['term'] ?? null;
@@ -46,12 +50,13 @@ final class Editorial_Product_Grid {
 			'woocommerceAttributes' => array(),
 		);
 		$columns = max( 1, min( 6, $args['columns'] ?? 4 ) );
+		$picked  = array_values( array_map( 'intval', $args['products'] ?? array() ) );
 		$align   = $args['align'] ?? 'wide';
 
 		$attributes = array(
 			'queryId'       => $args['query_id'],
 			'query'         => array(
-				'perPage'                       => max( 1, $args['per_page'] ?? $columns ),
+				'perPage'                       => max( 1, array() !== $picked ? count( $picked ) : ( $args['per_page'] ?? $columns ) ),
 				'pages'                         => 1,
 				'offset'                        => max( 0, $args['offset'] ?? 0 ),
 				'postType'                      => 'product',
@@ -67,7 +72,7 @@ final class Editorial_Product_Grid {
 				'woocommerceOnSale'             => false,
 				'woocommerceStockStatus'        => array( 'instock', 'onbackorder' ),
 				'woocommerceAttributes'         => $filter['woocommerceAttributes'],
-				'woocommerceHandPickedProducts' => array(),
+				'woocommerceHandPickedProducts' => $picked,
 			),
 			'tagName'       => 'div',
 			'displayLayout' => array(
@@ -89,13 +94,13 @@ final class Editorial_Product_Grid {
 		}
 		// A centred section centres a short row (aa-grid-centered, editorial.css
 		// in blocks.css) instead of leaving it flush left under its heading.
-		$class_name              = 'is-style-editorial-grid' . ( ! empty( $args['centered'] ) ? ' aa-grid-centered' : '' ) . ( ! empty( $args['lead'] ) ? ' aa-grid-lead' : '' ) . ( ! empty( $args['rail'] ) ? ' aa-grid-rail' : '' );
+		$class_name              = 'is-style-editorial-grid' . ( ! empty( $args['centered'] ) ? ' aa-grid-centered' : '' ) . ( ! empty( $args['lead'] ) ? ' aa-grid-lead' : '' ) . ( ! empty( $args['rail'] ) ? ' aa-grid-rail' : '' ) . ( ! empty( $args['caption'] ) ? ' aa-grid-caption' : '' ) . ( ! empty( $args['numbered'] ) ? ' aa-grid-numbered' : '' ) . ( ! empty( $args['lineup'] ) ? ' aa-grid-lineup' : '' );
 		$attributes['className'] = $class_name;
 
 		$classes = 'wp-block-woocommerce-product-collection' . ( '' !== $align ? ' align' . $align : '' ) . ' ' . $class_name;
 
 		return '<!-- wp:woocommerce/product-collection ' . self::json( $attributes ) . ' -->' . "\n"
-			. '<div class="' . esc_attr( $classes ) . '">' . self::card( ! empty( $args['lead'] ) ) . '</div>' . "\n"
+			. '<div class="' . esc_attr( $classes ) . '">' . ( ! empty( $args['caption'] ) ? self::caption() : self::card( ! empty( $args['lead'] ) ) ) . '</div>' . "\n"
 			. '<!-- /wp:woocommerce/product-collection -->';
 	}
 
@@ -127,6 +132,21 @@ final class Editorial_Product_Grid {
 HTML;
 
 		return $lead ? str_replace( array( '"fontSize":"large"', '"fontSize":"medium"' ), array( '"fontSize":"xx-large"', '"fontSize":"x-large"' ), $card ) : $card;
+	}
+
+	/**
+	 * Name and price only: a product named beside its own photo.
+	 */
+	private static function caption(): string {
+		return <<<'HTML'
+<!-- wp:woocommerce/product-template -->
+<!-- wp:group {"className":"aa-editorial-caption","style":{"spacing":{"blockGap":"var:preset|spacing|1"}},"layout":{"type":"default"}} -->
+<div class="wp-block-group aa-editorial-caption"><!-- wp:post-title {"level":2,"isLink":true,"style":{"elements":{"link":{"color":{"text":"var:preset|color|foreground"},":hover":{"color":{"text":"var:preset|color|accent"}}}}},"fontSize":"medium","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+
+<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true,"textAlign":"left","fontSize":"medium"} /--></div>
+<!-- /wp:group -->
+<!-- /wp:woocommerce/product-template -->
+HTML;
 	}
 
 	/**

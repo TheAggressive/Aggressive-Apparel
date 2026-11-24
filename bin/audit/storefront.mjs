@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Storefront audit against any running site — staging with production
- * merchandise, or production after a release. Read-only by default.
+ * Storefront audit against any running site, such as production after a
+ * release has updated it. Read-only by default.
  *
- *     node bin/audit/storefront.mjs https://staging.example.com [--cart] [--key <access key>] [--no-paypal] [--out dir]
+ *     node bin/audit/storefront.mjs https://example.com [--cart] [--no-paypal] [--out dir]
  *
  * Pages are discovered from the live catalog through the Store API (no local
  * fixtures): home, shop, a category, a simple and a variable product, search,
@@ -37,12 +37,6 @@ if ( ! base ) {
 	process.exit( 2 );
 }
 const withCart = argv.includes( '--cart' );
-// A locked-down staging site (bin/staging/lockdown.php) needs its access key.
-const keyIndex = argv.indexOf( '--key' );
-const accessKey = keyIndex > -1 ? argv[ keyIndex + 1 ] : '';
-const keyCookie = accessKey
-	? [ { name: 'aa_staging_key', value: accessKey, url: base } ]
-	: [];
 // PayPal smart buttons must render on product pages unless the site has no
 // PayPal (local development).
 const expectPayPal = ! argv.includes( '--no-paypal' );
@@ -68,9 +62,7 @@ const PAYPAL =
 	'.wp-block-woocommerce-paypal-payments-product-smart-buttons, [id^="ppc-button"], .ppcp-button-apm';
 
 async function storeApi( route ) {
-	const response = await fetch( `${ base }/wp-json/wc/store/v1/${ route }`, {
-		headers: accessKey ? { cookie: `aa_staging_key=${ accessKey }` } : {},
-	} );
+	const response = await fetch( `${ base }/wp-json/wc/store/v1/${ route }` );
 	if ( ! response.ok ) {
 		throw new Error( `Store API ${ route }: HTTP ${ response.status }` );
 	}
@@ -201,7 +193,6 @@ let storageState;
 const simple = pages.find( ( [ name ] ) => name === 'product-simple' );
 if ( withCart && simple ) {
 	const context = await browser.newContext();
-	await context.addCookies( keyCookie );
 	const page = await context.newPage();
 	await page.goto( simple[ 1 ], { waitUntil: 'networkidle' } );
 	const button = page
@@ -242,7 +233,6 @@ for ( const scheme of SCHEMES ) {
 		colorScheme: scheme,
 		storageState,
 	} );
-	await context.addCookies( keyCookie );
 
 	for ( const [ name, url ] of pages ) {
 		for ( const width of WIDTHS ) {

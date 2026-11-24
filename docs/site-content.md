@@ -144,12 +144,14 @@ What production merchandise changes, and what to look at:
 - **Product photos are designed square** (2000 × 2000). Cards and category
   tiles are square and show the whole image; the product gallery frame
   follows the main photo.
-- **There is no portrait photography** in the catalog. The photo-led homepage
-  sections fall back to their type and grid layouts until campaign or
-  lifestyle photos are added: the hero becomes the type-only slogan, Women's
-  shows copy and products without a photo, and the lookbook is omitted.
-  Setting the hero tee shot (or any campaign photo) in the editor restores
-  the photo layouts.
+- **No photo is on the homepage until it is approved.** The catalog's
+  on-figure photos only appear once approved under Media Library → Homepage
+  use (see the merchant controls in `design-system.md`). Until then the
+  photo-led sections fall back: the hero shows the cover product (or the
+  newest one) whole, Women's shows copy and products without a photo, and
+  the lookbook is omitted below three approved photos. Shop by line lists
+  every stocked standard line until categories are ticked "Show in Shop by
+  line".
 - **Defiance Division exists** (three hats), so section 09 renders as a title
   row over a three-product grid.
 - Check every page type at 375 / 768 / 1440 / 1920, light and dark: home,

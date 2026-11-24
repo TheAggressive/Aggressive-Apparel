@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-23T06:00:20+00:00\n"
+"POT-Creation-Date: 2026-11-24T02:44:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -5477,12 +5477,12 @@ msgid "The small stuff"
 msgstr ""
 
 #: patterns/editorial-accessories.php:59
-#: patterns/editorial-accessories.php:92
+#: patterns/editorial-accessories.php:91
 msgid "Shop accessories"
 msgstr ""
 
-#: patterns/editorial-accessories.php:76
-#: patterns/editorial-accessories.php:111
+#: patterns/editorial-accessories.php:78
+#: patterns/editorial-accessories.php:110
 msgid "Accessories row"
 msgstr ""
 
@@ -5496,22 +5496,22 @@ msgctxt "Pattern description"
 msgid "The one place the brand explains itself: the statement about the name and a short paragraph beside up to three of the store's own on-figure photos, each product named in a Shown line. With no photos it stays typographic. Anchor #the-label, the cover's second link."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:28
+#: patterns/editorial-artwork-spotlight.php:29
 msgid "The name"
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:32
+#: patterns/editorial-artwork-spotlight.php:33
 #: patterns/home-storefront.php:127
 msgid "Aggressive is a compliment."
 msgstr ""
 
-#: patterns/editorial-artwork-spotlight.php:36
+#: patterns/editorial-artwork-spotlight.php:38
 #: patterns/home-storefront.php:131
 msgid "It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is toned down to suit everyone."
 msgstr ""
 
 #. translators: %s: linked names of the products in the photos, separated by a middle dot.
-#: patterns/editorial-artwork-spotlight.php:59
+#: patterns/editorial-artwork-spotlight.php:61
 #, php-format
 msgid "Shown: %s"
 msgstr ""
@@ -5595,28 +5595,28 @@ msgctxt "Pattern description"
 msgid "The opening spread on a light studio ground (light in both schemes): the slogan at poster scale beside the merchant's cover — a campaign photo (Media Library, Homepage use: Cover) and/or the product marked Homepage cover, named with its live price. With neither chosen, the newest arrival's product photo; with no stock, the slogan alone."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:30
+#: patterns/editorial-campaign-hero.php:31
 msgid "Est. 2010"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:34
+#: patterns/editorial-campaign-hero.php:35
 msgid "Rebellion has a uniform."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:38
+#: patterns/editorial-campaign-hero.php:40
 msgid "This season’s is in."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:43
+#: patterns/editorial-campaign-hero.php:45
 #: patterns/editorial-new-arrivals.php:39
 msgid "Shop new arrivals"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:47
+#: patterns/editorial-campaign-hero.php:49
 msgid "About the name"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:72
+#: patterns/editorial-campaign-hero.php:74
 msgid "Cover garment"
 msgstr ""
 
@@ -5639,7 +5639,7 @@ msgid "All products"
 msgstr ""
 
 #. translators: %d: number of in-stock products in a category.
-#: patterns/editorial-category-showcase.php:98
+#: patterns/editorial-category-showcase.php:105
 #, php-format
 msgid "%d piece"
 msgid_plural "%d pieces"
@@ -5710,10 +5710,11 @@ msgstr ""
 
 #: patterns/editorial-featured-looks.php
 msgctxt "Pattern description"
-msgid "The lookbook as a swipe gallery on a light studio band: up to five of the store's own on-figure photos, square, each linked to and named for its product. Needs three photos, else it is omitted."
+msgid "The lookbook on a light studio band: three to five approved photos in the Aggressive Blocks horizontal scroll (pinned and scrubbed by scrolling on desktop, a swipe carousel with controls on touch), each linked to and named for its product. Needs three photos, else it is omitted."
 msgstr ""
 
 #: patterns/editorial-featured-looks.php:29
+#: patterns/editorial-featured-looks.php:33
 #: patterns/lookbook-grid.php:20
 msgid "How it’s worn"
 msgstr ""

@@ -244,7 +244,11 @@ Rules the library follows (new sections should too):
    for short copy only, at one house setting: `slide` up 24px over 0.7s,
    `threshold` 0.1, `detectionBoundary` bottom 0%, children staggered 0.08s.
    The hero never animates. The block renders content visible without
-   JavaScript and holds still under reduced motion.
+   JavaScript and holds still under reduced motion. Shop by line is the one
+   index that moves: each line's name (the reveal wraps the heading alone)
+   rises in with its rule drawing across beside it, and on hover or focus
+   the other names step back while the active line's thumbnails lift. The
+   thumbnails themselves are never inside the reveal.
 8. **Sections size to their stock.** Grids count what they can actually
    show (`Editorial_Catalog::visible_count()`: catalog-visible, in stock),
    not the term's raw count. Two staff picks are two large cards, not a

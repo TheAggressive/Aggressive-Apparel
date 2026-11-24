@@ -83,13 +83,20 @@ if ( array() === $aa_found ) {
 <!-- wp:group {"align":"wide","className":"aa-line-index__rows","layout":{"type":"default"}} -->
 <div class="wp-block-group alignwide aa-line-index__rows">
 <?php
-foreach ( $aa_found as $aa_line ) {
+/*
+ * Only the name rises in (the house reveal, staggered down the index); the
+ * row's rule draws in with it. The thumbnails sit outside the reveal, so
+ * they are visible at rest.
+ */
+foreach ( array_values( $aa_found ) as $aa_index => $aa_line ) {
 	$aa_term = $aa_line['term'];
 	?>
 <!-- wp:group {"className":"aa-line-index__row","layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
-<div class="wp-block-group aa-line-index__row"><!-- wp:heading {"level":3,"className":"aa-line-index__name","textColor":"foreground"} -->
+<div class="wp-block-group aa-line-index__row"><!-- wp:aggressive-blocks/animate-on-scroll {"animation":"slide","direction":"up","slideDistance":24,"duration":0.7,"initialDelay":<?php echo esc_html( sprintf( '%.2F', 0.08 * $aa_index ) ); ?>,"threshold":"0.1","detectionBoundary":{"top":"100%","right":"0%","bottom":"0%","left":"0%"},"className":"aa-line-index__reveal"} -->
+<!-- wp:heading {"level":3,"className":"aa-line-index__name","textColor":"foreground"} -->
 <h3 class="wp-block-heading aa-line-index__name has-foreground-color has-text-color"><a href="<?php echo esc_url( Editorial_Catalog::url( $aa_term ) ); ?>"><?php echo esc_html( $aa_term->name ); ?></a></h3>
 <!-- /wp:heading -->
+<!-- /wp:aggressive-blocks/animate-on-scroll -->
 
 <!-- wp:paragraph {"className":"is-style-meta aa-line-index__count"} -->
 <p class="is-style-meta aa-line-index__count">

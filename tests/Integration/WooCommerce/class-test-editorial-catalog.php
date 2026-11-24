@@ -205,7 +205,8 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 
 	/**
 	 * Shop by line: one row per stocked line linking to its archive, an
-	 * empty category left out, never behind a scroll reveal.
+	 * empty category left out. Only the name rises in on scroll; the
+	 * thumbnails are never behind the reveal.
 	 */
 	public function test_line_index_lists_only_stocked_lines(): void {
 		$hoodies = self::factory()->term->create_and_get(
@@ -227,7 +228,13 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $names, 'Empty Accessories category gets no row.' );
 		$this->assertStringContainsString( 'href="' . get_term_link( $hoodies ) . '"', $markup );
-		$this->assertStringNotContainsString( 'animate-on-scroll', $markup );
+
+		$reveals = $this->find_all( parse_blocks( $markup ), 'aggressive-blocks/animate-on-scroll' );
+		$this->assertCount( 1, $reveals, 'Each row reveals its name.' );
+		foreach ( $reveals as $reveal ) {
+			$this->assertSame( array( 'core/heading' ), array_column( $reveal['innerBlocks'], 'blockName' ), 'The reveal wraps the name alone.' );
+			$this->assertSame( array(), $this->find_all( $reveal['innerBlocks'], 'core/image' ), 'Thumbnails are never behind a reveal.' );
+		}
 	}
 
 	/**

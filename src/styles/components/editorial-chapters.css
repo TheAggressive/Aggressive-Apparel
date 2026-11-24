@@ -81,11 +81,11 @@
 /* Shop by line: one ruled row per line, the name at display scale, the
    whole row its link (the name's link stretched over it). The row selector
    is doubled (0,2,0) to outrank core's `body .is-layout-flex` (0,1,1), which
-   would otherwise keep the phone layout a single overflowing line. */
+   would otherwise keep the phone layout a single overflowing line.
 
-/* Rows sit flush on their rules: core's flow gap (48px) would land
-   between a name and the next rule, and not after the last row. 0,2,0
-   outranks core's flow-layout margin. */
+   Rows sit flush on their rules: core's flow gap (48px) would land between
+   a name and the next rule, and not after the last row. 0,2,0 outranks
+   core's flow-layout margin. */
 .wp-block-group.aa-line-index__rows {
 	border-block-end: 1px solid var(--wp--preset--color--border);
 
@@ -109,7 +109,20 @@
 	align-items: center;
 	gap: var(--wp--preset--spacing--6);
 	padding-block: var(--wp--preset--spacing--3);
-	border-block-start: 1px solid var(--wp--preset--color--border);
+
+	/* The rule is drawn, not a border, so it can draw in with the name. */
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0 0 auto;
+		border-block-start: 1px solid var(--wp--preset--color--border);
+		transform-origin: 0 0;
+		transition: scale 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+
+		&:dir(rtl) {
+			transform-origin: 100% 0;
+		}
+	}
 
 	& .aa-line-index__name {
 		margin: 0;
@@ -135,6 +148,14 @@
 
 	&:hover .aa-line-index__name a {
 		color: var(--wp--preset--color--accent);
+	}
+
+	& .aa-line-index__name a,
+	& .aa-line-index__thumb {
+		transition:
+			color 0.25s ease,
+			padding 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
+			translate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
 	}
 
 	&:has(a:focus-visible) {
@@ -177,6 +198,78 @@
 
 		& .aa-line-index__thumb:nth-child(n + 3) {
 			display: none;
+		}
+	}
+}
+
+/* Index motion. On scroll each name rises in (Animate on Scroll, wrapping
+   the name only) and its rule draws across with it, on the same trigger and
+   the same 0.08s stagger. On hover or keyboard focus the other names step
+   back, the active name leans forward and its thumbnails lift. Thumbnails
+   are never hidden; under reduced motion nothing moves and only the colour
+   change remains. */
+@media (prefers-reduced-motion: no-preference) {
+	.wp-block-group.aa-line-index__row {
+		&:has(
+				> .aa-line-index__reveal[data-animate-id]:not(.is-visible)
+			)::before {
+			scale: 0 1;
+		}
+
+		&:nth-child(2)::before {
+			transition-delay: 0.08s;
+		}
+
+		&:nth-child(3)::before {
+			transition-delay: 0.16s;
+		}
+
+		&:nth-child(4)::before {
+			transition-delay: 0.24s;
+		}
+
+		&:nth-child(5)::before {
+			transition-delay: 0.32s;
+		}
+
+		&:nth-child(6)::before {
+			transition-delay: 0.4s;
+		}
+
+		&:nth-child(n + 7)::before {
+			transition-delay: 0.48s;
+		}
+	}
+}
+
+.wp-block-group.aa-line-index__rows:has(
+		> .aa-line-index__row:is(:hover, :focus-within)
+	)
+	> .aa-line-index__row:not(:hover, :focus-within)
+	.aa-line-index__name
+	a {
+	/* Steps back in either scheme while staying about 3:1. */
+	color: color-mix(in oklch, currentcolor 45%, transparent);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.wp-block-group.aa-line-index__row:is(:hover, :focus-within) {
+		/* Padding, not translate: a transform on the name would become the
+		   stretched link's containing block and shrink it to the name. */
+		& .aa-line-index__name a {
+			padding-inline-start: 0.12em;
+		}
+
+		& .aa-line-index__thumb {
+			translate: 0 -0.375rem;
+		}
+
+		& .aa-line-index__thumb:nth-child(2) {
+			transition-delay: 0.04s;
+		}
+
+		& .aa-line-index__thumb:nth-child(3) {
+			transition-delay: 0.08s;
 		}
 	}
 }

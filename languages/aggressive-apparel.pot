@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-24T02:44:59+00:00\n"
+"POT-Creation-Date: 2026-11-24T22:54:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -66,7 +66,7 @@ msgid "Premium apparel patterns for the Aggressive brand."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:71
-#: includes/WooCommerce/class-editorial-controls.php:361
+#: includes/WooCommerce/class-editorial-controls.php:331
 msgid "Homepage"
 msgstr ""
 
@@ -1728,86 +1728,78 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:145
-#: includes/WooCommerce/class-editorial-controls.php:210
+#: includes/WooCommerce/class-editorial-controls.php:117
+#: includes/WooCommerce/class-editorial-controls.php:181
 msgid "Not reviewed"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:146
+#: includes/WooCommerce/class-editorial-controls.php:118
 msgid "Approved for editorial sections"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:147
-msgid "Cover campaign photo"
-msgstr ""
-
-#: includes/WooCommerce/class-editorial-controls.php:148
-#: includes/WooCommerce/class-editorial-controls.php:213
+#: includes/WooCommerce/class-editorial-controls.php:119
+#: includes/WooCommerce/class-editorial-controls.php:183
 msgid "Excluded"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:158
+#: includes/WooCommerce/class-editorial-controls.php:129
 msgid "Homepage use"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:162
+#: includes/WooCommerce/class-editorial-controls.php:133
 msgid "Looks like a photograph. Only approved photos appear on the homepage, always linked to the product they belong to."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:163
+#: includes/WooCommerce/class-editorial-controls.php:134
 msgid "Looks like a product cut-out or packshot: these belong on product cards rather than editorial sections."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:166
+#: includes/WooCommerce/class-editorial-controls.php:137
 msgid "Homepage priority"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:169
+#: includes/WooCommerce/class-editorial-controls.php:140
 msgid "Higher shows first among approved photos."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:209
+#: includes/WooCommerce/class-editorial-controls.php:180
 msgid "All homepage uses"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:211
+#: includes/WooCommerce/class-editorial-controls.php:182
 msgid "Approved"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:212
-msgid "Cover"
-msgstr ""
-
-#: includes/WooCommerce/class-editorial-controls.php:215
+#: includes/WooCommerce/class-editorial-controls.php:185
 msgid "Filter by homepage use"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:260
+#: includes/WooCommerce/class-editorial-controls.php:230
 msgid "Approve for homepage"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:261
+#: includes/WooCommerce/class-editorial-controls.php:231
 msgid "Exclude from homepage"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:298
+#: includes/WooCommerce/class-editorial-controls.php:268
 msgid "Homepage cover"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:299
-msgid "Show this product on the homepage cover. One product at a time: choosing this one replaces the last."
+#: includes/WooCommerce/class-editorial-controls.php:269
+msgid "Name this product under the homepage campaign photo (choose the garment the photo shows). Without a campaign photo, its own image fills the cover. One product at a time: choosing this one replaces the last."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:351
-#: includes/WooCommerce/class-editorial-controls.php:361
+#: includes/WooCommerce/class-editorial-controls.php:321
+#: includes/WooCommerce/class-editorial-controls.php:331
 msgid "Show in Shop by line"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:351
+#: includes/WooCommerce/class-editorial-controls.php:321
 msgid "Lists this category on the homepage index, in the category order set here by dragging."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:361
+#: includes/WooCommerce/class-editorial-controls.php:331
 msgid "Lists this category on the homepage index, in the category order set by dragging categories in the list."
 msgstr ""
 
@@ -5592,31 +5584,31 @@ msgstr ""
 
 #: patterns/editorial-campaign-hero.php
 msgctxt "Pattern description"
-msgid "The opening spread on a light studio ground (light in both schemes): the slogan at poster scale beside the merchant's cover — a campaign photo (Media Library, Homepage use: Cover) and/or the product marked Homepage cover, named with its live price. With neither chosen, the newest arrival's product photo; with no stock, the slogan alone."
+msgid "The opening spread on a light studio ground (light in both schemes): the slogan at poster scale beside the campaign photo set in the Site Editor (template part \"Homepage campaign image\": a Cover block with its own focal point), named for the product marked Homepage cover with its live price. Without a campaign photo, that product's own image if one is marked; otherwise the slogan alone. It never picks a product by itself."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:31
+#: patterns/editorial-campaign-hero.php:36
 msgid "Est. 2010"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:35
+#: patterns/editorial-campaign-hero.php:40
 msgid "Rebellion has a uniform."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:40
+#: patterns/editorial-campaign-hero.php:45
 msgid "This season’s is in."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:45
+#: patterns/editorial-campaign-hero.php:50
 #: patterns/editorial-new-arrivals.php:39
 msgid "Shop new arrivals"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:49
+#: patterns/editorial-campaign-hero.php:54
 msgid "About the name"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:74
+#: patterns/editorial-campaign-hero.php:83
 msgid "Cover garment"
 msgstr ""
 
@@ -9843,6 +9835,11 @@ msgstr ""
 #: theme.json
 msgctxt "Template part name"
 msgid "Mobile Navigation"
+msgstr ""
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Homepage campaign image"
 msgstr ""
 
 #: theme.json

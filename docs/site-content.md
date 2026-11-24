@@ -121,6 +121,10 @@ lands:
 1. **Saved content:** make the changes above in WordPress, in the Site
    Editor or with `reconcile.php` where WP-CLI is available. Until the saved
    Home template is reset, the old homepage keeps overriding the new one.
+   Then set the cover: Patterns → Template parts → **Homepage campaign
+   image**, Replace with the campaign photo, drag the focal point onto the
+   figure, add alt text, Save; tick _Homepage cover_ on the garment it shows.
+   Until a photo is set the hero is the slogan alone.
 
 2. **Audit** every page type from the live catalog (Store API discovery, no
    fixtures) at 375 / 768 / 1440 / 1920 in light and dark: HTTP errors,
@@ -147,8 +151,8 @@ What production merchandise changes, and what to look at:
 - **No photo is on the homepage until it is approved.** The catalog's
   on-figure photos only appear once approved under Media Library → Homepage
   use (see the merchant controls in `design-system.md`). Until then the
-  photo-led sections fall back: the hero shows the cover product (or the
-  newest one) whole, Women's shows copy and products without a photo, and
+  photo-led sections fall back: Women's shows copy and products without a
+  photo, and
   the lookbook is omitted below three approved photos. Shop by line lists
   every stocked standard line until categories are ticked "Show in Shop by
   line".

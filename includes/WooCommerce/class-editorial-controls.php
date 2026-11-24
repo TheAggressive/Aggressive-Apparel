@@ -19,9 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * already lives: no settings screen of its own.
  *
  * - Media Library: each image's "Homepage use" (Not reviewed, Approved,
- *   Cover, Excluded) and priority, a list filter, and bulk Approve/Exclude.
+ *   Excluded) and priority, a list filter, and bulk Approve/Exclude.
  *   Only approved photos fill editorial slots; nothing publishes itself.
- * - Product edit screen: "Homepage cover" picks the cover's product.
+ * - Site Editor: the cover's campaign photo is the "Homepage campaign
+ *   image" template part (Editorial_Imagery::CAMPAIGN_PART), a core Cover
+ *   block with its own focal point and alt text.
+ * - Product edit screen: "Homepage cover" picks the product the cover
+ *   names, and whose photo it shows when there is no campaign photo.
  * - Product categories: "Show in Shop by line" picks the index's lines,
  *   shown in WooCommerce's own drag-and-drop category order.
  */
@@ -40,7 +44,7 @@ final class Editorial_Controls {
 	public const LINE_META = '_aa_shop_by_line';
 
 	/** Allowed "Homepage use" values; '' is not reviewed. */
-	private const USES = array( '', 'approved', 'cover', 'excluded' );
+	private const USES = array( '', 'approved', 'excluded' );
 
 	/**
 	 * Register admin hooks.
@@ -81,8 +85,7 @@ final class Editorial_Controls {
 	}
 
 	/**
-	 * Set an image's homepage use. Cover is exclusive: marking one image the
-	 * cover returns the previous cover to Approved.
+	 * Set an image's homepage use.
 	 *
 	 * @param int    $image  Attachment ID.
 	 * @param string $choice One of USES.
@@ -91,42 +94,11 @@ final class Editorial_Controls {
 		if ( ! in_array( $choice, self::USES, true ) ) {
 			return;
 		}
-		if ( 'cover' === $choice ) {
-			foreach ( self::attachments_with_use( 'cover' ) as $other ) {
-				if ( $other !== $image ) {
-					update_post_meta( $other, self::USE_META, 'approved' );
-				}
-			}
-		}
 		if ( '' === $choice ) {
 			delete_post_meta( $image, self::USE_META );
 		} else {
 			update_post_meta( $image, self::USE_META, $choice );
 		}
-	}
-
-	/**
-	 * Attachment IDs with a given homepage use, most recently changed first.
-	 *
-	 * @param string $choice One of USES except ''.
-	 * @return list<int>
-	 */
-	public static function attachments_with_use( string $choice ): array {
-		$query = new \WP_Query(
-			array(
-				'post_type'      => 'attachment',
-				'post_status'    => 'inherit',
-				'posts_per_page' => 20,
-				'fields'         => 'ids',
-				'orderby'        => 'modified',
-				'no_found_rows'  => true,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Admin-chosen handful of images.
-				'meta_key'       => self::USE_META,
-				'meta_value'     => $choice, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- As above.
-			)
-		);
-
-		return array_values( array_map( static fn( $post ): int => $post instanceof \WP_Post ? $post->ID : (int) $post, $query->posts ) );
 	}
 
 	/**
@@ -144,7 +116,6 @@ final class Editorial_Controls {
 		$labels  = array(
 			''         => __( 'Not reviewed', 'aggressive-apparel' ),
 			'approved' => __( 'Approved for editorial sections', 'aggressive-apparel' ),
-			'cover'    => __( 'Cover campaign photo', 'aggressive-apparel' ),
 			'excluded' => __( 'Excluded', 'aggressive-apparel' ),
 		);
 		$name    = 'attachments[' . $post->ID . '][aa_editorial_use]';
@@ -209,7 +180,6 @@ final class Editorial_Controls {
 			''             => __( 'All homepage uses', 'aggressive-apparel' ),
 			'not-reviewed' => __( 'Not reviewed', 'aggressive-apparel' ),
 			'approved'     => __( 'Approved', 'aggressive-apparel' ),
-			'cover'        => __( 'Cover', 'aggressive-apparel' ),
 			'excluded'     => __( 'Excluded', 'aggressive-apparel' ),
 		);
 		echo '<label class="screen-reader-text" for="aa-editorial-use-filter">' . esc_html__( 'Filter by homepage use', 'aggressive-apparel' ) . '</label>';
@@ -296,7 +266,7 @@ final class Editorial_Controls {
 			array(
 				'id'          => self::COVER_PRODUCT_META,
 				'label'       => __( 'Homepage cover', 'aggressive-apparel' ),
-				'description' => __( 'Show this product on the homepage cover. One product at a time: choosing this one replaces the last.', 'aggressive-apparel' ),
+				'description' => __( 'Name this product under the homepage campaign photo (choose the garment the photo shows). Without a campaign photo, its own image fills the cover. One product at a time: choosing this one replaces the last.', 'aggressive-apparel' ),
 			)
 		);
 		echo '</div>';

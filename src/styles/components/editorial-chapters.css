@@ -65,6 +65,17 @@
 		}
 	}
 
+	/* The campaign photo: a core Cover block in the "Homepage campaign
+	   image" template part. A 4:5 frame by default; the focal point set in
+	   the Site Editor places the crop at every width, and a ratio or height
+	   set on the block itself (inline) wins over this default. 0,3,0 beats
+	   core's .wp-block-cover min-height and padding. */
+	& .aa-cover-garment .wp-block-cover {
+		aspect-ratio: 4 / 5;
+		min-height: 0;
+		padding: 0;
+	}
+
 	& .aa-grid-caption {
 		margin-block-start: var(--wp--preset--spacing--3);
 	}
@@ -76,6 +87,18 @@
 			margin-inline-start: -6%;
 		}
 	}
+}
+
+/* The campaign photo's frame also applies in the template part's own
+   editor (Patterns → Template parts → Homepage campaign image), so the
+   focal point is set against the crop visitors see. 740px is the frame's
+   widest in the hero. */
+.wp-block-cover.aa-campaign-image {
+	max-inline-size: 740px;
+	margin-inline: auto;
+	aspect-ratio: 4 / 5;
+	min-height: 0;
+	padding: 0;
 }
 
 /* Shop by line: one ruled row per line, the name at display scale, the

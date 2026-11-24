@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\Tests\Support\Builds_Editorial_Fixtures;
+use Aggressive_Apparel\WooCommerce\Catalog_Image_Loading;
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Controls;
 use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
@@ -180,30 +181,20 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The cover shows the newest arrival whole (a cut-out is never cropped)
-	 * and names it with its live price: a one-product collection of it.
+	 * The cover never picks a product by itself: with stock but nothing
+	 * chosen it is the slogan alone, not the newest arrival.
 	 */
-	public function test_cover_shows_the_newest_arrival_whole(): void {
-		$older  = $this->create_product( array( 'image' => $this->create_image() ) );
-		$newest = $this->create_product( array( 'image' => $this->create_cutout() ) );
-		wp_update_post(
-			array(
-				'ID'            => $older->get_id(),
-				'post_date'     => '2026-01-01 00:00:00',
-				'post_date_gmt' => '2026-01-01 00:00:00',
-			)
-		);
+	public function test_cover_never_picks_a_product_itself(): void {
+		$this->create_product( array( 'image' => $this->create_image() ) );
+		$this->create_product( array( 'image' => $this->create_cutout() ) );
 
-		$blocks = parse_blocks( $this->render_pattern( 'editorial-campaign-hero' ) );
-		$images = $this->find_all( $blocks, 'core/image' );
-		$named  = $this->find_all( $blocks, 'woocommerce/product-collection' );
+		$markup = $this->render_pattern( 'editorial-campaign-hero' );
+		$blocks = parse_blocks( $markup );
 
-		$this->assertCount( 1, $images );
-		$this->assertSame( (int) $newest->get_image_id(), $images[0]['attrs']['id'] );
-		$this->assertSame( 'contain', $images[0]['attrs']['scale'] );
-		$this->assertCount( 1, $named );
-		$this->assertSame( array( $newest->get_id() ), $named[0]['attrs']['query']['woocommerceHandPickedProducts'] );
-		$this->assertStringContainsString( 'aa-grid-caption', $named[0]['attrs']['className'] );
+		$this->assertSame( array(), $this->find_all( $blocks, 'core/image' ) );
+		$this->assertSame( array(), $this->find_all( $blocks, 'core/template-part' ) );
+		$this->assertSame( array(), $this->find_all( $blocks, 'woocommerce/product-collection' ) );
+		$this->assertStringContainsString( 'Rebellion has a uniform.', $markup );
 	}
 
 	/** A product's first photo may sit in its gallery behind a cut-out main image. */
@@ -272,19 +263,29 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Rebellion has a uniform.', $markup );
 	}
 
-	/** New Arrivals: one rail of the newest after the cover's garment, never behind a reveal. */
+	/** New Arrivals: one rail of the newest, starting after the cover product when it is the newest; never behind a reveal. */
 	public function test_new_arrivals_is_a_rail_after_the_cover(): void {
-		for ( $i = 0; $i < 5; $i++ ) {
-			$this->create_product( array( 'image' => $this->create_cutout() ) );
+		for ( $i = 1; $i <= 5; $i++ ) {
+			$newest = $this->create_product( array( 'image' => $this->create_cutout() ) );
+			wp_update_post(
+				array(
+					'ID'            => $newest->get_id(),
+					'post_date'     => sprintf( '2026-01-%02d 00:00:00', $i ),
+					'post_date_gmt' => sprintf( '2026-01-%02d 00:00:00', $i ),
+				)
+			);
 		}
 
 		$blocks = parse_blocks( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) );
 		$grids  = $this->find_all( $blocks, 'woocommerce/product-collection' );
-
 		$this->assertCount( 1, $grids );
-		$this->assertSame( array( 4, 1 ), array( $grids[0]['attrs']['query']['perPage'], $grids[0]['attrs']['query']['offset'] ), 'The cover shows the newest: the rail starts after it.' );
+		$this->assertSame( array( 5, 0 ), array( $grids[0]['attrs']['query']['perPage'], $grids[0]['attrs']['query']['offset'] ), 'Nothing chosen: the rail starts at the newest.' );
 		$this->assertStringContainsString( 'aa-grid-rail', $grids[0]['attrs']['className'] );
 		$this->assertSame( array(), $this->find_all( $blocks, 'aggressive-blocks/animate-on-scroll' ), 'Products are never behind a reveal.' );
+
+		update_post_meta( $newest->get_id(), Editorial_Controls::COVER_PRODUCT_META, 'yes' );
+		$grids = $this->find_all( parse_blocks( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'woocommerce/product-collection' );
+		$this->assertSame( array( 4, 1 ), array( $grids[0]['attrs']['query']['perPage'], $grids[0]['attrs']['query']['offset'] ), 'The cover shows the newest: the rail starts after it.' );
 	}
 
 	/**
@@ -498,17 +499,13 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( '', trim( $this->render_pattern( 'editorial-new-arrivals' ) ) );
 	}
 
-	/** A short catalog: the rail holds what follows the cover; with nothing after it, no section. */
+	/** A short catalog: the rail holds what the cover doesn't show; with nothing left, no section. */
 	public function test_new_arrivals_short_catalog_follows_the_cover(): void {
-		$this->create_product( array( 'image' => $this->create_cutout() ) );
-		$this->assertSame( '', trim( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'The only product is on the cover.' );
+		$only = $this->create_product( array( 'image' => $this->create_cutout() ) );
+		$this->assertCount( 1, $this->find_all( parse_blocks( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'woocommerce/product-collection' ), 'Not on the cover: the one product has a rail.' );
 
-		wp_cache_flush();
-		$this->create_product( array( 'image' => $this->create_cutout() ) );
-		$this->create_product( array( 'image' => $this->create_cutout() ) );
-		$grids = $this->find_all( parse_blocks( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'woocommerce/product-collection' );
-		$this->assertCount( 1, $grids );
-		$this->assertSame( 2, $grids[0]['attrs']['query']['perPage'] );
+		update_post_meta( $only->get_id(), Editorial_Controls::COVER_PRODUCT_META, 'yes' );
+		$this->assertSame( '', trim( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'The only product is on the cover.' );
 	}
 
 	/** Nothing publishes itself: unreviewed and excluded photos never fill a slot. */
@@ -542,24 +539,13 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		$this->assertSame( array( $high, $low ), array_column( Editorial_Imagery::leads( 2 ), 'image' ) );
 	}
 
-	/** One cover at a time: marking a new campaign photo returns the last to Approved. */
-	public function test_cover_choice_is_exclusive(): void {
-		$first  = $this->create_image( 1600, 2000, 'cover' );
-		$second = $this->create_image( 1600, 2000 );
-		Editorial_Controls::set_use( $second, 'cover' );
-
-		$this->assertSame( 'approved', Editorial_Controls::use_of( $first ) );
-		$this->assertSame( array( $second ), Editorial_Controls::attachments_with_use( 'cover' ) );
-	}
-
 	/**
-	 * The merchant's cover leads: the campaign photo filling its frame, named
-	 * for the cover product; the cover product's own photo without one; the
-	 * newest arrival only when nothing is chosen.
+	 * Without a campaign photo, the product marked Homepage cover is the
+	 * optional fallback: its own image shown whole, named with its price.
 	 */
-	public function test_cover_prefers_the_merchants_choice(): void {
+	public function test_cover_product_is_the_optional_fallback(): void {
 		$chosen = $this->create_product( array( 'image' => $this->create_cutout() ) );
-		$newest = $this->create_product( array( 'image' => $this->create_cutout() ) );
+		$this->create_product( array( 'image' => $this->create_cutout() ) );
 		wp_update_post(
 			array(
 				'ID'            => $chosen->get_id(),
@@ -570,19 +556,64 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		update_post_meta( $chosen->get_id(), Editorial_Controls::COVER_PRODUCT_META, 'yes' );
 
 		$blocks = parse_blocks( $this->render_pattern( 'editorial-campaign-hero' ) );
-		$this->assertSame( (int) $chosen->get_image_id(), $this->find_all( $blocks, 'core/image' )[0]['attrs']['id'], 'The cover product, not the newest.' );
-		$this->assertSame( 'contain', $this->find_all( $blocks, 'core/image' )[0]['attrs']['scale'] );
+		$image  = $this->find_all( $blocks, 'core/image' );
+		$named  = $this->find_all( $blocks, 'woocommerce/product-collection' );
+		$this->assertCount( 1, $image );
+		$this->assertSame( array( (int) $chosen->get_image_id(), 'contain' ), array( $image[0]['attrs']['id'], $image[0]['attrs']['scale'] ) );
+		$this->assertSame( array( $chosen->get_id() ), $named[0]['attrs']['query']['woocommerceHandPickedProducts'] );
+		$this->assertStringContainsString( 'aa-grid-caption', $named[0]['attrs']['className'] );
 		$this->assertSame( 0, $this->find_all( parse_blocks( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'woocommerce/product-collection' )[0]['attrs']['query']['offset'], 'The newest still opens New Arrivals.' );
+	}
 
-		wp_cache_flush();
-		$campaign = $this->create_image( 1600, 2000, 'cover' );
-		$blocks   = parse_blocks( $this->render_pattern( 'editorial-campaign-hero' ) );
-		$image    = $this->find_all( $blocks, 'core/image' )[0];
-		$named    = $this->find_all( $blocks, 'woocommerce/product-collection' )[0];
-		$this->assertSame( $campaign, $image['attrs']['id'] );
-		$this->assertSame( array( '4/5', 'cover' ), array( $image['attrs']['aspectRatio'], $image['attrs']['scale'] ) );
-		$this->assertSame( array( $chosen->get_id() ), $named['attrs']['query']['woocommerceHandPickedProducts'] );
-		unset( $newest );
+	/**
+	 * The campaign photo set in the Site Editor leads the cover: the template
+	 * part itself (so it stays editable in place), named for the cover
+	 * product, loaded first at the width its crop needs, and never repeated
+	 * further down the page.
+	 */
+	public function test_campaign_photo_leads_the_cover(): void {
+		$chosen   = $this->create_product( array( 'image' => $this->create_cutout() ) );
+		$campaign = $this->create_image( 2400, 1200 );
+		$this->create_product( array( 'image' => $campaign ) );
+		update_post_meta( $chosen->get_id(), Editorial_Controls::COVER_PRODUCT_META, 'yes' );
+		$this->set_campaign_image( $campaign );
+
+		$markup = $this->render_pattern( 'editorial-campaign-hero' );
+		$blocks = parse_blocks( $markup );
+		$parts  = $this->find_all( $blocks, 'core/template-part' );
+		$this->assertCount( 1, $parts );
+		$this->assertSame( Editorial_Imagery::CAMPAIGN_PART, $parts[0]['attrs']['slug'] );
+		$this->assertSame( array(), $this->find_all( $blocks, 'core/image' ), 'No product image beside the campaign photo.' );
+		$this->assertSame( array( $chosen->get_id() ), $this->find_all( $blocks, 'woocommerce/product-collection' )[0]['attrs']['query']['woocommerceHandPickedProducts'] );
+
+		$html = new \WP_HTML_Tag_Processor( do_blocks( $markup ) );
+		$this->assertTrue( $html->next_tag( array( 'class_name' => 'wp-image-' . $campaign ) ) );
+		$this->assertSame( array( 'eager', 'high' ), array( $html->get_attribute( 'loading' ), $html->get_attribute( 'fetchpriority' ) ) );
+
+		// Cropped to fill its frame, a wider photo needs proportionally more width.
+		$loading = new Catalog_Image_Loading();
+		$part    = array( 'attrs' => array( 'slug' => Editorial_Imagery::CAMPAIGN_PART ) );
+		$cover   = static fn( string $style ): string => '<div class="wp-block-template-part"><div class="wp-block-cover" style="' . $style . '"><img class="wp-block-cover__image-background wp-image-' . $campaign . '" loading="lazy" srcset="a.webp 768w, b.webp 2048w" sizes="auto, 100vw"></div></div>';
+		$this->assertStringContainsString( 'sizes="(min-width: 1600px) 1850px, (min-width: 782px) 115vw, 250vw"', $loading->optimize_campaign_image( $cover( '' ), $part ), 'A 2:1 photo in the 4:5 frame: 2.5 times its width.' );
+		$this->assertStringContainsString( 'sizes="(min-width: 1600px) 1480px, (min-width: 782px) 92vw, 200vw"', $loading->optimize_campaign_image( $cover( 'aspect-ratio:1/1' ), $part ), 'A ratio set on the block is the frame.' );
+		$this->assertSame( $cover( '' ), $loading->optimize_campaign_image( $cover( '' ), array( 'attrs' => array( 'slug' => 'header' ) ) ), 'Other template parts are untouched.' );
+
+		$this->assertNotContains( $campaign, array_column( Editorial_Imagery::leads( 3 ), 'image' ), 'The cover claims its photo.' );
+	}
+
+	/** Only a Cover block with a picture counts: the theme's empty part or a video means no campaign photo. */
+	public function test_campaign_photo_comes_from_the_site_editor(): void {
+		$this->assertNull( Editorial_Imagery::campaign(), "The theme's own part ships empty." );
+
+		$image = $this->create_image( 1600, 2000 );
+		$this->set_campaign_image( $image );
+		$this->assertSame(
+			array(
+				'image' => $image,
+				'url'   => (string) wp_get_attachment_url( $image ),
+			),
+			Editorial_Imagery::campaign()
+		);
 	}
 
 	/** The attachment form saves Homepage use and a clamped priority. */
@@ -593,12 +624,14 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		( new Editorial_Controls() )->save_attachment_fields(
 			array( 'ID' => $image ),
 			array(
-				'aa_editorial_use'      => 'cover',
+				'aa_editorial_use'      => 'excluded',
 				'aa_editorial_priority' => '120',
 			)
 		);
 
-		$this->assertSame( 'cover', Editorial_Controls::use_of( $image ) );
+		$this->assertSame( 'excluded', Editorial_Controls::use_of( $image ) );
+		Editorial_Controls::set_use( $image, 'cover' );
+		$this->assertSame( 'excluded', Editorial_Controls::use_of( $image ), 'The cover is chosen in the Site Editor, not here.' );
 		$this->assertSame( 99, Editorial_Controls::priority_of( $image ) );
 	}
 

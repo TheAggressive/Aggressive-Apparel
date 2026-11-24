@@ -46,6 +46,12 @@ final class Editorial_Imagery {
 	/** Request_Cache key of the product the cover shows. */
 	private const COVER_PRODUCT = 'editorial-imagery:cover-product';
 
+	/**
+	 * Template part holding the cover's campaign photo: a core Cover block
+	 * the merchant fills in the Site Editor (image, focal point, alt text).
+	 */
+	public const CAMPAIGN_PART = 'campaign-image';
+
 	/** Newest products considered per slot source. */
 	private const CANDIDATES = 48;
 
@@ -162,10 +168,60 @@ final class Editorial_Imagery {
 	}
 
 	/**
-	 * The cover: the merchant's campaign photo (Homepage use "Cover") and
-	 * cover product ("Homepage cover" on the product), else the cover
-	 * product's own photo, else the newest arrival's. Claims the image and
-	 * remembers the product, so New Arrivals knows what opened the page.
+	 * The campaign photo chosen in the Site Editor: the first Cover block
+	 * with an image in the "Homepage campaign image" template part (the
+	 * merchant's saved copy; the theme's own ships empty).
+	 *
+	 * @return array{image: int, url: string}|null Attachment ID (0 for an external URL) and URL.
+	 */
+	public static function campaign(): ?array {
+		$part = get_block_template( get_stylesheet() . '//' . self::CAMPAIGN_PART, 'wp_template_part' );
+		if ( ! $part instanceof \WP_Block_Template ) {
+			return null;
+		}
+		foreach ( self::covers( parse_blocks( $part->content ) ) as $attrs ) {
+			$url = is_string( $attrs['url'] ?? null ) ? $attrs['url'] : '';
+			if ( '' !== $url && 'video' !== ( $attrs['backgroundType'] ?? 'image' ) ) {
+				return array(
+					'image' => (int) ( $attrs['id'] ?? 0 ),
+					'url'   => $url,
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Attributes of every Cover block, depth first.
+	 *
+	 * @param array<int|string, mixed> $blocks Parsed blocks.
+	 * @return list<array<string, mixed>>
+	 */
+	private static function covers( array $blocks ): array {
+		$found = array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( 'core/cover' === ( $block['blockName'] ?? null ) && is_array( $block['attrs'] ?? null ) ) {
+				$found[] = $block['attrs'];
+			}
+			if ( is_array( $block['innerBlocks'] ?? null ) ) {
+				$found = array_merge( $found, self::covers( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $found;
+	}
+
+	/**
+	 * The cover, only ever what the merchant chose: the campaign photo from
+	 * the Site Editor, named for the product marked "Homepage cover"; without
+	 * a campaign photo, that product's own photo as the optional fallback;
+	 * with neither, null (the slogan alone). The cover never picks a product
+	 * by itself. Claims the image and remembers the product, so New Arrivals
+	 * knows what opened the page.
 	 *
 	 * @return array{image: int, product: int, campaign: bool}|null
 	 */
@@ -178,11 +234,11 @@ final class Editorial_Imagery {
 				break;
 			}
 		}
-		$campaign = Editorial_Controls::attachments_with_use( 'cover' )[0] ?? 0;
+		$campaign = self::campaign();
 
-		if ( $campaign > 0 && wp_attachment_is_image( $campaign ) ) {
+		if ( null !== $campaign ) {
 			$cover = array(
-				'image'    => $campaign,
+				'image'    => $campaign['image'],
 				'product'  => $product,
 				'campaign' => true,
 			);
@@ -193,15 +249,7 @@ final class Editorial_Imagery {
 				'campaign' => false,
 			);
 		} else {
-			$newest = self::candidates( null, false )[0] ?? null;
-			if ( null === $newest ) {
-				return null;
-			}
-			$cover = array(
-				'image'    => $newest['image'],
-				'product'  => $newest['product'],
-				'campaign' => false,
-			);
+			return null;
 		}
 		self::claim( $cover['image'] );
 		Request_Cache::set( self::COVER_PRODUCT, $cover['product'] );

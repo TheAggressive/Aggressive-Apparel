@@ -15,7 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Loads catalog card images at the size and priority the grid needs.
+ * Loads catalog card images at the size and priority the grid needs, and the
+ * homepage campaign photo as the page's leading image.
  *
  * Card images arrive lazy-loaded, with `sizes` describing the full upload, so
  * the largest image on a catalog page (a first-row card) waited for the lazy
@@ -23,6 +24,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * photos for a card about 300px wide. On catalog pages this gives every card
  * image the card's real width, and loads the first row eagerly, the first
  * image at high priority.
+ *
+ * The campaign photo (a Cover block in the "Homepage campaign image" template
+ * part) opens the homepage, yet arrives lazy with `sizes` describing the
+ * frame's width; cropped to fill a 4:5 frame, a landscape photo needs several
+ * times that width in pixels, so the browser picked a file a third of the
+ * height it fills. It loads eagerly at high priority, with `sizes` scaled by
+ * how much wider the photo is than its frame.
  */
 final class Catalog_Image_Loading {
 
@@ -52,6 +60,54 @@ final class Catalog_Image_Loading {
 		// After Product_Card_Contract (5) has marked the card image.
 		Block_Filter_Hooks::add_featured_image( array( $this, 'optimize_card_image' ), 20 );
 		Block_Filter_Hooks::add( 'woocommerce/product-image', array( $this, 'optimize_card_image' ), 20 );
+		Block_Filter_Hooks::add( 'core/template-part', array( $this, 'optimize_campaign_image' ), 20 );
+	}
+
+	/**
+	 * Load the homepage campaign photo eagerly, at high priority and at the
+	 * width its crop needs.
+	 *
+	 * @param string               $block_content Rendered block HTML.
+	 * @param array<string, mixed> $block         Parsed block.
+	 * @return string
+	 */
+	public function optimize_campaign_image( string $block_content, array $block ): string {
+		$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+		if ( '' === $block_content || Editorial_Imagery::CAMPAIGN_PART !== ( $attrs['slug'] ?? '' ) ) {
+			return $block_content;
+		}
+		// The frame: 4:5 unless the merchant set a ratio on the Cover block.
+		$frame = 0.8;
+		$cover = new \WP_HTML_Tag_Processor( $block_content );
+		if ( $cover->next_tag( array( 'class_name' => 'wp-block-cover' ) )
+			&& preg_match( '#aspect-ratio:\s*([\d.]+)\s*/\s*([\d.]+)#', (string) $cover->get_attribute( 'style' ), $ratio )
+			&& (float) $ratio[2] > 0 ) {
+			$frame = (float) $ratio[1] / (float) $ratio[2];
+		}
+
+		$processor = new \WP_HTML_Tag_Processor( $block_content );
+		if ( ! $processor->next_tag( array( 'class_name' => 'wp-block-cover__image-background' ) ) ) {
+			return $block_content;
+		}
+		// Set, not removed: the template's own pass would mark it lazy again.
+		$processor->set_attribute( 'loading', 'eager' );
+		$processor->set_attribute( 'fetchpriority', 'high' );
+		$image = preg_match( '/\bwp-image-(\d+)\b/', (string) $processor->get_attribute( 'class' ), $id ) ? (int) $id[1] : 0;
+		$meta  = $image > 0 ? wp_get_attachment_metadata( $image ) : false;
+		$width = is_array( $meta ) ? (int) ( $meta['width'] ?? 0 ) : 0;
+		$tall  = is_array( $meta ) ? (int) ( $meta['height'] ?? 0 ) : 0;
+		if ( null !== $processor->get_attribute( 'srcset' ) && $width > 0 && $tall > 0 ) {
+			// The frame is 46% of the wide column (740px at most) on desktop
+			// and the full width on phones; a photo wider than its frame
+			// fills it by height, needing that much more width.
+			$scale = max( 1.0, ( $width / $tall ) / $frame );
+			$processor->set_attribute(
+				'sizes',
+				sprintf( '(min-width: 1600px) %dpx, (min-width: 782px) %dvw, %dvw', (int) ceil( 740 * $scale ), (int) ceil( 46 * $scale ), (int) ceil( 100 * $scale ) )
+			);
+		}
+
+		return $processor->get_updated_html();
 	}
 
 	/**

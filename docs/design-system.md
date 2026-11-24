@@ -155,26 +155,26 @@ Twelve section patterns (category **Editorial Sections**) and one composition,
 renders. Each section is its own pattern, so editors can reorder, remove or
 insert any section alone.
 
-| #   | Pattern                       | Rhythm / surface             | Live data                                                                                                                                                 |
-| --- | ----------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 01  | `editorial-campaign-hero`     | studio cover (light in both) | The slogan at poster scale beside the newest arrival's product photo, whole, named with its live price (one-product collection); no stock → slogan alone  |
-| 02  | `editorial-new-arrivals`      | compact                      | One rail of up to eight, newest first after the cover's garment; nothing after it → omitted                                                               |
-| 03  | `editorial-category-showcase` | compact                      | Shop by line: one ruled row per stocked line, best-stocked first, name at display scale, piece count, three of its products                               |
-| 04  | `editorial-artwork-spotlight` | white (light in both)        | "Aggressive is a compliment." + paragraph beside up to three on-figure photos with a Shown line; no photos → typographic                                  |
-| 05  | `editorial-best-sellers`      | compact                      | Three large numbered cards: real sales → Best sellers; else Featured; else omitted                                                                        |
-| 06  | `editorial-featured-drop`     | black spread / band          | Drop photo + name + row of two, or title row over a stock-sized grid; no stocked term → omitted                                                           |
-| 07  | `editorial-womens-collection` | white spread                 | Copy + row of two beside a full-height on-figure photo, light in both schemes; no stocked term → omitted                                                  |
-| 08  | `editorial-hoodies-feature`   | compact                      | Lineup on one studio band: up to four side by side (short ranges centred), five or more a rail                                                            |
-| 09  | `editorial-defiance-division` | black spread / band          | As the drop band (`Editorial_Collection_Band`); no stocked term → omitted                                                                                 |
-| 10  | `editorial-accessories`       | compact                      | With an on-figure accessory photo: photo + two products + a tile counting the rest; else up to four, or a rail                                            |
-| 11  | `editorial-featured-looks`    | studio (light in both)       | Swipe gallery of three to five square on-figure photos, each linked to and named for its product; fewer → omitted                                         |
-| 12  | `editorial-brand-story`       | compact                      | One row: "Without the edges sanded off. / Graphic pieces, plain essentials and accessories from an independent label." left, Shop all (+ Our story) right |
+| #   | Pattern                       | Rhythm / surface             | Live data                                                                                                                                                                                                                               |
+| --- | ----------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | studio cover (light in both) | The slogan at poster scale beside the campaign photo set in the Site Editor (4:5, its focal point placing the crop), named with the cover product's live price; else the cover product's own photo whole; nothing chosen → slogan alone |
+| 02  | `editorial-new-arrivals`      | compact                      | One rail of up to eight, newest first after the cover's garment; nothing after it → omitted                                                                                                                                             |
+| 03  | `editorial-category-showcase` | compact                      | Shop by line: one ruled row per stocked line, best-stocked first, name at display scale, piece count, three of its products                                                                                                             |
+| 04  | `editorial-artwork-spotlight` | white (light in both)        | "Aggressive is a compliment." + paragraph beside up to three on-figure photos with a Shown line; no photos → typographic                                                                                                                |
+| 05  | `editorial-best-sellers`      | compact                      | Three large numbered cards: real sales → Best sellers; else Featured; else omitted                                                                                                                                                      |
+| 06  | `editorial-featured-drop`     | black spread / band          | Drop photo + name + row of two, or title row over a stock-sized grid; no stocked term → omitted                                                                                                                                         |
+| 07  | `editorial-womens-collection` | white spread                 | Copy + row of two beside a full-height on-figure photo, light in both schemes; no stocked term → omitted                                                                                                                                |
+| 08  | `editorial-hoodies-feature`   | compact                      | Lineup on one studio band: up to four side by side (short ranges centred), five or more a rail                                                                                                                                          |
+| 09  | `editorial-defiance-division` | black spread / band          | As the drop band (`Editorial_Collection_Band`); no stocked term → omitted                                                                                                                                                               |
+| 10  | `editorial-accessories`       | compact                      | With an on-figure accessory photo: photo + two products + a tile counting the rest; else up to four, or a rail                                                                                                                          |
+| 11  | `editorial-featured-looks`    | studio (light in both)       | Swipe gallery of three to five square on-figure photos, each linked to and named for its product; fewer → omitted                                                                                                                       |
+| 12  | `editorial-brand-story`       | compact                      | One row: "Without the edges sanded off. / Graphic pieces, plain essentials and accessories from an independent label." left, Shop all (+ Our story) right                                                                               |
 
 **What the merchant controls** (`WooCommerce\Editorial_Controls`, no
 settings screen of its own: each control lives with its content):
 
 - **Editorial photos (Media Library).** Each image has _Homepage use_: Not
-  reviewed (default), Approved, Cover or Excluded, and a _Homepage priority_
+  reviewed (default), Approved or Excluded, and a _Homepage priority_
   (higher first). Only **approved** photos fill editorial slots (the name,
   Women's, accessories, the lookbook, collection bands); nothing publishes
   itself. The list view filters by homepage use and has bulk _Approve for
@@ -182,12 +182,20 @@ settings screen of its own: each control lives with its content):
   linked to, the product whose main or gallery image it is. The field's help
   says whether an image looks like a photograph or a cut-out (corner pixels,
   cached as `_aa_photo_kind`); approval is the merchant's call.
-- **Cover.** _Homepage use: Cover_ on one image (a campaign photo, any
-  image; choosing another returns the last to Approved) and _Homepage cover_
-  on one product (product edit screen, General tab). The campaign photo fills
-  a 4:5 frame named with the cover product's live price; with only a cover
-  product, its own photo is shown whole; with neither, the newest arrival.
-  New Arrivals starts after the cover's product only when it is the newest.
+- **Cover (Site Editor).** The campaign photo is the _Homepage campaign
+  image_ template part (Appearance → Editor → Patterns → Template parts),
+  a core Cover block: Replace picks the photo from the Media Library, the
+  focal point places the crop (one 4:5 frame at every width, shown as such
+  in the part's editor), and alt text describes it. Edit it there rather than
+  from the Home template, whose patterns the editor would save as static
+  copies. In the hero it loads first: eager, high priority, `sizes` scaled
+  by how much wider the photo is than its frame (`Catalog_Image_Loading`).
+  _Homepage cover_ on one product (product edit screen, General tab) names
+  the garment under the photo with its live price, so tick the garment the
+  photo shows. Without a campaign photo that product's own image is the
+  optional fallback, shown whole; with neither, the slogan alone. The cover
+  never picks a product itself. New Arrivals starts after the cover's
+  product only when it is the newest.
 - **Shop by line.** _Show in Shop by line_ on a product category; marked
   categories appear in WooCommerce's category order (drag to reorder in
   Products → Categories). Until any are marked, the standard lines (T-shirts,
@@ -214,16 +222,13 @@ Rules the library follows (new sections should too):
    the Editorial Grid card the Shop archive uses (media well, title, price,
    swatches). Editors can retune each query in the block inspector.
 4. **Real photography or a different layout, never an empty frame.**
-   Photo slots take the store's own product photography through
-   `WooCommerce\Editorial_Imagery`, as plain core/image blocks linked to the
-   product, which the merchant replaces with campaign photography in the
-   editor. Editorial slots (hero, women's, looks) take **portrait** photos
-   only; square packshots and flat mockups never qualify. Category tiles
+   The hero shows only the campaign photo the merchant set (above), never
+   product imagery it picked itself. Other photo slots take the store's own
+   approved product photography through `WooCommerce\Editorial_Imagery`, as
+   plain core/image blocks linked to the product. Category tiles
    (`term_image()`) take the category's own image, else its newest product
    photo in any orientation. Each photo appears once per page, claimed in
-   render order: the newest product's photo is reserved for the New Arrivals
-   lead card, so the hero never repeats it directly above; tiles skip what
-   the hero showed; a collection slot (women's) may reuse a photo because it
+   render order: tiles skip what the hero showed; a collection slot (women's) may reuse a photo because it
    must show that collection; the lookbook tops up with shown photos rather
    than disappear. A slot that can't be filled changes the layout (the hero
    becomes type only, the lookbook is omitted below three portraits). No homepage section ships an image-less

@@ -145,6 +145,31 @@ trait Builds_Editorial_Fixtures {
 	}
 
 	/**
+	 * Save the "Homepage campaign image" template part as the Site Editor
+	 * does: a Cover block holding the photo and its focal point.
+	 *
+	 * @param int $image Attachment ID.
+	 */
+	private function set_campaign_image( int $image ): void {
+		$url    = (string) wp_get_attachment_url( $image );
+		$markup = '<!-- wp:cover {"url":"' . $url . '","id":' . $image . ',"dimRatio":0,"isUserOverlayColor":true,"focalPoint":{"x":0.12,"y":0.5},"className":"aa-campaign-image","layout":{"type":"default"}} -->'
+			. '<div class="wp-block-cover aa-campaign-image"><img class="wp-block-cover__image-background wp-image-' . $image . '" alt="" src="' . $url . '" style="object-position:12% 50%" data-object-fit="cover" data-object-position="12% 50%"/>'
+			. '<span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"></div></div>'
+			. '<!-- /wp:cover -->';
+		$part   = self::factory()->post->create(
+			array(
+				'post_type'    => 'wp_template_part',
+				'post_name'    => \Aggressive_Apparel\WooCommerce\Editorial_Imagery::CAMPAIGN_PART,
+				'post_title'   => 'Homepage campaign image',
+				'post_status'  => 'publish',
+				'post_content' => $markup,
+			)
+		);
+		wp_set_post_terms( $part, get_stylesheet(), 'wp_theme' );
+		wp_set_post_terms( $part, 'uncategorized', 'wp_template_part_area' );
+	}
+
+	/**
 	 * Render a theme pattern file as WordPress does (include under output buffering).
 	 *
 	 * @param string $slug Pattern file slug.

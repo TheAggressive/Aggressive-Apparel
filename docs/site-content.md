@@ -6,8 +6,8 @@ files** of the same slug. Deploying the theme does not change them. This is
 why the live header still says "Trends die. Attitude doesn't." although the
 theme's `parts/header.html` no longer does.
 
-Changing saved content is an editorial change made in WordPress, on staging
-first, never by a theme deploy. This page says what is saved, what to change,
+Changing saved content is an editorial change made in WordPress, never by a
+theme release. This page says what is saved, what to change,
 and how.
 
 ## What is saved
@@ -63,13 +63,13 @@ new defaults, so a fresh install or a reset part shows them.
 | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Single product, Related products    | Product Collection **Columns 5**                  | Columns **4** (four related products then fill the row instead of leaving a fifth slot empty) |
 | Single product, the group around it | Padding top and bottom only                       | Add left and right padding **Gutter**, so the first card doesn't touch the screen edge        |
-| Single product, wishlist heart      | On its own row under Add to cart, with a 32px gap | Leave until the summary column is reviewed on staging with production products                |
+| Single product, wishlist heart      | On its own row under Add to cart, with a 32px gap | Leave until the summary column is reviewed with production products                           |
 
 The theme's `templates/single-product.html` already has 4 columns and the
 gutter, so a reset would fix both, but it would also remove the PayPal smart
 buttons: edit in place.
 
-## Procedure (staging, then production)
+## Procedure
 
 `bin/site-content/reconcile.php` makes the layout and copy changes above
 **in place** with WP-CLI. It finds each saved entry by slug (IDs differ
@@ -103,8 +103,6 @@ second run reports "already reconciled".
    footer on three pages, a product page (free-shipping line, PayPal buttons
    still present, Add to cart works), cart and checkout totals.
 
-4. **Repeat on production** after approval, with the same commands.
-
 **Rollback:** `wp post update <ID> site-content-backup-<time>/<slug>-<ID>.html`;
 for the homepage, `wp post update <ID> --post_status=publish`.
 
@@ -113,87 +111,32 @@ related products collection (Columns 4) and its group (padding left/right
 Gutter), insert **Free Shipping Message** after the PayPal buttons, save; the
 header and footer copy is retyped in Patterns → Template parts.
 
-## Final review with production merchandise
+## After a release
 
-The visual review of the finished design needs real products and photos.
-Local development uses WooCommerce sample data on purpose, so the review runs
-on **staging**: a copy of the production database and uploads, payments in
-test (sandbox) mode, outgoing email off, and nothing written back to
-production.
+Publishing a release is the deploy: each site's theme updater
+(`Core\Theme_Updates`) installs it on its next check, so there is no
+separate install step. The update replaces the theme's files only. Once it
+lands:
 
-1. **Clone (Cloudways).** On the production application, Staging Management →
-   create a staging application. It copies files and database, so the real
-   catalog and images come with it. **Never use "Push" from staging to live.**
-   On the staging application, turn **Varnish off** (Application Settings), so
-   no cached page bypasses the access key.
+1. **Saved content:** make the changes above in WordPress, in the Site
+   Editor or with `reconcile.php` where WP-CLI is available. Until the saved
+   Home template is reset, the old homepage keeps overriding the new one.
 
-2. **Lock it down before anything else**, over SSH in the staging
-   application's `public_html`. The scripts are not in the theme ZIP, so copy
-   `bin/staging/` and `bin/site-content/reconcile.php` to the server first:
-
-    ```bash
-    wp config set WP_ENVIRONMENT_TYPE staging
-    wp eval-file ~/aa-release/staging/lockdown.php          # dry run
-    wp eval-file ~/aa-release/staging/lockdown.php apply    # prints the access link
-    ```
-
-    The script refuses to run on theaggressive.com. It installs a must-use
-    plugin that:
-
-    - puts the site behind an access key (logged-in users and the key's
-      cookie only);
-    - sets noindex and no-store on every response;
-    - suppresses all outgoing email;
-    - forces WooPayments into test mode;
-    - while PayPal is on its live connection, removes PayPal from checkout and
-      answers the endpoints that create or approve payments with 403;
-    - blocks any change to PayPal's webhooks, so production keeps receiving
-      its PayPal events.
-
-    It also turns off search engine visibility, deactivates the marketing and
-    ad-sync plugins (Omnisend, Google, Pinterest, TikTok, Facebook) and pauses
-    every WooCommerce webhook, so no order reaches fulfilment or marketing.
-    `revert` undoes exactly what it changed.
-
-    If Jetpack or WooPayments asks about the changed site address, choose
-    **staging / safe mode**, never "move connection". To see working PayPal
-    buttons, connect a PayPal **sandbox** account in PayPal Payments. Until
-    then they stay blocked by design.
-
-3. **Theme:** build the same verified ZIP the release pipeline ships, from the
-   branch under review, and install it on staging
-   (`wp theme install aggressive-apparel.zip --force`):
-
-    ```bash
-    pnpm build && pnpm ci:package   # → aggressive-apparel.zip, verified
-    ```
-
-    Without Docker, run the same lane's steps natively (the container only
-    compiles the catalogs):
-
-    ```bash
-    pnpm build && pnpm i18n:compile
-    bash bin/release/package.sh && bash bin/release/verify-package.sh aggressive-apparel.zip
-    ```
-
-4. **Saved content:** run the procedure above on staging (dry run, then
-   `apply copy adopt-home`; the backups land beside the command).
-
-5. **Audit** every page type from the live catalog (Store API discovery, no
+2. **Audit** every page type from the live catalog (Store API discovery, no
    fixtures) at 375 / 768 / 1440 / 1920 in light and dark: HTTP errors,
    sideways scroll, broken or placeholder images, script errors, WCAG 2.2 AA
-   (axe), PayPal smart buttons on product pages, and a real add to cart
-   through to the checkout page (never submitted):
+   (axe), PayPal smart buttons on product pages, and with `--cart` a real add
+   to cart through to the checkout page (never submitted):
 
     ```bash
-    node bin/audit/storefront.mjs https://<staging> --cart --key <access key>
+    node bin/audit/storefront.mjs https://<site> --cart
     ```
 
     Full-page screenshots and `report.md` land in `./storefront-audit-<time>/`.
     The script exits 1 on any failure. Locally, where PayPal is inactive, add
     `--no-paypal`.
 
-6. **By eye**, from the screenshots: photo crops, the homepage sections that
+3. **By eye**, from the screenshots: photo crops, the homepage sections that
    depend on merchandise, wishlist, and the product summary column.
 
 What production merchandise changes, and what to look at:

@@ -82,7 +82,11 @@
    whole row its link (the name's link stretched over it). The row selector
    is doubled (0,2,0) to outrank core's `body .is-layout-flex` (0,1,1), which
    would otherwise keep the phone layout a single overflowing line. */
-.aa-line-index__rows {
+
+/* Rows sit flush on their rules: core's flow gap (48px) would land
+   between a name and the next rule, and not after the last row. 0,2,0
+   outranks core's flow-layout margin. */
+.wp-block-group.aa-line-index__rows {
 	border-block-end: 1px solid var(--wp--preset--color--border);
 
 	& > * {
@@ -91,13 +95,23 @@
 }
 
 .wp-block-group.aa-line-index__row {
+	--aa-line-thumb: clamp(3.5rem, 6vw, 6rem);
+
 	position: relative;
+
+	/* Three fixed columns: the name, the count and room for three
+	   thumbnails, so every count lines up and thumbnails right-align
+	   however many a line has. */
+	display: grid;
+	grid-template-columns:
+		minmax(0, 1fr) 9rem
+		calc(3 * var(--aa-line-thumb) + 2 * var(--wp--preset--spacing--3));
+	align-items: center;
 	gap: var(--wp--preset--spacing--6);
 	padding-block: var(--wp--preset--spacing--3);
 	border-block-start: 1px solid var(--wp--preset--color--border);
 
 	& .aa-line-index__name {
-		flex: 1 1 auto;
 		margin: 0;
 		font-size: clamp(2.75rem, 1.25rem + 5vw, 7rem);
 		line-height: 1;
@@ -128,17 +142,16 @@
 	}
 
 	& .aa-line-index__count {
-		flex: 0 0 9rem;
 		margin: 0;
 	}
 
 	& .aa-line-index__thumbs {
-		flex: none;
+		justify-content: flex-end;
 		gap: var(--wp--preset--spacing--3);
 	}
 
 	& .aa-line-index__thumb {
-		width: clamp(3.5rem, 6vw, 6rem);
+		width: var(--aa-line-thumb);
 		margin: 0;
 
 		& img {
@@ -289,8 +302,13 @@
 /* Accessories: the rest of the range counted on one tile the size of a
    card's photo, the whole tile its link. Stacked under the cards on phones
    it is a short bar, not a second full-width square. */
-.aa-more-tile {
+
+/* 0,2,0 beats core's `body .is-layout-flex { flex-wrap: wrap }`: a wrapping
+   vertical flex box pushes the label into a second column outside a narrow
+   square, where the square should grow to fit it instead. */
+.wp-block-group.aa-more-tile {
 	position: relative;
+	flex-wrap: nowrap;
 	aspect-ratio: 1;
 
 	@media (width < 782px) {

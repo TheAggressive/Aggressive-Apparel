@@ -10,19 +10,6 @@
  * @package Aggressive_Apparel
  */
 
-/* Chapter numbers ("01 / New in"). A counter rather than typed numbers, so
-   they stay in sequence when a section is omitted (a collection with no
-   stock) or reordered in the editor. Decorative: the alt text after the
-   slash keeps screen readers to the eyebrow's words. */
-.wp-site-blocks {
-	counter-reset: aa-chapter;
-}
-
-.aa-chapter-index::before {
-	counter-increment: aa-chapter;
-	content: counter(aa-chapter, decimal-leading-zero) " / " / "";
-}
-
 /* Section titles at display scale: the chapters' second voice after the
    cover's slogan. A long word may break rather than push the page sideways
    when text is enlarged (200% text on a phone). */
@@ -32,10 +19,8 @@
 	overflow-wrap: anywhere;
 }
 
-/* Cover: the slogan at poster scale, sized to the viewport (no container
-   query: a container's style containment would also isolate the chapter
-   counter), the newest garment beside it at garment scale, edging into the
-   type from 782px. Side by side the copy column is ~54% of the wide width,
+/* Cover: the slogan at poster scale, sized to the viewport, the campaign
+   photo beside it, edging into the type from 782px. Side by side the copy column is ~54% of the wide width,
    so 13.5vw keeps "REBELLION" inside it; stacked, the slogan fills the
    phone. */
 .aa-cover {

@@ -32,8 +32,8 @@ $aa_media = null !== $aa_hero || $aa_slot;
 <div class="wp-block-column is-vertically-aligned-center aa-cover-copy" style="flex-basis:54%">
 <?php endif; ?>
 <!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
-<p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'Est. 2010', 'aggressive-apparel' ); ?></p>
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+<p class="is-style-eyebrow"><?php echo esc_html__( 'Est. 2010', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":1,"className":"is-style-campaign"} -->

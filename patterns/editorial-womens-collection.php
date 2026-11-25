@@ -53,8 +53,8 @@ if ( null !== $aa_lead ) {
 <!-- wp:columns {"className":"aa-tablet-split","align":"full","style":{"spacing":{"blockGap":{"top":"0","left":"0"},"margin":{"top":"0","bottom":"0"}}}} -->
 <div class="wp-block-columns aa-tablet-split alignfull" style="margin-top:0;margin-bottom:0"><!-- wp:column {"verticalAlignment":"center","width":"55%","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","right":"var:preset|spacing|gutter","bottom":"var:preset|spacing|section-standard","left":"max(var(--wp--preset--spacing--gutter), calc((100% - var(--wp--style--global--wide-size)) / 2))"},"blockGap":"var:preset|spacing|fluid-12"}}} -->
 <div class="wp-block-column is-vertically-aligned-center" style="padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:max(var(--wp--preset--spacing--gutter), calc((100% - var(--wp--style--global--wide-size)) / 2));flex-basis:55%"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained","contentSize":"560px","justifyContent":"left"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
-<p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'Collection', 'aggressive-apparel' ); ?></p>
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+<p class="is-style-eyebrow"><?php echo esc_html__( 'Collection', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-campaign"} -->
@@ -96,8 +96,8 @@ if ( null !== $aa_lead ) {
 <div class="wp-block-group" style="padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:columns {"verticalAlignment":"center","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"40%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:40%"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained","contentSize":"560px","justifyContent":"left"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
-<p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'Collection', 'aggressive-apparel' ); ?></p>
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+<p class="is-style-eyebrow"><?php echo esc_html__( 'Collection', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"is-style-campaign"} -->

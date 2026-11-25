@@ -45,8 +45,8 @@ $aa_more  = $aa_count - 2;
 <?php endif; ?>
 <!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->
 <div class="wp-block-group alignwide"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow aa-chapter-index"} -->
-<p class="is-style-eyebrow aa-chapter-index"><?php echo esc_html__( 'The small stuff', 'aggressive-apparel' ); ?></p>
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+<p class="is-style-eyebrow"><?php echo esc_html__( 'The small stuff', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"className":"aa-chapter-title","textColor":"foreground"} -->

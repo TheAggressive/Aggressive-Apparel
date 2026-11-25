@@ -202,9 +202,6 @@ settings screen of its own: each control lives with its content):
   Hoodies, Outerwear, Swimwear, Leggings, Accessories) in that fixed order.
   Piece counts are live; an empty line is left out.
 
-Chapter numbers (`aa-chapter-index`, "01 / New in") are a CSS counter, so
-they stay in sequence when a section is omitted or reordered.
-
 Rules the library follows (new sections should too):
 
 1. **No hardcoded store data.** Term IDs and archive URLs differ between

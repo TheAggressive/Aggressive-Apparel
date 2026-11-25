@@ -149,8 +149,9 @@ trait Builds_Editorial_Fixtures {
 	 * does: a Cover block holding the photo and its focal point.
 	 *
 	 * @param int $image Attachment ID.
+	 * @return int The saved part's post ID.
 	 */
-	private function set_campaign_image( int $image ): void {
+	private function set_campaign_image( int $image ): int {
 		$url    = (string) wp_get_attachment_url( $image );
 		$markup = '<!-- wp:cover {"url":"' . $url . '","id":' . $image . ',"dimRatio":0,"isUserOverlayColor":true,"focalPoint":{"x":0.12,"y":0.5},"className":"aa-campaign-image","layout":{"type":"default"}} -->'
 			. '<div class="wp-block-cover aa-campaign-image"><img class="wp-block-cover__image-background wp-image-' . $image . '" alt="" src="' . $url . '" style="object-position:12% 50%" data-object-fit="cover" data-object-position="12% 50%"/>'
@@ -167,6 +168,8 @@ trait Builds_Editorial_Fixtures {
 		);
 		wp_set_post_terms( $part, get_stylesheet(), 'wp_theme' );
 		wp_set_post_terms( $part, 'uncategorized', 'wp_template_part_area' );
+
+		return $part;
 	}
 
 	/**

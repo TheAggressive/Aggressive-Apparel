@@ -52,6 +52,7 @@ final class Editorial_Controls {
 	public function init(): void {
 		add_filter( 'attachment_fields_to_edit', array( $this, 'attachment_fields' ), 10, 2 );
 		add_filter( 'attachment_fields_to_save', array( $this, 'save_attachment_fields' ), 10, 2 );
+		add_filter( 'wp_generate_attachment_metadata', array( Editorial_Imagery::class, 'classify_upload' ), 10, 2 );
 		add_action( 'restrict_manage_posts', array( $this, 'media_filter' ) );
 		add_action( 'pre_get_posts', array( $this, 'filter_media_query' ) );
 		add_filter( 'bulk_actions-upload', array( $this, 'bulk_actions' ) );
@@ -123,15 +124,20 @@ final class Editorial_Controls {
 		foreach ( $labels as $value => $label ) {
 			$options .= '<option value="' . esc_attr( $value ) . '"' . selected( $use, $value, false ) . '>' . esc_html( $label ) . '</option>';
 		}
-		$kind = Editorial_Imagery::kind( $post->ID );
+		// Cached only: this runs for every image in each Media Library page,
+		// so it never reads or decodes a file (uploads are classified once,
+		// in classify_upload()).
+		$help = match ( Editorial_Imagery::cached_kind( $post->ID ) ) {
+			'photo' => __( 'Looks like a photograph. Only approved photos appear on the homepage, always linked to the product they belong to.', 'aggressive-apparel' ),
+			null    => __( 'Only approved photographs appear on the homepage, always linked to the product they belong to.', 'aggressive-apparel' ),
+			default => __( 'Looks like a product cut-out or packshot: these belong on product cards rather than editorial sections.', 'aggressive-apparel' ),
+		};
 
 		$fields['aa_editorial_use']      = array(
 			'label' => __( 'Homepage use', 'aggressive-apparel' ),
 			'input' => 'html',
 			'html'  => '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( 'aa-editorial-use-' . $post->ID ) . '">' . $options . '</select>',
-			'helps' => 'photo' === $kind
-				? __( 'Looks like a photograph. Only approved photos appear on the homepage, always linked to the product they belong to.', 'aggressive-apparel' )
-				: __( 'Looks like a product cut-out or packshot: these belong on product cards rather than editorial sections.', 'aggressive-apparel' ),
+			'helps' => $help,
 		);
 		$fields['aa_editorial_priority'] = array(
 			'label' => __( 'Homepage priority', 'aggressive-apparel' ),

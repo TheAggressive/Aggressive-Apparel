@@ -22,7 +22,7 @@ if ( ! $aa_ranked && ! $aa_featured ) {
 // Two or three large cards beside the intro, sized to the picks that exist:
 // two featured products fill the column instead of leaving a third of it empty.
 // Three large numbered cards: a ranking reads 01-03; featured picks, in order.
-$aa_columns = $aa_ranked ? 3 : max( 2, min( 3, Editorial_Catalog::visible_count( null, true ) ) );
+$aa_columns = $aa_ranked ? Editorial_Catalog::RANKED : max( 2, min( 3, Editorial_Catalog::visible_count( null, true ) ) );
 
 ?><!-- wp:group {"metadata":{"name":"05 Best Sellers"},"align":"full","className":"aa-shop-section","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull aa-shop-section" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"}} -->

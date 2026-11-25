@@ -170,12 +170,18 @@ final class Editorial_Imagery {
 	/**
 	 * The campaign photo chosen in the Site Editor: the first Cover block
 	 * with an image in the "Homepage campaign image" template part (the
-	 * merchant's saved copy; the theme's own ships empty).
+	 * merchant's saved copy; the theme's own ships empty). A saved copy that
+	 * is drafted or trashed is not what core/template-part renders, so the
+	 * theme file is read instead.
 	 *
 	 * @return array{image: int, url: string}|null Attachment ID (0 for an external URL) and URL.
 	 */
 	public static function campaign(): ?array {
-		$part = get_block_template( get_stylesheet() . '//' . self::CAMPAIGN_PART, 'wp_template_part' );
+		$id   = get_stylesheet() . '//' . self::CAMPAIGN_PART;
+		$part = get_block_template( $id, 'wp_template_part' );
+		if ( $part instanceof \WP_Block_Template && 'custom' === $part->source && 'publish' !== $part->status ) {
+			$part = get_block_file_template( $id, 'wp_template_part' );
+		}
 		if ( ! $part instanceof \WP_Block_Template ) {
 			return null;
 		}
@@ -259,12 +265,37 @@ final class Editorial_Imagery {
 
 	/**
 	 * Whether the cover already shows the newest arrival (New Arrivals then
-	 * starts after it).
+	 * starts after it). Compared with what the rail itself shows first: the
+	 * newest catalog-visible, in-stock product, with or without an image.
 	 */
 	public static function newest_on_cover(): bool {
-		$newest = self::candidates( null, false )[0] ?? null;
+		$cover = (int) Request_Cache::get( self::COVER_PRODUCT, 0 );
+		if ( $cover <= 0 ) {
+			return false;
+		}
+		$newest = get_posts(
+			array(
+				'post_type'              => 'product',
+				'post_status'            => 'publish',
+				'posts_per_page'         => 1,
+				'orderby'                => 'date',
+				'order'                  => 'DESC',
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed lookup, only when a cover product is set.
+				'tax_query'              => array(
+					array(
+						'taxonomy' => 'product_visibility',
+						'field'    => 'name',
+						'terms'    => array( 'exclude-from-catalog', 'outofstock' ),
+						'operator' => 'NOT IN',
+					),
+				),
+			)
+		);
 
-		return null !== $newest && (int) Request_Cache::get( self::COVER_PRODUCT, 0 ) === $newest['product'];
+		return array() !== $newest && $cover === (int) $newest[0];
 	}
 
 	/**
@@ -292,14 +323,42 @@ final class Editorial_Imagery {
 	 * @param int $image Attachment ID.
 	 */
 	public static function kind( int $image ): string {
-		$cached = get_post_meta( $image, self::KIND_META, true );
-		if ( in_array( $cached, array( 'photo', 'cutout', 'packshot' ), true ) ) {
+		$cached = self::cached_kind( $image );
+		if ( null !== $cached ) {
 			return $cached;
 		}
 		$kind = self::detect_kind( $image );
 		update_post_meta( $image, self::KIND_META, $kind );
 
 		return $kind;
+	}
+
+	/**
+	 * An image's kind if already classified, without reading the file.
+	 *
+	 * @param int $image Attachment ID.
+	 */
+	public static function cached_kind( int $image ): ?string {
+		$cached = get_post_meta( $image, self::KIND_META, true );
+
+		return in_array( $cached, array( 'photo', 'cutout', 'packshot' ), true ) ? $cached : null;
+	}
+
+	/**
+	 * Classify an upload once its sizes exist (wp_generate_attachment_metadata),
+	 * so the Media Library only ever reads the cached answer. Regenerating
+	 * thumbnails classifies again.
+	 *
+	 * @param array<string, mixed> $meta  Attachment metadata about to be saved.
+	 * @param int                  $image Attachment ID.
+	 * @return array<string, mixed>
+	 */
+	public static function classify_upload( array $meta, int $image ): array {
+		if ( wp_attachment_is_image( $image ) ) {
+			update_post_meta( $image, self::KIND_META, self::detect_kind( $image, $meta ) );
+		}
+
+		return $meta;
 	}
 
 	/**
@@ -454,11 +513,12 @@ final class Editorial_Imagery {
 	 * file in a format that can carry transparency is treated as a cut-out,
 	 * so it never fills an editorial slot by mistake; a JPEG is a photo.
 	 *
-	 * @param int $image Attachment ID.
+	 * @param int                       $image Attachment ID.
+	 * @param array<string, mixed>|null $meta  Metadata not yet saved (an upload in progress).
 	 */
-	private static function detect_kind( int $image ): string {
+	private static function detect_kind( int $image, ?array $meta = null ): string {
 		$alpha  = in_array( (string) get_post_mime_type( $image ), array( 'image/png', 'image/webp', 'image/avif', 'image/gif' ), true );
-		$file   = self::sample_file( $image );
+		$file   = self::sample_file( $image, $meta );
 		$pixels = null !== $file ? self::corner_pixels( $file ) : null;
 		if ( null === $pixels ) {
 			return $alpha ? 'cutout' : 'photo';
@@ -481,14 +541,15 @@ final class Editorial_Imagery {
 	 * Path of the smallest proportional copy of an image (medium, else the
 	 * original); null when no file exists.
 	 *
-	 * @param int $image Attachment ID.
+	 * @param int                       $image Attachment ID.
+	 * @param array<string, mixed>|null $meta  Metadata, when not yet saved.
 	 */
-	private static function sample_file( int $image ): ?string {
+	private static function sample_file( int $image, ?array $meta = null ): ?string {
 		$original = get_attached_file( $image );
 		if ( ! is_string( $original ) || '' === $original ) {
 			return null;
 		}
-		$meta   = wp_get_attachment_metadata( $image );
+		$meta   = $meta ?? wp_get_attachment_metadata( $image );
 		$medium = is_array( $meta ) ? (string) ( $meta['sizes']['medium']['file'] ?? '' ) : '';
 		$path   = '' !== $medium ? dirname( $original ) . '/' . $medium : $original;
 		if ( ! file_exists( $path ) ) {

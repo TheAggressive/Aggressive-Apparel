@@ -161,7 +161,7 @@ insert any section alone.
 | 02  | `editorial-new-arrivals`      | compact                      | One rail of up to eight, newest first after the cover's garment; nothing after it → omitted                                                                                                                                             |
 | 03  | `editorial-category-showcase` | compact                      | Shop by line: one ruled row per stocked line, best-stocked first, name at display scale, piece count, three of its products                                                                                                             |
 | 04  | `editorial-artwork-spotlight` | white (light in both)        | "Aggressive is a compliment." + paragraph beside up to three on-figure photos with a Shown line; no photos → typographic                                                                                                                |
-| 05  | `editorial-best-sellers`      | compact                      | Three large numbered cards: real sales → Best sellers; else Featured; else omitted                                                                                                                                                      |
+| 05  | `editorial-best-sellers`      | compact                      | Three numbered cards: 3+ buyable products sold → Best sellers; else in-stock Featured; else omitted                                                                                                                                     |
 | 06  | `editorial-featured-drop`     | black spread / band          | Drop photo + name + row of two, or title row over a stock-sized grid; no stocked term → omitted                                                                                                                                         |
 | 07  | `editorial-womens-collection` | white spread                 | Copy + row of two beside a full-height on-figure photo, light in both schemes; no stocked term → omitted                                                                                                                                |
 | 08  | `editorial-hoodies-feature`   | compact                      | Lineup on one studio band: up to four side by side (short ranges centred), five or more a rail                                                                                                                                          |
@@ -181,7 +181,9 @@ settings screen of its own: each control lives with its content):
   homepage_ / _Exclude from homepage_. A photo is always shown with, and
   linked to, the product whose main or gallery image it is. The field's help
   says whether an image looks like a photograph or a cut-out (corner pixels,
-  cached as `_aa_photo_kind`); approval is the merchant's call.
+  read once on upload or thumbnail regeneration and cached as
+  `_aa_photo_kind`; the Media Library never opens a file). Approval is the
+  merchant's call.
 - **Cover (Site Editor).** The campaign photo is the _Homepage campaign
   image_ template part (Appearance → Editor → Patterns → Template parts),
   a core Cover block: Replace picks the photo from the Media Library, the

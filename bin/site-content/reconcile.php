@@ -27,7 +27,8 @@ $aa_flags = isset( $args ) && is_array( $args ) ? $args : array();
 $aa_apply = in_array( 'apply', $aa_flags, true );
 
 /**
- * The saved (database) copy of a theme template or part, or null.
+ * The saved (database) copy of a theme template or part, or null. A trashed
+ * copy no longer overrides the theme, so it counts as none.
  *
  * @param string $slug Template slug.
  * @param string $type wp_template or wp_template_part.
@@ -38,7 +39,20 @@ function aa_saved_entry( string $slug, string $type ): ?WP_Post {
 		return null;
 	}
 	$post = get_post( $template->wp_id );
-	return $post instanceof WP_Post ? $post : null;
+	return $post instanceof WP_Post && 'trash' !== $post->post_status ? $post : null;
+}
+
+/**
+ * Text as a reader sees it: tags stripped, entities decoded, curly
+ * apostrophes straightened and whitespace collapsed, so the saved copy
+ * matches however the editor encoded it.
+ *
+ * @param string $html Markup.
+ */
+function aa_plain_text( string $html ): string {
+	$text = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	$text = str_replace( array( "\u{2019}", "\u{2018}" ), "'", $text );
+	return trim( (string) preg_replace( '/\s+/u', ' ', $text ) );
 }
 
 /**
@@ -248,7 +262,7 @@ function aa_drop_ticker_item( string $content, string $text, array &$log ): stri
 				return;
 			}
 			foreach ( $block['innerBlocks'] as $index => $child ) {
-				if ( 'core/paragraph' !== $child['blockName'] || trim( wp_strip_all_tags( $child['innerHTML'] ) ) !== $text ) {
+				if ( 'core/paragraph' !== $child['blockName'] || aa_plain_text( $child['innerHTML'] ) !== aa_plain_text( $text ) ) {
 					continue;
 				}
 				$remove = array( $index );
@@ -262,6 +276,11 @@ function aa_drop_ticker_item( string $content, string $text, array &$log ): stri
 		}
 	);
 	if ( ! $dropped ) {
+		// Gone already is reconciled; still on the page but not as a ticker
+		// item is not, and is reported rather than left live silently.
+		if ( str_contains( aa_plain_text( $content ), aa_plain_text( $text ) ) ) {
+			$log[] = sprintf( 'SKIPPED ticker item "%s": found, but not as a ticker paragraph', $text );
+		}
 		return $content;
 	}
 	$log[] = sprintf( 'Removed ticker item "%s" and its separator icon', $text );
@@ -411,8 +430,12 @@ if ( in_array( 'adopt-home', $aa_flags, true ) ) {
 	} else {
 		wp_mkdir_p( $aa_backup_dir );
 		file_put_contents( "{$aa_backup_dir}/home-{$aa_home->ID}.html", $aa_home->post_content );
-		wp_trash_post( $aa_home->ID );
-		WP_CLI::success( "home (#{$aa_home->ID}) moved to the trash; backup in {$aa_backup_dir}" );
+		if ( wp_trash_post( $aa_home->ID ) ) {
+			WP_CLI::success( "home (#{$aa_home->ID}) moved to the trash; backup in {$aa_backup_dir}" );
+		} else {
+			WP_CLI::warning( "home (#{$aa_home->ID}): could not be moved to the trash." );
+			$aa_failed = true;
+		}
 	}
 }
 

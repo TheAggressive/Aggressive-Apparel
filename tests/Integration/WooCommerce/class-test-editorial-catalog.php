@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
+use Aggressive_Apparel\WooCommerce\Editorial_Collection_Band;
 use Aggressive_Apparel\WooCommerce\Editorial_Product_Grid;
 use Aggressive_Apparel\Tests\Support\Builds_Editorial_Fixtures;
 use WP_UnitTestCase;
@@ -88,12 +89,25 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		);
 	}
 
-	/** Sales data is detected from the product lookup table. */
-	public function test_has_sales_data_reflects_recorded_sales(): void {
+	/**
+	 * A ranking needs a full row of products that sold and can be bought: a
+	 * sale on an out-of-stock product doesn't fill the row with unsold ones.
+	 */
+	public function test_has_sales_data_needs_a_row_of_buyable_sellers(): void {
 		$this->create_product();
-		$this->assertFalse( Editorial_Catalog::has_sales_data() );
-
 		$this->create_product( array( 'total_sales' => 3 ) );
+		$this->create_product( array( 'total_sales' => 2 ) );
+		$this->create_product(
+			array(
+				'total_sales'  => 9,
+				'stock_status' => 'outofstock',
+			)
+		);
+		wp_cache_flush();
+		$this->assertFalse( Editorial_Catalog::has_sales_data() );
+		$this->assertStringNotContainsString( 'Best sellers', $this->render_pattern( 'editorial-best-sellers' ) );
+
+		$this->create_product( array( 'total_sales' => 1 ) );
 		wp_cache_flush();
 
 		$this->assertTrue( Editorial_Catalog::has_sales_data() );
@@ -134,9 +148,24 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertTrue( Editorial_Catalog::has_featured_products() );
 	}
 
+	/** Featured products that are all out of stock leave nothing to show. */
+	public function test_featured_out_of_stock_renders_nothing(): void {
+		$this->create_product(
+			array(
+				'featured'     => true,
+				'stock_status' => 'outofstock',
+			)
+		);
+
+		$this->assertFalse( Editorial_Catalog::has_featured_products() );
+		$this->assertSame( '', trim( $this->render_pattern( 'editorial-best-sellers' ) ) );
+	}
+
 	/** With real sales the section ranks by popularity. */
 	public function test_best_sellers_ranks_by_sales_when_available(): void {
-		$this->create_product( array( 'total_sales' => 5 ) );
+		foreach ( array( 5, 4, 3 ) as $sales ) {
+			$this->create_product( array( 'total_sales' => $sales ) );
+		}
 
 		$markup = $this->render_pattern( 'editorial-best-sellers' );
 
@@ -201,6 +230,94 @@ class Test_Editorial_Catalog extends WP_UnitTestCase {
 		$this->assertInstanceOf( \WP_Term::class, $found );
 		$this->assertSame( $stocked->term_id, $found->term_id );
 		$this->assertNull( Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'editorial-empty' ) ) );
+	}
+
+	/** A term whose products are all out of stock yields to the next candidate. */
+	public function test_stocked_term_skips_sold_out_terms(): void {
+		$sold_out = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'editorial-sold-out',
+			)
+		);
+		$this->create_product(
+			array(
+				'category'     => $sold_out->term_id,
+				'stock_status' => 'outofstock',
+			)
+		);
+		$stocked = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'editorial-in-stock',
+			)
+		);
+		$this->create_product( array( 'category' => $stocked->term_id ) );
+		wp_cache_flush();
+
+		$found = Editorial_Catalog::stocked_term( array( 'product_cat' ), array( 'editorial-sold-out', 'editorial-in-stock' ) );
+
+		$this->assertInstanceOf( \WP_Term::class, $found );
+		$this->assertSame( $stocked->term_id, $found->term_id );
+	}
+
+	/**
+	 * A drop band on a Collection attribute term links where the Women's
+	 * section does: the audience landing page, not the attribute archive.
+	 */
+	public function test_collection_band_links_an_attribute_term_to_its_landing_page(): void {
+		$registered = ! taxonomy_exists( 'pa_collection' );
+		if ( $registered ) {
+			register_taxonomy( 'pa_collection', 'product' );
+		}
+		$drop    = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'pa_collection',
+				'slug'     => 'editorial-drop',
+			)
+		);
+		$product = $this->create_product();
+		wp_set_object_terms( $product->get_id(), $drop->term_id, 'pa_collection' );
+		wp_cache_flush();
+
+		$markup  = Editorial_Collection_Band::markup(
+			array(
+				'term'       => $drop,
+				'query_id'   => 399,
+				'name'       => 'Drop',
+				'eyebrow'    => 'Drop',
+				'title'      => 'Drop',
+				'line'       => 'Line',
+				'cta'        => 'Shop the drop',
+				'grid_label' => 'Drop products',
+			)
+		);
+		$landing = Editorial_Catalog::audience_url( 'editorial-drop' );
+		$url     = Editorial_Catalog::collection_url( $drop );
+		if ( $registered ) {
+			unregister_taxonomy( 'pa_collection' );
+		}
+
+		$this->assertSame( $landing, $url );
+		$this->assertStringContainsString( 'href="' . esc_url( $landing ) . '"', $markup );
+		// One product, no photo: the lone card is centred, not flush left.
+		$this->assertStringContainsString( 'aa-grid-centered', $markup );
+	}
+
+	/** One stocked women's product without a photo sits centred. */
+	public function test_womens_single_product_is_centred(): void {
+		$womens = self::factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'product_cat',
+				'slug'     => 'womens',
+			)
+		);
+		$this->create_product( array( 'category' => $womens->term_id ) );
+
+		$markup = $this->render_pattern( 'editorial-womens-collection' );
+
+		$this->assertSame( 1, $this->collection_query( $markup )['perPage'] );
+		$this->assertStringContainsString( 'aa-grid-centered', $markup );
 	}
 
 	/**

@@ -42,7 +42,7 @@ final class Editorial_Collection_Band {
 			return '';
 		}
 		$lead = Editorial_Imagery::leads( 1, $term )[0] ?? null;
-		$url  = Editorial_Catalog::url( $term );
+		$url  = Editorial_Catalog::collection_url( $term );
 
 		if ( null !== $lead ) {
 			$text = self::text( $args, $url );
@@ -87,7 +87,7 @@ final class Editorial_Collection_Band {
 		} else {
 			$columns = max( 2, min( 4, $count ) );
 			$inner   = '<!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"default"}} -->' . "\n"
-				. '<div class="wp-block-group alignwide">' . self::header( $args, $url ) . self::grid( $args, $columns, $columns ) . '</div>' . "\n"
+				. '<div class="wp-block-group alignwide">' . self::header( $args, $url ) . self::grid( $args, min( 4, $count ), $columns ) . '</div>' . "\n"
 				. '<!-- /wp:group -->';
 			$padding = array(
 				'top'    => 'var:preset|spacing|section-standard',
@@ -202,6 +202,8 @@ final class Editorial_Collection_Band {
 				'columns'  => $columns,
 				'term'     => $term,
 				'align'    => '',
+				// One card never sits flush left beside an empty track.
+				'centered' => 1 === $per_page,
 				'label'    => (string) $args['grid_label'],
 			)
 		);

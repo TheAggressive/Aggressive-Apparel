@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-24T22:54:27+00:00\n"
+"POT-Creation-Date: 2026-11-25T05:58:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -66,7 +66,7 @@ msgid "Premium apparel patterns for the Aggressive brand."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:71
-#: includes/WooCommerce/class-editorial-controls.php:331
+#: includes/WooCommerce/class-editorial-controls.php:337
 msgid "Homepage"
 msgstr ""
 
@@ -1728,78 +1728,82 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:117
-#: includes/WooCommerce/class-editorial-controls.php:181
+#: includes/WooCommerce/class-editorial-controls.php:118
+#: includes/WooCommerce/class-editorial-controls.php:187
 msgid "Not reviewed"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:118
+#: includes/WooCommerce/class-editorial-controls.php:119
 msgid "Approved for editorial sections"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:119
-#: includes/WooCommerce/class-editorial-controls.php:183
+#: includes/WooCommerce/class-editorial-controls.php:120
+#: includes/WooCommerce/class-editorial-controls.php:189
 msgid "Excluded"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:129
-msgid "Homepage use"
-msgstr ""
-
-#: includes/WooCommerce/class-editorial-controls.php:133
+#: includes/WooCommerce/class-editorial-controls.php:131
 msgid "Looks like a photograph. Only approved photos appear on the homepage, always linked to the product they belong to."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:134
+#: includes/WooCommerce/class-editorial-controls.php:132
+msgid "Only approved photographs appear on the homepage, always linked to the product they belong to."
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:133
 msgid "Looks like a product cut-out or packshot: these belong on product cards rather than editorial sections."
 msgstr ""
 
 #: includes/WooCommerce/class-editorial-controls.php:137
+msgid "Homepage use"
+msgstr ""
+
+#: includes/WooCommerce/class-editorial-controls.php:143
 msgid "Homepage priority"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:140
+#: includes/WooCommerce/class-editorial-controls.php:146
 msgid "Higher shows first among approved photos."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:180
+#: includes/WooCommerce/class-editorial-controls.php:186
 msgid "All homepage uses"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:182
+#: includes/WooCommerce/class-editorial-controls.php:188
 msgid "Approved"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:185
+#: includes/WooCommerce/class-editorial-controls.php:191
 msgid "Filter by homepage use"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:230
+#: includes/WooCommerce/class-editorial-controls.php:236
 msgid "Approve for homepage"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:231
+#: includes/WooCommerce/class-editorial-controls.php:237
 msgid "Exclude from homepage"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:268
+#: includes/WooCommerce/class-editorial-controls.php:274
 msgid "Homepage cover"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:269
+#: includes/WooCommerce/class-editorial-controls.php:275
 msgid "Name this product under the homepage campaign photo (choose the garment the photo shows). Without a campaign photo, its own image fills the cover. One product at a time: choosing this one replaces the last."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:321
-#: includes/WooCommerce/class-editorial-controls.php:331
+#: includes/WooCommerce/class-editorial-controls.php:327
+#: includes/WooCommerce/class-editorial-controls.php:337
 msgid "Show in Shop by line"
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:321
+#: includes/WooCommerce/class-editorial-controls.php:327
 msgid "Lists this category on the homepage index, in the category order set here by dragging."
 msgstr ""
 
-#: includes/WooCommerce/class-editorial-controls.php:331
+#: includes/WooCommerce/class-editorial-controls.php:337
 msgid "Lists this category on the homepage index, in the category order set by dragging categories in the list."
 msgstr ""
 
@@ -2714,8 +2718,8 @@ msgstr ""
 #: includes/WooCommerce/class-product-filter-renderer.php:41
 #: includes/WooCommerce/class-product-filter-renderer.php:141
 #: patterns/collection-landing-hero.php:18
-#: patterns/editorial-womens-collection.php:57
-#: patterns/editorial-womens-collection.php:100
+#: patterns/editorial-womens-collection.php:55
+#: patterns/editorial-womens-collection.php:98
 msgid "Collection"
 msgstr ""
 
@@ -5836,18 +5840,18 @@ msgctxt "Pattern description"
 msgid "A light editorial spread: a full-height portrait photo of the collection running off the right edge, beside the collection name and a two-up grid of real women's products. Shows the newest women's product photo until campaign photography replaces it; with one product the photo carries the section alone, without a portrait photo the grid takes its place."
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:61
-#: patterns/editorial-womens-collection.php:104
+#: patterns/editorial-womens-collection.php:59
+#: patterns/editorial-womens-collection.php:102
 msgid "Women’s"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:66
-#: patterns/editorial-womens-collection.php:109
+#: patterns/editorial-womens-collection.php:64
+#: patterns/editorial-womens-collection.php:107
 msgid "Shop women's"
 msgstr ""
 
-#: patterns/editorial-womens-collection.php:79
-#: patterns/editorial-womens-collection.php:126
+#: patterns/editorial-womens-collection.php:77
+#: patterns/editorial-womens-collection.php:125
 msgid "Women's products"
 msgstr ""
 

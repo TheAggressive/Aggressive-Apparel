@@ -286,6 +286,19 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 		update_post_meta( $newest->get_id(), Editorial_Controls::COVER_PRODUCT_META, 'yes' );
 		$grids = $this->find_all( parse_blocks( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'woocommerce/product-collection' );
 		$this->assertSame( array( 4, 1 ), array( $grids[0]['attrs']['query']['perPage'], $grids[0]['attrs']['query']['offset'] ), 'The cover shows the newest: the rail starts after it.' );
+
+		// A newer product without an image yet still leads the rail, so the
+		// cover is no longer the newest and nothing is skipped.
+		$imageless = $this->create_product();
+		wp_update_post(
+			array(
+				'ID'            => $imageless->get_id(),
+				'post_date'     => '2026-01-06 00:00:00',
+				'post_date_gmt' => '2026-01-06 00:00:00',
+			)
+		);
+		$grids = $this->find_all( parse_blocks( $this->render_in_page( array( 'editorial-campaign-hero', 'editorial-new-arrivals' ) ) ), 'woocommerce/product-collection' );
+		$this->assertSame( 0, $grids[0]['attrs']['query']['offset'], 'The newest product leads the rail, image or not.' );
 	}
 
 	/**
@@ -614,6 +627,43 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 			),
 			Editorial_Imagery::campaign()
 		);
+	}
+
+	/**
+	 * A drafted or trashed saved part is not what the front end renders, so
+	 * it is not a campaign photo: the cover never frames an empty part.
+	 */
+	public function test_unpublished_campaign_part_is_ignored(): void {
+		$part = $this->set_campaign_image( $this->create_image( 1600, 2000 ) );
+		$this->assertNotNull( Editorial_Imagery::campaign() );
+
+		wp_update_post(
+			array(
+				'ID'          => $part,
+				'post_status' => 'draft',
+			)
+		);
+		$this->assertNull( Editorial_Imagery::campaign(), 'Drafted.' );
+
+		wp_trash_post( $part );
+		$this->assertNull( Editorial_Imagery::campaign(), 'Trashed.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $this->render_pattern( 'editorial-campaign-hero' ) );
+	}
+
+	/**
+	 * Uploads are classified once their sizes exist; the Media Library form
+	 * only reads that answer and never opens a file.
+	 */
+	public function test_media_library_reads_only_the_upload_classification(): void {
+		$image = $this->create_image( 1200, 1200, '' );
+		( new Editorial_Controls() )->attachment_fields( array(), get_post( $image ) );
+		$this->assertNull( Editorial_Imagery::cached_kind( $image ), 'The form never classifies.' );
+
+		$cutout = $this->create_cutout();
+		$this->assertNull( Editorial_Imagery::cached_kind( $cutout ) );
+		$meta = (array) wp_get_attachment_metadata( $cutout );
+		$this->assertSame( $meta, Editorial_Imagery::classify_upload( $meta, $cutout ) );
+		$this->assertSame( 'cutout', Editorial_Imagery::cached_kind( $cutout ) );
 	}
 
 	/** The attachment form saves Homepage use and a clamped priority. */

@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — The Name
- * Description: The one place the brand explains itself: the statement about the name and a short paragraph beside up to three of the store's own on-figure photos, each product named in a Shown line. With no photos it stays typographic. Anchor #the-label, the cover's second link.
+ * Description: The one place the brand explains itself: the statement about the name and a short paragraph beside up to three of the store's own on-figure photos, each product named in a Shown line. With no photos it stays typographic. Anchor #the-label.
  * Slug: aggressive-apparel/editorial-artwork-spotlight
  * Categories: aggressive-editorial, aggressive-homepage
  * Keywords: brand, name, statement, editorial, homepage

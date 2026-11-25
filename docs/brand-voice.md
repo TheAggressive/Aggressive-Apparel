@@ -41,7 +41,7 @@ two or three lines with voice, a section one at most, several sections none.
 | Register | Sounds like                                                       | Example                                           |
 | -------- | ----------------------------------------------------------------- | ------------------------------------------------- |
 | Plain    | Familiar, exact, no voice (shopping, support, labels, specs)      | Your cart is empty. · Size down for a closer fit. |
-| Deadpan  | Flat understatement; the joke is what's left out                  | Rebellion has a uniform. This season's is in.     |
+| Deadpan  | Flat understatement; the joke is what's left out                  | Rebellion has a uniform.                          |
 | Dark     | Gallows wit with a straight face                                  | Dead Signal. Reception was never the point.       |
 | Blunt    | Honest to the point of rude, at the industry or us, never you     | Nobody needs another hoodie. We made one anyway.  |
 | Quiet    | Almost nothing; the picture carries it                            | Black. Again.                                     |

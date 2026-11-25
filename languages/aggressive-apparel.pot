@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-25T05:58:25+00:00\n"
+"POT-Creation-Date: 2026-11-25T22:12:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -5489,7 +5489,7 @@ msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php
 msgctxt "Pattern description"
-msgid "The one place the brand explains itself: the statement about the name and a short paragraph beside up to three of the store's own on-figure photos, each product named in a Shown line. With no photos it stays typographic. Anchor #the-label, the cover's second link."
+msgid "The one place the brand explains itself: the statement about the name and a short paragraph beside up to three of the store's own on-figure photos, each product named in a Shown line. With no photos it stays typographic. Anchor #the-label."
 msgstr ""
 
 #: patterns/editorial-artwork-spotlight.php:29
@@ -5599,20 +5599,17 @@ msgstr ""
 msgid "Rebellion has a uniform."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:45
-msgid "This season’s is in."
-msgstr ""
-
-#: patterns/editorial-campaign-hero.php:50
+#: patterns/editorial-campaign-hero.php:46
 #: patterns/editorial-new-arrivals.php:39
 msgid "Shop new arrivals"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:54
-msgid "About the name"
+#: patterns/editorial-campaign-hero.php:50
+#: src/blocks-interactivity/wishlist/render.php:141
+msgid "Explore the collection"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:83
+#: patterns/editorial-campaign-hero.php:79
 msgid "Cover garment"
 msgstr ""
 
@@ -8232,10 +8229,6 @@ msgstr ""
 
 #: src/blocks-interactivity/wishlist/render.php:140
 msgid "Tap the heart on any product to keep it here."
-msgstr ""
-
-#: src/blocks-interactivity/wishlist/render.php:141
-msgid "Explore the collection"
 msgstr ""
 
 #: src/blocks/dark-mode-toggle/render.php:31

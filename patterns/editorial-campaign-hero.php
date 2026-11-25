@@ -41,17 +41,13 @@ $aa_media = null !== $aa_hero || $aa_slot;
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:paragraph {"className":"is-style-lead"} -->
-<p class="is-style-lead"><?php echo esc_html__( 'This season’s is in.', 'aggressive-apparel' ); ?></p>
-<!-- /wp:paragraph -->
-
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"},"blockGap":"var:preset|spacing|6"}},"layout":{"type":"flex","verticalAlignment":"center"}} -->
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)"><!-- wp:button {"className":"is-style-cta"} -->
 <div class="wp-block-button is-style-cta"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( $aa_new_arrivals ); ?>"><?php echo esc_html__( 'Shop new arrivals', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button -->
 
 <!-- wp:button {"className":"is-style-text"} -->
-<div class="wp-block-button is-style-text"><a class="wp-block-button__link wp-element-button" href="#the-label"><?php echo esc_html__( 'About the name', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-button is-style-text"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Editorial_Catalog::shop_url() ); ?>"><?php echo esc_html__( 'Explore the collection', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons -->
 <?php if ( $aa_media ) : ?>

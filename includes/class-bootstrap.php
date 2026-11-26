@@ -178,6 +178,7 @@ class Bootstrap {
 			$this->container->register( 'size_option_sorter', fn() => new WooCommerce\Size_Option_Sorter() );
 			$this->container->register( 'product_card_contract', fn() => new WooCommerce\Product_Card_Contract() );
 			$this->container->register( 'catalog_image_loading', fn() => new WooCommerce\Catalog_Image_Loading() );
+			$this->container->register( 'editorial_controls', fn() => new WooCommerce\Editorial_Controls() );
 
 			// Register enhancement services.
 			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
@@ -277,6 +278,7 @@ class Bootstrap {
 		$this->container->get( 'size_option_sorter' )->init();
 		$this->container->get( 'product_card_contract' )->init();
 		$this->container->get( 'catalog_image_loading' )->init();
+		$this->container->get( 'editorial_controls' )->init();
 		$this->container->get( 'wc_feature_settings' )->init();
 		$this->container->get( 'wc_enhancements' )->init();
 		$this->container->get( 'storefront_rest_requests' )->init();

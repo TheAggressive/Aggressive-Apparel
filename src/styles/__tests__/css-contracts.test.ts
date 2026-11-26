@@ -1041,14 +1041,17 @@ describe( 'editorial sections', () => {
 		).toBe( true );
 	} );
 
-	it( 'make the category tiles a swipe rail on phones', async () => {
+	it( 'make the category tiles and a three-look lookbook row a swipe rail on phones', async () => {
 		const blocks = await CompiledCss.load(
 			'src/styles/woocommerce/blocks.css'
 		);
 		const rail = blocks
 			.all()
-			.filter( ( d ) =>
-				d.selector.includes( '.aa-editorial-tiles.is-layout-grid' )
+			.filter(
+				( d ) =>
+					d.selector.includes( '.is-layout-grid' ) &&
+					d.selector.includes( '.aa-editorial-tiles' ) &&
+					d.selector.includes( '.aa-lookbook-row' )
 			);
 
 		expect( rail.map( ( d ) => d.prop ) ).toEqual(

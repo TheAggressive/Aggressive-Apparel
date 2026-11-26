@@ -47,7 +47,8 @@
 			.aa-fbt__card-image,
 			.aa-search__thumb,
 			.aa-notices__thumb,
-			.aa-sticky-cart__image
+			.aa-sticky-cart__image,
+			.aa-line-index__thumb
 		)
 		img,
 	img:where(

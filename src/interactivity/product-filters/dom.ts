@@ -60,3 +60,26 @@ export function chosenOption( event: Event, selector: string ): string {
 	if ( ! option || isUnavailable( option ) ) return '';
 	return option.dataset.filterValue ?? '';
 }
+
+/**
+ * The section a horizontal-bar dropdown shows, from its item's own
+ * `data-wp-context` JSON. Read from the attribute, not the runtime's
+ * private context property, which current Interactivity API versions no
+ * longer expose on elements.
+ *
+ * @param item The `.aa-product-filters__bar-item` element.
+ * @return The section id (e.g. "categories"), or undefined.
+ */
+export function barDropdownId( item: HTMLElement ): string | undefined {
+	try {
+		const context = JSON.parse( item.dataset.wpContext ?? '{}' ) as {
+			dropdownId?: unknown;
+		};
+		return typeof context.dropdownId === 'string' &&
+			context.dropdownId !== ''
+			? context.dropdownId
+			: undefined;
+	} catch {
+		return undefined;
+	}
+}

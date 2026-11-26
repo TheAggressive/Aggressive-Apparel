@@ -126,6 +126,12 @@
 	background: transparent;
 	color: inherit;
 
+	/* Touch screens zoom into a focused field set under 16px (iOS
+	   Safari); there the number reads at the field size instead. */
+	@media (pointer: coarse) {
+		font-size: var(--aa-field-font-size);
+	}
+
 	&::-webkit-inner-spin-button,
 	&::-webkit-outer-spin-button {
 		appearance: none;
@@ -157,8 +163,8 @@
 		border-color: var(--quick-view-stock-in);
 		background-color: var(--quick-view-stock-in);
 		transition:
-			background-color 0.3s ease,
-			transform 0.15s ease;
+			background-color var(--aa-duration-normal) var(--aa-ease-default),
+			transform var(--aa-duration-fast) var(--aa-ease-default);
 	}
 }
 
@@ -241,7 +247,8 @@
 	position: absolute;
 	inset: 0;
 	background: color-mix(in oklch, var(--aa-color-foreground) 0%, transparent);
-	transition: background-color 0.3s ease;
+	transition: background-color var(--aa-duration-normal)
+		var(--aa-ease-default);
 }
 
 .aggressive-apparel-quick-view__drawer.is-open
@@ -259,7 +266,7 @@
 	border-radius: 1rem 1rem 0 0;
 	overflow-y: auto;
 	transform: translateY(100%);
-	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
 .aggressive-apparel-quick-view__drawer.is-open

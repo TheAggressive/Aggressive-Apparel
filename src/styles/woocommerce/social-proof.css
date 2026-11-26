@@ -11,7 +11,7 @@
 	left: 1.5rem;
 	z-index: var(--aa-z-toast);
 	pointer-events: none;
-	transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: bottom var(--aa-duration-normal) var(--aa-ease-default);
 }
 
 .aggressive-apparel-social-proof__link,
@@ -57,9 +57,9 @@
 	transform: translateY(20px);
 	opacity: 0;
 	transition:
-		transform 0.3s ease,
-		opacity 0.3s ease,
-		visibility 0s linear 0.3s;
+		transform var(--aa-duration-normal) var(--aa-ease-default),
+		opacity var(--aa-duration-normal) var(--aa-ease-default),
+		visibility 0s var(--aa-duration-normal);
 
 	&.is-visible {
 		transform: translateY(0);
@@ -67,8 +67,8 @@
 		pointer-events: auto;
 		visibility: visible;
 		transition:
-			transform 0.3s ease,
-			opacity 0.3s ease,
+			transform var(--aa-duration-normal) var(--aa-ease-default),
+			opacity var(--aa-duration-normal) var(--aa-ease-default),
 			visibility 0s;
 	}
 

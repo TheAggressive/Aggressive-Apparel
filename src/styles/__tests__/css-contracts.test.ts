@@ -353,6 +353,129 @@ describe( 'buttons and controls', () => {
 	} );
 } );
 
+describe( 'WooCommerce controls in the shared states', () => {
+	const FOCUS_RING = expect.objectContaining( {
+		value: 'var(--aa-focus-ring)',
+	} );
+
+	it( 'draw the shared ring on cart, checkout and account controls WooCommerce leaves to the browser', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		for ( const control of [
+			'.wc-block-components-panel__button',
+			'.wc-block-components-checkout-order-summary__title',
+			'.wc-block-components-address-form__address_2-toggle',
+			// WooCommerce clears its box-shadow at (0,4,1).
+			'table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__quantity .wc-block-cart-item__remove-link',
+		] ) {
+			expect(
+				await blocks.declarations(
+					`${ control }:focus-visible`,
+					'box-shadow'
+				)
+			).toEqual( [ FOCUS_RING ] );
+		}
+
+		// The catalog toolbar: the filter toggle and the sort menu.
+		const toggle = await CompiledCss.load(
+			'src/blocks-interactivity/filter-toggle/style.css'
+		);
+		expect(
+			await toggle.declarations(
+				'.aa-filter-toggle:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+		const forms = await CompiledCss.load(
+			'src/styles/components/forms.css'
+		);
+		expect(
+			await forms.declarations(
+				'.woocommerce-ordering select.orderby:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+
+		const account = await CompiledCss.load(
+			'src/styles/woocommerce/account.css'
+		);
+		expect(
+			await account.declarations(
+				'.woocommerce-account .woocommerce form .show-password-input:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+	} );
+
+	it( 'ring checkout checkboxes like native ones, above WooCommerce’s later rule', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		expect(
+			await blocks.declarations(
+				'body .wc-block-components-checkbox .wc-block-components-checkbox__input[type="checkbox"]:focus-visible',
+				'outline'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: '2px solid var(--aa-field-bar-focus)',
+			} ),
+		] );
+	} );
+
+	it( 'keep the size chart unit toggle at the dense choice floor', async () => {
+		const guide = await CompiledCss.load(
+			'src/styles/woocommerce/size-guide.css'
+		);
+		expect(
+			await guide.declarations(
+				'.aa-size-chart__unit-button',
+				'min-height'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-control-min-dense)',
+			} ),
+		] );
+	} );
+
+	it( 'set compact quantity inputs at 16px on touch screens (no iOS focus zoom)', async () => {
+		const touch = ( css: CompiledCss, cls: string ) =>
+			css
+				.all()
+				.filter(
+					( d ) =>
+						d.prop === 'font-size' &&
+						d.selector.includes( cls ) &&
+						d.conditions.some( ( c ) =>
+							/pointer:\s*coarse/.test( c )
+						)
+				)
+				.map( ( d ) => d.value );
+
+		const sources: Array< [ string, string ] > = [
+			[
+				'src/styles/woocommerce/blocks.css',
+				'.wc-block-components-quantity-selector__input',
+			],
+			[
+				'src/styles/woocommerce/quick-view.css',
+				'.aggressive-apparel-quick-view__qty-input',
+			],
+			[
+				'src/styles/woocommerce/sticky-add-to-cart.css',
+				'.aa-sticky-cart__qty-input',
+			],
+		];
+		for ( const [ file, cls ] of sources ) {
+			expect( touch( await CompiledCss.load( file ), cls ) ).toEqual( [
+				'var(--aa-field-font-size)',
+			] );
+		}
+	} );
+} );
+
 describe( 'product card swatches', () => {
 	it( 'keep their pointer target, shrinking only to the dense tier on narrow cards', async () => {
 		const swatches = await CompiledCss.load(
@@ -1224,5 +1347,82 @@ describe( 'fixed-scheme editorial sections', () => {
 		expect( sizes[ 0 ].selector ).toMatch( /aa-statement/ );
 		expect( sizes[ 0 ].selector ).toMatch( /aa-page-section/ );
 		expect( sizes[ 0 ].value ).toMatch( /4\.5rem\)$/ );
+	} );
+} );
+
+describe( 'motion', () => {
+	/*
+	 * Interaction transitions (hover, press, select, open and close) move on
+	 * the shared motion tokens, so every control eases at the same rhythm.
+	 * Keyframe animations (loaders, page transitions, reveals) choreograph
+	 * their own timing and are not checked here, nor are the effect presets
+	 * a merchant picks between (card hover-image and swatch animation
+	 * styles), which differ from each other on purpose, or admin screens.
+	 * Reduced-motion switches (<= 0.01ms), short staggers (< 100ms, e.g. a
+	 * check that pops in after its pill fills) and the autofill-colour hold
+	 * (9999s) are timings on purpose.
+	 */
+	it( 'times every transition with the motion tokens', async () => {
+		const fs = await import( 'node:fs' );
+		const path = await import( 'node:path' );
+		const root = path.resolve( __dirname, '../../..' );
+		const entries: string[] = [];
+		const walk = ( dir: string ): void => {
+			for ( const name of fs.readdirSync( path.join( root, dir ) ) ) {
+				const rel = path.join( dir, name );
+				if ( fs.statSync( path.join( root, rel ) ).isDirectory() ) {
+					if ( name !== '__tests__' && name !== 'testing' ) {
+						walk( rel );
+					}
+				} else if (
+					name.endsWith( '.css' ) &&
+					! name.startsWith( '_' ) &&
+					! dir.includes( 'admin' ) &&
+					( dir.startsWith( 'src/styles' ) || name === 'style.css' )
+				) {
+					entries.push( rel );
+				}
+			}
+		};
+		walk( 'src/styles' );
+		walk( 'src/blocks' );
+		walk( 'src/blocks-interactivity' );
+
+		const literal = /(^|[\s,(])(\d*\.?\d+)(m?s)\b/g;
+		const offenders: string[] = [];
+		for ( const entry of entries ) {
+			const css = await CompiledCss.load( entry );
+			for ( const d of css.all() ) {
+				if (
+					! /^transition(-duration|-timing-function)?$/.test(
+						d.prop
+					) ||
+					/aa-hover-img|aa-cs-anim-/.test( d.selector )
+				) {
+					continue;
+				}
+				// Token fallbacks inside var() are the tokens' own defaults.
+				const bare = d.value.replace(
+					/var\([^()]*(\([^()]*\))?[^()]*\)/g,
+					''
+				);
+				const times = [ ...bare.matchAll( literal ) ].map( ( m ) =>
+					m[ 3 ] === 'ms' ? Number( m[ 2 ] ) : Number( m[ 2 ] ) * 1000
+				);
+				const curves =
+					/cubic-bezier|\bease(-in|-out|-in-out)?\b|\blinear\b/.test(
+						bare
+					);
+				const exempt = times.every(
+					( t ) => t <= 0.01 || t < 100 || t === 9999000
+				);
+				if ( ( times.length && ! exempt ) || ( curves && ! exempt ) ) {
+					offenders.push(
+						`${ entry } | ${ d.selector.slice( 0, 70 ) } | ${ d.value }`
+					);
+				}
+			}
+		}
+		expect( [ ...new Set( offenders ) ] ).toEqual( [] );
 	} );
 } );

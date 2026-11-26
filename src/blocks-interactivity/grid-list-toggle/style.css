@@ -36,8 +36,8 @@
 	text-transform: uppercase;
 	cursor: pointer;
 	transition:
-		background-color 0.15s ease,
-		color 0.15s ease;
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default);
 }
 
 .aa-grid-list-toggle__btn:hover {
@@ -86,8 +86,8 @@ body.aa-list-view .wp-block-woocommerce-product-template > li {
 	border: 1px solid var(--aa-color-border-default);
 	border-radius: var(--aa-radius-card);
 	transition:
-		border-color 0.2s ease,
-		box-shadow 0.2s ease;
+		border-color var(--aa-duration-fast) var(--aa-ease-default),
+		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
 }
 
 body.aa-list-view .wp-block-woocommerce-product-template > li:hover {
@@ -127,7 +127,7 @@ body.aa-list-view
 	height: 100%;
 	min-height: 260px;
 	object-fit: cover;
-	transition: transform 0.4s ease;
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
 body.aa-list-view

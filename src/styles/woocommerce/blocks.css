@@ -344,6 +344,44 @@
 	box-shadow: var(--aa-focus-ring);
 }
 
+/* The shared ring on the cart and checkout's other controls too: the item's
+   remove (a destructive icon action, so circular like .aa-icon-button), the
+   coupon panel toggle, the address line 2 toggle and the phone checkout's
+   order summary toggle, which otherwise show the browser's default outline. */
+.wc-block-components-panel__button:focus-visible,
+.wc-block-components-checkout-order-summary__title:focus-visible,
+.wc-block-components-address-form__address_2-toggle:focus-visible {
+	outline: 2px solid transparent;
+	box-shadow: var(--aa-focus-ring);
+}
+
+/* WooCommerce's cart table clears the remove link's box-shadow at (0,4,1);
+   the same path plus :focus-visible puts the ring back. */
+table.wc-block-cart-items
+	.wc-block-cart-items__row
+	.wc-block-cart-item__quantity
+	.wc-block-cart-item__remove-link:focus-visible {
+	border-radius: var(--aa-radius-full);
+	outline: 2px solid transparent;
+	box-shadow: var(--aa-focus-ring);
+}
+
+/* Checkboxes: the native checkbox's ring (forms baseline), not WooCommerce's
+   1.5px grey outline; a pointer click shows none, as on native checkboxes.
+   `body` outranks WooCommerce's equal-specificity rule, which loads later. */
+body
+	.wc-block-components-checkbox
+	.wc-block-components-checkbox__input[type="checkbox"]:focus {
+	outline: none;
+}
+
+body
+	.wc-block-components-checkbox
+	.wc-block-components-checkbox__input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--aa-field-bar-focus);
+	outline-offset: 2px;
+}
+
 /* Quantity and form controls. */
 .wc-block-components-text-input input,
 .wc-block-components-combobox .wc-block-components-combobox-control input,
@@ -394,6 +432,12 @@
 		color: inherit;
 		appearance: textfield;
 
+		/* Touch screens zoom into a focused field set under 16px (iOS
+		   Safari); there the number reads at the field size instead. */
+		@media (pointer: coarse) {
+			font-size: var(--aa-field-font-size);
+		}
+
 		&::-webkit-inner-spin-button,
 		&::-webkit-outer-spin-button {
 			appearance: none;
@@ -421,7 +465,8 @@
 		font-size: 0.875rem;
 		line-height: 1;
 		cursor: pointer;
-		transition: background-color 0.15s ease;
+		transition: background-color var(--aa-duration-fast)
+			var(--aa-ease-default);
 
 		/* Subtle currentcolor tint on hover/focus — the shared quantity-button
 		   look used across the product form, cart, checkout, mini-cart drawer,

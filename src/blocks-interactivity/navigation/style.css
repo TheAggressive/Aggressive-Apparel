@@ -139,9 +139,9 @@
 	opacity: var(--indicator-opacity, 0);
 	z-index: 101;
 	transition:
-		transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
-		width 250ms cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 150ms ease;
+		transform var(--aa-duration-normal) var(--aa-ease-default),
+		width var(--aa-duration-normal) var(--aa-ease-default),
+		opacity var(--aa-duration-fast) var(--aa-ease-default);
 	pointer-events: none;
 	will-change: transform, width;
 }

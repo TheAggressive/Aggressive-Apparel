@@ -17,6 +17,7 @@
 declare(strict_types=1);
 
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
+use Aggressive_Apparel\WooCommerce\Product_Badges;
 use Aggressive_Apparel\WooCommerce\Wishlist;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -69,6 +70,10 @@ $inline_style = implode(
 	)
 );
 
+
+// The saved products' Badge Studio badges render client-side; load their
+// styles, as Recently Viewed does.
+Product_Badges::enqueue_style();
 ?>
 
 <div
@@ -124,7 +129,7 @@ $inline_style = implode(
 
 	<?php /* Shown when loaded and nothing in the list */ ?>
 	<div class="aa-wishlist-page__empty" data-wp-bind--hidden="!state.isEmpty" hidden>
-		<span class="aa-wishlist-page__empty-icon">
+		<span class="aa-wishlist-page__empty-icon aa-empty-state__icon">
 		<?php
 		echo aggressive_apparel_get_icon(
 			'heart-outline',
@@ -136,8 +141,8 @@ $inline_style = implode(
 		);
 		?>
 		</span>
-		<h3><?php echo esc_html( $empty_message ); ?></h3>
-		<p><?php esc_html_e( 'Tap the heart on any product to keep it here.', 'aggressive-apparel' ); ?></p>
+		<h3 class="aa-empty-state__title"><?php echo esc_html( $empty_message ); ?></h3>
+		<p class="aa-empty-state__line"><?php esc_html_e( 'Tap the heart on any product to keep it here.', 'aggressive-apparel' ); ?></p>
 		<a class="aggressive-apparel-button aggressive-apparel-button--primary" href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'Explore the collection', 'aggressive-apparel' ); ?></a>
 	</div>
 

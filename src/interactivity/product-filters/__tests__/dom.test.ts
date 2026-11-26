@@ -3,6 +3,7 @@
  */
 
 import {
+	barDropdownId,
 	chosenOption,
 	escapeHtml,
 	isUnavailable,
@@ -17,6 +18,17 @@ it( 'keeps quoted filter labels inside their HTML attributes', () => {
 	expect( button.getAttribute( 'aria-label' ) ).toBe( label );
 	expect( button.textContent ).toBe( label );
 	expect( button.getAttributeNames() ).toEqual( [ 'aria-label' ] );
+} );
+
+it( 'reads a bar dropdown’s section from its own data-wp-context JSON', () => {
+	const item = document.createElement( 'div' );
+	item.setAttribute( 'data-wp-context', '{"dropdownId":"categories"}' );
+	expect( barDropdownId( item ) ).toBe( 'categories' );
+
+	item.setAttribute( 'data-wp-context', 'not json' );
+	expect( barDropdownId( item ) ).toBeUndefined();
+	item.removeAttribute( 'data-wp-context' );
+	expect( barDropdownId( item ) ).toBeUndefined();
 } );
 
 const SWATCH = '.aa-product-filters__color-swatch';

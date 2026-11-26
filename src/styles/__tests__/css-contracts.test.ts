@@ -377,6 +377,26 @@ describe( 'WooCommerce controls in the shared states', () => {
 			).toEqual( [ FOCUS_RING ] );
 		}
 
+		// The catalog toolbar: the filter toggle and the sort menu.
+		const toggle = await CompiledCss.load(
+			'src/blocks-interactivity/filter-toggle/style.css'
+		);
+		expect(
+			await toggle.declarations(
+				'.aa-filter-toggle:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+		const forms = await CompiledCss.load(
+			'src/styles/components/forms.css'
+		);
+		expect(
+			await forms.declarations(
+				'.woocommerce-ordering select.orderby:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+
 		const account = await CompiledCss.load(
 			'src/styles/woocommerce/account.css'
 		);

@@ -32,9 +32,11 @@
 		background: var(--aa-color-hover-subtle);
 	}
 
+	/* The shared ring, like every other control (design-system.md, State
+	   rules). The transparent outline keeps a ring in forced-colors mode. */
 	&:focus-visible {
-		outline: 2px solid var(--aa-color-foreground);
-		outline-offset: 2px;
+		outline: 2px solid transparent;
+		box-shadow: var(--aa-focus-ring);
 	}
 }
 

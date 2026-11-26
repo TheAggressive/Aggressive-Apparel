@@ -103,8 +103,8 @@
 }
 
 .woocommerce-ordering select.orderby:focus-visible {
-	outline: 2px solid var(--aa-color-foreground);
-	outline-offset: 2px;
+	outline: 2px solid transparent;
+	box-shadow: var(--aa-focus-ring);
 }
 
 /* Catalog toolbar — match filter trigger + grid/list toggle chrome. */

@@ -251,6 +251,15 @@ class Icons {
 				),
 			),
 		),
+		'heart-line'     => array(
+			'viewBox' => self::DEFAULT_VIEWBOX,
+			'paths'   => array(
+				array(
+					'd' => 'M12 19.5 5.6 13.1a4.3 4.3 0 0 1 6.4-5.8 4.3 4.3 0 0 1 6.4 5.8z',
+					...self::OUTLINE,
+				),
+			),
+		),
 		'logout-outline' => array(
 			'viewBox' => self::DEFAULT_VIEWBOX,
 			'paths'   => array(

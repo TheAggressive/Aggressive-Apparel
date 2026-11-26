@@ -211,6 +211,16 @@
 	min-height: var(--aa-control-min);
 	padding-inline: var(--wp--preset--spacing--3);
 	white-space: nowrap;
+
+	/* Two-up cards on phones are too narrow for "View full product" on one
+	   line with room to breathe: it wraps to two balanced lines instead of
+	   running to the pill's edges. */
+	@media (width < 600px) {
+		padding-block: var(--wp--preset--spacing--2);
+		line-height: 1.15;
+		text-wrap: balance;
+		white-space: normal;
+	}
 }
 
 .aa-wl-item-actions__view svg {

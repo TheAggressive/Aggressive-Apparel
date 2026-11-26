@@ -45,7 +45,7 @@ class Account_Page {
 		'payment-methods'     => 'card-outline',
 		'edit-account'        => 'user-outline',
 		'stock-notifications' => 'bell-outline',
-		'wishlist'            => 'heart-outline',
+		'wishlist'            => 'heart-line',
 		'customer-logout'     => 'logout-outline',
 	);
 

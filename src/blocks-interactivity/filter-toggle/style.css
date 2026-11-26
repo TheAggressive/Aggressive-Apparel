@@ -12,7 +12,7 @@
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
 	border: 1px solid var(--aa-color-border-default);
-	border-radius: 0.375rem;
+	border-radius: var(--aa-radius-md);
 	background: var(--aa-color-surface);
 	color: var(--aa-color-foreground);
 	font-size: 0.8rem;
@@ -21,8 +21,8 @@
 	letter-spacing: 0.04em;
 	cursor: pointer;
 	transition:
-		border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-		background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		border-color var(--aa-duration-normal) var(--aa-ease-default),
+		background-color var(--aa-duration-normal) var(--aa-ease-default);
 	min-height: 2.75rem;
 	height: 2.75rem;
 	box-sizing: border-box;

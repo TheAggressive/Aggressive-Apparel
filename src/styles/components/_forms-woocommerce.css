@@ -129,7 +129,7 @@
 	height: 2.75rem;
 	min-height: 2.75rem;
 	padding: 0.5rem 2.25rem 0.5rem 1rem;
-	border-radius: 0.375rem;
+	border-radius: var(--aa-radius-md);
 	font-size: 0.85rem;
 	font-weight: 600;
 	letter-spacing: 0.04em;

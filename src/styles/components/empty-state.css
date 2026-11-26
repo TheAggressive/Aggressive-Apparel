@@ -18,6 +18,12 @@
 	border-radius: var(--aa-radius-full);
 }
 
+/* The icon block sets its own display (block, at class specificity); in the
+   ring it centres like any other icon. */
+.aggressive-apparel-icon.aa-empty-state__icon {
+	display: grid;
+}
+
 :where(.aa-empty-state__title) {
 	margin: 0;
 	font-family: var(--wp--preset--font-family--bebas-neue);

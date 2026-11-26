@@ -1346,3 +1346,80 @@ describe( 'fixed-scheme editorial sections', () => {
 		expect( sizes[ 0 ].value ).toMatch( /4\.5rem\)$/ );
 	} );
 } );
+
+describe( 'motion', () => {
+	/*
+	 * Interaction transitions (hover, press, select, open and close) move on
+	 * the shared motion tokens, so every control eases at the same rhythm.
+	 * Keyframe animations (loaders, page transitions, reveals) choreograph
+	 * their own timing and are not checked here, nor are the effect presets
+	 * a merchant picks between (card hover-image and swatch animation
+	 * styles), which differ from each other on purpose, or admin screens.
+	 * Reduced-motion switches (<= 0.01ms), short staggers (< 100ms, e.g. a
+	 * check that pops in after its pill fills) and the autofill-colour hold
+	 * (9999s) are timings on purpose.
+	 */
+	it( 'times every transition with the motion tokens', async () => {
+		const fs = await import( 'node:fs' );
+		const path = await import( 'node:path' );
+		const root = path.resolve( __dirname, '../../..' );
+		const entries: string[] = [];
+		const walk = ( dir: string ): void => {
+			for ( const name of fs.readdirSync( path.join( root, dir ) ) ) {
+				const rel = path.join( dir, name );
+				if ( fs.statSync( path.join( root, rel ) ).isDirectory() ) {
+					if ( name !== '__tests__' && name !== 'testing' ) {
+						walk( rel );
+					}
+				} else if (
+					name.endsWith( '.css' ) &&
+					! name.startsWith( '_' ) &&
+					! dir.includes( 'admin' ) &&
+					( dir.startsWith( 'src/styles' ) || name === 'style.css' )
+				) {
+					entries.push( rel );
+				}
+			}
+		};
+		walk( 'src/styles' );
+		walk( 'src/blocks' );
+		walk( 'src/blocks-interactivity' );
+
+		const literal = /(^|[\s,(])(\d*\.?\d+)(m?s)\b/g;
+		const offenders: string[] = [];
+		for ( const entry of entries ) {
+			const css = await CompiledCss.load( entry );
+			for ( const d of css.all() ) {
+				if (
+					! /^transition(-duration|-timing-function)?$/.test(
+						d.prop
+					) ||
+					/aa-hover-img|aa-cs-anim-/.test( d.selector )
+				) {
+					continue;
+				}
+				// Token fallbacks inside var() are the tokens' own defaults.
+				const bare = d.value.replace(
+					/var\([^()]*(\([^()]*\))?[^()]*\)/g,
+					''
+				);
+				const times = [ ...bare.matchAll( literal ) ].map( ( m ) =>
+					m[ 3 ] === 'ms' ? Number( m[ 2 ] ) : Number( m[ 2 ] ) * 1000
+				);
+				const curves =
+					/cubic-bezier|\bease(-in|-out|-in-out)?\b|\blinear\b/.test(
+						bare
+					);
+				const exempt = times.every(
+					( t ) => t <= 0.01 || t < 100 || t === 9999000
+				);
+				if ( ( times.length && ! exempt ) || ( curves && ! exempt ) ) {
+					offenders.push(
+						`${ entry } | ${ d.selector.slice( 0, 70 ) } | ${ d.value }`
+					);
+				}
+			}
+		}
+		expect( [ ...new Set( offenders ) ] ).toEqual( [] );
+	} );
+} );

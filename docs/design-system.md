@@ -453,7 +453,7 @@ Every interactive element should expose the same state language:
 7. Loading controls use `.is-loading` and `aria-busy="true"` when possible.
 8. Errors use `--aa-color-error`; success uses `--aa-color-success`.
 9. Text a person types into reads at 16px (`--aa-field-font-size`) on touch screens, compact steppers included: iOS Safari zooms into a focused field set any smaller. The catalog sort inherits its block's font size, which the theme's catalog templates set to Medium (16px); WooCommerce's default is Small.
-10. Motion uses `--aa-duration-*` and turns off under `prefers-reduced-motion: reduce`.
+10. Motion uses `--aa-duration-*` and turns off under `prefers-reduced-motion: reduce`. Every interaction transition (hover, press, select, open and close) is timed with the motion tokens, so controls move at one rhythm: `--aa-duration-fast` for colour, opacity and small icon turns, `--aa-duration-normal` for movement and reveals, `--aa-duration-slow` for large surfaces; `--aa-ease-default` for state changes, `--aa-ease-enter` / `--aa-ease-exit` for things arriving and leaving (exits fast), `--aa-ease-spring` for a selection check popping in. Keyframe choreography (loaders, page transitions, scroll reveals) and the merchant-selectable effect presets (card hover-image and swatch animation styles) set their own timing. `css-contracts.test.ts` ("times every transition with the motion tokens") fails on a literal timing anywhere else.
 
 ### Configuration rule
 

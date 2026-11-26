@@ -521,7 +521,7 @@
 	font: inherit;
 	font-size: 0.875em;
 	cursor: pointer;
-	transition: color 0.15s ease;
+	transition: color var(--aa-duration-fast) var(--aa-ease-default);
 
 	@media (prefers-reduced-motion: reduce) {
 		transition: none;

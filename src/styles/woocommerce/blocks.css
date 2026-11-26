@@ -465,7 +465,8 @@ body
 		font-size: 0.875rem;
 		line-height: 1;
 		cursor: pointer;
-		transition: background-color 0.15s ease;
+		transition: background-color var(--aa-duration-fast)
+			var(--aa-ease-default);
 
 		/* Subtle currentcolor tint on hover/focus — the shared quantity-button
 		   look used across the product form, cart, checkout, mini-cart drawer,

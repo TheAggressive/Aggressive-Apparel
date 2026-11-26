@@ -104,7 +104,7 @@
 			@media (prefers-reduced-motion: no-preference) {
 				transition:
 					opacity var(--aa-duration-fast) var(--aa-ease-default),
-					scale 0.35s var(--aa-ease-spring);
+					scale var(--aa-duration-normal) var(--aa-ease-spring);
 			}
 		}
 

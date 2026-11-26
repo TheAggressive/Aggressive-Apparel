@@ -28,7 +28,8 @@ likely has the same set; confirm with the command before editing.
 | `footer`                                  | template part | Trust badge and newsletter copy (below)                                                                                  | Editing in place |
 | `single-product`                          | template      | Adds the **PayPal smart buttons** block; lacks the theme's live free-shipping line under Add to cart                     | Editing in place |
 | `home`                                    | template      | The old customised homepage (hero "CAMO + SKULLS", "For the Unruled"); **draft locally** so the editorial homepage shows | Reset (adopt)    |
-| `checkout-header`, `mini-cart`            | template part | Saved, no copy issues found                                                                                              | Leave            |
+| `mini-cart`                               | template part | An older copy of the theme's part: "Your cart is currently empty!" and none of the shared empty state                    | Reset (adopt)    |
+| `checkout-header`                         | template part | Saved, no copy issues found                                                                                              | Leave            |
 | `simple-product-add-to-cart-with-options` | template part | Saved (two entries locally), no copy issues found                                                                        | Leave            |
 | `page-no-title`                           | template      | Saved, no copy issues found                                                                                              | Leave            |
 
@@ -88,12 +89,16 @@ second run reports "already reconciled".
    columns, gutter padding, the free-shipping line after the purchase
    buttons) always runs; header and footer copy only with `copy`; the
    homepage reset only with `adopt-home` (moves the saved home template to
-   the trash, so the editorial homepage shows):
+   the trash, so the editorial homepage shows); the mini-cart reset only
+   with `adopt-mini-cart`. Compare the saved mini-cart with the theme's
+   `parts/mini-cart.html` first: reset only if the differences are the old
+   title sizes and empty message, not a merchant's own edits:
 
     ```bash
     wp eval-file …/reconcile.php apply            # layout only
     wp eval-file …/reconcile.php apply copy       # + approved copy
     wp eval-file …/reconcile.php apply adopt-home # + editorial homepage
+    wp eval-file …/reconcile.php apply adopt-mini-cart # + theme mini-cart
     ```
 
     Backups land in `./site-content-backup-<time>/<slug>-<ID>.html`. The
@@ -121,6 +126,15 @@ lands:
 1. **Saved content:** make the changes above in WordPress, in the Site
    Editor or with `reconcile.php` where WP-CLI is available. Until the saved
    Home template is reset, the old homepage keeps overriding the new one.
+   Then set the campaign photos: Patterns → Template parts → **Homepage
+   campaign image**, Replace with an approved campaign photo, drag the focal
+   point onto the figure, add alt text, put the content position (and the
+   overlay's side) on the photo's open side, Save; tick _Homepage cover_ on
+   the garment it shows. Check phones in the editor's mobile preview; if one
+   crop can't serve both, add a second Cover below the first for phones.
+   **Featured drop campaign image** and **Defiance Division campaign image**
+   work the same way once approved photography exists. Until a photo is
+   set, the hero is the slogan alone and the collections keep their bands.
 
 2. **Audit** every page type from the live catalog (Store API discovery, no
    fixtures) at 375 / 768 / 1440 / 1920 in light and dark: HTTP errors,
@@ -144,12 +158,14 @@ What production merchandise changes, and what to look at:
 - **Product photos are designed square** (2000 × 2000). Cards and category
   tiles are square and show the whole image; the product gallery frame
   follows the main photo.
-- **There is no portrait photography** in the catalog. The photo-led homepage
-  sections fall back to their type and grid layouts until campaign or
-  lifestyle photos are added: the hero becomes the type-only slogan, Women's
-  shows copy and products without a photo, and the lookbook is omitted.
-  Setting the hero tee shot (or any campaign photo) in the editor restores
-  the photo layouts.
+- **No photo is on the homepage until it is approved.** The catalog's
+  on-figure photos only appear once approved under Media Library → Homepage
+  use (see the merchant controls in `design-system.md`). Until then the
+  photo-led sections fall back: Women's shows copy and products without a
+  photo, and
+  the lookbook is omitted below three approved photos. Shop by line lists
+  every stocked standard line until categories are ticked "Show in Shop by
+  line".
 - **Defiance Division exists** (three hats), so section 09 renders as a title
   row over a three-product grid.
 - Check every page type at 375 / 768 / 1440 / 1920, light and dark: home,

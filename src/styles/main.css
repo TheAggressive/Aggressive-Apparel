@@ -42,6 +42,8 @@
 @import "./components/adaptive-block-colors.css";
 @import "./components/block-styles.css";
 @import "./components/editorial.css";
+@import "./components/editorial-chapters.css";
+@import "./components/editorial-campaign.css";
 @import "./components/product-media.css";
 @import "./layout/header.css";
 @import "./layout/footer.css";

@@ -72,6 +72,14 @@
 	scrollbar-width: thin;
 	padding-block-end: var(--wp--preset--spacing--4);
 
+	/* Runs to the screen's edge (through the section's gutter), so the
+	   next card is cut by the screen, not the column; the last card can
+	   still scroll to the gutter line. */
+	width: calc(100% + var(--wp--preset--spacing--gutter));
+	max-width: none;
+	margin-inline-end: calc(-1 * var(--wp--preset--spacing--gutter));
+	padding-inline-end: var(--wp--preset--spacing--gutter);
+
 	& > li {
 		flex: 0 0
 			calc(
@@ -90,5 +98,64 @@
 
 	@media (width < 600px) {
 		--aa-rail-visible: 1.6;
+	}
+}
+
+/* Numbered cards (className `aa-grid-numbered`): a large 01, 02, 03 on each
+   card's photo, for a ranking or a short list. Decorative: the alt text
+   after the slash keeps it out of the accessible name. */
+.aa-grid-numbered {
+	& .wp-block-woocommerce-product-template {
+		counter-reset: aa-rank;
+	}
+
+	& .wp-block-woocommerce-product-template > li {
+		position: relative;
+		counter-increment: aa-rank;
+
+		&::before {
+			content: counter(aa-rank, decimal-leading-zero) / "";
+			position: absolute;
+			z-index: 1;
+			inset-block-start: 0.15em;
+			inset-inline-start: 0.25em;
+			font-family: var(--wp--preset--font-family--bebas-neue);
+			font-size: clamp(3.5rem, 2rem + 4vw, 7.5rem);
+			line-height: 1;
+			color: var(--wp--preset--color--accent);
+			pointer-events: none;
+		}
+	}
+}
+
+/* Lineup (className `aa-grid-lineup`): the cards side by side with no gap
+   on one continuous studio band, names centred below, so a range reads as
+   one uniform. */
+.aa-grid-lineup .wp-block-woocommerce-product-template {
+	/* stylelint-disable-next-line length-zero-no-unit -- feeds calc() track sums, which need a length. */
+	--aa-product-grid-gap: 0px;
+
+	padding-block: var(--wp--preset--spacing--5);
+	background-color: var(--aa-product-media-surface);
+	color-scheme: light;
+	color: var(--wp--preset--color--foreground);
+
+	& .aa-editorial-card {
+		padding-inline: var(--wp--preset--spacing--2);
+		text-align: center;
+
+		& .is-layout-flex {
+			justify-content: center;
+		}
+	}
+}
+
+/* Caption only (className `aa-grid-caption`): a product's name and live
+   price beside its own photo, no card. */
+.aa-grid-caption .wp-block-woocommerce-product-template {
+	display: block;
+
+	& .wp-block-post-title {
+		margin: 0;
 	}
 }

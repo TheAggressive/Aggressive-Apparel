@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — The Name
- * Description: Compact deep brand-red typographic band, the one place the brand explains itself: a masthead rule (The name / Est. 2010), a large statement about the name and a short paragraph, with no sales call. Anchor #the-label, the hero's second link.
+ * Description: The one place the brand explains itself: the statement about the name and a short paragraph beside up to three of the store's own on-figure photos, each product named in a Shown line. With no photos it stays typographic. Anchor #the-label.
  * Slug: aggressive-apparel/editorial-artwork-spotlight
  * Categories: aggressive-editorial, aggressive-homepage
  * Keywords: brand, name, statement, editorial, homepage
@@ -10,28 +10,60 @@
  * @package Aggressive_Apparel
  */
 
-?><!-- wp:group {"metadata":{"name":"04 The Name"},"anchor":"the-label","align":"full","className":"aa-statement","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"},"elements":{"link":{"color":{"text":"var:preset|color|white"}}}},"backgroundColor":"accent","textColor":"white","layout":{"type":"constrained"}} -->
-<div id="the-label" class="wp-block-group alignfull aa-statement has-white-color has-accent-background-color has-text-color has-background has-link-color" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","style":{"border":{"bottom":{"color":"var:preset|color|white","style":"solid","width":"1px"}},"spacing":{"padding":{"bottom":"var:preset|spacing|4"}}},"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
-<div class="wp-block-group alignwide" style="border-bottom-color:var(--wp--preset--color--white);border-bottom-style:solid;border-bottom-width:1px;padding-bottom:var(--wp--preset--spacing--4)"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
-<p class="is-style-meta has-white-color has-text-color"><?php echo esc_html__( 'The name', 'aggressive-apparel' ); ?></p>
+use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
+
+$aa_photos = Editorial_Imagery::leads( 3 );
+$aa_shown  = array();
+foreach ( $aa_photos as $aa_photo ) {
+	$aa_shown[] = '<a href="' . esc_url( (string) get_permalink( $aa_photo['product'] ) ) . '">' . esc_html( get_the_title( $aa_photo['product'] ) ) . '</a>';
+}
+$aa_image = static function ( int $index, string $ratio ) use ( $aa_photos ): string {
+	return isset( $aa_photos[ $index ] ) ? Editorial_Imagery::image_markup( $aa_photos[ $index ], $ratio ) : '';
+};
+
+?><!-- wp:group {"metadata":{"name":"04 The Name"},"anchor":"the-label","align":"full","className":"aa-statement aa-name","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"white","layout":{"type":"constrained"}} -->
+<div id="the-label" class="wp-block-group alignfull aa-statement aa-name has-white-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:columns {"align":"wide","className":"aa-tablet-split","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-16"}}}} -->
+<div class="wp-block-columns alignwide aa-tablet-split"><!-- wp:column {"width":"<?php echo array() === $aa_photos ? '62%' : '44%'; ?>"} -->
+<div class="wp-block-column" style="flex-basis:<?php echo array() === $aa_photos ? '62%' : '44%'; ?>"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
+<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+<p class="is-style-eyebrow"><?php echo esc_html__( 'The name', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
-<p class="is-style-meta has-white-color has-text-color"><?php echo esc_html__( 'Est. 2010', 'aggressive-apparel' ); ?></p>
-<!-- /wp:paragraph --></div>
+<!-- wp:heading {"className":"is-style-headline"} -->
+<h2 class="wp-block-heading is-style-headline"><?php echo esc_html__( 'Aggressive is a compliment.', 'aggressive-apparel' ); ?></h2>
+<!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:columns {"verticalAlignment":"bottom","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|8","left":"var:preset|spacing|fluid-16"}}}} -->
-<div class="wp-block-columns alignwide are-vertically-aligned-bottom"><!-- wp:column {"verticalAlignment":"bottom","width":"62%"} -->
-<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:62%"><!-- wp:heading {"className":"is-style-headline","textColor":"white"} -->
-<h2 class="wp-block-heading is-style-headline has-white-color has-text-color"><?php echo esc_html__( 'Aggressive is a compliment.', 'aggressive-apparel' ); ?></h2>
-<!-- /wp:heading --></div>
-<!-- /wp:column -->
-
-<!-- wp:column {"verticalAlignment":"bottom","width":"38%"} -->
-<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:38%"><!-- wp:paragraph {"className":"is-style-lead","textColor":"white"} -->
-<p class="is-style-lead has-white-color has-text-color"><?php echo esc_html__( 'It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is toned down to suit everyone.', 'aggressive-apparel' ); ?></p>
+<!-- wp:paragraph {"className":"is-style-lead"} -->
+<p class="is-style-lead"><?php echo esc_html__( 'It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is toned down to suit everyone.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
-<!-- /wp:column --></div>
+<!-- /wp:column -->
+<?php if ( array() !== $aa_photos ) : ?>
+
+<!-- wp:column {"width":"56%","className":"aa-name__photos"} -->
+<div class="wp-block-column aa-name__photos" style="flex-basis:56%"><!-- wp:columns {"isStackedOnMobile":false,"style":{"spacing":{"blockGap":{"top":"var:preset|spacing|4","left":"var:preset|spacing|4"}}}} -->
+<div class="wp-block-columns is-not-stacked-on-mobile"><!-- wp:column {"width":"62%"} -->
+<div class="wp-block-column" style="flex-basis:62%"><?php echo $aa_image( 0, '4/5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?></div>
+<!-- /wp:column -->
+	<?php if ( count( $aa_photos ) > 1 ) : ?>
+
+<!-- wp:column {"verticalAlignment":"bottom","width":"38%","style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
+<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:38%"><?php echo $aa_image( 1, '4/5' ) . $aa_image( 2, '1' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?></div>
+<!-- /wp:column -->
+	<?php endif; ?>
+</div>
+<!-- /wp:columns -->
+
+<!-- wp:paragraph {"className":"is-style-meta"} -->
+<p class="is-style-meta">
+	<?php
+	/* translators: %s: linked names of the products in the photos, separated by a middle dot. */
+	printf( esc_html__( 'Shown: %s', 'aggressive-apparel' ), implode( ' · ', $aa_shown ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Links built above with esc_url()/esc_html().
+	?>
+</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+<?php endif; ?>
+</div>
 <!-- /wp:columns --></div>
 <!-- /wp:group -->

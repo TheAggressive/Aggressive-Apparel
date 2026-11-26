@@ -1,0 +1,429 @@
+/**
+ * Homepage chapters ("The Uniform Index").
+ *
+ * The cover, the line index, the name's photographs, the lookbook gallery
+ * and the accessories count tile. Unlayered like editorial.css, for the same
+ * reason: these rules must outrank the block-style headings
+ * (block-styles.css, unlayered). Editor typography still wins: font-size
+ * preset classes carry !important, inline sizes are inline.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Section titles at display scale: the chapters' second voice after the
+   cover's slogan. A long word may break rather than push the page sideways
+   when text is enlarged (200% text on a phone). */
+.wp-block-heading.aa-chapter-title {
+	font-size: clamp(3rem, 1.75rem + 4.2vw, 6rem);
+	line-height: 0.88;
+	overflow-wrap: anywhere;
+}
+
+/* Cover: the slogan at poster scale, sized to the viewport, the campaign
+   photo beside it, edging into the type from 782px. Side by side the copy column is ~54% of the wide width,
+   so 13.5vw keeps "REBELLION" inside it; stacked, the slogan fills the
+   phone. */
+.aa-cover {
+	& .wp-block-heading.is-style-campaign {
+		max-width: none;
+		font-size: clamp(3.75rem, 27vw, 8rem);
+		line-height: 0.82;
+		letter-spacing: -0.005em;
+
+		@media (width >= 782px) {
+			font-size: clamp(4rem, 13.5vw, 14rem);
+		}
+	}
+
+	& .is-style-lead {
+		max-width: 38rem;
+		margin-block-start: var(--wp--preset--spacing--5);
+		font-size: var(--wp--preset--font-size--x-large);
+	}
+
+	& .aa-cover-garment .wp-block-image {
+		margin: 0;
+
+		& img {
+			width: 100%;
+			height: auto;
+		}
+	}
+
+	/* The campaign photo: a core Cover block in the "Homepage campaign
+	   image" template part. A 4:5 frame by default; the focal point set in
+	   the Site Editor places the crop at every width, and a ratio or height
+	   set on the block itself (inline) wins over this default. 0,3,0 beats
+	   core's .wp-block-cover min-height and padding. */
+	& .aa-cover-garment .wp-block-cover {
+		aspect-ratio: 4 / 5;
+		min-height: 0;
+		padding: 0;
+	}
+
+	& .aa-grid-caption {
+		margin-block-start: var(--wp--preset--spacing--3);
+	}
+
+	@media (width >= 782px) {
+		& .aa-cover-garment {
+			position: relative;
+			z-index: 1;
+			margin-inline-start: -6%;
+		}
+	}
+}
+
+/* Shop by line: one ruled row per line, the name at display scale, the
+   whole row its link (the name's link stretched over it). The row selector
+   is doubled (0,2,0) to outrank core's `body .is-layout-flex` (0,1,1), which
+   would otherwise keep the phone layout a single overflowing line.
+
+   Rows sit flush on their rules: core's flow gap (48px) would land between
+   a name and the next rule, and not after the last row. 0,2,0 outranks
+   core's flow-layout margin. */
+.wp-block-group.aa-line-index__rows {
+	border-block-end: 1px solid var(--wp--preset--color--border);
+
+	& > * {
+		margin-block: 0;
+	}
+}
+
+.wp-block-group.aa-line-index__row {
+	--aa-line-thumb: clamp(3.5rem, 6vw, 6rem);
+
+	position: relative;
+
+	/* Three fixed columns: the name, the count and room for three
+	   thumbnails, so every count lines up and thumbnails right-align
+	   however many a line has. */
+	display: grid;
+	grid-template-columns:
+		minmax(0, 1fr) 9rem
+		calc(3 * var(--aa-line-thumb) + 2 * var(--wp--preset--spacing--3));
+	align-items: center;
+	gap: var(--wp--preset--spacing--6);
+	padding-block: var(--wp--preset--spacing--3);
+
+	/* The rule is drawn, not a border, so it can draw in with the name. */
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0 0 auto;
+		border-block-start: 1px solid var(--wp--preset--color--border);
+		transform-origin: 0 0;
+		transition: scale var(--aa-duration-slow) var(--aa-ease-enter);
+
+		&:dir(rtl) {
+			transform-origin: 100% 0;
+		}
+	}
+
+	& .aa-line-index__name {
+		margin: 0;
+		font-size: clamp(2.75rem, 1.25rem + 5vw, 7rem);
+		line-height: 1;
+		overflow-wrap: anywhere;
+
+		& a {
+			color: inherit;
+			text-decoration: none;
+
+			&::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+			}
+
+			&:focus-visible {
+				outline: none;
+			}
+		}
+	}
+
+	&:hover .aa-line-index__name a {
+		color: var(--wp--preset--color--accent);
+	}
+
+	& .aa-line-index__name a,
+	& .aa-line-index__thumb {
+		transition:
+			color var(--aa-duration-normal) var(--aa-ease-default),
+			padding var(--aa-duration-slow) var(--aa-ease-enter),
+			translate var(--aa-duration-slow) var(--aa-ease-enter);
+	}
+
+	&:has(a:focus-visible) {
+		box-shadow: var(--aa-focus-ring);
+	}
+
+	& .aa-line-index__count {
+		margin: 0;
+	}
+
+	& .aa-line-index__thumbs {
+		justify-content: flex-end;
+		gap: var(--wp--preset--spacing--3);
+	}
+
+	& .aa-line-index__thumb {
+		width: var(--aa-line-thumb);
+		margin: 0;
+
+		& img {
+			display: block;
+			width: 100%;
+			height: auto;
+			aspect-ratio: 1;
+			object-fit: contain;
+		}
+	}
+
+	/* Phones: name over its count, two thumbnails beside them. */
+	@media (width < 782px) {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: var(--wp--preset--spacing--1) var(--wp--preset--spacing--4);
+
+		& .aa-line-index__thumbs {
+			grid-row: 1 / 3;
+			grid-column: 2;
+			align-self: center;
+		}
+
+		& .aa-line-index__thumb:nth-child(n + 3) {
+			display: none;
+		}
+	}
+}
+
+/* Index motion. On scroll each name rises in (Animate on Scroll, wrapping
+   the name only) and its rule draws across with it, on the same trigger and
+   the same 0.08s stagger. On hover or keyboard focus the other names step
+   back, the active name leans forward and its thumbnails lift. Thumbnails
+   are never hidden; under reduced motion nothing moves and only the colour
+   change remains. */
+@media (prefers-reduced-motion: no-preference) {
+	.wp-block-group.aa-line-index__row {
+		&:has(
+				> .aa-line-index__reveal[data-animate-id]:not(.is-visible)
+			)::before {
+			scale: 0 1;
+		}
+
+		&:nth-child(2)::before {
+			transition-delay: 0.08s;
+		}
+
+		&:nth-child(3)::before {
+			transition-delay: 0.16s;
+		}
+
+		&:nth-child(4)::before {
+			transition-delay: 0.24s;
+		}
+
+		&:nth-child(5)::before {
+			transition-delay: 0.32s;
+		}
+
+		&:nth-child(6)::before {
+			transition-delay: 0.4s;
+		}
+
+		&:nth-child(n + 7)::before {
+			transition-delay: 0.48s;
+		}
+	}
+}
+
+.wp-block-group.aa-line-index__rows:has(
+		> .aa-line-index__row:is(:hover, :focus-within)
+	)
+	> .aa-line-index__row:not(:hover, :focus-within)
+	.aa-line-index__name
+	a {
+	/* Steps back in either scheme while staying about 3:1. */
+	color: color-mix(in oklch, currentcolor 45%, transparent);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.wp-block-group.aa-line-index__row:is(:hover, :focus-within) {
+		/* Padding, not translate: a transform on the name would become the
+		   stretched link's containing block and shrink it to the name. */
+		& .aa-line-index__name a {
+			padding-inline-start: 0.12em;
+		}
+
+		& .aa-line-index__thumb {
+			translate: 0 -0.375rem;
+		}
+
+		& .aa-line-index__thumb:nth-child(2) {
+			transition-delay: 0.04s;
+		}
+
+		& .aa-line-index__thumb:nth-child(3) {
+			transition-delay: 0.08s;
+		}
+	}
+}
+
+/* The name: its photographs fill their columns; the Shown line sits under
+   them. */
+.aa-name .aa-name__photos .wp-block-image {
+	margin: 0;
+}
+
+/* Lookbook: the looks are slides of the Aggressive Blocks horizontal scroll
+   (pinned and scrubbed on desktop, a swipe carousel with its own controls
+   on touch). The block sets its slide width inline from one attribute
+   (34vw, right for desktop); a phone needs most of the screen per look.
+   !important beats the block's inline custom property. */
+
+/* The gallery runs edge to edge through the section's gutter, its first
+   look starting on the gutter line under the heading, so looks are cut by
+   the screen rather than the column. 0,3,0 outranks core's constrained
+   layout rule for wide blocks (0,2,0, margin-inline auto !important). */
+.wp-block-group .aa-hscroll.aa-lookbook-scroll {
+	/* stylelint-disable-next-line declaration-no-important -- beats core constrained-layout margin-inline:auto!important on wide blocks */
+	margin-inline: calc(-1 * var(--wp--preset--spacing--gutter)) !important;
+
+	--aa-lookbook-inset: max(
+		var(--wp--preset--spacing--gutter),
+		(100vw - var(--wp--style--global--wide-size)) / 2
+	);
+
+	max-width: none;
+
+	/* The first look starts on the heading's line at every width (the wide
+	   column's edge on large screens), and swipe snapping keeps it there. */
+	& .aa-hscroll__viewport {
+		scroll-padding-inline: var(--aa-lookbook-inset);
+	}
+
+	& .aa-hscroll__track {
+		padding-inline: var(--aa-lookbook-inset);
+
+		/* A flex track's end padding doesn't count toward its scroll
+		   length: a spacer does, so the last look stops on the right
+		   gutter line as the first starts on the left (the inset less the
+		   track's gap before it). */
+		&::after {
+			content: "";
+			flex: 0 0 max(1px, var(--aa-lookbook-inset) - var(--aa-hscroll-gap));
+			margin-inline-start: min(
+				0px,
+				var(--aa-lookbook-inset) - var(--aa-hscroll-gap)
+			);
+		}
+	}
+
+	@media (width < 782px), (pointer: coarse) {
+		/* stylelint-disable-next-line declaration-no-important -- beats the horizontal-scroll block's inline --aa-hscroll-item-width */
+		--aa-hscroll-item-width: 80vw !important;
+
+		/* Swiping, the scroll length is the track's own box: sized to its
+		   looks, its end padding keeps the last look off the screen edge
+		   (the desktop spacer isn't needed). */
+		& .aa-hscroll__track {
+			width: max-content;
+
+			&::after {
+				display: none;
+			}
+		}
+	}
+}
+
+.aa-photo-rail__look {
+	& .wp-block-image {
+		margin: 0;
+	}
+
+	& .aa-photo-rail__caption {
+		margin: 0;
+		font-weight: 600;
+
+		& a {
+			color: inherit;
+			text-decoration: none;
+
+			&:hover {
+				text-decoration: underline;
+				text-underline-offset: 0.2em;
+			}
+		}
+	}
+}
+
+/* Section header rows (eyebrow and title, a link at the far end) wrap the
+   link under the title on phones: keep it 12px under, like the title under
+   its eyebrow, rather than a full section gap. Any header row with a link,
+   whether it sits in the section or in a column (Accessories); 0,3,0 beats
+   core's generated flex gap. */
+.aa-shop-section
+	.wp-block-group.alignwide.is-layout-flex:has(> .wp-block-buttons) {
+	row-gap: var(--wp--preset--spacing--3);
+}
+
+/* Accessories: two cards and the count tile on three equal tracks, the
+   collection spanning two, so the tile is one card wide and every gap is
+   the grid's. Phones: the cards take the row, the tile a bar under them. */
+.wp-block-group.aa-acc-grid {
+	align-items: start;
+
+	& > .wp-block-woocommerce-product-collection {
+		grid-column: span 2;
+		margin: 0;
+	}
+
+	@media (width < 782px) {
+		grid-template-columns: minmax(0, 1fr);
+
+		& > .wp-block-woocommerce-product-collection {
+			grid-column: auto;
+		}
+	}
+}
+
+/* Accessories: the rest of the range counted on one tile the size of a
+   card's photo, the whole tile its link. Stacked under the cards on phones
+   it is a short bar, not a second full-width square. */
+
+/* 0,2,0 beats core's `body .is-layout-flex { flex-wrap: wrap }`: a wrapping
+   vertical flex box pushes the label into a second column outside a narrow
+   square, where the square should grow to fit it instead. */
+.wp-block-group.aa-more-tile {
+	position: relative;
+	flex-wrap: nowrap;
+	aspect-ratio: 1;
+
+	@media (width < 782px) {
+		aspect-ratio: auto;
+		min-height: 7rem;
+	}
+
+	& .is-style-meta {
+		color: inherit;
+		white-space: normal;
+	}
+
+	& .aa-more-tile__count {
+		margin: 0;
+		font-family: var(--wp--preset--font-family--bebas-neue);
+		font-size: clamp(3rem, 2rem + 3vw, 5.5rem);
+		line-height: 0.9;
+	}
+
+	& a {
+		color: inherit;
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+	}
+}

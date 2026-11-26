@@ -1716,6 +1716,21 @@
 			"name": "mobile-nav",
 			"title": "Mobile Navigation",
 			"area": "uncategorized"
+		},
+		{
+			"name": "campaign-image",
+			"title": "Homepage campaign image",
+			"area": "uncategorized"
+		},
+		{
+			"name": "drop-campaign-image",
+			"title": "Featured drop campaign image",
+			"area": "uncategorized"
+		},
+		{
+			"name": "defiance-campaign-image",
+			"title": "Defiance Division campaign image",
+			"area": "uncategorized"
 		}
 	],
 	"customTemplates": [

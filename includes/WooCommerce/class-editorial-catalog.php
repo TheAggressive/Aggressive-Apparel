@@ -51,8 +51,9 @@ final class Editorial_Catalog {
 	}
 
 	/**
-	 * Like term(), but only a term with published products: a tile or grid
-	 * must never lead to an empty archive.
+	 * Like term(), but only a term with something to show (visible_count()):
+	 * a term whose products are all hidden or out of stock is passed over for
+	 * the next candidate, so a section never leads to an empty grid.
 	 *
 	 * @param array<int, string> $taxonomies Taxonomies to search, most specific first.
 	 * @param array<int, string> $slugs      Candidate slugs, preferred first.
@@ -61,7 +62,7 @@ final class Editorial_Catalog {
 		foreach ( $taxonomies as $taxonomy ) {
 			foreach ( $slugs as $slug ) {
 				$term = self::term( array( $taxonomy ), array( $slug ) );
-				if ( null !== $term && $term->count > 0 ) {
+				if ( null !== $term && $term->count > 0 && self::visible_count( $term ) > 0 ) {
 					return $term;
 				}
 			}
@@ -84,6 +85,17 @@ final class Editorial_Catalog {
 		}
 
 		return self::shop_url();
+	}
+
+	/**
+	 * Where a section's "Shop" link leads: a Collection attribute term to its
+	 * audience landing page (attribute archives may not be public, and a
+	 * non-public one would ignore the term), any other term to its archive.
+	 *
+	 * @param \WP_Term $term Term.
+	 */
+	public static function collection_url( \WP_Term $term ): string {
+		return 'pa_collection' === $term->taxonomy ? self::audience_url( $term->slug ) : self::url( $term );
 	}
 
 	/**
@@ -141,63 +153,30 @@ final class Editorial_Catalog {
 		);
 	}
 
+	/** Cards in a ranked Best Sellers row (01-03). */
+	public const RANKED = 3;
+
 	/**
-	 * Whether the store has real sales to rank by. A "Best Sellers" grid
-	 * ordered by popularity with no sales would present an arbitrary order as
-	 * popularity, so callers fall back to an honestly labelled alternative.
+	 * Whether the store has real sales to rank by: at least RANKED visible,
+	 * in-stock products have sold. A sale on a hidden or out-of-stock product
+	 * doesn't count, or the grid (which shows only what can be bought) would
+	 * fill a "Ranked by real orders" row with products nobody bought; that
+	 * would present an arbitrary order as popularity, so callers fall back
+	 * to an honestly labelled alternative.
 	 */
 	public static function has_sales_data(): bool {
-		return (bool) Request_Cache::remember(
-			'editorial-catalog:has-sales',
-			static function (): bool {
-				global $wpdb;
-
-				$table = $wpdb->prefix . 'wc_product_meta_lookup';
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One indexed EXISTS probe, memoised per request; no user input.
-				return null !== $wpdb->get_var( $wpdb->prepare( 'SELECT 1 FROM %i WHERE total_sales > 0 LIMIT 1', $table ) );
-			}
-		);
+		return self::visible_count( null, false, true ) >= self::RANKED;
 	}
 
 	/**
-	 * Whether any published, catalog-visible product is marked Featured.
-	 *
-	 * Matches visibility terms by name, so the answer does not depend on
-	 * WooCommerce's memoised visibility term IDs or featured-IDs transient.
+	 * Whether any product the Featured grid can show is marked Featured:
+	 * published, catalog-visible and in stock, so a section never prints a
+	 * heading over an empty grid. Matches visibility terms by name, so the
+	 * answer does not depend on WooCommerce's memoised visibility term IDs
+	 * or featured-IDs transient.
 	 */
 	public static function has_featured_products(): bool {
-		return (bool) Request_Cache::remember(
-			'editorial-catalog:has-featured',
-			static function (): bool {
-				$query = new \WP_Query(
-					array(
-						'post_type'              => 'product',
-						'post_status'            => 'publish',
-						'posts_per_page'         => 1,
-						'fields'                 => 'ids',
-						'no_found_rows'          => true,
-						'update_post_meta_cache' => false,
-						'update_post_term_cache' => false,
-						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed term lookup, memoised per request.
-						'tax_query'              => array(
-							array(
-								'taxonomy' => 'product_visibility',
-								'field'    => 'name',
-								'terms'    => array( 'featured' ),
-							),
-							array(
-								'taxonomy' => 'product_visibility',
-								'field'    => 'name',
-								'terms'    => array( 'exclude-from-catalog' ),
-								'operator' => 'NOT IN',
-							),
-						),
-					)
-				);
-
-				return array() !== $query->posts;
-			}
-		);
+		return self::visible_count( null, true ) > 0;
 	}
 
 	/**
@@ -209,13 +188,14 @@ final class Editorial_Catalog {
 	 *
 	 * @param \WP_Term|null $term     Collection (category, tag or attribute term) or null for the whole catalog.
 	 * @param bool          $featured Count only featured products.
+	 * @param bool          $sold     Count only products with recorded sales.
 	 */
-	public static function visible_count( ?\WP_Term $term = null, bool $featured = false ): int {
-		$key = 'editorial-catalog:visible:' . ( null === $term ? 'all' : $term->term_id ) . ( $featured ? ':featured' : '' );
+	public static function visible_count( ?\WP_Term $term = null, bool $featured = false, bool $sold = false ): int {
+		$key = 'editorial-catalog:visible:' . ( null === $term ? 'all' : $term->term_id ) . ( $featured ? ':featured' : '' ) . ( $sold ? ':sold' : '' );
 
 		return (int) Request_Cache::remember(
 			$key,
-			static function () use ( $term, $featured ): int {
+			static function () use ( $term, $featured, $sold ): int {
 				$tax_query = array(
 					array(
 						'taxonomy' => 'product_visibility',
@@ -237,18 +217,28 @@ final class Editorial_Catalog {
 						'terms'    => array( 'featured' ),
 					);
 				}
-				$query = new \WP_Query(
-					array(
-						'post_type'              => 'product',
-						'post_status'            => 'publish',
-						'posts_per_page'         => 1,
-						'fields'                 => 'ids',
-						'update_post_meta_cache' => false,
-						'update_post_term_cache' => false,
-						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed count per section, memoised per request.
-						'tax_query'              => $tax_query,
-					)
+				$args = array(
+					'post_type'              => 'product',
+					'post_status'            => 'publish',
+					'posts_per_page'         => 1,
+					'fields'                 => 'ids',
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- One indexed count per section, memoised per request.
+					'tax_query'              => $tax_query,
 				);
+				if ( $sold ) {
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- One count, memoised per request.
+					$args['meta_query'] = array(
+						array(
+							'key'     => 'total_sales',
+							'value'   => 0,
+							'compare' => '>',
+							'type'    => 'NUMERIC',
+						),
+					);
+				}
+				$query = new \WP_Query( $args );
 
 				return (int) $query->found_posts;
 			}

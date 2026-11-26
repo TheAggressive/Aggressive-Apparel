@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Featured Looks
- * Description: Asymmetric lookbook on black: one lead 4:5 portrait and two smaller 2:3 looks on its baseline, each captioned and linked to its product. Shows the store's newest portrait product photos not used higher on the page until lookbook photography replaces them, and renders nothing without three.
+ * Description: The lookbook on a light studio band: three to five approved photos in the Aggressive Blocks horizontal scroll (pinned and scrubbed by scrolling on desktop, a swipe carousel with controls on touch), each linked to and named for its product. Needs three photos, else it is omitted.
  * Slug: aggressive-apparel/editorial-featured-looks
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-drops
  * Keywords: lookbook, looks, outfits, editorial, style, homepage
@@ -14,60 +14,48 @@ use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
 
 // Three real photos or no lookbook: an empty frame reads as missing content.
 // Fresh photos first; a small catalog may repeat one shown higher up.
-$aa_leads = Editorial_Imagery::leads( 3, null, true );
+$aa_leads = Editorial_Imagery::leads( 5, null, true );
 if ( count( $aa_leads ) < 3 ) {
 	return;
 }
-$aa_looks = array(
-	array(
-		/* translators: Lookbook figure number, as in a catalogue caption. */
-		'label' => __( 'Fig. 01', 'aggressive-apparel' ),
-		'width' => '50%',
-		'ratio' => '4/5',
-	),
-	array(
-		/* translators: Lookbook figure number, as in a catalogue caption. */
-		'label' => __( 'Fig. 02', 'aggressive-apparel' ),
-		'width' => '25%',
-		'ratio' => '2/3',
-	),
-	array(
-		/* translators: Lookbook figure number, as in a catalogue caption. */
-		'label' => __( 'Fig. 03', 'aggressive-apparel' ),
-		'width' => '25%',
-		'ratio' => '2/3',
-	),
-);
 
-?><!-- wp:group {"metadata":{"name":"11 Featured Looks"},"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-standard","bottom":"var:preset|spacing|section-standard","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-16"},"elements":{"link":{"color":{"text":"var:preset|color|white"}}}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background has-link-color" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-standard);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-standard);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"layout":{"type":"constrained","contentSize":"720px"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"align":"center","className":"is-style-meta","textColor":"white"} -->
-<p class="has-text-align-center is-style-meta has-white-color has-text-color"><?php echo esc_html__( 'Lookbook', 'aggressive-apparel' ); ?></p>
+?><!-- wp:group {"metadata":{"name":"11 Lookbook"},"align":"full","className":"aa-shop-section aa-lookbook aa-scheme-light","style":{"spacing":{"padding":{"top":"var:preset|spacing|section-compact","bottom":"var:preset|spacing|section-compact","left":"var:preset|spacing|gutter","right":"var:preset|spacing|gutter"},"margin":{"top":"0","bottom":"0"},"blockGap":"var:preset|spacing|fluid-12"}},"backgroundColor":"product-media","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull aa-shop-section aa-lookbook aa-scheme-light has-product-media-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--section-compact);padding-right:var(--wp--preset--spacing--gutter);padding-bottom:var(--wp--preset--spacing--section-compact);padding-left:var(--wp--preset--spacing--gutter)"><!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained","contentSize":"640px","justifyContent":"left"}} -->
+<div class="wp-block-group alignwide"><!-- wp:paragraph {"className":"is-style-eyebrow"} -->
+<p class="is-style-eyebrow"><?php echo esc_html__( 'Lookbook', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"textAlign":"center","textColor":"white"} -->
-<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color"><?php echo esc_html__( 'How it’s worn', 'aggressive-apparel' ); ?></h2>
+<!-- wp:heading {"className":"aa-chapter-title","textColor":"foreground"} -->
+<h2 class="wp-block-heading aa-chapter-title has-foreground-color has-text-color"><?php echo esc_html__( 'How it’s worn', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:columns {"verticalAlignment":"bottom","align":"wide","className":"aa-editorial-looks aa-tablet-split","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|fluid-12","left":"var:preset|spacing|fluid-8"}}}} -->
-<div class="wp-block-columns alignwide are-vertically-aligned-bottom aa-editorial-looks aa-tablet-split">
-<?php foreach ( $aa_looks as $aa_index => $aa_look ) : ?>
-<!-- wp:column {"verticalAlignment":"bottom","width":"<?php echo esc_attr( $aa_look['width'] ); ?>","style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
-<div class="wp-block-column is-vertically-aligned-bottom" style="flex-basis:<?php echo esc_attr( $aa_look['width'] ); ?>"><?php echo Editorial_Imagery::image_markup( $aa_leads[ $aa_index ], $aa_look['ratio'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>
+<?php
+ob_start();
+foreach ( $aa_leads as $aa_look ) :
+	?>
+<!-- wp:group {"className":"aa-photo-rail__look","style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
+<div class="wp-block-group aa-photo-rail__look"><?php echo Editorial_Imagery::image_markup( $aa_look, '1' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>
 
-<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
-<div class="wp-block-group"><!-- wp:paragraph {"className":"is-style-meta","textColor":"white"} -->
-<p class="is-style-meta has-white-color has-text-color"><?php echo esc_html( $aa_look['label'] ); ?></p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><a href="<?php echo esc_url( (string) get_permalink( $aa_leads[ $aa_index ]['product'] ) ); ?>"><?php echo esc_html( get_the_title( $aa_leads[ $aa_index ]['product'] ) ); ?></a></p>
+<!-- wp:paragraph {"className":"aa-photo-rail__caption"} -->
+<p class="aa-photo-rail__caption"><a href="<?php echo esc_url( (string) get_permalink( $aa_look['product'] ) ); ?>"><?php echo esc_html( get_the_title( $aa_look['product'] ) ); ?></a></p>
 <!-- /wp:paragraph --></div>
-<!-- /wp:group --></div>
-<!-- /wp:column -->
-<?php endforeach; ?>
-</div>
-<!-- /wp:columns -->
-</div>
+<!-- /wp:group -->
+	<?php
+endforeach;
+$aa_looks = (string) ob_get_clean();
+
+// Four or more looks run wider than the screen: a pinned rail scrubbed by
+// scroll. Three fit the wide column, so pinning would only add a long empty
+// scroll; they sit side by side (on phones, the tiles' swipe rail).
+if ( count( $aa_leads ) > 3 ) :
+	?>
+<!-- wp:aggressive-blocks/horizontal-scroll {"align":"wide","ariaLabel":"<?php echo esc_attr__( 'How it’s worn', 'aggressive-apparel' ); ?>","itemWidth":"34vw","speed":0.6,"showProgress":true,"showControls":true,"activation":"center","desktopBehavior":"pinned","snapBehavior":"off","swipeHintStyle":"cue","className":"aa-lookbook-scroll"} -->
+	<?php echo $aa_looks; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup built above, escaped there. ?>
+<!-- /wp:aggressive-blocks/horizontal-scroll -->
+<?php else : ?>
+<!-- wp:group {"align":"wide","className":"aa-lookbook-row","style":{"spacing":{"blockGap":"var:preset|spacing|6"}},"layout":{"type":"grid","columnCount":3}} -->
+<div class="wp-block-group alignwide aa-lookbook-row"><?php echo $aa_looks; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup built above, escaped there. ?></div>
+<!-- /wp:group -->
+<?php endif; ?></div>
 <!-- /wp:group -->

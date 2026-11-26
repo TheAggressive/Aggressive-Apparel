@@ -10,6 +10,7 @@
  *     wp eval-file bin/site-content/reconcile.php apply           # layout only
  *     wp eval-file bin/site-content/reconcile.php apply copy      # + header/footer copy
  *     wp eval-file bin/site-content/reconcile.php apply adopt-home
+ *     wp eval-file bin/site-content/reconcile.php apply adopt-mini-cart
  *
  * Every entry it changes is first written to ./site-content-backup-<time>/,
  * and each change is idempotent: a second run reports nothing to do. A
@@ -27,18 +28,33 @@ $aa_flags = isset( $args ) && is_array( $args ) ? $args : array();
 $aa_apply = in_array( 'apply', $aa_flags, true );
 
 /**
- * The saved (database) copy of a theme template or part, or null.
+ * The saved (database) copy of a theme template or part, or null. A trashed
+ * copy no longer overrides the theme, so it counts as none.
  *
- * @param string $slug Template slug.
- * @param string $type wp_template or wp_template_part.
+ * @param string      $slug  Template slug.
+ * @param string      $type  wp_template or wp_template_part.
+ * @param string|null $theme Theme namespace; the active theme by default.
  */
-function aa_saved_entry( string $slug, string $type ): ?WP_Post {
-	$template = get_block_template( get_stylesheet() . '//' . $slug, $type );
+function aa_saved_entry( string $slug, string $type, ?string $theme = null ): ?WP_Post {
+	$template = get_block_template( ( $theme ?? get_stylesheet() ) . '//' . $slug, $type );
 	if ( ! $template || 'custom' !== $template->source || ! $template->wp_id ) {
 		return null;
 	}
 	$post = get_post( $template->wp_id );
-	return $post instanceof WP_Post ? $post : null;
+	return $post instanceof WP_Post && 'trash' !== $post->post_status ? $post : null;
+}
+
+/**
+ * Text as a reader sees it: tags stripped, entities decoded, curly
+ * apostrophes straightened and whitespace collapsed, so the saved copy
+ * matches however the editor encoded it.
+ *
+ * @param string $html Markup.
+ */
+function aa_plain_text( string $html ): string {
+	$text = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	$text = str_replace( array( "\u{2019}", "\u{2018}" ), "'", $text );
+	return trim( (string) preg_replace( '/\s+/u', ' ', $text ) );
 }
 
 /**
@@ -248,7 +264,7 @@ function aa_drop_ticker_item( string $content, string $text, array &$log ): stri
 				return;
 			}
 			foreach ( $block['innerBlocks'] as $index => $child ) {
-				if ( 'core/paragraph' !== $child['blockName'] || trim( wp_strip_all_tags( $child['innerHTML'] ) ) !== $text ) {
+				if ( 'core/paragraph' !== $child['blockName'] || aa_plain_text( $child['innerHTML'] ) !== aa_plain_text( $text ) ) {
 					continue;
 				}
 				$remove = array( $index );
@@ -262,6 +278,11 @@ function aa_drop_ticker_item( string $content, string $text, array &$log ): stri
 		}
 	);
 	if ( ! $dropped ) {
+		// Gone already is reconciled; still on the page but not as a ticker
+		// item is not, and is reported rather than left live silently.
+		if ( str_contains( aa_plain_text( $content ), aa_plain_text( $text ) ) ) {
+			$log[] = sprintf( 'SKIPPED ticker item "%s": found, but not as a ticker paragraph', $text );
+		}
 		return $content;
 	}
 	$log[] = sprintf( 'Removed ticker item "%s" and its separator icon', $text );
@@ -400,19 +421,39 @@ foreach ( $aa_jobs as $aa_job ) {
 	WP_CLI::success( "{$aa_job['slug']} (#{$aa_post->ID}) updated; backup in {$aa_backup_dir}" );
 }
 
-// Adopting the editorial homepage discards the saved one. Trashed, not
-// deleted, so `wp post update <ID> --post_status=publish` restores it.
-if ( in_array( 'adopt-home', $aa_flags, true ) ) {
-	$aa_home = aa_saved_entry( 'home', 'wp_template' );
-	if ( ! $aa_home ) {
-		WP_CLI::log( 'home: no saved copy; the editorial homepage already shows.' );
+// Adopting a theme file discards the saved copy that overrides it: the old
+// customised homepage, and the mini-cart drawer's saved copy (an older
+// version of the theme's own part, with its "Your cart is currently empty!"
+// message and none of the shared empty state). WooCommerce loads a saved
+// mini-cart from any theme namespace before the theme's file, and the
+// Site Editor may have saved it under WooCommerce's, so both are checked.
+// Trashed, not deleted, so `wp post update <ID> --post_status=publish`
+// restores either.
+$aa_adopt = array(
+	'adopt-home'      => array( 'home', 'wp_template', array( null ), 'the editorial homepage already shows' ),
+	'adopt-mini-cart' => array( 'mini-cart', 'wp_template_part', array( null, 'woocommerce/woocommerce' ), "the theme's mini-cart already shows" ),
+);
+foreach ( $aa_adopt as $aa_flag => list( $aa_slug, $aa_type, $aa_themes, $aa_already ) ) {
+	if ( ! in_array( $aa_flag, $aa_flags, true ) ) {
+		continue;
+	}
+	$aa_entry = null;
+	foreach ( $aa_themes as $aa_theme ) {
+		$aa_entry = $aa_entry ?? aa_saved_entry( $aa_slug, $aa_type, $aa_theme );
+	}
+	if ( ! $aa_entry ) {
+		WP_CLI::log( "{$aa_slug}: no saved copy; {$aa_already}." );
 	} elseif ( ! $aa_apply ) {
-		WP_CLI::log( "home (#{$aa_home->ID}, {$aa_home->post_status}): would be moved to the trash." );
+		WP_CLI::log( "{$aa_slug} (#{$aa_entry->ID}, {$aa_entry->post_status}): would be moved to the trash." );
 	} else {
 		wp_mkdir_p( $aa_backup_dir );
-		file_put_contents( "{$aa_backup_dir}/home-{$aa_home->ID}.html", $aa_home->post_content );
-		wp_trash_post( $aa_home->ID );
-		WP_CLI::success( "home (#{$aa_home->ID}) moved to the trash; backup in {$aa_backup_dir}" );
+		file_put_contents( "{$aa_backup_dir}/{$aa_slug}-{$aa_entry->ID}.html", $aa_entry->post_content );
+		if ( wp_trash_post( $aa_entry->ID ) ) {
+			WP_CLI::success( "{$aa_slug} (#{$aa_entry->ID}) moved to the trash; backup in {$aa_backup_dir}" );
+		} else {
+			WP_CLI::warning( "{$aa_slug} (#{$aa_entry->ID}): could not be moved to the trash." );
+			$aa_failed = true;
+		}
 	}
 }
 

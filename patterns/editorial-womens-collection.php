@@ -22,9 +22,7 @@ $aa_term = Editorial_Catalog::stocked_term( array( 'pa_collection', 'product_cat
 if ( null === $aa_term ) {
 	return;
 }
-$aa_url = 'pa_collection' === $aa_term->taxonomy
-	? Editorial_Catalog::audience_url( $aa_term->slug )
-	: Editorial_Catalog::url( $aa_term );
+$aa_url = Editorial_Catalog::collection_url( $aa_term );
 
 // Sized to what the collection can actually show: no half-empty grid.
 $aa_count = Editorial_Catalog::visible_count( $aa_term );
@@ -123,6 +121,7 @@ if ( null !== $aa_lead ) {
 			'columns'  => $aa_columns,
 			'term'     => $aa_term,
 			'align'    => '',
+			'centered' => 1 === $aa_per_page,
 			'label'    => __( "Women's products", 'aggressive-apparel' ),
 		)
 	);

@@ -43,12 +43,14 @@ trait Builds_Editorial_Fixtures {
 	}
 
 	/**
-	 * Create an image attachment with real dimensions (portrait by default).
+	 * Create an image attachment with real dimensions (portrait by default),
+	 * approved for editorial use unless told otherwise.
 	 *
-	 * @param int $width  Pixel width.
-	 * @param int $height Pixel height.
+	 * @param int    $width  Pixel width.
+	 * @param int    $height Pixel height.
+	 * @param string $choice Homepage use: approved, cover, excluded or '' (not reviewed).
 	 */
-	private function create_image( int $width = 504, int $height = 757 ): int {
+	private function create_image( int $width = 504, int $height = 757, string $choice = 'approved' ): int {
 		$id = self::factory()->attachment->create_object(
 			array(
 				'file'           => 'editorial-probe.jpg',
@@ -63,8 +65,62 @@ trait Builds_Editorial_Fixtures {
 				'file'   => 'editorial-probe.jpg',
 			)
 		);
+		\Aggressive_Apparel\WooCommerce\Editorial_Controls::set_use( $id, $choice );
 
 		return $id;
+	}
+
+	/**
+	 * Create a product cut-out: a real PNG with a transparent background, as
+	 * the store's packshots are, so it never qualifies as an editorial photo.
+	 *
+	 * @param int $size Square edge in pixels.
+	 */
+	private function create_cutout( int $size = 800 ): int {
+		$canvas = imagecreatetruecolor( $size, $size );
+		imagesavealpha( $canvas, true );
+		imagefill( $canvas, 0, 0, (int) imagecolorallocatealpha( $canvas, 0, 0, 0, 127 ) );
+		imagefilledrectangle( $canvas, (int) ( $size / 4 ), (int) ( $size / 4 ), (int) ( $size * 3 / 4 ), (int) ( $size * 3 / 4 ), (int) imagecolorallocate( $canvas, 20, 20, 20 ) );
+		$uploads = wp_upload_dir();
+		$file    = trailingslashit( $uploads['path'] ) . wp_unique_filename( $uploads['path'], 'editorial-cutout.png' );
+		imagepng( $canvas, $file );
+
+		$id = self::factory()->attachment->create_object(
+			array(
+				'file'           => $file,
+				'post_mime_type' => 'image/png',
+			)
+		);
+		update_attached_file( $id, $file );
+		wp_update_attachment_metadata(
+			$id,
+			array(
+				'width'  => $size,
+				'height' => $size,
+				'file'   => _wp_relative_upload_path( $file ),
+			)
+		);
+
+		return $id;
+	}
+
+	/**
+	 * Every block of a type, depth first.
+	 *
+	 * @param array<int, array<string, mixed>> $blocks Parsed blocks.
+	 * @param string                           $name   Block name.
+	 * @return list<array<string, mixed>>
+	 */
+	private function find_all( array $blocks, string $name ): array {
+		$found = array();
+		foreach ( $blocks as $block ) {
+			if ( $name === $block['blockName'] ) {
+				$found[] = $block;
+			}
+			array_push( $found, ...$this->find_all( $block['innerBlocks'], $name ) );
+		}
+
+		return $found;
 	}
 
 	/**
@@ -89,6 +145,45 @@ trait Builds_Editorial_Fixtures {
 	}
 
 	/**
+	 * Save a campaign image template part as the Site Editor does: a Cover
+	 * block holding the photo and its focal point, and optionally a second
+	 * Cover with the phones' photo.
+	 *
+	 * @param int      $image Attachment ID.
+	 * @param string   $slug  Part slug (Editorial_Campaign_Cover::HERO, DROP or DEFIANCE).
+	 * @param int|null $phone Attachment ID of the phones' photo.
+	 * @return int The saved part's post ID.
+	 */
+	private function set_campaign_image( int $image, string $slug = \Aggressive_Apparel\WooCommerce\Editorial_Campaign_Cover::HERO, ?int $phone = null ): int {
+		$cover  = static function ( int $id, string $x, string $y, string $classes ): string {
+			$url = (string) wp_get_attachment_url( $id );
+			$pos = ( (float) $x * 100 ) . '% ' . ( (float) $y * 100 ) . '%';
+
+			return '<!-- wp:cover {"url":"' . $url . '","id":' . $id . ',"dimRatio":0,"isUserOverlayColor":true,"focalPoint":{"x":' . $x . ',"y":' . $y . '},"minHeight":300,"className":"' . $classes . '","layout":{"type":"default"}} -->'
+				. '<div class="wp-block-cover ' . $classes . '" style="min-height:300px"><img class="wp-block-cover__image-background wp-image-' . $id . '" alt="" src="' . $url . '" style="object-position:' . $pos . '" data-object-fit="cover" data-object-position="' . $pos . '"/>'
+				. '<span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"></div></div>'
+				. '<!-- /wp:cover -->';
+		};
+		$markup = $cover( $image, '0.12', '0.5', 'aa-campaign-image aa-campaign-image--film' )
+			. ( null !== $phone ? "\n\n" . $cover( $phone, '0.3', '0.4', '' ) : '' );
+		$part   = self::factory()->post->create(
+			array(
+				'post_type'    => 'wp_template_part',
+				'post_name'    => $slug,
+				'post_title'   => 'Homepage campaign image',
+				'post_status'  => 'publish',
+				'post_content' => $markup,
+			)
+		);
+		wp_set_post_terms( $part, get_stylesheet(), 'wp_theme' );
+		wp_set_post_terms( $part, 'uncategorized', 'wp_template_part_area' );
+		// The next request sees the saved part; so does the rest of this test.
+		wp_cache_flush();
+
+		return $part;
+	}
+
+	/**
 	 * Render a theme pattern file as WordPress does (include under output buffering).
 	 *
 	 * @param string $slug Pattern file slug.
@@ -99,5 +194,24 @@ trait Builds_Editorial_Fixtures {
 		include get_theme_file_path( 'patterns/' . $slug . '.php' );
 
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Render a section after the ones above it in the same request, as the
+	 * homepage does (they share the page's claimed photos and cover choice).
+	 * Returns the last section's markup.
+	 *
+	 * @param array<int, string> $slugs Pattern file slugs, top to bottom.
+	 */
+	private function render_in_page( array $slugs ): string {
+		wp_cache_flush();
+		$markup = '';
+		foreach ( $slugs as $slug ) {
+			ob_start();
+			include get_theme_file_path( 'patterns/' . $slug . '.php' );
+			$markup = (string) ob_get_clean();
+		}
+
+		return $markup;
 	}
 }

@@ -126,6 +126,12 @@
 	background: transparent;
 	color: inherit;
 
+	/* Touch screens zoom into a focused field set under 16px (iOS
+	   Safari); there the number reads at the field size instead. */
+	@media (pointer: coarse) {
+		font-size: var(--aa-field-font-size);
+	}
+
 	&::-webkit-inner-spin-button,
 	&::-webkit-outer-spin-button {
 		appearance: none;

@@ -353,6 +353,109 @@ describe( 'buttons and controls', () => {
 	} );
 } );
 
+describe( 'WooCommerce controls in the shared states', () => {
+	const FOCUS_RING = expect.objectContaining( {
+		value: 'var(--aa-focus-ring)',
+	} );
+
+	it( 'draw the shared ring on cart, checkout and account controls WooCommerce leaves to the browser', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		for ( const control of [
+			'.wc-block-components-panel__button',
+			'.wc-block-components-checkout-order-summary__title',
+			'.wc-block-components-address-form__address_2-toggle',
+			// WooCommerce clears its box-shadow at (0,4,1).
+			'table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__quantity .wc-block-cart-item__remove-link',
+		] ) {
+			expect(
+				await blocks.declarations(
+					`${ control }:focus-visible`,
+					'box-shadow'
+				)
+			).toEqual( [ FOCUS_RING ] );
+		}
+
+		const account = await CompiledCss.load(
+			'src/styles/woocommerce/account.css'
+		);
+		expect(
+			await account.declarations(
+				'.woocommerce-account .woocommerce form .show-password-input:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+	} );
+
+	it( 'ring checkout checkboxes like native ones, above WooCommerce’s later rule', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		expect(
+			await blocks.declarations(
+				'body .wc-block-components-checkbox .wc-block-components-checkbox__input[type="checkbox"]:focus-visible',
+				'outline'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: '2px solid var(--aa-field-bar-focus)',
+			} ),
+		] );
+	} );
+
+	it( 'keep the size chart unit toggle at the dense choice floor', async () => {
+		const guide = await CompiledCss.load(
+			'src/styles/woocommerce/size-guide.css'
+		);
+		expect(
+			await guide.declarations(
+				'.aa-size-chart__unit-button',
+				'min-height'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-control-min-dense)',
+			} ),
+		] );
+	} );
+
+	it( 'set compact quantity inputs at 16px on touch screens (no iOS focus zoom)', async () => {
+		const touch = ( css: CompiledCss, cls: string ) =>
+			css
+				.all()
+				.filter(
+					( d ) =>
+						d.prop === 'font-size' &&
+						d.selector.includes( cls ) &&
+						d.conditions.some( ( c ) =>
+							/pointer:\s*coarse/.test( c )
+						)
+				)
+				.map( ( d ) => d.value );
+
+		const sources: Array< [ string, string ] > = [
+			[
+				'src/styles/woocommerce/blocks.css',
+				'.wc-block-components-quantity-selector__input',
+			],
+			[
+				'src/styles/woocommerce/quick-view.css',
+				'.aggressive-apparel-quick-view__qty-input',
+			],
+			[
+				'src/styles/woocommerce/sticky-add-to-cart.css',
+				'.aa-sticky-cart__qty-input',
+			],
+		];
+		for ( const [ file, cls ] of sources ) {
+			expect( touch( await CompiledCss.load( file ), cls ) ).toEqual( [
+				'var(--aa-field-font-size)',
+			] );
+		}
+	} );
+} );
+
 describe( 'product card swatches', () => {
 	it( 'keep their pointer target, shrinking only to the dense tier on narrow cards', async () => {
 		const swatches = await CompiledCss.load(

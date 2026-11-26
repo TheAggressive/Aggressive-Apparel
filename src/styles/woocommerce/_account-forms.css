@@ -278,6 +278,13 @@
 	color: var(--aa-color-foreground);
 }
 
+/* An icon action: the shared ring, circular, not the browser's outline. */
+.woocommerce-account .woocommerce form .show-password-input:focus-visible {
+	border-radius: var(--aa-radius-full);
+	outline: 2px solid transparent;
+	box-shadow: var(--aa-focus-ring);
+}
+
 .woocommerce-account .woocommerce form .show-password-input::before {
 	content: "";
 	display: block;

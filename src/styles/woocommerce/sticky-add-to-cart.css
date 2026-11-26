@@ -180,6 +180,12 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 	border: none;
 	text-align: center;
 	font-size: 0.8125rem;
+
+	/* Touch screens zoom into a focused field set under 16px (iOS Safari). */
+	@media (pointer: coarse) {
+		font-size: var(--aa-field-font-size);
+	}
+
 	font-weight: 600;
 	appearance: textfield;
 	background: transparent;

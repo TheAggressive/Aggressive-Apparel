@@ -145,22 +145,31 @@ trait Builds_Editorial_Fixtures {
 	}
 
 	/**
-	 * Save the "Homepage campaign image" template part as the Site Editor
-	 * does: a Cover block holding the photo and its focal point.
+	 * Save a campaign image template part as the Site Editor does: a Cover
+	 * block holding the photo and its focal point, and optionally a second
+	 * Cover with the phones' photo.
 	 *
-	 * @param int $image Attachment ID.
+	 * @param int      $image Attachment ID.
+	 * @param string   $slug  Part slug (Editorial_Campaign_Cover::HERO, DROP or DEFIANCE).
+	 * @param int|null $phone Attachment ID of the phones' photo.
 	 * @return int The saved part's post ID.
 	 */
-	private function set_campaign_image( int $image ): int {
-		$url    = (string) wp_get_attachment_url( $image );
-		$markup = '<!-- wp:cover {"url":"' . $url . '","id":' . $image . ',"dimRatio":0,"isUserOverlayColor":true,"focalPoint":{"x":0.12,"y":0.5},"className":"aa-campaign-image","layout":{"type":"default"}} -->'
-			. '<div class="wp-block-cover aa-campaign-image"><img class="wp-block-cover__image-background wp-image-' . $image . '" alt="" src="' . $url . '" style="object-position:12% 50%" data-object-fit="cover" data-object-position="12% 50%"/>'
-			. '<span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"></div></div>'
-			. '<!-- /wp:cover -->';
+	private function set_campaign_image( int $image, string $slug = \Aggressive_Apparel\WooCommerce\Editorial_Campaign_Cover::HERO, ?int $phone = null ): int {
+		$cover  = static function ( int $id, string $x, string $y, string $classes ): string {
+			$url = (string) wp_get_attachment_url( $id );
+			$pos = ( (float) $x * 100 ) . '% ' . ( (float) $y * 100 ) . '%';
+
+			return '<!-- wp:cover {"url":"' . $url . '","id":' . $id . ',"dimRatio":0,"isUserOverlayColor":true,"focalPoint":{"x":' . $x . ',"y":' . $y . '},"minHeight":300,"className":"' . $classes . '","layout":{"type":"default"}} -->'
+				. '<div class="wp-block-cover ' . $classes . '" style="min-height:300px"><img class="wp-block-cover__image-background wp-image-' . $id . '" alt="" src="' . $url . '" style="object-position:' . $pos . '" data-object-fit="cover" data-object-position="' . $pos . '"/>'
+				. '<span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"></div></div>'
+				. '<!-- /wp:cover -->';
+		};
+		$markup = $cover( $image, '0.12', '0.5', 'aa-campaign-image aa-campaign-image--film' )
+			. ( null !== $phone ? "\n\n" . $cover( $phone, '0.3', '0.4', '' ) : '' );
 		$part   = self::factory()->post->create(
 			array(
 				'post_type'    => 'wp_template_part',
-				'post_name'    => \Aggressive_Apparel\WooCommerce\Editorial_Imagery::CAMPAIGN_PART,
+				'post_name'    => $slug,
 				'post_title'   => 'Homepage campaign image',
 				'post_status'  => 'publish',
 				'post_content' => $markup,
@@ -168,6 +177,8 @@ trait Builds_Editorial_Fixtures {
 		);
 		wp_set_post_terms( $part, get_stylesheet(), 'wp_theme' );
 		wp_set_post_terms( $part, 'uncategorized', 'wp_template_part_area' );
+		// The next request sees the saved part; so does the rest of this test.
+		wp_cache_flush();
 
 		return $part;
 	}

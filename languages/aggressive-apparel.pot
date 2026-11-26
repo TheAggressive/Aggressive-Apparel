@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-25T22:12:51+00:00\n"
+"POT-Creation-Date: 2026-11-26T00:45:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -5588,29 +5588,33 @@ msgstr ""
 
 #: patterns/editorial-campaign-hero.php
 msgctxt "Pattern description"
-msgid "The opening spread on a light studio ground (light in both schemes): the slogan at poster scale beside the campaign photo set in the Site Editor (template part \"Homepage campaign image\": a Cover block with its own focal point), named for the product marked Homepage cover with its live price. Without a campaign photo, that product's own image if one is marked; otherwise the slogan alone. It never picks a product by itself."
+msgid "The opening campaign: the photo set in the Site Editor (template part \"Homepage campaign image\": a Cover block with its own focal point, overlay and content position) full width, the slogan and shopping links over its open side; on phones the copy, then the photo. Names the product marked Homepage cover with its live price. Without a campaign photo, that product's own image beside the slogan on a light ground; otherwise the slogan alone. It never picks a product by itself."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:36
+#: patterns/editorial-campaign-hero.php:34
+msgid "Cover garment"
+msgstr ""
+
+#: patterns/editorial-campaign-hero.php:44
+#: patterns/editorial-campaign-hero.php:82
 msgid "Est. 2010"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:40
+#: patterns/editorial-campaign-hero.php:48
+#: patterns/editorial-campaign-hero.php:86
 msgid "Rebellion has a uniform."
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:46
+#: patterns/editorial-campaign-hero.php:54
+#: patterns/editorial-campaign-hero.php:92
 #: patterns/editorial-new-arrivals.php:39
 msgid "Shop new arrivals"
 msgstr ""
 
-#: patterns/editorial-campaign-hero.php:50
+#: patterns/editorial-campaign-hero.php:58
+#: patterns/editorial-campaign-hero.php:96
 #: src/blocks-interactivity/wishlist/render.php:141
 msgid "Explore the collection"
-msgstr ""
-
-#: patterns/editorial-campaign-hero.php:79
-msgid "Cover garment"
 msgstr ""
 
 #: patterns/editorial-category-showcase.php
@@ -5646,26 +5650,26 @@ msgstr ""
 
 #: patterns/editorial-defiance-division.php
 msgctxt "Pattern description"
-msgid "Black band for the motocross capsule: its title, line and CTA beside a full-height portrait photo of the collection and a two-up grid, or the title band above a grid sized to the collection's stock. Renders nothing without stocked Defiance Division products."
-msgstr ""
-
-#: patterns/editorial-defiance-division.php:29
-msgid "Capsule collection"
+msgid "The motocross capsule: with a photo set in the Site Editor (template part \"Defiance Division campaign image\"), a black band holding that photo as a wide 21:9 film still, the title, line and CTA beneath it, nothing over the photo. Without one, the band: copy beside a portrait photo of the collection and a two-up grid, or the title above a grid sized to the collection's stock. Renders nothing without stocked Defiance Division products."
 msgstr ""
 
 #: patterns/editorial-defiance-division.php:30
-msgid "Defiance Division"
+msgid "Capsule collection"
 msgstr ""
 
 #: patterns/editorial-defiance-division.php:31
-msgid "Drawn from the pit lane, not the showroom."
+msgid "Defiance Division"
 msgstr ""
 
 #: patterns/editorial-defiance-division.php:32
-msgid "Shop Defiance Division"
+msgid "Drawn from the pit lane, not the showroom."
 msgstr ""
 
 #: patterns/editorial-defiance-division.php:33
+msgid "Shop Defiance Division"
+msgstr ""
+
+#: patterns/editorial-defiance-division.php:34
 msgid "Defiance Division products"
 msgstr ""
 
@@ -5676,23 +5680,23 @@ msgstr ""
 
 #: patterns/editorial-featured-drop.php
 msgctxt "Pattern description"
-msgid "Black band for the current drop: its name, line and CTA beside a full-height portrait photo of the drop and a two-up grid, or the title band above a grid sized to the drop's stock. Renders nothing without a stocked drop term (slugs filterable)."
+msgid "The current drop's campaign: with a photo set in the Site Editor (template part \"Featured drop campaign image\"), that photo full width with the drop's name, line and one CTA over it (stacked on phones). Without one, a black band: the copy beside a portrait photo of the drop and a two-up grid, or the title above a grid sized to the drop's stock. Renders nothing without a stocked drop term (slugs filterable)."
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:35
+#: patterns/editorial-featured-drop.php:36
 msgid "Featured drop"
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:37
+#: patterns/editorial-featured-drop.php:38
 msgid "One idea, released as a set."
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:38
+#: patterns/editorial-featured-drop.php:39
 #: patterns/mega-menu-panel.php:84
 msgid "Shop the drop"
 msgstr ""
 
-#: patterns/editorial-featured-drop.php:39
+#: patterns/editorial-featured-drop.php:40
 msgid "Drop products"
 msgstr ""
 
@@ -9837,6 +9841,16 @@ msgstr ""
 #: theme.json
 msgctxt "Template part name"
 msgid "Homepage campaign image"
+msgstr ""
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Featured drop campaign image"
+msgstr ""
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Defiance Division campaign image"
 msgstr ""
 
 #: theme.json

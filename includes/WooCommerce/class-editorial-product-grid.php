@@ -36,12 +36,13 @@ final class Editorial_Product_Grid {
 	 * large card: name and price set larger), rail (one scrolling row that
 	 * shows three and a half cards, so a longer range reads as more),
 	 * products (hand-picked product IDs, in that order), caption (a card of
-	 * name and price only, no image: a product named beside its photo),
+	 * name and price only, no image: a product named beside its photo; on_dark
+	 * sets it in white, over a campaign photo),
 	 * numbered (large 01, 02, 03 on each card's photo: a ranking or a short list),
 	 * lineup (cards side by side on one studio band, names centred below).
 	 *
 	 * @param array<string, mixed> $args Grid options.
-	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool, rail?: bool, products?: list<int>, caption?: bool, numbered?: bool, lineup?: bool} $args
+	 * @phpstan-param array{query_id: int, per_page?: int, offset?: int, columns?: int, order_by?: string, featured?: bool, term?: \WP_Term|null, collection?: string, align?: string, label?: string, centered?: bool, lead?: bool, rail?: bool, products?: list<int>, caption?: bool, on_dark?: bool, numbered?: bool, lineup?: bool} $args
 	 */
 	public static function markup( array $args ): string {
 		$term    = $args['term'] ?? null;
@@ -100,7 +101,7 @@ final class Editorial_Product_Grid {
 		$classes = 'wp-block-woocommerce-product-collection' . ( '' !== $align ? ' align' . $align : '' ) . ' ' . $class_name;
 
 		return '<!-- wp:woocommerce/product-collection ' . self::json( $attributes ) . ' -->' . "\n"
-			. '<div class="' . esc_attr( $classes ) . '">' . ( ! empty( $args['caption'] ) ? self::caption() : self::card( ! empty( $args['lead'] ) ) ) . '</div>' . "\n"
+			. '<div class="' . esc_attr( $classes ) . '">' . ( ! empty( $args['caption'] ) ? self::caption( ! empty( $args['on_dark'] ) ) : self::card( ! empty( $args['lead'] ) ) ) . '</div>' . "\n"
 			. '<!-- /wp:woocommerce/product-collection -->';
 	}
 
@@ -136,17 +137,19 @@ HTML;
 
 	/**
 	 * Name and price only: a product named beside its own photo.
+	 *
+	 * @param bool $on_dark Set in white, over a photo.
 	 */
-	private static function caption(): string {
-		return <<<'HTML'
-<!-- wp:woocommerce/product-template -->
-<!-- wp:group {"className":"aa-editorial-caption","style":{"spacing":{"blockGap":"var:preset|spacing|1"}},"layout":{"type":"default"}} -->
-<div class="wp-block-group aa-editorial-caption"><!-- wp:post-title {"level":2,"isLink":true,"style":{"elements":{"link":{"color":{"text":"var:preset|color|foreground"},":hover":{"color":{"text":"var:preset|color|accent"}}}}},"fontSize":"medium","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+	private static function caption( bool $on_dark = false ): string {
+		$title = $on_dark ? 'white' : 'foreground';
+		$price = $on_dark ? ',"textColor":"white"' : '';
 
-<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true,"textAlign":"left","fontSize":"medium"} /--></div>
-<!-- /wp:group -->
-<!-- /wp:woocommerce/product-template -->
-HTML;
+		return '<!-- wp:woocommerce/product-template -->' . "\n"
+			. '<!-- wp:group {"className":"aa-editorial-caption","style":{"spacing":{"blockGap":"var:preset|spacing|1"}},"layout":{"type":"default"}} -->' . "\n"
+			. '<div class="wp-block-group aa-editorial-caption"><!-- wp:post-title {"level":2,"isLink":true,"style":{"elements":{"link":{"color":{"text":"var:preset|color|' . $title . '"},":hover":{"color":{"text":"var:preset|color|accent"}}}}},"fontSize":"medium","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->' . "\n\n"
+			. '<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true,"textAlign":"left","fontSize":"medium"' . $price . '} /--></div>' . "\n"
+			. '<!-- /wp:group -->' . "\n"
+			. '<!-- /wp:woocommerce/product-template -->';
 	}
 
 	/**

@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Editorial — Featured Drop
- * Description: Black band for the current drop: its name, line and CTA beside a full-height portrait photo of the drop and a two-up grid, or the title band above a grid sized to the drop's stock. Renders nothing without a stocked drop term (slugs filterable).
+ * Description: The current drop's campaign: with a photo set in the Site Editor (template part "Featured drop campaign image"), that photo full width with the drop's name, line and one CTA over it (stacked on phones). Without one, a black band: the copy beside a portrait photo of the drop and a two-up grid, or the title above a grid sized to the drop's stock. Renders nothing without a stocked drop term (slugs filterable).
  * Slug: aggressive-apparel/editorial-featured-drop
  * Categories: aggressive-editorial, aggressive-homepage, aggressive-drops
  * Keywords: drop, release, collection, campaign, capsule, homepage
@@ -10,6 +10,7 @@
  * @package Aggressive_Apparel
  */
 
+use Aggressive_Apparel\WooCommerce\Editorial_Campaign_Cover;
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Collection_Band;
 
@@ -37,6 +38,7 @@ $aa_band = Editorial_Collection_Band::markup(
 		'line'       => __( 'One idea, released as a set.', 'aggressive-apparel' ),
 		'cta'        => __( 'Shop the drop', 'aggressive-apparel' ),
 		'grid_label' => __( 'Drop products', 'aggressive-apparel' ),
+		'part'       => Editorial_Campaign_Cover::DROP,
 	)
 );
 echo $aa_band; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; text escaped in the helper.

@@ -11,6 +11,7 @@ namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\Tests\Support\Builds_Editorial_Fixtures;
 use Aggressive_Apparel\WooCommerce\Catalog_Image_Loading;
+use Aggressive_Apparel\WooCommerce\Editorial_Campaign_Cover;
 use Aggressive_Apparel\WooCommerce\Editorial_Catalog;
 use Aggressive_Apparel\WooCommerce\Editorial_Controls;
 use Aggressive_Apparel\WooCommerce\Editorial_Imagery;
@@ -593,23 +594,21 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 
 		$markup = $this->render_pattern( 'editorial-campaign-hero' );
 		$blocks = parse_blocks( $markup );
-		$parts  = $this->find_all( $blocks, 'core/template-part' );
-		$this->assertCount( 1, $parts );
-		$this->assertSame( Editorial_Imagery::CAMPAIGN_PART, $parts[0]['attrs']['slug'] );
+		$this->assertSame( array(), $this->find_all( $blocks, 'core/template-part' ) );
 		$this->assertSame( array(), $this->find_all( $blocks, 'core/image' ), 'No product image beside the campaign photo.' );
-		$this->assertSame( array( $chosen->get_id() ), $this->find_all( $blocks, 'woocommerce/product-collection' )[0]['attrs']['query']['woocommerceHandPickedProducts'] );
+		$covers = $this->find_all( $blocks, 'core/cover' );
+		$this->assertCount( 1, $covers, 'The cover is the section.' );
+		$this->assertSame( 'full', $covers[0]['attrs']['align'] );
+		$this->assertSame( 'aa-campaign-cover aa-campaign-cover--hero aa-cover', $covers[0]['attrs']['className'] );
+		$this->assertArrayNotHasKey( 'minHeight', $covers[0]['attrs'], "The layout sets the height, not the part's editor frame." );
+		$this->assertStringNotContainsString( 'aa-campaign-image', $covers[0]['innerContent'][0], "The part's own frame class is dropped." );
+		$this->assertSame( 1, count( $this->find_all( $covers[0]['innerBlocks'], 'core/heading' ) ), 'The slogan is inside the photo.' );
+		$this->assertSame( array( $chosen->get_id() ), $this->find_all( $covers[0]['innerBlocks'], 'woocommerce/product-collection' )[0]['attrs']['query']['woocommerceHandPickedProducts'] );
 
 		$html = new \WP_HTML_Tag_Processor( do_blocks( $markup ) );
 		$this->assertTrue( $html->next_tag( array( 'class_name' => 'wp-image-' . $campaign ) ) );
 		$this->assertSame( array( 'eager', 'high' ), array( $html->get_attribute( 'loading' ), $html->get_attribute( 'fetchpriority' ) ) );
-
-		// Cropped to fill its frame, a wider photo needs proportionally more width.
-		$loading = new Catalog_Image_Loading();
-		$part    = array( 'attrs' => array( 'slug' => Editorial_Imagery::CAMPAIGN_PART ) );
-		$cover   = static fn( string $style ): string => '<div class="wp-block-template-part"><div class="wp-block-cover" style="' . $style . '"><img class="wp-block-cover__image-background wp-image-' . $campaign . '" loading="lazy" srcset="a.webp 768w, b.webp 2048w" sizes="auto, 100vw"></div></div>';
-		$this->assertStringContainsString( 'sizes="(min-width: 1600px) 1850px, (min-width: 782px) 115vw, 250vw"', $loading->optimize_campaign_image( $cover( '' ), $part ), 'A 2:1 photo in the 4:5 frame: 2.5 times its width.' );
-		$this->assertStringContainsString( 'sizes="(min-width: 1600px) 1480px, (min-width: 782px) 92vw, 200vw"', $loading->optimize_campaign_image( $cover( 'aspect-ratio:1/1' ), $part ), 'A ratio set on the block is the frame.' );
-		$this->assertSame( $cover( '' ), $loading->optimize_campaign_image( $cover( '' ), array( 'attrs' => array( 'slug' => 'header' ) ) ), 'Other template parts are untouched.' );
+		$this->assertSame( '--aa-focal:12% 50%;--aa-focal-phone:12% 50%', $html->get_attribute( 'style' ), 'One focal point serves both crops unless the part has a phone photo.' );
 
 		$this->assertNotContains( $campaign, array_column( Editorial_Imagery::leads( 3 ), 'image' ), 'The cover claims its photo.' );
 	}
@@ -643,11 +642,112 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 				'post_status' => 'draft',
 			)
 		);
+		wp_cache_flush();
 		$this->assertNull( Editorial_Imagery::campaign(), 'Drafted.' );
 
 		wp_trash_post( $part );
+		wp_cache_flush();
 		$this->assertNull( Editorial_Imagery::campaign(), 'Trashed.' );
 		$this->assertStringNotContainsString( 'wp:template-part', $this->render_pattern( 'editorial-campaign-hero' ) );
+	}
+
+	/**
+	 * A campaign photo is fetched at the width its crop needs: a 2:1 photo
+	 * fills a ~1.8:1 desktop frame (112vw) and a 4:5 phone frame (250vw). A
+	 * second Cover in the part gives phones their own photo and focal point,
+	 * through a <picture> source.
+	 */
+	public function test_campaign_photo_sizes_and_phone_crop(): void {
+		$campaign = $this->create_sized_image( 2400, 1200 );
+		$phone    = $this->create_sized_image( 1600, 2000 );
+		$this->set_campaign_image( $campaign, Editorial_Campaign_Cover::HERO, $phone );
+
+		$html = do_blocks( $this->render_pattern( 'editorial-campaign-hero' ) );
+		$tags = new \WP_HTML_Tag_Processor( $html );
+		$this->assertTrue( $tags->next_tag( 'SOURCE' ) );
+		$this->assertSame( '(max-width: 781px)', $tags->get_attribute( 'media' ) );
+		$this->assertStringContainsString( 'editorial-sized-1600x2000-1024w', (string) $tags->get_attribute( 'srcset' ) );
+		$this->assertSame( '100vw', $tags->get_attribute( 'sizes' ), 'A 4:5 phone photo in a 4:5 frame: its own width.' );
+		$this->assertTrue( $tags->next_tag( array( 'class_name' => 'wp-image-' . $campaign ) ) );
+		$this->assertSame( '(min-width: 782px) 112vw, 250vw', $tags->get_attribute( 'sizes' ) );
+		$this->assertStringContainsString( '--aa-focal-phone:30% 40%', (string) $tags->get_attribute( 'style' ) );
+
+		// Core adds "auto" to a lazy image's sizes; a cropped photo needs more.
+		$loading = new Catalog_Image_Loading();
+		$this->assertSame( '<img class="aa-campaign-cover__image" sizes="(min-width: 782px) 125vw, 250vw">', $loading->keep_campaign_sizes( '<img class="aa-campaign-cover__image" sizes="auto, (min-width: 782px) 125vw, 250vw">' ) );
+		$this->assertSame( '<img class="card" sizes="auto, 100vw">', $loading->keep_campaign_sizes( '<img class="card" sizes="auto, 100vw">' ) );
+	}
+
+	/**
+	 * A collection campaign: with a photo in its part, the drop is that photo
+	 * full width with its copy and one CTA inside, Defiance Division a film
+	 * still with its copy beneath; without one, the band.
+	 */
+	public function test_collection_campaign_covers(): void {
+		foreach ( array( 'dead-signal', 'defiance-division' ) as $slug ) {
+			$term = self::factory()->term->create_and_get(
+				array(
+					'taxonomy' => 'product_cat',
+					'slug'     => $slug,
+					'name'     => ucwords( str_replace( '-', ' ', $slug ) ),
+				)
+			);
+			$this->create_product( array( 'category' => $term->term_id ) );
+		}
+		$this->assertSame( array(), $this->find_all( parse_blocks( $this->render_pattern( 'editorial-featured-drop' ) ), 'core/cover' ), 'No photo: the band.' );
+
+		$photo = $this->create_image( 2400, 1200, '' );
+		$this->set_campaign_image( $photo, Editorial_Campaign_Cover::DROP );
+		$drop = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-featured-drop' ) ), 'core/cover' );
+		$this->assertCount( 1, $drop );
+		$this->assertSame( 'aa-campaign-cover aa-campaign-cover--drop', $drop[0]['attrs']['className'] );
+		$this->assertSame( 'Dead Signal', wp_strip_all_tags( $this->find_all( $drop[0]['innerBlocks'], 'core/heading' )[0]['innerHTML'] ) );
+		$this->assertCount( 1, $this->find_all( $drop[0]['innerBlocks'], 'core/button' ), 'One clear CTA.' );
+		$this->assertSame( array(), $this->find_all( $drop[0]['innerBlocks'], 'woocommerce/product-collection' ) );
+
+		$this->set_campaign_image( $photo, Editorial_Campaign_Cover::DEFIANCE );
+		$blocks = parse_blocks( $this->render_pattern( 'editorial-defiance-division' ) );
+		$film   = $this->find_all( $blocks, 'core/cover' );
+		$this->assertCount( 1, $film );
+		$this->assertSame( 'aa-campaign-cover aa-campaign-cover--film', $film[0]['attrs']['className'] );
+		$this->assertArrayNotHasKey( 'align', $film[0]['attrs'], "The still sits in the band's wide column." );
+		$this->assertSame( array(), $film[0]['innerBlocks'], 'Nothing over the photo.' );
+		$this->assertSame( 'Defiance Division', wp_strip_all_tags( $this->find_all( $blocks, 'core/heading' )[0]['innerHTML'] ), 'The title beneath it.' );
+	}
+
+	/**
+	 * An image attachment with generated sizes, as an upload has, so core
+	 * builds its srcset.
+	 *
+	 * @param int $width  Pixel width.
+	 * @param int $height Pixel height.
+	 */
+	private function create_sized_image( int $width, int $height ): int {
+		$file = 'editorial-sized-' . $width . 'x' . $height;
+		$id   = self::factory()->attachment->create_object(
+			array(
+				'file'           => $file . '.jpg',
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+		wp_update_attachment_metadata(
+			$id,
+			array(
+				'width'  => $width,
+				'height' => $height,
+				'file'   => $file . '.jpg',
+				'sizes'  => array(
+					'large' => array(
+						'file'      => $file . '-1024w.jpg',
+						'width'     => 1024,
+						'height'    => (int) round( 1024 * $height / $width ),
+						'mime-type' => 'image/jpeg',
+					),
+				),
+			)
+		);
+
+		return $id;
 	}
 
 	/**

@@ -121,10 +121,15 @@ lands:
 1. **Saved content:** make the changes above in WordPress, in the Site
    Editor or with `reconcile.php` where WP-CLI is available. Until the saved
    Home template is reset, the old homepage keeps overriding the new one.
-   Then set the cover: Patterns → Template parts → **Homepage campaign
-   image**, Replace with the campaign photo, drag the focal point onto the
-   figure, add alt text, Save; tick _Homepage cover_ on the garment it shows.
-   Until a photo is set the hero is the slogan alone.
+   Then set the campaign photos: Patterns → Template parts → **Homepage
+   campaign image**, Replace with an approved campaign photo, drag the focal
+   point onto the figure, add alt text, put the content position (and the
+   overlay's side) on the photo's open side, Save; tick _Homepage cover_ on
+   the garment it shows. Check phones in the editor's mobile preview; if one
+   crop can't serve both, add a second Cover below the first for phones.
+   **Featured drop campaign image** and **Defiance Division campaign image**
+   work the same way once approved photography exists. Until a photo is
+   set, the hero is the slogan alone and the collections keep their bands.
 
 2. **Audit** every page type from the live catalog (Store API discovery, no
    fixtures) at 375 / 768 / 1440 / 1920 in light and dark: HTTP errors,

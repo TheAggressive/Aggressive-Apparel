@@ -50,7 +50,7 @@ final class Editorial_Imagery {
 	 * Template part holding the cover's campaign photo: a core Cover block
 	 * the merchant fills in the Site Editor (image, focal point, alt text).
 	 */
-	public const CAMPAIGN_PART = 'campaign-image';
+	public const CAMPAIGN_PART = Editorial_Campaign_Cover::HERO;
 
 	/** Newest products considered per slot source. */
 	private const CANDIDATES = 48;
@@ -168,57 +168,13 @@ final class Editorial_Imagery {
 	}
 
 	/**
-	 * The campaign photo chosen in the Site Editor: the first Cover block
-	 * with an image in the "Homepage campaign image" template part (the
-	 * merchant's saved copy; the theme's own ships empty). A saved copy that
-	 * is drafted or trashed is not what core/template-part renders, so the
-	 * theme file is read instead.
+	 * The campaign photo chosen in the Site Editor: the "Homepage campaign
+	 * image" template part's Cover (Editorial_Campaign_Cover).
 	 *
 	 * @return array{image: int, url: string}|null Attachment ID (0 for an external URL) and URL.
 	 */
 	public static function campaign(): ?array {
-		$id   = get_stylesheet() . '//' . self::CAMPAIGN_PART;
-		$part = get_block_template( $id, 'wp_template_part' );
-		if ( $part instanceof \WP_Block_Template && 'custom' === $part->source && 'publish' !== $part->status ) {
-			$part = get_block_file_template( $id, 'wp_template_part' );
-		}
-		if ( ! $part instanceof \WP_Block_Template ) {
-			return null;
-		}
-		foreach ( self::covers( parse_blocks( $part->content ) ) as $attrs ) {
-			$url = is_string( $attrs['url'] ?? null ) ? $attrs['url'] : '';
-			if ( '' !== $url && 'video' !== ( $attrs['backgroundType'] ?? 'image' ) ) {
-				return array(
-					'image' => (int) ( $attrs['id'] ?? 0 ),
-					'url'   => $url,
-				);
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Attributes of every Cover block, depth first.
-	 *
-	 * @param array<int|string, mixed> $blocks Parsed blocks.
-	 * @return list<array<string, mixed>>
-	 */
-	private static function covers( array $blocks ): array {
-		$found = array();
-		foreach ( $blocks as $block ) {
-			if ( ! is_array( $block ) ) {
-				continue;
-			}
-			if ( 'core/cover' === ( $block['blockName'] ?? null ) && is_array( $block['attrs'] ?? null ) ) {
-				$found[] = $block['attrs'];
-			}
-			if ( is_array( $block['innerBlocks'] ?? null ) ) {
-				$found = array_merge( $found, self::covers( $block['innerBlocks'] ) );
-			}
-		}
-
-		return $found;
+		return Editorial_Campaign_Cover::image( self::CAMPAIGN_PART );
 	}
 
 	/**

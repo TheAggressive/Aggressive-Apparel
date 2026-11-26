@@ -33,7 +33,7 @@ final class Editorial_Collection_Band {
 	 * Block markup for the band, or '' when the collection has nothing in stock.
 	 *
 	 * @param array<string, mixed> $args Band options.
-	 * @phpstan-param array{term: \WP_Term, query_id: int, name: string, eyebrow: string, title: string, line: string, cta: string, grid_label: string} $args
+	 * @phpstan-param array{term: \WP_Term, query_id: int, name: string, eyebrow: string, title: string, line: string, cta: string, grid_label: string, part?: string} $args
 	 */
 	public static function markup( array $args ): string {
 		$term  = $args['term'];
@@ -41,10 +41,35 @@ final class Editorial_Collection_Band {
 		if ( 0 === $count ) {
 			return '';
 		}
-		$lead = Editorial_Imagery::leads( 1, $term )[0] ?? null;
-		$url  = Editorial_Catalog::collection_url( $term );
+		$url = Editorial_Catalog::collection_url( $term );
 
-		if ( null !== $lead ) {
+		// A campaign photo chosen for this collection in the Site Editor
+		// (Editorial_Campaign_Cover) makes the section a campaign: the drop's
+		// copy over its photo, or Defiance Division's film still with the
+		// title row beneath. Without one, the band below.
+		$part     = (string) ( $args['part'] ?? '' );
+		$campaign = '' !== $part ? Editorial_Campaign_Cover::image( $part ) : null;
+		$lead     = null;
+		if ( null !== $campaign ) {
+			Editorial_Imagery::claim( $campaign['image'] );
+			if ( 'film' !== ( Editorial_Campaign_Cover::VARIANTS[ $part ] ?? '' ) ) {
+				return Editorial_Campaign_Cover::markup( $part, self::text( $args, $url ), (string) $args['name'] );
+			}
+		} else {
+			$lead = Editorial_Imagery::leads( 1, $term )[0] ?? null;
+		}
+
+		if ( null !== $campaign ) {
+			$inner   = '<!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"var:preset|spacing|fluid-12"}},"layout":{"type":"default"}} -->' . "\n"
+				. '<div class="wp-block-group alignwide">' . Editorial_Campaign_Cover::markup( $part ) . "\n\n" . self::header( $args, $url ) . '</div>' . "\n"
+				. '<!-- /wp:group -->';
+			$padding = array(
+				'top'    => 'var:preset|spacing|section-standard',
+				'bottom' => 'var:preset|spacing|section-standard',
+				'left'   => 'var:preset|spacing|gutter',
+				'right'  => 'var:preset|spacing|gutter',
+			);
+		} elseif ( null !== $lead ) {
 			$text = self::text( $args, $url );
 			// Beside the photo: one row of two, never one lone card. A 2 x 2
 			// made the copy column so tall the photo stretched to ~1600px.

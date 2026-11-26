@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-23T03:10:01+00:00\n"
+"POT-Creation-Date: 2026-11-26T02:49:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -491,7 +491,7 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:261
-#: src/blocks-interactivity/wishlist/render.php:122
+#: src/blocks-interactivity/wishlist/render.php:127
 msgid "Try again"
 msgstr ""
 
@@ -692,7 +692,7 @@ msgstr ""
 
 #: includes/Core/class-theme-support.php:355
 #: includes/WooCommerce/class-product-filter-renderer.php:67
-#: includes/WooCommerce/class-product-filter-renderer.php:206
+#: includes/WooCommerce/class-product-filter-renderer.php:208
 msgid "Price"
 msgstr ""
 
@@ -2594,7 +2594,7 @@ msgid "Sale price"
 msgstr ""
 
 #: includes/WooCommerce/class-printful-sync-guard.php:523
-#: includes/WooCommerce/class-product-filter-renderer.php:133
+#: includes/WooCommerce/class-product-filter-renderer.php:135
 msgid "Categories"
 msgstr ""
 
@@ -2615,7 +2615,7 @@ msgid "Attributes"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:224
-#: includes/WooCommerce/class-product-filter-renderer.php:240
+#: includes/WooCommerce/class-product-filter-renderer.php:242
 #: includes/WooCommerce/class-product-filters.php:305
 #: includes/WooCommerce/class-quick-view-renderer.php:119
 msgid "In stock"
@@ -2636,7 +2636,7 @@ msgid "Category"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:41
-#: includes/WooCommerce/class-product-filter-renderer.php:141
+#: includes/WooCommerce/class-product-filter-renderer.php:143
 #: patterns/collection-landing-hero.php:18
 #: patterns/editorial-womens-collection.php:57
 #: patterns/editorial-womens-collection.php:100
@@ -2644,66 +2644,66 @@ msgid "Collection"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:50
-#: includes/WooCommerce/class-product-filter-renderer.php:158
+#: includes/WooCommerce/class-product-filter-renderer.php:160
 msgid "Color"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:59
-#: includes/WooCommerce/class-product-filter-renderer.php:187
+#: includes/WooCommerce/class-product-filter-renderer.php:189
 #: includes/WooCommerce/class-product-tabs-config.php:170
 #: includes/WooCommerce/class-size-chart.php:519
 msgid "Size"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:74
-#: includes/WooCommerce/class-product-filter-renderer.php:238
+#: includes/WooCommerce/class-product-filter-renderer.php:240
 msgid "Availability"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:142
+#: includes/WooCommerce/class-product-filter-renderer.php:144
 msgid "Filter by collection"
 msgstr ""
 
 #. translators: %s: collection name
 #. translators: %s: color name
-#: includes/WooCommerce/class-product-filter-renderer.php:148
-#: includes/WooCommerce/class-product-filter-renderer.php:177
+#: includes/WooCommerce/class-product-filter-renderer.php:150
+#: includes/WooCommerce/class-product-filter-renderer.php:179
 #, php-format
 msgid "Filter by %s"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:159
+#: includes/WooCommerce/class-product-filter-renderer.php:161
 msgid "Filter by color"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:188
+#: includes/WooCommerce/class-product-filter-renderer.php:190
 msgid "Select a category to see sizing options."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:189
+#: includes/WooCommerce/class-product-filter-renderer.php:191
 msgid "Filter by size"
 msgstr ""
 
 #. translators: %s: size name
-#: includes/WooCommerce/class-product-filter-renderer.php:195
+#: includes/WooCommerce/class-product-filter-renderer.php:197
 #, php-format
 msgid "Filter by size %s"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:224
+#: includes/WooCommerce/class-product-filter-renderer.php:226
 msgid "Minimum price"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:231
+#: includes/WooCommerce/class-product-filter-renderer.php:233
 msgid "Maximum price"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:245
+#: includes/WooCommerce/class-product-filter-renderer.php:247
 #: includes/WooCommerce/class-product-filters.php:306
 msgid "On sale"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:355
+#: includes/WooCommerce/class-product-filter-renderer.php:357
 msgid "Filter by category"
 msgstr ""
 
@@ -8140,39 +8140,39 @@ msgstr ""
 msgid "Store notifications"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:43
+#: src/blocks-interactivity/wishlist/render.php:44
 msgid "Your wishlist is empty."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:91
+#: src/blocks-interactivity/wishlist/render.php:96
 msgid "Saved for later"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:92
+#: src/blocks-interactivity/wishlist/render.php:97
 msgid "Your wishlist"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:93
+#: src/blocks-interactivity/wishlist/render.php:98
 msgid "Everything you’ve saved, in one place."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:109
+#: src/blocks-interactivity/wishlist/render.php:114
 msgid "saved"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:117
+#: src/blocks-interactivity/wishlist/render.php:122
 msgid "Loading wishlist…"
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:121
+#: src/blocks-interactivity/wishlist/render.php:126
 msgid "Some wishlist items could not be loaded."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:140
+#: src/blocks-interactivity/wishlist/render.php:145
 msgid "Tap the heart on any product to keep it here."
 msgstr ""
 
-#: src/blocks-interactivity/wishlist/render.php:141
+#: src/blocks-interactivity/wishlist/render.php:146
 msgid "Explore the collection"
 msgstr ""
 

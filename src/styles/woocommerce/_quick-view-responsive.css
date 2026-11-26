@@ -187,13 +187,16 @@
  * Full-screen sheet with constrained image.
  * ======================================== */
 @media (width <= 768px) {
-	/* Full-screen sheet — scrollable content. */
+	/* A bottom sheet as tall as its content, up to the full screen (then it
+	   scrolls): a short product ends at its buttons instead of leaving a
+	   blank band above them, and the buttons stay within thumb reach. */
 	.aggressive-apparel-quick-view__modal {
 		width: 100vw;
 		max-width: 100vw;
-		height: 100dvh;
+		height: auto;
 		max-height: 100dvh;
-		border-radius: 0;
+		margin-top: auto;
+		border-radius: var(--aa-radius-panel) var(--aa-radius-panel) 0 0;
 		transform: none;
 	}
 

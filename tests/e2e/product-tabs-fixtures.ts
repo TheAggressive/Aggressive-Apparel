@@ -51,6 +51,7 @@ export function createProductTabsFixture(): { id: number; url: string } {
 	const script = `
 if (!function_exists('wc_get_product')) { echo '0|'; return; }
 $p = new WC_Product_Simple();
+$p->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
 $p->set_name('E2E Product Tabs Fixture');
 $p->set_regular_price('20');
 $p->set_status('publish');

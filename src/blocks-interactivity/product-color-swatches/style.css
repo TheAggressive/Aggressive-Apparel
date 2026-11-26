@@ -22,6 +22,13 @@
 	margin-block-start: var(--wp--preset--spacing--5);
 }
 
+/* Beside the price on one row (the catalog and editorial cards), not under it. */
+.is-layout-flex
+	> :is(.wp-block-woocommerce-product-price, .wc-block-grid__product-price)
+	+ .aa-product-color-swatches {
+	margin-block-start: 0;
+}
+
 .aa-product-color-swatches.is-justify-center {
 	justify-content: center;
 }

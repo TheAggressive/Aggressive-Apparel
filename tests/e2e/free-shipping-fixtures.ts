@@ -124,6 +124,7 @@ foreach ($zones as $index => $definition) {
 delete_transient('aggressive_apparel_free_shipping_threshold');
 
 $product = new WC_Product_Simple();
+$product->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
 $product->set_name('E2E Free Shipping Product');
 $product->set_regular_price('${ PRODUCT_PRICE }');
 $product->set_status('publish');

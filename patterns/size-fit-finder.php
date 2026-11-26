@@ -17,7 +17,7 @@
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|14"}}},"textColor":"foreground-muted","fontSize":"medium"} -->
-	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( 'Pick the silhouette that matches your style. Every fit is cut with intention.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( 'Pick the silhouette you want. Each one has its own measurements.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|6"}}}} -->
@@ -93,7 +93,7 @@
 					<!-- /wp:heading -->
 
 					<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'Dropped shoulders, extended body, and extra volume. The streetwear silhouette — size down one for a less dramatic drape.', 'aggressive-apparel' ); ?></p>
+					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'Dropped shoulders, extended body, and extra volume. The oversized silhouette — size down one for a less dramatic drape.', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 				</div>
 				<!-- /wp:group -->

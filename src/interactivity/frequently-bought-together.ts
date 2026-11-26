@@ -83,9 +83,9 @@ const { state } = store< FbtStore >(
 			get buttonText(): string {
 				const i18n = state.i18n ?? {};
 				if ( state.isAdding ) return i18n.adding ?? 'Adding\u2026';
-				if ( state.isSuccess ) return i18n.added ?? 'Added!';
+				if ( state.isSuccess ) return i18n.added ?? 'Added';
 				if ( state.hasError )
-					return i18n.error ?? 'Error \u2014 try again';
+					return i18n.error ?? 'Couldn\u2019t add. Try again.';
 				const template = i18n.addAll ?? 'Add all %d items to cart';
 				return template.replace( '%d', String( state.selectedCount ) );
 			},
@@ -93,14 +93,13 @@ const { state } = store< FbtStore >(
 				const i18n = state.i18n ?? {};
 				if ( state.isSuccess ) {
 					return (
-						i18n.successAnnounce ??
-						'All items have been added to your cart.'
+						i18n.successAnnounce ?? 'All items added to your cart.'
 					);
 				}
 				if ( state.hasError ) {
 					return (
 						i18n.errorAnnounce ??
-						'There was an error adding items to cart.'
+						'Couldn’t add these items to your cart. Try again.'
 					);
 				}
 				return '';

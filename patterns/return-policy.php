@@ -17,7 +17,7 @@
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"bottom":"var:preset|spacing|20"}}},"fontSize":"medium"} -->
-	<p class="has-text-align-center has-medium-font-size" style="margin-bottom:var(--wp--preset--spacing--20)"><?php echo esc_html__( 'Not 100% satisfied? No problem. We make returns easy.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-medium-font-size" style="margin-bottom:var(--wp--preset--spacing--20)"><?php echo esc_html__( 'Changed your mind? Here is how returns work.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"level":2,"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|8"}}},"fontSize":"large"} -->

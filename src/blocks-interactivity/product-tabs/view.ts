@@ -444,6 +444,7 @@ export const productTabsStore = store< ProductTabsStore >(
 					syncNavIntoView( sectionId );
 				};
 
+				const first = sections[ 0 ] as HTMLElement;
 				const observer = new IntersectionObserver(
 					( entries: IntersectionObserverEntry[] ) => {
 						for ( const entry of entries ) {
@@ -461,6 +462,34 @@ export const productTabsStore = store< ProductTabsStore >(
 				);
 
 				sections.forEach( ( section ) => observer.observe( section ) );
+
+				// Back above every section: the first one is current again. The
+				// observer can't see this: a jump to the top (back-to-top, a
+				// header link, a fast flick) moves the first section from above
+				// the band to below it without ever intersecting, so nothing
+				// fires and the last section stays highlighted. One rect read
+				// per frame while scrolling.
+				let pending = false;
+				const resetAboveFirst = (): void => {
+					pending = false;
+					if (
+						first.id &&
+						first.getBoundingClientRect().top >
+							window.innerHeight * 0.4
+					) {
+						setActiveSection( first.id );
+					}
+				};
+				window.addEventListener(
+					'scroll',
+					() => {
+						if ( ! pending ) {
+							pending = true;
+							requestAnimationFrame( resetAboveFirst );
+						}
+					},
+					{ passive: true }
+				);
 			},
 		},
 	}

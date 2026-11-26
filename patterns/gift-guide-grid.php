@@ -29,13 +29,13 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:cover {"dimRatio":50,"overlayColor":"black","minHeight":480,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"color":{"background":"var:preset|color|black"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:480px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-50 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:480px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"900","lineHeight":"1"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
 				<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:900;line-height:1;text-transform:uppercase"><?php echo esc_html__( 'Under $100', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"small"} -->
-				<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Tees, caps, and everyday heat.', 'aggressive-apparel' ); ?></p>
+				<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Tees, caps and everyday staples.', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
@@ -53,7 +53,7 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:cover {"dimRatio":50,"overlayColor":"black","minHeight":480,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"color":{"background":"var:preset|color|black"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:480px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-50 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:480px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"900","lineHeight":"1"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
 				<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:900;line-height:1;text-transform:uppercase"><?php echo esc_html__( 'Under $150', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
@@ -77,7 +77,7 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":480,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"color":{"background":"var:preset|color|accent"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--accent);min-height:480px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--accent);min-height:480px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"900","lineHeight":"1"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
 				<h3 class="wp-block-heading has-white-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:900;line-height:1;text-transform:uppercase"><?php echo esc_html__( 'Premium', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->

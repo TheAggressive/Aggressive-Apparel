@@ -61,7 +61,7 @@
 	color: var(--aa-color-muted-50, currentcolor);
 	transition:
 		color var(--aa-nav-transition-fast, 150ms ease),
-		transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+		transform var(--aa-duration-normal) var(--aa-ease-enter);
 
 	& svg {
 		width: 1.25rem;
@@ -87,7 +87,8 @@
 	display: grid;
 	grid-template-rows: 0fr;
 	overflow: hidden;
-	transition: grid-template-rows 350ms cubic-bezier(0.22, 1, 0.36, 1);
+	transition: grid-template-rows var(--aa-duration-normal)
+		var(--aa-ease-enter);
 
 	/* Prevent the hidden attribute from fighting display: grid */
 	&[hidden] {

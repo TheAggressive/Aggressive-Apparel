@@ -27,7 +27,7 @@
 	border-top: 1px solid var(--aa-color-border-subtle);
 	box-shadow: 0 -2px 10px var(--aa-color-border-subtle);
 	transform: translateY(0);
-	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
 /* Show on mobile. */

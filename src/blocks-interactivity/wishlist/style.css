@@ -210,14 +210,17 @@
 .aa-wl-item-actions .aa-wl-item-actions__view.aggressive-apparel-button {
 	min-height: var(--aa-control-min);
 	padding-inline: var(--wp--preset--spacing--3);
-	border-width: 1px;
-	border-color: var(--aa-color-border-strong);
-	font-family: var(--wp--preset--font-family--space-grotesk);
-	font-size: var(--wp--preset--font-size--small);
-	font-weight: 500;
-	letter-spacing: 0;
-	text-transform: none;
 	white-space: nowrap;
+
+	/* Two-up cards on phones are too narrow for "View full product" on one
+	   line with room to breathe: it wraps to two balanced lines instead of
+	   running to the pill's edges. */
+	@media (width < 600px) {
+		padding-block: var(--wp--preset--spacing--2);
+		line-height: 1.15;
+		text-wrap: balance;
+		white-space: normal;
+	}
 }
 
 .aa-wl-item-actions__view svg {
@@ -297,28 +300,10 @@
 	background: var(--aa-color-surface-muted);
 	text-align: center;
 
+	/* Icon ring, title and line: the shared empty state (empty-state.css). */
 	& > * {
 		margin: 0;
 	}
-
-	& h3 {
-		font-family: var(--wp--preset--font-family--bebas-neue);
-		font-size: var(--wp--preset--font-size--fluid-xx-large);
-		font-weight: 400;
-	}
-
-	& p {
-		color: color-mix(in oklch, currentcolor 70%, transparent);
-	}
-}
-
-.aa-wishlist-page__empty-icon {
-	display: grid;
-	place-items: center;
-	width: var(--wp--preset--spacing--16);
-	height: var(--wp--preset--spacing--16);
-	border: 1px solid var(--aa-color-border-subtle);
-	border-radius: var(--aa-radius-full);
 }
 
 .aa-wishlist-page__loading {

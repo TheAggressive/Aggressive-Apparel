@@ -194,7 +194,7 @@ class Back_In_Stock {
 				'i18n'         => array(
 					'invalidEmail'    => __( 'Please enter a valid email address.', 'aggressive-apparel' ),
 					'consentRequired' => __( 'You must agree to receive the notification.', 'aggressive-apparel' ),
-					'successFallback' => __( 'Thanks! Check your inbox for next steps.', 'aggressive-apparel' ),
+					'successFallback' => __( 'Check your inbox for the next step.', 'aggressive-apparel' ),
 					'errorFallback'   => __( 'Something went wrong. Please try again.', 'aggressive-apparel' ),
 				),
 			),
@@ -261,10 +261,10 @@ class Back_In_Stock {
 		$success = array(
 			// "Already joined" answers exactly like a new signup, so the
 			// endpoint never reveals whether an address is on a waitlist.
-			Back_In_Stock_Native::SUCCESS               => __( "We'll email you when this product is back in stock!", 'aggressive-apparel' ),
-			Back_In_Stock_Native::ALREADY_JOINED        => __( "We'll email you when this product is back in stock!", 'aggressive-apparel' ),
-			Back_In_Stock_Native::SUCCESS_DOUBLE_OPT_IN => __( 'Almost done! Check your inbox and confirm to get your alert.', 'aggressive-apparel' ),
-			Back_In_Stock_Native::ALREADY_JOINED_DOUBLE_OPT_IN => __( 'Almost done! Check your inbox and confirm to get your alert.', 'aggressive-apparel' ),
+			Back_In_Stock_Native::SUCCESS               => __( "We'll email you when it's back in stock.", 'aggressive-apparel' ),
+			Back_In_Stock_Native::ALREADY_JOINED        => __( "We'll email you when it's back in stock.", 'aggressive-apparel' ),
+			Back_In_Stock_Native::SUCCESS_DOUBLE_OPT_IN => __( 'Check your inbox and confirm your email to get the alert.', 'aggressive-apparel' ),
+			Back_In_Stock_Native::ALREADY_JOINED_DOUBLE_OPT_IN => __( 'Check your inbox and confirm your email to get the alert.', 'aggressive-apparel' ),
 		);
 		if ( isset( $success[ $code ] ) ) {
 			wp_send_json_success( array( 'message' => $success[ $code ] ) );

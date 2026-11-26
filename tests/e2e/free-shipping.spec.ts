@@ -103,7 +103,7 @@ test.describe( 'Free shipping — international zones', () => {
 
 		await expect( block( page ) ).toBeVisible();
 		await expect( block( page ) ).toContainText(
-			`${ euro( THRESHOLD ) } Away from FREE Shipping!`
+			`${ euro( THRESHOLD ) } away from free shipping`
 		);
 
 		const stacks = await page.evaluate(
@@ -144,7 +144,7 @@ test.describe( 'Free shipping — international zones', () => {
 
 		await expect( block( page ) ).toBeVisible();
 		await expect( block( page ) ).toContainText(
-			`${ euro( THRESHOLD - PRODUCT_PRICE ) } Away from FREE Shipping!`
+			`${ euro( THRESHOLD - PRODUCT_PRICE ) } away from free shipping`
 		);
 	} );
 

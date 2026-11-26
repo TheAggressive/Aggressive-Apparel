@@ -12,5 +12,5 @@
 
 ?>
 <!-- wp:heading {"textAlign":"left","style":{"spacing":{"margin":{"bottom":"1rem"}}}} -->
-<h2 class="wp-block-heading has-text-align-left" style="margin-bottom:1rem"><?php echo esc_html__( 'You may be interested in…', 'aggressive-apparel' ); ?></h2>
+<h2 class="wp-block-heading has-text-align-left" style="margin-bottom:1rem"><?php echo esc_html__( 'Add to your order', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->

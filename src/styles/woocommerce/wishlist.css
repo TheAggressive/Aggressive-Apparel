@@ -47,8 +47,8 @@
 	transform-origin: center;
 	transform-box: fill-box;
 	transition:
-		opacity 0.18s ease,
-		transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+		opacity var(--aa-duration-fast) var(--aa-ease-default),
+		transform var(--aa-duration-normal) var(--aa-ease-enter);
 }
 
 .aggressive-apparel-wishlist__icon-stroke {
@@ -57,7 +57,7 @@
 	stroke-width: 1.25;
 	stroke-linejoin: round;
 	vector-effect: non-scaling-stroke;
-	transition: opacity 0.15s ease;
+	transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
 }
 
 @media (prefers-reduced-motion: reduce) {

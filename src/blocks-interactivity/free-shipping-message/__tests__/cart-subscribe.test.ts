@@ -43,10 +43,10 @@ function messageContext(
 		restBase: REST_BASE,
 		emphasisText: 'FREE Shipping',
 		i18n: {
-			progressDefault: '%s Away from FREE Shipping!',
-			progressCustom: '%1$s Away from %2$s!',
-			unlockedDefault: 'FREE Shipping UNLOCKED!',
-			unlockedCustom: '%s UNLOCKED!',
+			progressDefault: '%s away from free shipping',
+			progressCustom: '%1$s away from %2$s',
+			unlockedDefault: 'Your order qualifies for free shipping.',
+			unlockedCustom: 'Your order qualifies for %s.',
 		},
 		...overrides,
 	};

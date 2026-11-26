@@ -28,12 +28,16 @@
 <!-- /wp:woocommerce/filled-mini-cart-contents-block -->
 
 <!-- wp:woocommerce/empty-mini-cart-contents-block -->
-<div class="wp-block-woocommerce-empty-mini-cart-contents-block"><!-- wp:paragraph {"metadata":{"patternName":"woocommerce/mini-cart-empty-cart-message","name":"Empty Mini-Cart Message"},"style":{"typography":{"textAlign":"center"}}} -->
-<p class="has-text-align-center"><strong>Your cart is currently empty!</strong></p>
-<!-- /wp:paragraph -->
+<div class="wp-block-woocommerce-empty-mini-cart-contents-block"><!-- wp:group {"metadata":{"name":"Empty cart"},"className":"aa-empty-state","style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"center"}} -->
+<div class="wp-block-group aa-empty-state"><!-- wp:aggressive-apparel/icon {"icon":"shopping-bag","iconSize":28,"className":"aa-empty-state__icon"} /-->
 
-<!-- wp:woocommerce/mini-cart-shopping-button-block -->
+<!-- wp:heading {"className":"aa-empty-state__title","style":{"typography":{"textAlign":"center"}}} -->
+<h2 class="wp-block-heading has-text-align-center aa-empty-state__title">Your cart is empty.</h2>
+<!-- /wp:heading -->
+
+<!-- wp:woocommerce/mini-cart-shopping-button-block {"startShoppingButtonLabel":"Explore the collection"} -->
 <div class="wp-block-woocommerce-mini-cart-shopping-button-block"></div>
 <!-- /wp:woocommerce/mini-cart-shopping-button-block --></div>
+<!-- /wp:group --></div>
 <!-- /wp:woocommerce/empty-mini-cart-contents-block --></div>
 <!-- /wp:woocommerce/mini-cart-contents -->

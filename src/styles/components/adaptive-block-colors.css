@@ -75,7 +75,7 @@
  *
  * Black-background blocks — and covers, which core already treats as dark
  * (white text) unless it detected a light overlay and added `is-light` — are
- * dark in both schemes, so adaptive tokens inside them resolve their dark
+ * dark in both schemes (white-background blocks light in both), so adaptive tokens inside them resolve their dark
  * values: light-dark() reads the color-scheme of the element that uses the
  * token, not of :root.
  */
@@ -86,5 +86,18 @@
 
 	:where(.has-black-background-color, .wp-block-cover:not(.is-light)) {
 		color-scheme: dark;
+	}
+
+	/* The mirror: white-background blocks, and any block given the class
+	   `aa-scheme-light`, are light in both schemes, so a section can stay a
+	   bright moment in dark mode with its text, buttons and cards resolving
+	   their light values (e.g. a `surface-sunken` stone band, which would
+	   otherwise go near-black). */
+	:where(.has-white-background-color, .aa-scheme-light) {
+		color-scheme: light;
+
+		/* Text inherited from a dark page would be white on white: take the
+		   light foreground unless the block sets its own text color. */
+		color: var(--wp--preset--color--foreground);
 	}
 }

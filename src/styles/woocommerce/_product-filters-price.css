@@ -55,7 +55,7 @@
 	border-radius: 999px;
 	white-space: nowrap;
 	pointer-events: none;
-	transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+	transition: transform var(--aa-duration-fast) var(--aa-ease-spring);
 
 	/* Caret pointing down toward the track. */
 	&::after {
@@ -116,8 +116,8 @@
 		position: relative;
 		z-index: 1;
 		transition:
-			transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-			box-shadow 0.2s ease;
+			transform var(--aa-duration-fast) var(--aa-ease-spring),
+			box-shadow var(--aa-duration-fast) var(--aa-ease-default);
 	}
 
 	&::-moz-range-track {
@@ -138,8 +138,8 @@
 		pointer-events: all;
 		cursor: grab;
 		transition:
-			transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-			box-shadow 0.2s ease;
+			transform var(--aa-duration-fast) var(--aa-ease-spring),
+			box-shadow var(--aa-duration-fast) var(--aa-ease-default);
 	}
 
 	/* Hover — subtle scale-up. */

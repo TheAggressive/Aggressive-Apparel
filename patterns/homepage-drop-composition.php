@@ -19,7 +19,7 @@
 <!-- /wp:group -->
 
 <!-- wp:cover {"dimRatio":75,"overlayColor":"black","isUserOverlayColor":true,"minHeight":85,"minHeightUnit":"vh","contentPosition":"center center","align":"full","isDark":true,"style":{"spacing":{"margin":{"top":"0","bottom":"0"}},"color":{"background":"var:preset|color|black"}}} -->
-<div class="wp-block-cover alignfull is-dark has-black-overlay-color" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;min-height:85vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-75 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"1000px"}} -->
+<div class="wp-block-cover alignfull is-dark has-black-overlay-color has-background" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;min-height:85vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-80 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"1000px"}} -->
 <div class="wp-block-group">
 	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.2em","fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"small"} -->
 	<p class="has-text-align-center has-accent-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.2em;text-transform:uppercase"><?php echo esc_html__( 'Midnight Protocol', 'aggressive-apparel' ); ?></p>
@@ -51,7 +51,7 @@
 <!-- wp:group {"align":"full","className":"aggressive-apparel-marquee","style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"accent","textColor":"white","layout":{"type":"default"}} -->
 <div class="wp-block-group alignfull aggressive-apparel-marquee has-white-color has-accent-background-color has-text-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4)">
 	<!-- wp:paragraph {"className":"aggressive-apparel-marquee__track","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"small"} -->
-	<p class="aggressive-apparel-marquee__track has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'LIMITED RUN &nbsp;&nbsp;★&nbsp;&nbsp; NO RESTOCKS &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; SHIPS IN 48 HRS &nbsp;&nbsp;★&nbsp;&nbsp; LIMITED RUN &nbsp;&nbsp;★&nbsp;&nbsp; NO RESTOCKS &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; SHIPS IN 48 HRS &nbsp;&nbsp;★&nbsp;&nbsp;', 'aggressive-apparel' ); ?></p>
+	<p class="aggressive-apparel-marquee__track has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'VOL. 08 &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; NEW COLLECTION &nbsp;&nbsp;★&nbsp;&nbsp; VOL. 08 &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; NEW COLLECTION &nbsp;&nbsp;★&nbsp;&nbsp;', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
@@ -63,7 +63,7 @@
 		<!-- wp:group {"layout":{"type":"flex","orientation":"vertical","justifyContent":"left"},"style":{"spacing":{"blockGap":"var:preset|spacing|2"}}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Just Landed', 'aggressive-apparel' ); ?></p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'New arrivals', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"fontSize":"fluid-xxxx-large"} -->
@@ -115,7 +115,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
 			<!-- wp:cover {"dimRatio":25,"overlayColor":"black","minHeight":520,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:520px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-25 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:520px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","fontSize":"large"} -->
 				<p class="has-text-align-center has-large-font-size"></p>
 				<!-- /wp:paragraph -->
@@ -159,7 +159,7 @@
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
-	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Don\'t Miss Vol. 08', 'aggressive-apparel' ); ?></h2>
+	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Vol. 08', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|8"}}},"textColor":"foreground-muted","fontSize":"medium"} -->
@@ -194,9 +194,9 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":15,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-15 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@kira_fit', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -206,9 +206,9 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":15,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-15 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@devon_street', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -218,9 +218,9 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":15,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-15 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@maya_lifts', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -230,9 +230,9 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":15,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-15 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@troy_drip', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -242,9 +242,9 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":15,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-15 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@lena_aa', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -254,9 +254,9 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":15,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-15 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:280px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@jax_grind', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->

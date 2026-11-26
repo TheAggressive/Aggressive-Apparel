@@ -140,8 +140,8 @@
 		height: 100%;
 		object-fit: cover;
 		transition:
-			transform 0.3s ease,
-			opacity 0.15s ease;
+			transform var(--aa-duration-normal) var(--aa-ease-default),
+			opacity var(--aa-duration-fast) var(--aa-ease-default);
 	}
 
 	&.is-fading img {
@@ -251,9 +251,9 @@
 	opacity: 0.6;
 	background: none;
 	transition:
-		opacity 0.2s,
-		border-color 0.2s,
-		transform 0.2s;
+		opacity var(--aa-duration-fast),
+		border-color var(--aa-duration-fast),
+		transform var(--aa-duration-fast);
 
 	&:hover,
 	&:focus-visible {
@@ -295,8 +295,8 @@
 	padding: 0;
 	cursor: pointer;
 	transition:
-		background-color 0.2s,
-		border-color 0.2s;
+		background-color var(--aa-duration-fast),
+		border-color var(--aa-duration-fast);
 
 	&.is-active {
 		background-color: var(--aa-color-foreground);

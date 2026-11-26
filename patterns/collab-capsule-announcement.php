@@ -25,7 +25,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.7"}},"textColor":"foreground-muted","fontSize":"large"} -->
-			<p class="has-foreground-muted-color has-text-color has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.7"><?php echo esc_html__( 'Replace [Partner] with the collab name. Limited capsule — streetwear edge meets their craft. Edit the piece count and story to match the drop.', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.7"><?php echo esc_html__( 'Replace [Partner] with the collaborator’s name, then say what each side brought to the capsule. Add a piece count only if it is fixed.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->
@@ -41,7 +41,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"50%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:50%">
 			<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":70,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--surface-elevated);min-height:70vh">
+			<div class="wp-block-cover is-dark has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:70vh">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->

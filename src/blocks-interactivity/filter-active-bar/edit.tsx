@@ -62,11 +62,11 @@ export default function Edit(): JSX.Element {
 						tabIndex={ 0 }
 						role="note"
 						aria-label={ __(
-							'Additional filters: Large, In Stock',
+							'Additional filters: Large, In stock',
 							'aggressive-apparel'
 						) }
 						data-tooltip={ __(
-							'Large, In Stock',
+							'Large, In stock',
 							'aggressive-apparel'
 						) }
 					>

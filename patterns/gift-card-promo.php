@@ -13,15 +13,15 @@
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|24","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained","contentSize":"800px"}} -->
 <div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--24);padding-bottom:var(--wp--preset--spacing--24)">
 	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'The Perfect Gift', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Give them the choice', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"fluid-xxxx-large"} -->
-	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Give the Gift of Aggression', 'aggressive-apparel' ); ?></h2>
+	<h2 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Gift cards', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|14"}}},"textColor":"white","fontSize":"medium"} -->
-	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( 'Digital gift cards delivered instantly via email. Available in any amount from $25 to $500. Never expires.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( '[Describe how your gift cards work: delivery, amounts and expiry. Match your gift card settings.]', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|6"}}} -->

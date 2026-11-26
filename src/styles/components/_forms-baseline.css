@@ -349,7 +349,7 @@
 			transition:
 				background-color var(--aa-duration-fast) var(--aa-ease-default),
 				border-color var(--aa-duration-fast) var(--aa-ease-default),
-				background-size 0.35s var(--aa-ease-spring);
+				background-size var(--aa-duration-normal) var(--aa-ease-spring);
 
 			&:hover:not(:disabled, :checked) {
 				border-color: var(--aa-color-foreground);

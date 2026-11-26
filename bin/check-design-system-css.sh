@@ -55,7 +55,6 @@ fi
 BEM_PATTERN='^(aggressive-apparel-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?|aa-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?)$'
 HEX_PATTERN='(?<!&)#[0-9a-fA-F]{3,8}'
 EDITOR_CHROME_PATTERN="(#757575|rgb\\(117,\\s*117,\\s*117\\)|color: '#(666|999|1e1e1e|cc1818|0066cc|0c4a6e)'|backgroundColor: '#(f0f0f0|f0f8ff|f0f9ff|f5f5f5|f8f9fa|f9f9f9)'|border(Top)?: '1px solid #ddd'|borderRadius: '(4px|8px)')"
-REGISTERED_STYLE_PATTERN='^(is-style-(badge|badge-muted|bordered|caption|commerce-cards|commerce-grid|commerce-price|cta|cta-ghost|cta-outline-on-dark|cta-small|cta-small-outline-on-dark|default|dots|eyebrow|ghost|legal|logos-only|meta|outline|outline-on-dark|price|product-frame|small|subtle|surface-card|text|wide))$'
 RAW_CTA_PATTERN='padding-(top|right|bottom|left):(1\.2rem|3rem)|font-size:1\.1rem'
 INLINE_BUTTON_STYLE_PATTERN='wp-block-button__link[^>]*style='
 BUTTON_RECIPE_ATTRIBUTE_PATTERN='<!-- wp:button [^>]*(typography|padding)'
@@ -93,9 +92,30 @@ done < <(
 
 echo "Checking registered block style names in patterns..."
 
+# Registered names are read from the source of truth, not a hand-kept list:
+# every register_block_style() name under includes/, every section style
+# variation in styles/*.json, plus the core styles patterns use.
+registered_styles() {
+	printf '%s\n' default dots fill logos-only outline rounded wide
+	local files=()
+	mapfile -t files < <(grep -rl 'register_block_style' includes 2>/dev/null || true)
+	if ((${#files[@]})); then
+		grep -ohE "'name'[[:space:]]*=>[[:space:]]*'[a-z0-9-]+'" "${files[@]}" |
+			sed -E "s/.*'([a-z0-9-]+)'$/\1/"
+	fi
+	if compgen -G 'styles/*.json' >/dev/null; then
+		grep -ohE '"slug"[[:space:]]*:[[:space:]]*"[a-z0-9-]+"' styles/*.json |
+			sed -E 's/.*"([a-z0-9-]+)"$/\1/'
+	fi
+}
+declare -A REGISTERED_STYLES=()
+while IFS= read -r name; do
+	REGISTERED_STYLES["$name"]=1
+done < <(registered_styles)
+
 while IFS= read -r style_name; do
 	[[ -z "$style_name" ]] && continue
-	if [[ ! "$style_name" =~ $REGISTERED_STYLE_PATTERN ]]; then
+	if [[ -z "${REGISTERED_STYLES[${style_name#is-style-}]:-}" ]]; then
 		echo "  FAIL: unregistered block style in patterns: $style_name"
 		EXIT=1
 	fi
@@ -107,8 +127,8 @@ echo "Checking WooCommerce product collection pattern styles..."
 
 while IFS= read -r line; do
 	[[ -z "$line" ]] && continue
-	if [[ "$line" != *"is-style-commerce-grid"* ]]; then
-		echo "  FAIL: WooCommerce product collection missing is-style-commerce-grid"
+	if [[ "$line" != *"is-style-commerce-grid"* && "$line" != *"is-style-editorial-grid"* ]]; then
+		echo "  FAIL: WooCommerce product collection missing a product grid style (is-style-commerce-grid or is-style-editorial-grid)"
 		echo "  $line"
 		EXIT=1
 	fi

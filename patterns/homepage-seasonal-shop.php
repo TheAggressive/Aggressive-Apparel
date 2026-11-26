@@ -15,7 +15,7 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":45,"overlayColor":"black","minHeight":65,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--black);min-height:65vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-45 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-background" style="background-color:var(--wp--preset--color--black);min-height:65vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-50 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
 			<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.15em;text-transform:uppercase"><?php echo esc_html__( 'Menswear', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
@@ -39,7 +39,7 @@
 	<!-- wp:column -->
 	<div class="wp-block-column">
 		<!-- wp:cover {"dimRatio":45,"overlayColor":"black","minHeight":65,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-		<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--surface-elevated);min-height:65vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-45 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:65vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-50 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
 			<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.15em;text-transform:uppercase"><?php echo esc_html__( 'Womenswear', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
@@ -78,7 +78,7 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":360,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Hoodies', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
@@ -98,7 +98,7 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":360,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--surface-elevated);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Tees', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
@@ -118,7 +118,7 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":360,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--black);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Bottoms', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
@@ -138,7 +138,7 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":360,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--surface-elevated);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Accessories', 'aggressive-apparel' ); ?></h3>
 				<!-- /wp:heading -->
@@ -211,7 +211,7 @@
 	<!-- /wp:paragraph -->
 
 	<!-- wp:quote {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"fontStyle":"italic","lineHeight":"1.5"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
-	<blockquote class="wp-block-quote has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.5"><p><?php echo esc_html__( '"Streetwear isn\'t a trend — it\'s a uniform for people who refuse to blend in."', 'aggressive-apparel' ); ?></p><cite><?php echo esc_html__( '— Aggressive Apparel, SS26 Lookbook', 'aggressive-apparel' ); ?></cite></blockquote>
+	<blockquote class="wp-block-quote has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.5"><p><?php echo esc_html__( '"Rebellion has a uniform."', 'aggressive-apparel' ); ?></p><cite><?php echo esc_html__( '— The Aggressive', 'aggressive-apparel' ); ?></cite></blockquote>
 	<!-- /wp:quote -->
 </div>
 <!-- /wp:group -->

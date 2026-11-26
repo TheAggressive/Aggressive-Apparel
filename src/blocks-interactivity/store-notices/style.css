@@ -81,7 +81,7 @@
 	.aa-notices--bottom-center,
 	.aa-notices--bottom-right
 ) {
-	transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: bottom var(--aa-duration-normal) var(--aa-ease-default);
 }
 
 body.has-bottom-nav
@@ -378,7 +378,7 @@ body.admin-bar
 	/* Keep an opacity transition so the JS transitionend hook still fires. */
 	.aa-notices__toast {
 		animation: none;
-		transition: opacity var(--aa-duration-fast, 150ms) linear;
+		transition: opacity var(--aa-duration-fast, 150ms);
 	}
 
 	.aa-notices__toast.is-leaving {

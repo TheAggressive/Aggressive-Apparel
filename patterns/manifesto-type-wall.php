@@ -35,7 +35,7 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|8"}}} -->
 	<div class="wp-block-group">
 		<!-- wp:paragraph {"style":{"typography":{"lineHeight":"1.6"}},"textColor":"foreground-muted","fontSize":"medium"} -->
-		<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="line-height:1.6"><?php echo esc_html__( 'Street-tested fits. Limited runs. No filler drops.', 'aggressive-apparel' ); ?></p>
+		<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="line-height:1.6"><?php echo esc_html__( 'Independent label, est. 2010. Nothing borrowed. Nothing toned down.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.08em"}},"fontSize":"x-small"} -->

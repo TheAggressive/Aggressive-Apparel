@@ -234,7 +234,7 @@
 	flex: 0 0 auto;
 	white-space: nowrap;
 	transition:
-		color 0.35s ease-in-out,
+		color var(--aa-duration-normal) var(--aa-ease-default),
 		transform var(--aa-duration-fast) var(--aa-ease-default);
 
 	/* Wipe fill (slides in from the left) and selected paint/border are owned by
@@ -278,8 +278,8 @@
 	opacity: 0;
 	transform: translateX(-0.5625rem) scale(0);
 	transition:
-		transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s,
-		opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		transform var(--aa-duration-normal) var(--aa-ease-spring) 0.08s,
+		opacity var(--aa-duration-fast) var(--aa-ease-default);
 
 	& svg {
 		width: 0.75rem;
@@ -296,7 +296,7 @@
 	position: relative;
 	z-index: 1;
 	transform: translateX(-0.5625rem);
-	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
 /* -----------------------------------------------------------------------------
@@ -577,7 +577,7 @@
 		border-color var(--aa-duration-normal) var(--aa-ease-default),
 		opacity var(--aa-duration-fast) var(--aa-ease-default),
 		transform var(--aa-duration-normal) var(--aa-ease-default),
-		visibility 0s linear var(--aa-duration-normal);
+		visibility 0s var(--aa-duration-normal);
 }
 
 .aa-search__footer.is-visible {

@@ -17,11 +17,11 @@
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","level":1,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxxx-large"} -->
-	<h1 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Built for Those Who Refuse to Blend In', 'aggressive-apparel' ); ?></h1>
+	<h1 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Independent. Est. 2010.', 'aggressive-apparel' ); ?></h1>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-	<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'Aggressive Apparel was born from a simple belief: your clothing should be as bold as your ambition. We design premium streetwear for people who live loud and never settle.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'The Aggressive is an independent apparel label shaped by alternative culture. It informs what we make; it doesn’t fence it in.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
@@ -33,7 +33,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"50%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:50%">
 			<!-- wp:image {"aspectRatio":"4/5","scale":"cover","style":{"border":{"radius":"var(--wp--custom--radius--card)"}},"className":"about-hero-image"} -->
-			<figure class="wp-block-image about-hero-image" style="border-radius:var(--wp--custom--radius--card)"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9Ijc1MCIgdmlld0JveD0iMCAwIDYwMCA3NTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwMCIgaGVpZ2h0PSI3NTAiIGZpbGw9IiMxYTFhMWEiLz48dGV4dCB4PSIzMDAiIHk9IjM3NSIgZm9udC1mYW1pbHk9InN5c3RlbS11aSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+UmVwbGFjZSB3aXRoIGJyYW5kIHBob3RvPC90ZXh0Pjwvc3ZnPg==" alt="Brand story" style="aspect-ratio:4/5;object-fit:cover"/></figure>
+			<figure class="wp-block-image has-custom-border about-hero-image"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9Ijc1MCIgdmlld0JveD0iMCAwIDYwMCA3NTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwMCIgaGVpZ2h0PSI3NTAiIGZpbGw9IiMxYTFhMWEiLz48dGV4dCB4PSIzMDAiIHk9IjM3NSIgZm9udC1mYW1pbHk9InN5c3RlbS11aSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+UmVwbGFjZSB3aXRoIGJyYW5kIHBob3RvPC90ZXh0Pjwvc3ZnPg==" alt="Brand story" style="border-radius:var(--wp--custom--radius--card);aspect-ratio:4/5;object-fit:cover"/></figure>
 			<!-- /wp:image -->
 		</div>
 		<!-- /wp:column -->
@@ -41,19 +41,19 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"50%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:50%">
 			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'The Mission', 'aggressive-apparel' ); ?></p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'What we make', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxx-large"} -->
-			<h2 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Quality Without Compromise', 'aggressive-apparel' ); ?></h2>
+			<h2 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Graphic pieces, plain essentials, accessories.', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Every piece we make goes through rigorous testing. We source premium fabrics, partner with ethical manufacturers, and obsess over every stitch. Because your wardrobe deserves better than disposable fashion.', 'aggressive-apparel' ); ?></p>
+			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( '[Say who designs the pieces and how. State only what you can show.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'From our studio to your door, we cut out the middlemen. That means premium quality at honest prices. No hype, just well-made gear that lasts.', 'aggressive-apparel' ); ?></p>
+			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( '[Tell customers how your pieces are made: materials, printing, sourcing. State only what you can verify.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -65,7 +65,7 @@
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"},"margin":{"top":"0","bottom":"0"}},"border":{"top":{"color":"var:preset|color|border","width":"1px"},"bottom":{"color":"var:preset|color|border","width":"1px"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull" style="border-top-color:var(--wp--preset--color--border);border-top-width:1px;border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)">
 	<!-- wp:heading {"textAlign":"center","style":{"spacing":{"margin":{"bottom":"var:preset|spacing|14"}}},"fontSize":"fluid-xxx-large"} -->
-	<h2 class="wp-block-heading has-text-align-center has-fluid-xxx-large-font-size" style="margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( 'What We Stand For', 'aggressive-apparel' ); ?></h2>
+	<h2 class="wp-block-heading has-text-align-center has-fluid-xxx-large-font-size" style="margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( 'What we stand on', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|10"}}}} -->
@@ -77,11 +77,11 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Premium Materials', 'aggressive-apparel' ); ?></h4>
+			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Materials', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Heavyweight cotton, reinforced stitching, and fade-resistant dyes. Built to last, not landfill.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '[List the fabrics and weights you use. State only what you can verify.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -93,11 +93,11 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Ethical Production', 'aggressive-apparel' ); ?></h4>
+			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'How it is made', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Fair wages, safe factories, transparent supply chain. Every garment made with respect.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( '[Describe your production and print partners. Leave out anything you cannot document.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -109,11 +109,11 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Direct to You', 'aggressive-apparel' ); ?></h4>
+			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Direct from us', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'No retailers, no markups. We sell direct so you get premium quality at honest prices.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Designed and sold by The Aggressive.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -125,11 +125,11 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Community First', 'aggressive-apparel' ); ?></h4>
+			<h4 class="wp-block-heading has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Who it’s for', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Our customers shape what we build next. Your feedback drives every new collection drop.', 'aggressive-apparel' ); ?></p>
+			<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.7"><?php echo esc_html__( 'Anyone. We don’t check.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

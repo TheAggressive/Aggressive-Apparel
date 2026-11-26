@@ -79,7 +79,7 @@
 				var(--wp--custom--button--choice--border) 15%,
 				transparent
 			);
-		transition: color 0.35s ease-in-out;
+		transition: color var(--aa-duration-normal) var(--aa-ease-default);
 
 		/* Wipe fill — slides in from the left on select. */
 		&::before {
@@ -91,8 +91,8 @@
 			transform-origin: left;
 			opacity: 0;
 			transition:
-				transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-				opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+				transform var(--aa-duration-normal) var(--aa-ease-default),
+				opacity var(--aa-duration-fast) var(--aa-ease-default);
 			z-index: 0;
 			border-radius: inherit;
 		}
@@ -108,7 +108,7 @@
 			box-shadow: inset 0 0 0 2px
 				var(--wp--custom--button--choice--border);
 			opacity: 0;
-			transition: opacity 0.2s ease;
+			transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
 		}
 
 		&:hover:not(:disabled) {
@@ -176,7 +176,8 @@
 			display: inline-flex;
 			align-items: center;
 			transform: translateX(-0.5625rem);
-			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			transition: transform var(--aa-duration-normal)
+				var(--aa-ease-default);
 
 			&::before {
 				content: "";
@@ -192,8 +193,9 @@
 				opacity: 0;
 				transform: translateX(-0.1875rem) scale(0);
 				transition:
-					transform 0.35s var(--aa-ease-spring) 0.08s,
-					opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+					transform var(--aa-duration-normal) var(--aa-ease-spring)
+						0.08s,
+					opacity var(--aa-duration-fast) var(--aa-ease-default);
 			}
 		}
 

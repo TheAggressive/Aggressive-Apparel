@@ -93,6 +93,12 @@
 		--wp--preset--color--accent-on-foreground
 	);
 
+	/* The studio surface behind every product photo, the same in both
+	   schemes: the scheme changes the page, not the merchandise. Production
+	   photos are transparent cut-outs, so this is their background; opaque
+	   photos cover it. */
+	--aa-product-media-surface: var(--wp--preset--color--product-media);
+
 	/* Accent text on raised dark surfaces (striped rows, tinted panels): the
 	   brand accent clears 4.5:1 on the page surface but not on a lighter one
 	   (4.24:1 on #252525). Same hue at max in-gamut chroma, lightness +2.5 —
@@ -388,6 +394,45 @@
 		--wp--custom--type-role--product-title--line-height,
 		1.2
 	);
+
+	/* Editorial roles: Lead intro copy, sans Headline, Bebas campaign Display.
+	   Sizes are the fluid `lead` / `headline` / `display` font-size presets. */
+	--aa-type-lead-size: var(--wp--custom--type-role--lead--font-size);
+	--aa-type-lead-weight: var(--wp--custom--type-role--lead--font-weight, 400);
+	--aa-type-lead-line-height: var(
+		--wp--custom--type-role--lead--line-height,
+		1.5
+	);
+	--aa-type-headline-size: var(--wp--custom--type-role--headline--font-size);
+	--aa-type-headline-weight: var(
+		--wp--custom--type-role--headline--font-weight,
+		600
+	);
+	--aa-type-headline-line-height: var(
+		--wp--custom--type-role--headline--line-height,
+		1.02
+	);
+	--aa-type-headline-letter-spacing: var(
+		--wp--custom--type-role--headline--letter-spacing,
+		-0.025em
+	);
+	--aa-type-display-size: var(--wp--custom--type-role--display--font-size);
+	--aa-type-display-line-height: var(
+		--wp--custom--type-role--display--line-height,
+		0.9
+	);
+	--aa-type-display-letter-spacing: var(
+		--wp--custom--type-role--display--letter-spacing,
+		0.005em
+	);
+
+	/* Layout rhythm (spacing presets): one page gutter and four section
+	   densities. Usage rules: docs/design-system.md#layout-rhythm. */
+	--aa-gutter: var(--wp--preset--spacing--gutter);
+	--aa-section-compact: var(--wp--preset--spacing--section-compact);
+	--aa-section-standard: var(--wp--preset--spacing--section-standard);
+	--aa-section-editorial: var(--wp--preset--spacing--section-editorial);
+	--aa-section-immersive: var(--wp--preset--spacing--section-immersive);
 
 	/* Form fields (from settings.custom.field) — the branded checkout field:
 	   translucent fill, soft radius, and a 3px left bar that turns accent on

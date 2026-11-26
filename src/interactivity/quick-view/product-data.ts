@@ -55,18 +55,30 @@ export function pickDescription( product: StoreApiProduct ): string {
 }
 
 /**
- * Build gallery images array from Store API product.
+ * Build gallery images array from Store API product. A photo listed twice
+ * (the main image repeated in the gallery) is shown once: the dots and
+ * "Image n of m" count photos, and one image must never light two dots.
  */
 export function buildGalleryImages( product: StoreApiProduct ): GalleryImage[] {
 	if ( ! product.images || product.images.length === 0 ) {
 		return [];
 	}
-	return product.images.map( ( img: StoreApiImage, index: number ) => ( {
-		id: img.id || index,
-		src: img.src,
-		alt: stripTags( img.alt || product.name ),
-		thumbnail: img.thumbnail || img.src,
-	} ) );
+	const seen = new Set< string >();
+	return product.images
+		.filter( ( img: StoreApiImage ) => {
+			const key = img.id ? `id:${ img.id }` : `src:${ img.src }`;
+			if ( seen.has( key ) ) {
+				return false;
+			}
+			seen.add( key );
+			return true;
+		} )
+		.map( ( img: StoreApiImage, index: number ) => ( {
+			id: img.id || index,
+			src: img.src,
+			alt: stripTags( img.alt || product.name ),
+			thumbnail: img.thumbnail || img.src,
+		} ) );
 }
 
 /**

@@ -218,3 +218,50 @@ describe( 'scrollToSection', () => {
 		expect( state.activeSection ).toBe( 'pi-existing' );
 	} );
 } );
+
+describe( 'initScrollspy', () => {
+	it( 'returns the highlight to the first section when the reader jumps back above it', () => {
+		let report: (
+			entries: Partial< IntersectionObserverEntry >[]
+		) => void = () => {};
+		// The real constructor's signature (callback, options): code analysis
+		// resolves every `new IntersectionObserver( cb, options )` to this stub.
+		( window as any ).IntersectionObserver = class {
+			constructor(
+				cb: typeof report,
+				_options?: IntersectionObserverInit
+			) {
+				report = cb;
+			}
+			observe(): void {}
+			disconnect(): void {}
+		};
+		const root = document.createElement( 'div' );
+		root.innerHTML =
+			'<section class="aa-product-info__section" id="pi-description"></section>' +
+			'<section class="aa-product-info__section" id="pi-reviews"></section>';
+		document.body.appendChild( root );
+		mockElement.ref = root;
+		const [ first, last ] = Array.from(
+			root.querySelectorAll( 'section' )
+		);
+
+		( productTabsStore as any ).callbacks.initScrollspy();
+		report( [ { target: last, isIntersecting: true } ] );
+		expect( state.activeSection ).toBe( 'pi-reviews' );
+
+		// Jumped to the top: the first section is now below the band, and the
+		// observer reports nothing (no intersection change), so a scroll does.
+		jest.spyOn( first, 'getBoundingClientRect' ).mockReturnValue( {
+			top: 900,
+		} as DOMRect );
+		jest.spyOn( window, 'requestAnimationFrame' ).mockImplementation(
+			( cb: FrameRequestCallback ) => {
+				cb( 0 );
+				return 0;
+			}
+		);
+		window.dispatchEvent( new Event( 'scroll' ) );
+		expect( state.activeSection ).toBe( 'pi-description' );
+	} );
+} );

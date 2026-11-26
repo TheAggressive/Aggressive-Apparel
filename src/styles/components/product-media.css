@@ -1,0 +1,64 @@
+/**
+ * Product media surface.
+ *
+ * Every product photo, wherever it appears, sits on one studio surface
+ * (--aa-product-media-surface), the same in both schemes. The store's photos
+ * are transparent cut-outs, so without it a photo shows whatever is behind
+ * it: a black tee vanished into dark-mode cards and into the black category
+ * tiles. Opaque photos cover the surface, so they look the same as before.
+ *
+ * What sits on a photo (badges, the wishlist heart) renders in the light
+ * scheme, since the surface under it is light in both.
+ *
+ * Zero specificity: a background the Site Editor saves on any of these still
+ * wins. Campaign and editorial photography (hero, lookbook spreads, Women's
+ * portrait) is not product media and is not listed.
+ *
+ * @package Aggressive_Apparel
+ */
+
+@layer aa-components {
+	:where(
+		.has-product-media-background-color,
+		.wc-block-components-product-image,
+		.wp-block-woocommerce-product-image,
+		.wc-block-product-gallery-large-image,
+		.woocommerce-product-gallery__image
+	) {
+		color-scheme: light;
+		color: var(--aa-color-foreground);
+	}
+
+	:where(
+			.wc-block-components-product-image,
+			.wp-block-woocommerce-product-image,
+			.wc-block-cart-item__image,
+			.wc-block-components-order-summary-item__image,
+			.wc-block-product-gallery-large-image,
+			.woocommerce-product-gallery__image,
+			.aggressive-apparel-quick-view__main-image,
+			.aggressive-apparel-quick-view__thumbnail,
+			.aggressive-apparel-quick-view__drawer-image,
+			.aggressive-apparel-quick-view__drawer-thumb,
+			.aggressive-apparel-quick-view-success__image,
+			.aggressive-apparel-recently-viewed__media,
+			.aggressive-apparel-lookbook__product-image,
+			.aa-wl-item-image,
+			.aa-fbt__card-image,
+			.aa-search__thumb,
+			.aa-notices__thumb,
+			.aa-sticky-cart__image,
+			.aa-line-index__thumb
+		)
+		img,
+	img:where(
+		.wc-block-product-gallery-thumbnails__thumbnail__image,
+		.aggressive-apparel-quick-view__main-image,
+		.aggressive-apparel-quick-view-success__image,
+		.aa-wl-item-image__img,
+		.aa-sticky-cart__image,
+		.aa-editorial-tiles .wc-block-featured-category__background-image
+	) {
+		background-color: var(--aa-product-media-surface);
+	}
+}

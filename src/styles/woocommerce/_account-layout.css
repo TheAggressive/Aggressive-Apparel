@@ -17,9 +17,9 @@
 	--aa-account-card-bg: var(--aa-color-surface-muted);
 	--aa-account-card-border: var(--aa-color-border-subtle);
 
-	/* Secondary text. The theme's --aa-color-foreground-muted is ~3.2:1 on the
-	 * light-mode greys (fails WCAG AA); a translucent foreground clears 4.5:1
-	 * on both page and card in either scheme (~6:1 light, ~7:1 dark). */
+	/* Secondary text. A translucent foreground tracks whichever surface a card
+	 * sits on (the token contract keeps --aa-color-foreground-muted AA too); it
+	 * clears 4.5:1 on page and card in either scheme. */
 	--aa-account-muted: color-mix(
 		in oklch,
 		var(--aa-color-foreground) 65%,

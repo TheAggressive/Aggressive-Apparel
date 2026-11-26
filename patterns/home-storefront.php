@@ -18,8 +18,8 @@
 <!-- /wp:column -->
 
 <!-- wp:column {"style":{"border":{"radius":{"topLeft":"1.5rem","topRight":"1.5rem","bottomLeft":"1.5rem","bottomRight":"1.5rem"}}}} -->
-<div class="wp-block-column" style="border-top-left-radius:1.5rem;border-top-right-radius:1.5rem;border-bottom-left-radius:1.5rem;border-bottom-right-radius:1.5rem"><!-- wp:heading {"style":{"typography":{"textAlign":"center"}},"fontSize":"fluid-xxxxxxx-large","fontFamily":"pirata-one"} -->
-<h2 class="wp-block-heading has-text-align-center has-pirata-one-font-family has-fluid-xxxxxxx-large-font-size"><?php echo esc_html__( 'Rebellion Has a Uniform', 'aggressive-apparel' ); ?></h2>
+<div class="wp-block-column" style="border-top-left-radius:1.5rem;border-top-right-radius:1.5rem;border-bottom-left-radius:1.5rem;border-bottom-right-radius:1.5rem"><!-- wp:heading {"style":{"typography":{"textAlign":"center"}},"fontSize":"fluid-xxxxxxx-large"} -->
+<h2 class="wp-block-heading has-text-align-center has-fluid-xxxxxxx-large-font-size"><?php echo esc_html__( 'Rebellion Has a Uniform', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"is-style-meta","style":{"typography":{"textAlign":"center","fontStyle":"normal","fontWeight":"400"},"elements":{"link":{"color":{"text":"var:preset|color|white"}}}},"textColor":"white","fontSize":"large"} -->
@@ -56,7 +56,7 @@
 
 <!-- wp:group {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|fluid-16"}}},"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 <div class="wp-block-group" style="margin-top:var(--wp--preset--spacing--2);margin-bottom:var(--wp--preset--spacing--fluid-16)"><!-- wp:paragraph {"style":{"typography":{"lineHeight":"1"}},"fontSize":"small"} -->
-<p class="has-small-font-size" style="line-height:1"><?php echo esc_html__( 'Fresh graphics. No recycled attitude.', 'aggressive-apparel' ); ?></p>
+<p class="has-small-font-size" style="line-height:1"><?php echo esc_html__( 'New pieces, when they’re ready.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -124,10 +124,10 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":1,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textAlign":"center"}},"fontSize":"fluid-xxxxxx-large"} -->
-<h1 class="wp-block-heading has-text-align-center has-fluid-xxxxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'For the Unruled', 'aggressive-apparel' ); ?></h1>
+<h1 class="wp-block-heading has-text-align-center has-fluid-xxxxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Aggressive is a compliment.', 'aggressive-apparel' ); ?></h1>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8","textAlign":"center"}},"fontSize":"medium"} -->
-<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'The Aggressive is independent graphic apparel shaped by punk, metal, skate and motocross culture. Designed for people who carry their edge naturally—not people trying to manufacture one.', 'aggressive-apparel' ); ?></p>
+<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'It means nobody softened it. We named the label after it in 2010. Some of what we make is loud. Some of it is a black hoodie. Neither is toned down to suit everyone.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->

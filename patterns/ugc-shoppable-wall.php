@@ -31,17 +31,17 @@
 	<!-- wp:column {"width":"25%"} -->
 	<div class="wp-block-column" style="flex-basis:25%">
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":220,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"}},"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:220px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:220px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@dre_blocks', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
 
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":340,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"},"margin":{"top":"3px"}},"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:340px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:340px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@dre_blocks', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"accent","fontSize":"x-small"} -->
@@ -55,17 +55,17 @@
 	<!-- wp:column {"width":"25%"} -->
 	<div class="wp-block-column" style="flex-basis:25%">
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":400,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"}},"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:400px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:400px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@lina_heat', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
 
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":160,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"},"margin":{"top":"3px"}},"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:160px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:160px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@lina_heat', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -75,17 +75,17 @@
 	<!-- wp:column {"width":"25%"} -->
 	<div class="wp-block-column" style="flex-basis:25%">
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"}},"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:280px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:280px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@marcus.drip', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
 
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":280,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"},"margin":{"top":"3px"}},"color":{"background":"var:preset|color|accent"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--accent);min-height:280px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--accent);min-height:280px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@marcus.drip', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"white","fontSize":"x-small"} -->
@@ -99,17 +99,17 @@
 	<!-- wp:column {"width":"25%"} -->
 	<div class="wp-block-column" style="flex-basis:25%">
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":340,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"}},"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:340px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:340px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@tess.runs', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
 
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":220,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|4","right":"var:preset|spacing|4"},"margin":{"top":"3px"}},"color":{"background":"var:preset|color|black"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:220px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:220px;margin-top:3px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--4)"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@tess.runs', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( '@handle', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->

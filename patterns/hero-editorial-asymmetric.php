@@ -17,7 +17,7 @@
 		<!-- wp:column {"verticalAlignment":"stretch","width":"60%"} -->
 		<div class="wp-block-column is-vertically-aligned-stretch" style="flex-basis:60%">
 			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":85,"minHeightUnit":"vh","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:85vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left has-background" style="background-color:var(--wp--preset--color--black);min-height:85vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","fontSize":"large"} -->
 				<p class="has-text-align-center has-large-font-size"></p>
 				<!-- /wp:paragraph -->
@@ -37,7 +37,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"lineHeight":"1.8"}},"textColor":"foreground-muted","fontSize":"medium"} -->
-			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( 'Shot on location in downtown LA, the SS26 editorial pairs raw urban textures with precision-cut streetwear. Every frame is a study in controlled aggression.', 'aggressive-apparel' ); ?></p>
+			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--8);line-height:1.8"><?php echo esc_html__( '[Where, when and how this editorial was shot. Real details only.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->

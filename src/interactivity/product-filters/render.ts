@@ -8,7 +8,7 @@
  * @package Aggressive_Apparel
  */
 
-import { escapeHtml, formatWholePrice } from './dom';
+import { barDropdownId, escapeHtml, formatWholePrice } from './dom';
 import type {
 	CategoryTerm,
 	ColorTerm,
@@ -134,15 +134,7 @@ export function renderHorizontalDropdowns(): void {
 		);
 		if ( ! item ) return;
 
-		const wpContext = (
-			item as HTMLElement & {
-				__wp_context?: Record< string, Record< string, string > >;
-			}
-		 ).__wp_context;
-		const ctx = wpContext?.[ 'aggressive-apparel/product-filters' ];
-		const id: string | undefined =
-			ctx?.dropdownId || item.dataset?.wpContext;
-
+		const id = barDropdownId( item );
 		if ( ! id ) return;
 
 		// Use the drawer sections as canonical source — clone their content.

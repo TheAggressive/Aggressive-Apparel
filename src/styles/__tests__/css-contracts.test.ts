@@ -353,6 +353,129 @@ describe( 'buttons and controls', () => {
 	} );
 } );
 
+describe( 'WooCommerce controls in the shared states', () => {
+	const FOCUS_RING = expect.objectContaining( {
+		value: 'var(--aa-focus-ring)',
+	} );
+
+	it( 'draw the shared ring on cart, checkout and account controls WooCommerce leaves to the browser', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		for ( const control of [
+			'.wc-block-components-panel__button',
+			'.wc-block-components-checkout-order-summary__title',
+			'.wc-block-components-address-form__address_2-toggle',
+			// WooCommerce clears its box-shadow at (0,4,1).
+			'table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__quantity .wc-block-cart-item__remove-link',
+		] ) {
+			expect(
+				await blocks.declarations(
+					`${ control }:focus-visible`,
+					'box-shadow'
+				)
+			).toEqual( [ FOCUS_RING ] );
+		}
+
+		// The catalog toolbar: the filter toggle and the sort menu.
+		const toggle = await CompiledCss.load(
+			'src/blocks-interactivity/filter-toggle/style.css'
+		);
+		expect(
+			await toggle.declarations(
+				'.aa-filter-toggle:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+		const forms = await CompiledCss.load(
+			'src/styles/components/forms.css'
+		);
+		expect(
+			await forms.declarations(
+				'.woocommerce-ordering select.orderby:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+
+		const account = await CompiledCss.load(
+			'src/styles/woocommerce/account.css'
+		);
+		expect(
+			await account.declarations(
+				'.woocommerce-account .woocommerce form .show-password-input:focus-visible',
+				'box-shadow'
+			)
+		).toEqual( [ FOCUS_RING ] );
+	} );
+
+	it( 'ring checkout checkboxes like native ones, above WooCommerce’s later rule', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		expect(
+			await blocks.declarations(
+				'body .wc-block-components-checkbox .wc-block-components-checkbox__input[type="checkbox"]:focus-visible',
+				'outline'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: '2px solid var(--aa-field-bar-focus)',
+			} ),
+		] );
+	} );
+
+	it( 'keep the size chart unit toggle at the dense choice floor', async () => {
+		const guide = await CompiledCss.load(
+			'src/styles/woocommerce/size-guide.css'
+		);
+		expect(
+			await guide.declarations(
+				'.aa-size-chart__unit-button',
+				'min-height'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-control-min-dense)',
+			} ),
+		] );
+	} );
+
+	it( 'set compact quantity inputs at 16px on touch screens (no iOS focus zoom)', async () => {
+		const touch = ( css: CompiledCss, cls: string ) =>
+			css
+				.all()
+				.filter(
+					( d ) =>
+						d.prop === 'font-size' &&
+						d.selector.includes( cls ) &&
+						d.conditions.some( ( c ) =>
+							/pointer:\s*coarse/.test( c )
+						)
+				)
+				.map( ( d ) => d.value );
+
+		const sources: Array< [ string, string ] > = [
+			[
+				'src/styles/woocommerce/blocks.css',
+				'.wc-block-components-quantity-selector__input',
+			],
+			[
+				'src/styles/woocommerce/quick-view.css',
+				'.aggressive-apparel-quick-view__qty-input',
+			],
+			[
+				'src/styles/woocommerce/sticky-add-to-cart.css',
+				'.aa-sticky-cart__qty-input',
+			],
+		];
+		for ( const [ file, cls ] of sources ) {
+			expect( touch( await CompiledCss.load( file ), cls ) ).toEqual( [
+				'var(--aa-field-font-size)',
+			] );
+		}
+	} );
+} );
+
 describe( 'product card swatches', () => {
 	it( 'keep their pointer target, shrinking only to the dense tier on narrow cards', async () => {
 		const swatches = await CompiledCss.load(
@@ -522,5 +645,784 @@ describe( 'keyframes', () => {
 
 		expect( shared ).toContain( 'aa-spin' );
 		expect( [ ...new Set( missing ) ] ).toEqual( [] );
+	} );
+} );
+
+describe( 'editorial type roles', () => {
+	it( 'Headline (Sans) switches to the sans family in sentence case, overridable by editor picks', async () => {
+		const styles = await CompiledCss.load(
+			'src/styles/components/block-styles.css'
+		);
+		const headline = '.wp-block-heading.is-style-headline';
+
+		expect( await styles.declarations( headline, 'font-family' ) ).toEqual(
+			[
+				expect.objectContaining( {
+					value: 'var(--wp--preset--font-family--space-grotesk)',
+					important: false,
+				} ),
+			]
+		);
+		expect(
+			await styles.declarations( headline, 'text-transform' )
+		).toEqual( [ expect.objectContaining( { value: 'none' } ) ] );
+		// Long words break instead of scrolling the page at 200% text.
+		for ( const role of [
+			headline,
+			'.wp-block-heading.is-style-campaign',
+		] ) {
+			expect(
+				await styles.declarations( role, 'overflow-wrap' )
+			).toEqual( [ expect.objectContaining( { value: 'anywhere' } ) ] );
+		}
+		// Takes the section's text color, not the global accent heading color.
+		for ( const role of [
+			headline,
+			'.wp-block-heading.is-style-campaign',
+		] ) {
+			expect( await styles.declarations( role, 'color' ) ).toEqual( [
+				expect.objectContaining( {
+					value: 'inherit',
+					important: false,
+				} ),
+			] );
+		}
+		expect( await styles.declarations( headline, 'font-size' ) ).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-headline-size)',
+				important: false,
+			} ),
+		] );
+	} );
+
+	it( 'Campaign Display and Lead size from their type roles', async () => {
+		const styles = await CompiledCss.load(
+			'src/styles/components/block-styles.css'
+		);
+
+		expect(
+			await styles.declarations(
+				'.wp-block-heading.is-style-campaign',
+				'font-size'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-display-size)',
+				important: false,
+			} ),
+		] );
+		expect(
+			await styles.declarations( '.is-style-lead', 'font-size' )
+		).toEqual( [
+			expect.objectContaining( {
+				value: 'var(--aa-type-lead-size)',
+				important: false,
+			} ),
+		] );
+	} );
+} );
+
+describe( 'product card buttons in narrow slots', () => {
+	it( 'compact the add-to-cart pill in every card under 320px, including two-up mobile cards', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const button =
+			'.wp-block-woocommerce-product-button .wp-block-button__link';
+		const conditionsFor = async ( prop: string ) =>
+			( await blocks.declarations( button, prop ) ).map( ( d ) =>
+				d.conditions.join( ' ' )
+			);
+
+		expect( await conditionsFor( 'font-size' ) ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /product-card \(width ?< ?320px\)/ ),
+			] )
+		);
+		expect( await conditionsFor( 'padding-inline' ) ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /product-card \(width ?< ?200px\)/ ),
+			] )
+		);
+	} );
+} );
+
+describe( 'responsive product grid columns', () => {
+	it( 'derive the track minimum from the theme gap, so Columns: N renders N', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const grid =
+			'.wp-block-woocommerce-product-template.wc-block-product-template__responsive';
+
+		const [ columns ] = await blocks.declarations(
+			grid,
+			'grid-template-columns'
+		);
+		expect( columns.important ).toBe( false );
+		expect( columns.value ).toContain( 'var(--aa-product-grid-gap)' );
+		expect( columns.value ).toContain( 'var(--aa-product-grid-columns)' );
+
+		for ( const count of [ 2, 3, 4, 5, 6 ] ) {
+			expect(
+				await blocks.declarations(
+					`${ grid }.columns-${ count }`,
+					'--aa-product-grid-columns'
+				)
+			).toEqual( [
+				expect.objectContaining( { value: String( count ) } ),
+			] );
+		}
+	} );
+
+	it( 'give homepage editorial grids of 4+ columns two large cards per row below desktop', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+
+		expect(
+			await blocks.declarations(
+				'.is-style-editorial-grid .wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(.columns-4,.columns-5,.columns-6)',
+				'--aa-product-grid-columns'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: '2',
+				conditions: [ '@media (width<1024px)' ],
+			} ),
+		] );
+	} );
+} );
+
+describe( 'product card names', () => {
+	it( 'set listing names in the body face, sentence case, unlayered at (0,2,0) so they beat the global post-title style but not editor picks', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const name =
+			'.wp-block-woocommerce-product-template .wp-block-post-title';
+
+		const [ family ] = await blocks.declarations( name, 'font-family' );
+		expect( family ).toEqual(
+			expect.objectContaining( {
+				value: 'var(--wp--preset--font-family--space-grotesk)',
+				important: false,
+				layer: null,
+			} )
+		);
+		expect( await blocks.declarations( name, 'text-transform' ) ).toEqual( [
+			expect.objectContaining( { value: 'none', important: false } ),
+		] );
+		// Size is the editor's (template fontSize attribute), never restated here.
+		expect( await blocks.declarations( name, 'font-size' ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'editorial category tiles', () => {
+	it( 'seat the category name on the lower edge of the tile', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const wrapper =
+			'.aa-editorial-tiles .wc-block-featured-category .wc-block-featured-category__wrapper';
+
+		expect( await blocks.declarations( wrapper, 'align-content' ) ).toEqual(
+			[ expect.objectContaining( { value: 'flex-end' } ) ]
+		);
+	} );
+
+	it( 'show the photo whole as a square above the name band, never zoomed into it', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const image =
+			'.aa-editorial-tiles .wc-block-featured-category .wc-block-featured-category__background-image';
+
+		expect( await blocks.declarations( image, 'aspect-ratio' ) ).toEqual( [
+			expect.objectContaining( { value: '1' } ),
+		] );
+		expect( await blocks.declarations( image, 'height' ) ).toEqual( [
+			expect.objectContaining( { value: 'auto' } ),
+		] );
+		expect(
+			blocks
+				.all()
+				.filter(
+					( d ) =>
+						d.selector.includes(
+							'featured-category__background-image'
+						) && d.prop === 'transform'
+				)
+		).toEqual( [] );
+	} );
+} );
+
+describe( 'product media surface', () => {
+	it( 'puts every product photo on the product-media surface, at zero specificity in aa-components', async () => {
+		const css = await CompiledCss.load(
+			'src/styles/components/product-media.css'
+		);
+		const backgrounds = css
+			.all()
+			.filter( ( d ) => d.prop === 'background-color' );
+
+		expect( backgrounds.length ).toBeGreaterThan( 0 );
+		for ( const declaration of backgrounds ) {
+			expect( declaration ).toEqual(
+				expect.objectContaining( {
+					value: 'var(--aa-product-media-surface)',
+					important: false,
+					layer: 'aa-components',
+				} )
+			);
+			// Overridable by anything the Site Editor saves.
+			expect( declaration.selector ).toMatch( /:where\(/ );
+		}
+		const selectors = backgrounds.map( ( d ) => d.selector ).join( ',' );
+		for ( const surface of [
+			'.wc-block-components-product-image',
+			'.wc-block-cart-item__image',
+			'.wc-block-product-gallery-large-image',
+			'.wc-block-featured-category__background-image',
+		] ) {
+			expect( selectors ).toContain( surface );
+		}
+	} );
+} );
+
+describe( 'editorial category tiles grow to fit their name', () => {
+	it( 'start the name band below the square photo and let the tile grow', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const tile = '.aa-editorial-tiles .wc-block-featured-category';
+		const wrapper = `${ tile } .wc-block-featured-category__wrapper`;
+
+		expect(
+			await blocks.declarations( wrapper, 'padding-block-start' )
+		).toEqual( [ expect.objectContaining( { value: '100%' } ) ] );
+		// clip, not hidden: a scroll container could not grow with its band.
+		expect( await blocks.declarations( wrapper, 'overflow' ) ).toEqual( [
+			expect.objectContaining( { value: 'clip' } ),
+		] );
+		expect( await blocks.declarations( tile, 'overflow' ) ).toEqual( [
+			expect.objectContaining( { value: 'clip' } ),
+		] );
+		expect( await blocks.declarations( tile, 'align-self' ) ).toEqual( [
+			expect.objectContaining( { value: 'stretch' } ),
+		] );
+	} );
+} );
+
+describe( 'listing card price line', () => {
+	it( 'keeps the Save label in one piece as an outlined tag', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+
+		expect(
+			await blocks.declarations(
+				'.aggressive-apparel-price-save',
+				'white-space'
+			)
+		).toEqual( [ expect.objectContaining( { value: 'nowrap' } ) ] );
+		expect(
+			await blocks.declarations(
+				'.aggressive-apparel-price-save',
+				'border'
+			)
+		).toEqual( [ expect.objectContaining( { value: '1px solid' } ) ] );
+		// Never under 12px, however small the price beside it.
+		expect(
+			await blocks.declarations(
+				'.aggressive-apparel-price-save',
+				'font-size'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: expect.stringMatching(
+					/^max\(\.?0?\.75rem,\s*\.?0?\.75em\)$/
+				),
+			} ),
+		] );
+	} );
+
+	it( 'capitalises Product Specs size labels but keeps the prompt in sentence case', async () => {
+		const specs = await CompiledCss.load(
+			'src/blocks/product-specs/style.css'
+		);
+		const capitalised = specs
+			.all()
+			.filter(
+				( d ) => d.prop === 'text-transform' && d.value === 'capitalize'
+			)
+			.map( ( d ) => d.selector );
+
+		// "Pick a size to see its measurements." sits in __fit / __measure.
+		expect( capitalised ).not.toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /__(measure|fit)(\b(?!-)|$)/ ),
+			] )
+		);
+		expect( capitalised ).toEqual(
+			expect.arrayContaining( [
+				expect.stringContaining( '.aa-product-specs__fit-size' ),
+				expect.stringContaining( '.aa-product-specs__fit-item' ),
+			] )
+		);
+	} );
+
+	it( 'sets swatches beside the price on a row, not 20px under it', async () => {
+		const swatches = await CompiledCss.load(
+			'src/blocks-interactivity/product-color-swatches/style.css'
+		);
+		const row = swatches
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.startsWith( '.is-layout-flex' ) &&
+					/\+\s*\.aa-product-color-swatches$/.test( d.selector ) &&
+					/^margin-(block-start|top)$/.test( d.prop )
+			);
+
+		expect( row.map( ( d ) => d.value ) ).toEqual( [
+			expect.stringMatching( /^0(px)?$/ ),
+		] );
+	} );
+} );
+
+describe( 'product gallery thumbnails', () => {
+	it( 'align the desktop strip to the top of a portrait frame', async () => {
+		const thumbs = await CompiledCss.load(
+			'src/styles/woocommerce/product-gallery-thumbnails.css'
+		);
+		const [ align ] = await thumbs.declarations(
+			'.wc-block-product-gallery .wc-block-product-gallery-thumbnails',
+			'align-self'
+		);
+
+		expect( align.value ).toBe( 'flex-start' );
+		expect( align.conditions ).toEqual( [
+			expect.stringMatching( /width\s*>\s*600px|min-width/ ),
+		] );
+	} );
+} );
+
+describe( 'desktop navigation menubar', () => {
+	it( "caps the item gap at the editor's block gap and tightens it on narrow desktops", async () => {
+		const nav = await CompiledCss.load(
+			'src/blocks-interactivity/navigation/style.css'
+		);
+		const [ gap ] = await nav.declarations( '.aa-nav__menubar', 'gap' );
+
+		expect( gap.value.replace( /\s+/g, '' ) ).toBe(
+			'min(var(--navigation-gap),2.25vw - .5rem)'.replace( /\s+/g, '' )
+		);
+	} );
+} );
+
+describe( 'centred short product rows', () => {
+	it( 'drop empty tracks and keep card width instead of stretching', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const grid =
+			'.wp-block-woocommerce-product-collection.aa-grid-centered .wp-block-woocommerce-product-template.wc-block-product-template__responsive';
+
+		const [ columns ] = await blocks.declarations(
+			grid,
+			'grid-template-columns'
+		);
+		expect( columns.value ).toMatch( /^repeat\(auto-fit,/ );
+		expect( columns.value ).not.toContain( '1fr' );
+		expect( await blocks.declarations( grid, 'justify-content' ) ).toEqual(
+			[ expect.objectContaining( { value: 'center' } ) ]
+		);
+	} );
+} );
+
+describe( 'editorial sections', () => {
+	it( 'size the hero slogan to its column, and to the full width without a photo', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const campaign = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.startsWith( '.aa-campaign-hero' ) &&
+					d.selector.includes( '.is-style-campaign' )
+			);
+		const typeOnly = campaign.filter( ( d ) =>
+			d.selector.includes( ':not(:has(.wp-block-image))' )
+		);
+
+		expect( campaign.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [ 'max-width', 'font-size' ] )
+		);
+		expect( typeOnly.map( ( d ) => d.prop ) ).toContain( 'font-size' );
+		expect( campaign.every( ( d ) => ! d.important ) ).toBe( true );
+	} );
+
+	it( 'fit the slogan to its own column and lead with the photos on phones', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const all = editorial.all();
+
+		expect(
+			all.some(
+				( d ) =>
+					d.selector.startsWith( '.aa-campaign-hero' ) &&
+					d.prop === 'container-type' &&
+					d.value === 'inline-size'
+			)
+		).toBe( true );
+		expect(
+			all.some(
+				( d ) =>
+					d.selector.includes( '.is-style-campaign' ) &&
+					d.prop === 'font-size' &&
+					/cqi/.test( d.value )
+			)
+		).toBe( true );
+		const order = all.find(
+			( d ) =>
+				d.selector === '.aa-campaign-hero .aa-bleed-photo' &&
+				d.prop === 'order'
+		);
+		expect( order?.value ).toBe( '-1' );
+		expect( order?.conditions.join( ' ' ) ).toMatch( /782px/ );
+	} );
+
+	it( 'mark the seam between two shopping sections without outranking editor backgrounds', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const seam = editorial
+			.all()
+			.filter( ( d ) =>
+				/aa-shop-section[^)]*\)\s*\+\s*:is\(\.aa-shop-section/.test(
+					d.selector
+				)
+			);
+
+		expect( seam.length ).toBeGreaterThan( 0 );
+		expect(
+			seam.every( ( d ) => d.selector.startsWith( ':where(' ) )
+		).toBe( true );
+		expect(
+			seam.find( ( d ) => d.prop === 'background-size' )?.value
+		).toMatch( /1px$/ );
+	} );
+
+	it( 'make the lookbook a phone rail, overriding only core’s mobile stacking and margin pinning', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const rail = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.includes( '.aa-editorial-looks' ) &&
+					! d.selector.includes( '.is-style-meta' )
+			);
+
+		expect(
+			rail
+				.filter( ( d ) => d.important )
+				.map( ( d ) => d.prop )
+				.sort()
+		).toEqual( [ 'flex-basis', 'flex-wrap', 'margin-inline' ] );
+		expect(
+			rail.every( ( d ) => /600px/.test( d.conditions.join() ) )
+		).toBe( true );
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [ 'overflow-x', 'scroll-snap-type' ] )
+		);
+	} );
+
+	it( 'run bleed photos the full row height without turning off the column stretch', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const fill = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.startsWith( '.aa-bleed-photo' ) &&
+					d.prop === 'height'
+			);
+
+		expect( fill.length ).toBeGreaterThan( 0 );
+		// The column itself must keep height:auto, or flex stretch stops.
+		expect(
+			fill.some( ( d ) => /^\.aa-bleed-photo$/.test( d.selector ) )
+		).toBe( false );
+		expect(
+			fill.every( ( d ) => /600px/.test( d.conditions.join() ) )
+		).toBe( true );
+	} );
+
+	it( 'make the category tiles and a three-look lookbook row a swipe rail on phones', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const rail = blocks
+			.all()
+			.filter(
+				( d ) =>
+					d.selector.includes( '.is-layout-grid' ) &&
+					d.selector.includes( '.aa-editorial-tiles' ) &&
+					d.selector.includes( '.aa-lookbook-row' )
+			);
+
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [
+				'display',
+				'overflow-x',
+				'scroll-snap-type',
+			] )
+		);
+		expect(
+			rail.every( ( d ) => /782px/.test( d.conditions.join() ) )
+		).toBe( true );
+	} );
+
+	it( 'keep editorial splits side by side on tablets, overriding only core stacking', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const split = editorial
+			.all()
+			.filter( ( d ) => d.selector.includes( '.aa-tablet-split' ) );
+
+		expect(
+			split
+				.filter( ( d ) => d.important )
+				.map( ( d ) => d.prop )
+				.sort()
+		).toEqual( [ 'flex-basis', 'flex-wrap' ] );
+		expect(
+			split.every(
+				( d ) =>
+					/600px/.test( d.conditions.join() ) &&
+					/782px/.test( d.conditions.join() )
+			)
+		).toBe( true );
+	} );
+
+	it( 'scroll a rail grid sideways with a fraction of the next card showing', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const rail = blocks
+			.all()
+			.filter( ( d ) => d.selector.startsWith( '.aa-grid-rail' ) );
+
+		expect( rail.map( ( d ) => d.prop ) ).toEqual(
+			expect.arrayContaining( [
+				'display',
+				'overflow-x',
+				'scroll-snap-type',
+				'flex',
+			] )
+		);
+		expect(
+			rail
+				.filter( ( d ) => d.prop === '--aa-rail-visible' )
+				.map( ( d ) => d.value )
+		).toEqual( expect.arrayContaining( [ '3.5', '2.5', '1.6' ] ) );
+	} );
+
+	it( 'show every card photo whole, in a square slot', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+		const slot =
+			'.wp-block-woocommerce-product-template .wp-block-post-featured-image';
+
+		expect( await blocks.declarations( slot, 'aspect-ratio' ) ).toEqual( [
+			expect.objectContaining( { value: '1' } ),
+		] );
+		expect(
+			await blocks.declarations( `${ slot } img`, 'object-fit' )
+		).toEqual( [ expect.objectContaining( { value: 'contain' } ) ] );
+	} );
+
+	it( 'end the lead card image level with the 2 x 2 beside it (1:1.11)', async () => {
+		const blocks = await CompiledCss.load(
+			'src/styles/woocommerce/blocks.css'
+		);
+
+		expect(
+			await blocks.declarations(
+				'.aa-grid-lead .wp-block-woocommerce-product-template .wp-block-post-featured-image',
+				'aspect-ratio'
+			)
+		).toEqual( [
+			expect.objectContaining( {
+				value: '1/1.11',
+			} ),
+		] );
+	} );
+
+	it( 'let a linked 100%-width image fill its column, not its natural size', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+
+		expect(
+			await editorial.declarations(
+				'.wp-block-image>a:has(>img[style*="width:100%"])',
+				'display'
+			)
+		).toEqual( [
+			expect.objectContaining( { value: 'block', important: false } ),
+		] );
+	} );
+} );
+
+describe( 'fixed-color sections', () => {
+	it( 'keep white-background blocks light in dark mode, text included', async () => {
+		const adaptive = await CompiledCss.load(
+			'src/styles/components/adaptive-block-colors.css'
+		);
+		const white = adaptive
+			.all()
+			.filter( ( d ) =>
+				d.selector.includes( '.has-white-background-color' )
+			);
+
+		expect( white.find( ( d ) => d.prop === 'color-scheme' )?.value ).toBe(
+			'light'
+		);
+		expect( white.find( ( d ) => d.prop === 'color' )?.value ).toMatch(
+			/--wp--preset--color--foreground/
+		);
+		expect(
+			white.every( ( d ) => d.selector.startsWith( ':where(' ) )
+		).toBe( true );
+	} );
+} );
+
+describe( 'fixed-scheme editorial sections', () => {
+	it( 'pin the stone feature light and the name band to the oxblood red', async () => {
+		const adaptive = await CompiledCss.load(
+			'src/styles/components/adaptive-block-colors.css'
+		);
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+
+		expect(
+			adaptive
+				.all()
+				.some(
+					( d ) =>
+						d.selector.includes( '.aa-scheme-light' ) &&
+						d.prop === 'color-scheme' &&
+						d.value === 'light'
+				)
+		).toBe( true );
+		expect(
+			await editorial.declarations( '.aa-statement', 'color-scheme' )
+		).toEqual( [ expect.objectContaining( { value: 'light' } ) ] );
+	} );
+
+	it( 'gives both brand statements one scale, below the hero slogan', async () => {
+		const editorial = await CompiledCss.load(
+			'src/styles/components/editorial.css'
+		);
+		const sizes = editorial
+			.all()
+			.filter(
+				( d ) =>
+					d.prop === 'font-size' &&
+					d.selector.includes( 'is-style-headline' ) &&
+					/aa-statement|aa-page-section/.test( d.selector )
+			);
+
+		expect( sizes ).toHaveLength( 1 );
+		expect( sizes[ 0 ].selector ).toMatch( /aa-statement/ );
+		expect( sizes[ 0 ].selector ).toMatch( /aa-page-section/ );
+		expect( sizes[ 0 ].value ).toMatch( /4\.5rem\)$/ );
+	} );
+} );
+
+describe( 'motion', () => {
+	/*
+	 * Interaction transitions (hover, press, select, open and close) move on
+	 * the shared motion tokens, so every control eases at the same rhythm.
+	 * Keyframe animations (loaders, page transitions, reveals) choreograph
+	 * their own timing and are not checked here, nor are the effect presets
+	 * a merchant picks between (card hover-image and swatch animation
+	 * styles), which differ from each other on purpose, or admin screens.
+	 * Reduced-motion switches (<= 0.01ms), short staggers (< 100ms, e.g. a
+	 * check that pops in after its pill fills) and the autofill-colour hold
+	 * (9999s) are timings on purpose.
+	 */
+	it( 'times every transition with the motion tokens', async () => {
+		const fs = await import( 'node:fs' );
+		const path = await import( 'node:path' );
+		const root = path.resolve( __dirname, '../../..' );
+		const entries: string[] = [];
+		const walk = ( dir: string ): void => {
+			for ( const name of fs.readdirSync( path.join( root, dir ) ) ) {
+				const rel = path.join( dir, name );
+				if ( fs.statSync( path.join( root, rel ) ).isDirectory() ) {
+					if ( name !== '__tests__' && name !== 'testing' ) {
+						walk( rel );
+					}
+				} else if (
+					name.endsWith( '.css' ) &&
+					! name.startsWith( '_' ) &&
+					! dir.includes( 'admin' ) &&
+					( dir.startsWith( 'src/styles' ) || name === 'style.css' )
+				) {
+					entries.push( rel );
+				}
+			}
+		};
+		walk( 'src/styles' );
+		walk( 'src/blocks' );
+		walk( 'src/blocks-interactivity' );
+
+		const literal = /(^|[\s,(])(\d*\.?\d+)(m?s)\b/g;
+		const offenders: string[] = [];
+		for ( const entry of entries ) {
+			const css = await CompiledCss.load( entry );
+			for ( const d of css.all() ) {
+				if (
+					! /^transition(-duration|-timing-function)?$/.test(
+						d.prop
+					) ||
+					/aa-hover-img|aa-cs-anim-/.test( d.selector )
+				) {
+					continue;
+				}
+				// Token fallbacks inside var() are the tokens' own defaults.
+				const bare = d.value.replace(
+					/var\([^()]*(\([^()]*\))?[^()]*\)/g,
+					''
+				);
+				const times = [ ...bare.matchAll( literal ) ].map( ( m ) =>
+					m[ 3 ] === 'ms' ? Number( m[ 2 ] ) : Number( m[ 2 ] ) * 1000
+				);
+				const curves =
+					/cubic-bezier|\bease(-in|-out|-in-out)?\b|\blinear\b/.test(
+						bare
+					);
+				const exempt = times.every(
+					( t ) => t <= 0.01 || t < 100 || t === 9999000
+				);
+				if ( ( times.length && ! exempt ) || ( curves && ! exempt ) ) {
+					offenders.push(
+						`${ entry } | ${ d.selector.slice( 0, 70 ) } | ${ d.value }`
+					);
+				}
+			}
+		}
+		expect( [ ...new Set( offenders ) ] ).toEqual( [] );
 	} );
 } );

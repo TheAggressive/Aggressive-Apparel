@@ -76,13 +76,13 @@ class Free_Shipping_Message {
 	public static function get_default_templates(): array {
 		$templates = array(
 			/* translators: %s: formatted amount the customer still has to spend to get free shipping. {em} and {em_end} wrap the highlighted phrase; keep both. */
-			'progressDefault' => __( '%s Away from {em}FREE Shipping{em_end}!', 'aggressive-apparel' ),
+			'progressDefault' => __( '%s away from {em}free shipping{em_end}', 'aggressive-apparel' ),
 			/* translators: 1: formatted amount the customer still has to spend, 2: highlighted free-shipping phrase set in the block. */
-			'progressCustom'  => __( '%1$s Away from %2$s!', 'aggressive-apparel' ),
+			'progressCustom'  => __( '%1$s away from %2$s', 'aggressive-apparel' ),
 			/* translators: Shown once the cart qualifies for free shipping. {em} and {em_end} wrap the highlighted phrase; keep both. */
-			'unlockedDefault' => __( '{em}FREE Shipping{em_end} UNLOCKED!', 'aggressive-apparel' ),
+			'unlockedDefault' => __( 'Your order qualifies for {em}free shipping{em_end}.', 'aggressive-apparel' ),
 			/* translators: %s: highlighted free-shipping phrase set in the block. */
-			'unlockedCustom'  => __( '%s UNLOCKED!', 'aggressive-apparel' ),
+			'unlockedCustom'  => __( 'Your order qualifies for %s.', 'aggressive-apparel' ),
 		);
 
 		/**

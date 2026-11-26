@@ -21,7 +21,7 @@
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.7"}},"textColor":"foreground-muted","fontSize":"small"} -->
-	<p class="has-text-align-center has-foreground-muted-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.7"><?php echo esc_html__( 'Limited restocks move fast. Drop your email and we\'ll ping you the moment this size returns — no spam, just the alert.', 'aggressive-apparel' ); ?></p>
+	<p class="has-text-align-center has-foreground-muted-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.7"><?php echo esc_html__( 'Leave your email and we\'ll tell you when this size is back.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:group {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"},"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"width":"1px","style":"dashed","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->

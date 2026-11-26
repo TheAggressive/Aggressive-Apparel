@@ -23,7 +23,7 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"center","verticalAlignment":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"},"blockGap":"var:preset|spacing|4"}}} -->
 	<div class="wp-block-group" style="margin-top:var(--wp--preset--spacing--10)">
 		<!-- wp:image {"width":"48px","height":"48px","scale":"cover","sizeSlug":"thumbnail","style":{"border":{"radius":"50%"}}} -->
-		<figure class="wp-block-image size-thumbnail" style="border-radius:50%"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIyNCIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjI0IiBjeT0iMTkiIHI9IjgiIGZpbGw9IiM2NjYiLz48cGF0aCBkPSJNMjQgMzBjLTkgMC0xNSA0LTE1IDd2M2gzMHYtM2MwLTMtNi03LTE1LTd6IiBmaWxsPSIjNjY2Ii8+PC9zdmc+" alt="Chris D." style="width:48px;height:48px;object-fit:cover"/></figure>
+		<figure class="wp-block-image size-thumbnail is-resized has-custom-border"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIyNCIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjI0IiBjeT0iMTkiIHI9IjgiIGZpbGw9IiM2NjYiLz48cGF0aCBkPSJNMjQgMzBjLTkgMC0xNSA0LTE1IDd2M2gzMHYtM2MwLTMtNi03LTE1LTd6IiBmaWxsPSIjNjY2Ii8+PC9zdmc+" alt="Chris D." style="border-radius:50%;object-fit:cover;width:48px;height:48px"/></figure>
 		<!-- /wp:image -->
 
 		<!-- wp:group {"layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"blockGap":"0"}}} -->

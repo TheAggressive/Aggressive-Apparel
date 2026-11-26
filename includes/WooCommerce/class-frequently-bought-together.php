@@ -173,12 +173,12 @@ class Frequently_Bought_Together {
 				'nonce'          => wp_create_nonce( 'wc_store_api' ),
 				'i18n'           => array(
 					'adding'          => __( 'Adding…', 'aggressive-apparel' ),
-					'added'           => __( 'Added!', 'aggressive-apparel' ),
-					'error'           => __( 'Error — try again', 'aggressive-apparel' ),
+					'added'           => __( 'Added', 'aggressive-apparel' ),
+					'error'           => __( 'Couldn’t add. Try again.', 'aggressive-apparel' ),
 					/* translators: %d: number of selected products to add to cart. */
 					'addAll'          => __( 'Add all %d items to cart', 'aggressive-apparel' ),
-					'successAnnounce' => __( 'All items have been added to your cart.', 'aggressive-apparel' ),
-					'errorAnnounce'   => __( 'There was an error adding items to cart.', 'aggressive-apparel' ),
+					'successAnnounce' => __( 'All items added to your cart.', 'aggressive-apparel' ),
+					'errorAnnounce'   => __( 'Couldn’t add these items to your cart. Try again.', 'aggressive-apparel' ),
 				),
 			),
 		);

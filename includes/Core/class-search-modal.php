@@ -209,7 +209,7 @@ class Search_Modal {
 			esc_html( $hint ),
 			esc_html__( 'Searching…', 'aggressive-apparel' ),
 			esc_html__( 'Try again', 'aggressive-apparel' ),
-			esc_html__( 'No results found.', 'aggressive-apparel' ),
+			esc_html__( 'Nothing matched that search. Try a different word.', 'aggressive-apparel' ),
 			esc_html__( 'View all results', 'aggressive-apparel' ),
 			esc_attr__( 'Search results', 'aggressive-apparel' ),
 			esc_html__( 'View all results', 'aggressive-apparel' ),
@@ -252,7 +252,7 @@ class Search_Modal {
 				'viewAllUrl'   => '',
 				'placeholders' => $this->get_placeholder_phrases(),
 				'i18n'         => array(
-					'noResults'      => __( 'No results found.', 'aggressive-apparel' ),
+					'noResults'      => __( 'Nothing matched that search. Try a different word.', 'aggressive-apparel' ),
 					'resultSingular' => __( '1 result found.', 'aggressive-apparel' ),
 					/* translators: %d: number of search results. */
 					'resultPlural'   => __( '%d results found.', 'aggressive-apparel' ),

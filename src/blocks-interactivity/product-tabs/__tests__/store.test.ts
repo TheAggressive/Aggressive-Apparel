@@ -224,8 +224,13 @@ describe( 'initScrollspy', () => {
 		let report: (
 			entries: Partial< IntersectionObserverEntry >[]
 		) => void = () => {};
+		// The real constructor's signature (callback, options): code analysis
+		// resolves every `new IntersectionObserver( cb, options )` to this stub.
 		( window as any ).IntersectionObserver = class {
-			constructor( cb: typeof report ) {
+			constructor(
+				cb: typeof report,
+				_options?: IntersectionObserverInit
+			) {
 				report = cb;
 			}
 			observe(): void {}

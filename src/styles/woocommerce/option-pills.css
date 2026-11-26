@@ -36,8 +36,8 @@
 	opacity: 0;
 	transform: translateX(-0.5625rem) scale(0);
 	transition:
-		transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s,
-		opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		transform var(--aa-duration-normal) var(--aa-ease-spring) 0.08s,
+		opacity var(--aa-duration-fast) var(--aa-ease-default);
 }
 
 .aggressive-apparel-quick-view__option-check svg,
@@ -67,7 +67,7 @@
 	position: relative;
 	z-index: 1;
 	transform: translateX(-0.5625rem);
-	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
 .is-selected .aggressive-apparel-quick-view__option-name,
@@ -93,7 +93,7 @@
 	color: transparent;
 	box-shadow: none;
 	transform: scale(1);
-	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+	transition: transform var(--aa-duration-normal) var(--aa-ease-spring);
 }
 
 .aggressive-apparel-quick-view__attribute-option.is-color-swatch::before,

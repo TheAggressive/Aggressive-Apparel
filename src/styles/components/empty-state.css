@@ -1,0 +1,38 @@
+/**
+ * Empty state: what a list shows with nothing in it (the wishlist page, the
+ * mini-cart drawer). One composition everywhere: the list's icon in a ring,
+ * one display line, an optional plain line, and one way forward.
+ *
+ * Zero specificity: block layout, typography and color settings win.
+ *
+ * @package Aggressive_Apparel
+ */
+
+:where(.aa-empty-state__icon) {
+	display: grid;
+	place-items: center;
+	width: var(--wp--preset--spacing--16);
+	height: var(--wp--preset--spacing--16);
+	margin: 0;
+	border: 1px solid var(--aa-color-border-subtle);
+	border-radius: var(--aa-radius-full);
+}
+
+/* The icon block sets its own display (block, at class specificity); in the
+   ring it centres like any other icon. */
+.aggressive-apparel-icon.aa-empty-state__icon {
+	display: grid;
+}
+
+:where(.aa-empty-state__title) {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--bebas-neue);
+	font-size: var(--wp--preset--font-size--fluid-xx-large);
+	font-weight: 400;
+	line-height: 1;
+}
+
+:where(.aa-empty-state__line) {
+	margin: 0;
+	color: color-mix(in oklch, currentcolor 70%, transparent);
+}

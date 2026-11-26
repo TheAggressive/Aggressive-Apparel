@@ -161,7 +161,7 @@ export const { state, actions } = store< StickyCartStore >(
 				return getLabel( 'continueShoppingText', 'Continue Shopping' );
 			},
 			get addedToCartMessage(): string {
-				return getLabel( 'addedToCartMessage', 'Added to cart!' );
+				return getLabel( 'addedToCartMessage', 'Added to your cart' );
 			},
 			get hideDrawerHeader(): boolean {
 				return state.drawerView === 'success';
@@ -275,7 +275,7 @@ export const { state, actions } = store< StickyCartStore >(
 						state.hasError = true;
 						state.announcement = getLabel(
 							'addToCartErrorAnnounce',
-							'Error adding to cart'
+							'Couldn’t add this to your cart. Try again.'
 						);
 
 						setTimeout( () => {
@@ -353,7 +353,7 @@ export const { state, actions } = store< StickyCartStore >(
 						state.hasError = true;
 						state.announcement = getLabel(
 							'addToCartErrorAnnounce',
-							'Error adding to cart'
+							'Couldn’t add this to your cart. Try again.'
 						);
 
 						setTimeout( () => {

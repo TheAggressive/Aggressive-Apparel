@@ -197,7 +197,6 @@
 .aa-product-specs__measure {
 	display: grid;
 	color: var(--aa-product-specs-muted);
-	text-transform: capitalize;
 }
 
 .aa-product-specs__fit,
@@ -227,8 +226,12 @@
 	text-transform: none;
 }
 
+/* Size titles and measurement labels come from chart data that may be
+   lowercase ("chest"), so they are capitalised; the prompt is a sentence and
+   keeps sentence case. */
 .aa-product-specs__fit-size,
 .aa-product-specs__fit-item {
+	text-transform: capitalize;
 	white-space: nowrap;
 }
 

@@ -16,10 +16,10 @@
 		},
 		"spacing": {
 			"padding": {
-				"top": "var:preset|spacing|fluid-20",
-				"right": "var:preset|spacing|fluid-12",
-				"bottom": "var:preset|spacing|fluid-20",
-				"left": "var:preset|spacing|fluid-12"
+				"top": "var:preset|spacing|section-standard",
+				"right": "var:preset|spacing|gutter",
+				"bottom": "var:preset|spacing|section-standard",
+				"left": "var:preset|spacing|gutter"
 			}
 		},
 		"elements": {

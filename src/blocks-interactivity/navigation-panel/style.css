@@ -731,8 +731,8 @@ body.has-search-modal-open .aa-nav__panel.is-open {
 @supports selector(@starting-style) {
 	.aa-nav--fullscreen .aa-nav__panel-menu > li {
 		transition:
-			opacity 400ms var(--aa-ease-default),
-			translate 400ms var(--aa-ease-default);
+			opacity var(--aa-duration-normal) var(--aa-ease-default),
+			translate var(--aa-duration-normal) var(--aa-ease-default);
 	}
 
 	@starting-style {

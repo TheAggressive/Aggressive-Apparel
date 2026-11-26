@@ -1,0 +1,202 @@
+/**
+ * Editorial sections (patterns/editorial-*.php)
+ *
+ * Section-level treatments the block editor can't express: the campaign
+ * hero's display type, full-width linked photos and the lookbook's phone
+ * rail. The section rules key off a class the pattern sets, so they
+ * never reach other Covers or Columns.
+ *
+ * Unlayered on purpose: the hero rules must outrank the Campaign Display
+ * heading style (block-styles.css, unlayered) and core's constrained-layout
+ * width. Editor typography still wins — font-size preset classes carry
+ * !important, inline sizes are inline.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Campaign hero. Beside its photos the slogan is stacked at display scale,
+   sized to its own column (container units: "REBELLION", the longest word,
+   fills the column at every width, phones included); with no portrait photo
+   in the store the hero has no image and the slogan becomes the image:
+   full-width display type. The row is most of a screen tall from 782px so
+   the photos carry the opening, capped so a tall monitor doesn't crop them
+   to slivers. Editor font-size picks still win (preset classes carry
+   !important). */
+.aa-campaign-hero {
+	& > .wp-block-columns > .wp-block-column:not(.aa-bleed-photo) {
+		container-type: inline-size;
+	}
+
+	& .wp-block-heading.is-style-campaign {
+		max-width: none;
+		font-size: clamp(3.5rem, 1rem + 6vw, 8rem);
+		line-height: 0.86;
+		letter-spacing: -0.005em;
+	}
+
+	& .wp-block-column .wp-block-heading.is-style-campaign {
+		font-size: clamp(3.5rem, 30cqi, 11rem);
+	}
+
+	/* Stacked on a tablet the column is the full width: fill it as on a
+	   phone, but stop short of a slogan taller than the photos above it. */
+	@media (600px <= width < 782px) {
+		& .wp-block-column .wp-block-heading.is-style-campaign {
+			font-size: clamp(3.5rem, 30cqi, 8rem);
+		}
+	}
+
+	&:not(:has(.wp-block-image)) .wp-block-heading.is-style-campaign {
+		font-size: clamp(4.5rem, 2rem + 11vw, 13rem);
+		line-height: 0.86;
+	}
+
+	& .is-style-lead {
+		max-width: 38rem;
+		margin-block-start: var(--wp--preset--spacing--5);
+		font-size: var(--wp--preset--font-size--x-large);
+	}
+
+	@media (width >= 782px) {
+		& > .wp-block-columns {
+			min-height: clamp(36rem, 100svh - 8rem, 56rem);
+		}
+	}
+
+	/* Below 782px the split stacks and the photos lead, so the first screen
+	   is a photograph with the slogan under it rather than type alone. Side
+	   by side on a tablet the copy column grew so tall that each portrait
+	   cropped to a ~180px sliver. */
+	@media (width < 782px) {
+		& .aa-bleed-photo {
+			order: -1;
+		}
+	}
+}
+
+/* Full-height photo column (className `aa-bleed-photo`, the hero's and the
+   Women's spread). Its photos run the full height of the row: when the copy
+   beside them is taller than the photos' own ratio they stretch and crop
+   (cover) rather than leave a strip under them. The column keeps height
+   auto so the row stretches it (an explicit height on a flex item turns
+   stretch off); its contents fill it. Side by side only (from 600px, see
+   aa-tablet-split): stacked on phones the photos keep their ratio. */
+@media (width >= 600px) {
+	.aa-bleed-photo
+		:is(
+			.wp-block-columns,
+			.wp-block-column,
+			.wp-block-image,
+			.wp-block-image > a,
+			img
+		) {
+		height: 100%;
+	}
+}
+
+/* Tablets (600-781px) keep the editorial splits side by side (className
+   `aa-tablet-split`: the collection bands, Women's, Hoodies, the lookbook)
+   instead of stacking them into 768px-wide photos and cards; phones still
+   stack. The hero and New Arrivals stack: side by side the hero's portraits
+   cropped to slivers and New Arrivals' 2 x 2 shrank to ~150px cards. Core stacks columns below 782px with flex-wrap:wrap!important
+   and flex-basis:100%!important; !important here beats exactly those two. */
+@media (600px <= width < 782px) {
+	.wp-block-columns.aa-tablet-split {
+		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
+		flex-wrap: nowrap !important;
+
+		& > .wp-block-column {
+			/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-basis:100%!important */
+			flex-basis: 0 !important;
+			flex-grow: 1;
+		}
+	}
+}
+
+/* A linked image set to 100% width (editorial photo slots, and any image
+   the editor sizes that way) fills its column. Core makes the link
+   inline-block, a shrink-to-fit box, so the image's percentage width
+   resolved to its natural size: a 504px photo sat in a 624px column. */
+.wp-block-image > a:has(> img[style*="width:100%"]) {
+	display: block;
+}
+
+/* Lookbook captions keep "Fig. 03" on one line beside a long product name. */
+.aa-editorial-looks .is-style-meta {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+/* Lookbook on phones (tablets keep it side by side: aa-tablet-split).
+   Stacked, three portrait looks made a ~2,400px column
+   of image; a swipeable rail shows the first look whole and the next one's
+   edge, at about a third of the height. Core stacks columns below 782px
+   with `flex-wrap: wrap !important` and `flex-basis: 100% !important`, and
+   its constrained layout pins children with margin-inline auto !important;
+   !important here beats exactly those three declarations. */
+@media (width < 600px) {
+	.wp-block-columns.aa-editorial-looks {
+		/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-wrap:wrap!important */
+		flex-wrap: nowrap !important;
+		/* stylelint-disable-next-line declaration-no-important -- beats core constrained-layout margin-inline:auto!important */
+		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter)) !important;
+		padding-inline: var(--wp--preset--spacing--gutter);
+		scroll-padding-inline: var(--wp--preset--spacing--gutter);
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		& > .wp-block-column {
+			/* stylelint-disable-next-line declaration-no-important -- beats core columns' mobile flex-basis:100%!important */
+			flex-basis: 78% !important;
+			flex-shrink: 0;
+			scroll-snap-align: start;
+		}
+	}
+}
+
+/* Homepage rhythm: shopping sections (className `aa-shop-section`) share
+   the page surface and editorial moments sit on black, so the page
+   alternates between browsing and looking. Where two shopping sections meet
+   (Categories and New Arrivals; Hoodies and Accessories when Defiance
+   Division is absent; any of them and the closing row, className
+   `aa-page-section`, when a section between is omitted) a hairline at the
+   wide column's width marks the seam. Zero specificity: an editor background (a gradient) still wins. */
+:where(
+	:is(.aa-shop-section, .aa-page-section)
+		+ :is(.aa-shop-section, .aa-page-section)
+) {
+	background-image: linear-gradient(
+		var(--aa-color-border-muted),
+		var(--aa-color-border-muted)
+	);
+	background-position: top center;
+	background-repeat: no-repeat;
+	background-size: min(
+			100% - 2 * var(--wp--preset--spacing--gutter),
+			var(--wp--style--global--wide-size)
+		)
+		1px;
+}
+
+/* The name (className `aa-statement`): a white chapter, light in both
+   schemes, so its photographs and type read the same in dark mode. */
+.aa-statement {
+	color-scheme: light;
+}
+
+/* The two brand statements (The name and the closing row) share one scale,
+   a step under the hero slogan and above the section headings, so the red
+   band adds to the hierarchy without outweighing the products around it.
+   It scales with the viewport: the fluid presets keep a fixed minimum
+   (4.5rem) wider than "compliment." on a phone, and overflow-wrap then
+   split the word. Editor font-size picks still win (preset classes carry
+   !important). */
+:is(.aa-statement, .aa-page-section) .wp-block-heading.is-style-headline {
+	font-size: clamp(2.25rem, 1rem + 3.6vw, 4.5rem);
+}

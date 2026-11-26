@@ -19,11 +19,13 @@ test.beforeAll( () => {
 			'eval',
 			`
     $simple = new WC_Product_Simple();
+    $simple->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
     $simple->set_name('Wishlist browser fixture');
     $simple->set_status('publish');
     $simple->set_regular_price('20');
     $simple->save();
     $variable = new WC_Product_Variable();
+    $variable->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
     $variable->set_name('Wishlist options fixture');
     $variable->set_status('publish');
     $variable->save();

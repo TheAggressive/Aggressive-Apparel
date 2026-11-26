@@ -311,6 +311,31 @@
 					"name": "Display Giant",
 					"size": "clamp(5rem, 4rem + 18vw, 32rem)",
 					"slug": "display-giant"
+				},
+				{
+					"name": "Gutter",
+					"size": "clamp(1rem, 0.25rem + 3.2vw, 3rem)",
+					"slug": "gutter"
+				},
+				{
+					"name": "Section: Compact",
+					"size": "clamp(2.5rem, 1.75rem + 2.5vw, 4rem)",
+					"slug": "section-compact"
+				},
+				{
+					"name": "Section: Standard",
+					"size": "clamp(4rem, 2rem + 6.667vw, 8rem)",
+					"slug": "section-standard"
+				},
+				{
+					"name": "Section: Editorial",
+					"size": "clamp(5rem, 2.5rem + 8.333vw, 10rem)",
+					"slug": "section-editorial"
+				},
+				{
+					"name": "Section: Immersive",
+					"size": "clamp(6rem, 2rem + 12.222vw, 13rem)",
+					"slug": "section-immersive"
 				}
 			]
 		},
@@ -319,7 +344,7 @@
 				{
 					"slug": "surface",
 					"name": "Surface (Adaptive)",
-					"light": "oklch(87% 0 0)",
+					"light": "oklch(95% 0 0)",
 					"dark": "oklch(20.5% 0 0)"
 				},
 				{
@@ -331,13 +356,13 @@
 				{
 					"slug": "surface-muted",
 					"name": "Surface Muted (Adaptive)",
-					"light": "oklch(93% 0 0)",
-					"dark": "oklch(26% 0 0)"
+					"light": "oklch(97.5% 0 0)",
+					"dark": "oklch(24% 0 0)"
 				},
 				{
 					"slug": "surface-sunken",
 					"name": "Surface Sunken (Adaptive)",
-					"light": "oklch(80% 0 0)",
+					"light": "oklch(90% 0 0)",
 					"dark": "oklch(12% 0 0)"
 				},
 				{
@@ -385,7 +410,7 @@
 				{
 					"slug": "border-muted",
 					"name": "Border Muted (Adaptive)",
-					"light": "oklch(82% 0 0)",
+					"light": "oklch(84% 0 0)",
 					"dark": "oklch(30% 0 0)"
 				}
 			],
@@ -585,6 +610,23 @@
 					"fontSize": "var:preset|font-size|small",
 					"fontWeight": "400",
 					"lineHeight": "1.2"
+				},
+				"lead": {
+					"fontSize": "var:preset|font-size|lead",
+					"fontWeight": "400",
+					"lineHeight": "1.5"
+				},
+				"headline": {
+					"fontSize": "var:preset|font-size|headline",
+					"fontWeight": "600",
+					"lineHeight": "1.02",
+					"letterSpacing": "-0.025em"
+				},
+				"display": {
+					"fontSize": "var:preset|font-size|display",
+					"fontWeight": "400",
+					"lineHeight": "0.9",
+					"letterSpacing": "0.005em"
 				}
 			}
 		},
@@ -607,6 +649,11 @@
 					"name": "Black",
 					"slug": "black",
 					"color": "oklch(0 0 0)"
+				},
+				{
+					"name": "Product Media",
+					"slug": "product-media",
+					"color": "oklch(97.5% 0 0)"
 				},
 				{
 					"name": "Transparent",
@@ -978,6 +1025,33 @@
 						"min": "6rem",
 						"max": "8rem"
 					}
+				},
+				{
+					"name": "Lead",
+					"slug": "lead",
+					"size": "1.375rem",
+					"fluid": {
+						"min": "1.125rem",
+						"max": "1.375rem"
+					}
+				},
+				{
+					"name": "Headline",
+					"slug": "headline",
+					"size": "3.5rem",
+					"fluid": {
+						"min": "2.25rem",
+						"max": "3.5rem"
+					}
+				},
+				{
+					"name": "Display",
+					"slug": "display",
+					"size": "7.5rem",
+					"fluid": {
+						"min": "3.5rem",
+						"max": "7.5rem"
+					}
 				}
 			],
 			"fontWeight": true,
@@ -1039,6 +1113,20 @@
 					"fontFamily": true
 				}
 			}
+		},
+		"dimensions": {
+			"aspectRatios": [
+				{
+					"name": "Campaign (21:9)",
+					"slug": "campaign",
+					"ratio": "21/9"
+				},
+				{
+					"name": "Editorial Portrait (4:5)",
+					"slug": "editorial-portrait",
+					"ratio": "4/5"
+				}
+			]
 		}
 	},
 	"styles": {
@@ -1152,14 +1240,14 @@
 			"h1": {
 				"typography": {
 					"fontFamily": "var:preset|font-family|bebas-neue",
-					"fontSize": "var:preset|font-size|fluid-xxxxx-large",
+					"fontSize": "var:preset|font-size|fluid-xxxxxx-large",
 					"lineHeight": "1"
 				}
 			},
 			"h2": {
 				"typography": {
 					"fontFamily": "var:preset|font-family|bebas-neue",
-					"fontSize": "var:preset|font-size|fluid-xxxx-large",
+					"fontSize": "var:preset|font-size|fluid-xxxxx-large",
 					"lineHeight": "1"
 				}
 			},
@@ -1627,6 +1715,21 @@
 		{
 			"name": "mobile-nav",
 			"title": "Mobile Navigation",
+			"area": "uncategorized"
+		},
+		{
+			"name": "campaign-image",
+			"title": "Homepage campaign image",
+			"area": "uncategorized"
+		},
+		{
+			"name": "drop-campaign-image",
+			"title": "Featured drop campaign image",
+			"area": "uncategorized"
+		},
+		{
+			"name": "defiance-campaign-image",
+			"title": "Defiance Division campaign image",
 			"area": "uncategorized"
 		}
 	],

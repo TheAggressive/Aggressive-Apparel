@@ -216,6 +216,14 @@ pnpm test:e2e:ci        # pinned native release parity (no Docker)
     components in light and dark mode against a committed JSON snapshot. After
     an intended change, review the diff and re-record with
     `pnpm test:e2e tests/e2e/component-styles.spec.ts --update-snapshots`.
+  - `tests/e2e/pattern-validity.spec.ts` — every registered theme pattern
+    parses into valid, registered blocks in the real editor (no "unexpected or
+    invalid content" on insert), naming the validator's first message.
+- **Tokens are tested at the source.** `src/styles/__tests__/token-contracts.test.ts`
+  reads `theme.json`: every text role clears WCAG AA on every surface in both
+  schemes, every preset slug used by templates, parts, patterns and section
+  styles resolves, and the token docs list every color, type role, layout
+  preset and aspect ratio.
 - **No fixed sleeps in e2e.** Wait on a condition (an attribute, focus, a
   finished `CSSTransition`, `expect.poll`), never `waitForTimeout`, except to
   model a user's cadence (e.g. rapid taps).

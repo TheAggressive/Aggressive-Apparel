@@ -385,6 +385,7 @@
 
 .aa-size-chart__unit-button {
 	min-width: 3rem;
+	min-height: var(--aa-control-min-dense); /* the dense choice floor, 32px */
 	padding: 0.35rem 0.85rem;
 	border: 0;
 	border-radius: var(--aa-radius-full, 999px);
@@ -520,7 +521,7 @@
 	font: inherit;
 	font-size: 0.875em;
 	cursor: pointer;
-	transition: color 0.15s ease;
+	transition: color var(--aa-duration-fast) var(--aa-ease-default);
 
 	@media (prefers-reduced-motion: reduce) {
 		transition: none;

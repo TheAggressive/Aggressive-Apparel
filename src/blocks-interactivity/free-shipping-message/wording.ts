@@ -83,13 +83,13 @@ export function defaultWording(
 		return phrase
 			? templateToWording(
 					/* translators: %s: highlighted free-shipping phrase set in the block. */
-					__( '%s UNLOCKED!', 'aggressive-apparel' ),
+					__( 'Your order qualifies for %s.', 'aggressive-apparel' ),
 					[ phrase ]
 				)
 			: templateToWording(
 					/* translators: Shown once the cart qualifies for free shipping. {em} and {em_end} wrap the highlighted phrase; keep both. */
 					__(
-						'{em}FREE Shipping{em_end} UNLOCKED!',
+						'Your order qualifies for {em}free shipping{em_end}.',
 						'aggressive-apparel'
 					),
 					[]
@@ -99,13 +99,13 @@ export function defaultWording(
 	return phrase
 		? templateToWording(
 				/* translators: 1: formatted amount the customer still has to spend, 2: highlighted free-shipping phrase set in the block. */
-				__( '%1$s Away from %2$s!', 'aggressive-apparel' ),
+				__( '%1$s away from %2$s', 'aggressive-apparel' ),
 				[ AMOUNT_TOKEN, phrase ]
 			)
 		: templateToWording(
 				/* translators: %s: formatted amount the customer still has to spend to get free shipping. {em} and {em_end} wrap the highlighted phrase; keep both. */
 				__(
-					'%s Away from {em}FREE Shipping{em_end}!',
+					'%s away from {em}free shipping{em_end}',
 					'aggressive-apparel'
 				),
 				[ AMOUNT_TOKEN ]

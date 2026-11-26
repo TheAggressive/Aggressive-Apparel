@@ -245,6 +245,14 @@ class Theme_Support {
 		);
 
 		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'text-on-dark',
+				'label' => __( 'Tertiary on Dark (Text)', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
 			'core/group',
 			array(
 				'name'  => 'frosted',
@@ -366,6 +374,14 @@ class Theme_Support {
 			);
 
 			register_block_style(
+				'woocommerce/product-collection',
+				array(
+					'name'  => 'editorial-grid',
+					'label' => __( 'Editorial Grid', 'aggressive-apparel' ),
+				)
+			);
+
+			register_block_style(
 				'woocommerce/product-template',
 				array(
 					'name'  => 'commerce-cards',
@@ -404,6 +420,30 @@ class Theme_Support {
 			array(
 				'name'  => 'text-mask',
 				'label' => __( 'Text Mask', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/heading',
+			array(
+				'name'  => 'headline',
+				'label' => __( 'Headline (Sans)', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/heading',
+			array(
+				'name'  => 'campaign',
+				'label' => __( 'Campaign Display', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/paragraph',
+			array(
+				'name'  => 'lead',
+				'label' => __( 'Lead', 'aggressive-apparel' ),
 			)
 		);
 

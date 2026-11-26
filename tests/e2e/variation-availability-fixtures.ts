@@ -163,6 +163,7 @@ if (!$category) {
 }
 
 $product = new WC_Product_Variable();
+$product->set_date_created('2000-01-01T00:00:00+00:00'); // Never the newest product: keeps fixtures out of New Arrivals while the suite shares the site.
 $product->set_name('E2E Variation Availability');
 $product->set_sku('${ VARIATION_FIXTURE_SKU }');
 $product->set_status('publish');

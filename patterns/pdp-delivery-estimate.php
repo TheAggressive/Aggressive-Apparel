@@ -17,17 +17,17 @@
 		<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|3"}}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-			<p class="has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( '🚚 Order by 2pm — ships today', 'aggressive-apparel' ); ?></p>
+			<p class="has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( '[Order cutoff and dispatch time. Match your fulfilment.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
 
 		<!-- wp:paragraph {"textColor":"foreground-muted","fontSize":"x-small"} -->
-		<p class="has-foreground-muted-color has-text-color has-x-small-font-size"><?php echo esc_html__( 'Free shipping on orders over $100', 'aggressive-apparel' ); ?></p>
+		<p class="has-foreground-muted-color has-text-color has-x-small-font-size"><?php echo esc_html__( '[Free shipping threshold. Match your shipping settings.]', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"textColor":"foreground-muted","fontSize":"x-small"} -->
-		<p class="has-foreground-muted-color has-text-color has-x-small-font-size"><?php echo esc_html__( '30-day hassle-free returns', 'aggressive-apparel' ); ?></p>
+		<p class="has-foreground-muted-color has-text-color has-x-small-font-size"><?php echo esc_html__( '[Return window. Match your return policy.]', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

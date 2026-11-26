@@ -16,19 +16,19 @@ import {
 describe( 'defaultWording', () => {
 	it( 'derives both default messages from the translated templates', () => {
 		expect( defaultWording( 'progress' ) ).toBe(
-			'{amount} Away from *FREE Shipping*!'
+			'{amount} away from *free shipping*'
 		);
 		expect( defaultWording( 'unlocked' ) ).toBe(
-			'*FREE Shipping* UNLOCKED!'
+			'Your order qualifies for *free shipping*.'
 		);
 	} );
 
 	it( 'carries a legacy emphasis phrase into both messages', () => {
 		expect( defaultWording( 'progress', 'FREE Express' ) ).toBe(
-			'{amount} Away from *FREE Express*!'
+			'{amount} away from *FREE Express*'
 		);
 		expect( defaultWording( 'unlocked', 'FREE Express' ) ).toBe(
-			'*FREE Express* UNLOCKED!'
+			'Your order qualifies for *FREE Express*.'
 		);
 		expect( defaultWording( 'progress', 'free shipping' ) ).toBe(
 			defaultWording( 'progress' )

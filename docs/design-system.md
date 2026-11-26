@@ -8,16 +8,28 @@ Single source of truth for UI tokens, naming, and usage across the theme.
 
 Defined in `theme.json` → `settings.custom.adaptiveColors`. Injected at runtime as `light-dark(light, dark)` palette entries by `Adaptive_Colors`.
 
-| Slug                   | Editor name                         | Role                                                                                 | Light                     | Dark                      |
-| ---------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ | ------------------------- | ------------------------- |
-| `surface`              | Surface (Adaptive)                  | Default page/section background                                                      | oklch(87% 0 0)            | oklch(20.5% 0 0)          |
-| `surface-elevated`     | Surface Elevated (Adaptive)         | Higher-contrast surface                                                              | oklch(1 0 0)              | oklch(0 0 0)              |
-| `foreground`           | Foreground (Adaptive)               | Primary text                                                                         | oklch(0 0 0)              | oklch(1 0 0)              |
-| `foreground-muted`     | Foreground Muted (Adaptive)         | Secondary/muted text                                                                 | oklch(55.6% 0 0)          | oklch(87% 0 0)            |
-| `accent`               | Accent (Adaptive)                   | Brand interactive (links, hover, focus)                                              | oklch(44.4% 0.177 26.899) | oklch(65% 0.236 29)       |
-| `accent-on-foreground` | Accent on Foreground (Adaptive)     | Brand accent on inverted foreground                                                  | oklch(68% 0.22 27.325)    | oklch(44.4% 0.177 26.899) |
-| `accent-on-raised`     | Accent on Raised Surface (Adaptive) | Accent text on raised dark surfaces (striped rows) — only where `accent` fails 4.5:1 | oklch(44.4% 0.177 26.899) | oklch(67.5% 0.213 29)     |
-| `border`               | Border (Adaptive)                   | Borders and dividers                                                                 | oklch(70.8% 0 0)          | oklch(43.9% 0 0)          |
+Values live only in `theme.json` (the token contract test reads them from
+there); this table records each token's **role**.
+
+| Slug                   | Role                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| `surface`              | Default page/section background. Light mode is a warm paper neutral, dark mode a soft black. |
+| `surface-elevated`     | Highest-contrast surface (white / black): cards, product media wells, overlays.              |
+| `surface-muted`        | Soft raised panel between `surface` and `surface-elevated` (account cards, empty states).    |
+| `surface-sunken`       | Recessed wells: image placeholders, input fills.                                             |
+| `foreground`           | Primary text.                                                                                |
+| `foreground-muted`     | Secondary text, captions, meta.                                                              |
+| `accent`               | Brand interactive text: links, hover, focus.                                                 |
+| `accent-fill`          | Brand red as a **fill** (buttons, badges); brighter than `accent` in dark mode.              |
+| `accent-on-foreground` | Brand accent on an inverted (foreground-coloured) fill.                                      |
+| `accent-on-raised`     | Accent text on raised dark surfaces (striped rows) — only where `accent` fails 4.5:1.        |
+| `border`               | Borders and dividers.                                                                        |
+| `border-muted`         | Quieter hairlines than `border`.                                                             |
+
+Every text role (`foreground`, `foreground-muted`, `accent`) clears WCAG AA
+(4.5:1) on every surface in **both** schemes, and light surfaces keep the order
+sunken → surface → muted → elevated. `src/styles/__tests__/token-contracts.test.ts`
+enforces both, plus that this table and `design-tokens.md` list every token.
 
 **CSS variable:** `var(--wp--preset--color--{slug})`  
 **Alias:** `var(--aa-color-{slug})` in `src/styles/base/tokens.css`
@@ -49,7 +61,269 @@ Use **adaptive** tokens for surfaces, text, and brand UI. The legacy `primary` a
 
 ## Typography
 
-The theme exposes Space Grotesk for body and interface text and Bebas Neue for headings. Font files are installed and activated through the WordPress Font Library, so `theme.json` declares the families without owning `fontFace` sources.
+Space Grotesk carries body and interface text; Bebas Neue carries headings and
+campaign display. Font files are installed and activated through the WordPress
+Font Library, so `theme.json` declares the families without owning `fontFace`
+sources. Only declared families may be referenced from theme markup — the
+token contract test fails on any other `fontFamily` slug.
+
+Bebas Neue has no lowercase and renders smaller than its nominal size, so a
+page built only from Bebas headings reads as one shouted voice. Mix the roles:
+Bebas for campaign moments and section labels, the sans **Headline** for
+editorial statements, **Lead** for intro copy.
+
+### Type roles
+
+| Role           | How to apply                                             | Use                                                            |
+| -------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
+| `display`      | Heading style **Campaign Display** (`is-style-campaign`) | Hero and campaign headlines. At most one per section.          |
+| `headline`     | Heading style **Headline (Sans)** (`is-style-headline`)  | Editorial statements, story sections, sentence-case headlines. |
+| h1–h6          | Default heading (theme.json `styles.elements`)           | Document structure; Bebas, fluid sizes.                        |
+| `lead`         | Paragraph style **Lead** (`is-style-lead`)               | One intro paragraph under a section heading.                   |
+| `eyebrow`      | Paragraph style **Eyebrow**                              | Short kicker above a heading (accent, caps, tracked).          |
+| `caption`      | Paragraph style **Caption**                              | Image and figure captions.                                     |
+| `meta`         | Paragraph style **Meta**                                 | Dates, counts, small uppercase metadata.                       |
+| `legal`        | Paragraph style **Legal**                                | Fine print.                                                    |
+| `price`        | Paragraph style **Price** / Commerce Price               | Prices outside product blocks.                                 |
+| `productTitle` | Product card titles (`--aa-type-product-title-*`)        | Product names in grids.                                        |
+
+Sizes come from `settings.custom.typeRole` (aliased as `--aa-type-<role>-*`);
+`display`, `headline` and `lead` use the fluid `display`, `headline` and `lead`
+font-size presets, which editors can also pick directly.
+
+## Layout rhythm
+
+One gutter and four section densities, all fluid spacing presets
+(`var:preset|spacing|<slug>`, aliased `--aa-gutter` / `--aa-section-*`):
+
+| Preset              | 375px → 1440px+ | Use                                                                  |
+| ------------------- | --------------- | -------------------------------------------------------------------- |
+| `gutter`            | 16px → 48px     | Horizontal page padding on every template's `<main>` and the footer. |
+| `section-compact`   | 40px → 64px     | Utility bands: trust rows, marquee, newsletter, surface cards.       |
+| `section-standard`  | 64px → 128px    | Default merchandising section (product rows, category grids).        |
+| `section-editorial` | 80px → 160px    | Story-led sections: original-work feature, collections, brand.       |
+| `section-immersive` | 96px → 208px    | Rare campaign moments; never two in a row.                           |
+
+Rules:
+
+1. A section's vertical padding uses one of the `section-*` presets — never a
+   raw number. Pick by the section's **importance**, not to fill space.
+2. Stack sections with `blockGap: 0` on the page wrapper and let each section
+   own its padding, so adjacent sections with different surfaces meet cleanly.
+3. Content stays inside `contentSize` (1200px); merchandising grids and
+   editorial media may go `wide` (1600px); campaign media goes `full`.
+4. Section style variations (below) already apply these presets.
+
+## Image system
+
+| Ratio                  | Slug / source                      | Use                                                     |
+| ---------------------- | ---------------------------------- | ------------------------------------------------------- |
+| 21:9 Campaign          | `campaign` (`settings.dimensions`) | Wide campaign images on desktop. Covers use min-height. |
+| 4:5 Editorial Portrait | `editorial-portrait`               | Editorial and lookbook portraits, detail close-ups.     |
+| 4:5, 2:3, 1:1, 16:9    | WordPress defaults                 | Category tiles (4:5), tall looks (2:3), detail (1:1).   |
+| Product images         | 1:1 slot, contain                  | Every card; product images are designed square.         |
+
+Rules:
+
+1. **Product photography is shown whole, in a square.** The product images
+   are designed square, so every product card's media slot is 1:1 and shows
+   the photo with `contain`, never a crop that could cut a sleeve or a
+   print. Category tiles are 4:5: the photo is a whole square at the top
+   and the name sits on the black band under it, never over the artwork.
+   The New Arrivals lead card is 1:1.11 so it lines up with the 2 × 2
+   beside it. The product gallery frame
+   follows the main photo. Patterns do not override the card slot.
+2. Hero and campaign images are Covers with a **min-height in `svh`/`vh`**
+   (60–90) rather than a fixed ratio, and a **focal point** set on the subject.
+   Avoid thin banner strips: no campaign Cover under 60svh on desktop.
+3. **Text-safe areas:** place Cover content to one side (`contentPosition`)
+   and pair it with the `dark-overlay` / `dark-overlay-strong` gradient at
+   30–60% so copy clears 4.5:1 regardless of the photo.
+4. **Loading:** WordPress marks the first large content image
+   `fetchpriority="high"` and lazy-loads the rest; don't add `loading` or
+   priority attributes by hand.
+5. **Alt text:** describe the garment (and its artwork, where it has one) in product and editorial
+   images; decorative Cover backgrounds keep empty alt.
+6. **Placeholders:** where approved photography isn't available, patterns ship
+   an image-less Cover named `… (replace image)` in List View. Never substitute
+   generated or stock imagery for retail product photos.
+
+## Editorial pattern library
+
+Twelve section patterns (category **Editorial Sections**) and one composition,
+**Editorial Homepage** (`editorial-homepage`), which `templates/home.html`
+renders. Each section is its own pattern, so editors can reorder, remove or
+insert any section alone.
+
+| #   | Pattern                       | Rhythm / surface             | Live data                                                                                                                                                                                                                                                              |
+| --- | ----------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01  | `editorial-campaign-hero`     | studio cover (light in both) | Campaign Cover from the Site Editor: the photo full width, slogan and links on its open side (stacked on phones), the cover product named with its live price; else the cover product's own photo beside the slogan on the light ground; nothing chosen → slogan alone |
+| 02  | `editorial-new-arrivals`      | compact                      | One rail of up to eight, newest first after the cover's garment; nothing after it → omitted                                                                                                                                                                            |
+| 03  | `editorial-category-showcase` | compact                      | Shop by line: one ruled row per stocked line, best-stocked first, name at display scale, piece count, three of its products                                                                                                                                            |
+| 04  | `editorial-artwork-spotlight` | white (light in both)        | "Aggressive is a compliment." + paragraph beside up to three on-figure photos with a Shown line; no photos → typographic                                                                                                                                               |
+| 05  | `editorial-best-sellers`      | compact                      | Three numbered cards: 3+ buyable products sold → Best sellers; else in-stock Featured; else omitted                                                                                                                                                                    |
+| 06  | `editorial-featured-drop`     | black spread / band          | With a photo in _Featured drop campaign image_: that photo full width, name, line and one CTA over it. Else drop photo + name + row of two, or title row over a stock-sized grid; no stocked term → omitted                                                            |
+| 07  | `editorial-womens-collection` | white spread                 | Copy + row of two beside a full-height on-figure photo, light in both schemes; no stocked term → omitted                                                                                                                                                               |
+| 08  | `editorial-hoodies-feature`   | compact                      | Lineup on one studio band: up to four side by side (short ranges centred), five or more a rail                                                                                                                                                                         |
+| 09  | `editorial-defiance-division` | black spread / band          | With a photo in _Defiance Division campaign image_: a 21:9 film still, title row beneath, nothing over the photo. Else as the drop band (`Editorial_Collection_Band`); no stocked term → omitted                                                                       |
+| 10  | `editorial-accessories`       | compact                      | With an on-figure accessory photo: photo + two products + a tile counting the rest; else up to four, or a rail                                                                                                                                                         |
+| 11  | `editorial-featured-looks`    | studio (light in both)       | Swipe gallery of three to five square on-figure photos, each linked to and named for its product; fewer → omitted                                                                                                                                                      |
+| 12  | `editorial-brand-story`       | compact                      | One row: "Without the edges sanded off. / Graphic pieces, plain essentials and accessories from an independent label." left, Shop all (+ Our story) right                                                                                                              |
+
+**What the merchant controls** (`WooCommerce\Editorial_Controls`, no
+settings screen of its own: each control lives with its content):
+
+- **Editorial photos (Media Library).** Each image has _Homepage use_: Not
+  reviewed (default), Approved or Excluded, and a _Homepage priority_
+  (higher first). Only **approved** photos fill editorial slots (the name,
+  Women's, accessories, the lookbook, collection bands); nothing publishes
+  itself. The list view filters by homepage use and has bulk _Approve for
+  homepage_ / _Exclude from homepage_. A photo is always shown with, and
+  linked to, the product whose main or gallery image it is. The field's help
+  says whether an image looks like a photograph or a cut-out (corner pixels,
+  read once on upload or thumbnail regeneration and cached as
+  `_aa_photo_kind`; the Media Library never opens a file). Approval is the
+  merchant's call.
+- **Campaign covers (Site Editor).** Three template parts (Appearance →
+  Editor → Patterns → Template parts) each hold a core Cover block:
+  _Homepage campaign image_ (the hero), _Featured drop campaign image_ and
+  _Defiance Division campaign image_. Replace picks the photo from the Media
+  Library; the focal point places the crop; alt text describes it; the
+  overlay and content position decide which side the copy sits on and how
+  it stays legible (ship as a side scrim on the right for the hero, a bottom
+  gradient with copy bottom left for the drop; set the copy on the photo's
+  open side, never over the garment). A second Cover added below the first
+  is the phones' photo, or the same photo with its own focal point; without
+  one, the first serves every width. The theme's parts ship empty: no photo,
+  no campaign (the hero falls back as below, the drop and Defiance Division
+  to their bands). `Editorial_Campaign_Cover` renders the merchant's Cover
+  full size with the section's own copy inside (translated, live links), so
+  edit the photo in the part, not from the Home template, whose patterns
+  the editor would save as static copies. On phones every cover stacks
+  (photo 4:5 and copy beneath; the hero copy first) so no copy sits on a
+  garment. Loading (`Catalog_Image_Loading`): the hero eager and high
+  priority, the others lazy; `sizes` scaled by how much wider the photo is
+  than its frame, phones through a `<picture>` source.
+  _Homepage cover_ on one product (product edit screen, General tab) names
+  the garment under the hero's links with its live price, so tick the
+  garment the photo shows. Without a campaign photo that product's own
+  image is the optional fallback, shown whole; with neither, the slogan
+  alone. The cover never picks a product itself. New Arrivals starts after
+  the cover's product only when it is the newest.
+- **Shop by line.** _Show in Shop by line_ on a product category; marked
+  categories appear in WooCommerce's category order (drag to reorder in
+  Products → Categories). Until any are marked, the standard lines (T-shirts,
+  Hoodies, Outerwear, Swimwear, Leggings, Accessories) in that fixed order.
+  Piece counts are live; an empty line is left out.
+
+Rules the library follows (new sections should too):
+
+1. **No hardcoded store data.** Term IDs and archive URLs differ between
+   environments, so patterns resolve them at render time through
+   `WooCommerce\Editorial_Catalog` (term by slug → real archive URL, or the
+   Shop page). A section whose CTA names a collection ("Shop women's",
+   "Shop the drop") renders only when the store has that term **with
+   products** (`Editorial_Catalog::stocked_term()`); otherwise it renders
+   nothing, rather than a CTA to the whole catalog.
+2. **No invented merchandising.** Best Sellers ranks by recorded sales only;
+   without sales it shows the store's Featured products, labelled
+   "Featured" (never "staff picks", which claims who chose them).
+   Copy makes no claims about materials, process or stock.
+3. **One card.** `WooCommerce\Editorial_Product_Grid` emits every grid with
+   the Editorial Grid card the Shop archive uses (media well, title, price,
+   swatches). Editors can retune each query in the block inspector.
+4. **Real photography or a different layout, never an empty frame.**
+   The hero shows only the campaign photo the merchant set (above), never
+   product imagery it picked itself. Other photo slots take the store's own
+   approved product photography through `WooCommerce\Editorial_Imagery`, as
+   plain core/image blocks linked to the product. Category tiles
+   (`term_image()`) take the category's own image, else its newest product
+   photo in any orientation. Each photo appears once per page, claimed in
+   render order: tiles skip what the hero showed; a collection slot (women's) may reuse a photo because it
+   must show that collection; the lookbook tops up with shown photos rather
+   than disappear. A slot that can't be filled changes the layout (the hero
+   becomes type only, the lookbook is omitted below three portraits). No homepage section ships an image-less
+   placeholder Cover any more; the collection bands (drop, Defiance
+   Division) use the collection's own portrait photo or drop the photo.
+5. **Grids declare their gap.** Core sizes a responsive grid's tracks
+   (Column count + Minimum width) from the block's own gap and assumes 0.5em
+   when none is set; against the theme's 48px gap that drops a column. Set
+   Block spacing on every responsive Grid group.
+6. **One red accent per section.** The eyebrow carries the brand red;
+   headings take the section's text color (Headline and Campaign Display
+   inherit it; plain headings set Foreground).
+7. **Motion never hides merchandise.** Products, category tiles and
+   photographs are visible at rest, never behind a scroll reveal: Animate on
+   Scroll's defaults (30% visible, inside the top three quarters of the
+   viewport) left a visitor looking at a New Arrivals heading over ~360px of
+   nothing, and full-page captures showed whole sections blank. Reveals are
+   for short copy only, at one house setting: `slide` up 24px over 0.7s,
+   `threshold` 0.1, `detectionBoundary` bottom 0%, children staggered 0.08s.
+   The hero never animates. The block renders content visible without
+   JavaScript and holds still under reduced motion. Shop by line is the one
+   index that moves: each line's name (the reveal wraps the heading alone)
+   rises in with its rule drawing across beside it, and on hover or focus
+   the other names step back while the active line's thumbnails lift. The
+   thumbnails themselves are never inside the reveal.
+8. **Sections size to their stock.** Grids count what they can actually
+   show (`Editorial_Catalog::visible_count()`: catalog-visible, in stock),
+   not the term's raw count. Two staff picks are two large cards, not a
+   third of an empty row; one hoodie is a half-and-half spread, two sit
+   beside the headline, five or more become a rail;
+   a one-product women's collection is carried by its photo. Below 1024px
+   editorial grids of three or more columns are two-up. The campaign hero
+   (`aa-campaign-hero`) sizes the slogan to its column (container units)
+   beside the photo, and to the full width when there is no photo.
+9. **Two heading roles.** A heading that names a product set (New arrivals,
+   Featured, Women's, Hoodies, Accessories, How it's worn) is display type:
+   the plain heading set to Foreground, or Campaign Display where the
+   section is a feature; a heading that makes a statement ("Pick your
+   issue.", "Aggressive is a compliment.") is Headline (Sans).
+10. **Spreads alternate; grids don't repeat.** Photo sections are
+    edge-to-edge spreads (`aa-bleed-photo` column: the photo runs the full
+    row height and crops to cover): hero photo right, drop band photo left,
+    Women's photo right, so on phones photo and copy alternate instead of two
+    photos stacking. Beside a photo, products show as one row of two, never
+    a 2 × 2 that would stretch the photo. Product sections take distinct
+    shapes: lead + 2 × 2 (New Arrivals), intro + cards (Featured), headline
+    - cards sized to the count (Hoodies), rail (Accessories), title row +
+      grid (collection bands without a photo). Copy beside a full-bleed photo lines
+      up with the wide column through
+      `max(gutter, (100% - wide-size) / 2)` padding.
+11. **Shopping follows the scheme; editorial moments are fixed colors.**
+    Shopping sections (`aa-shop-section`: categories, New Arrivals,
+    Featured, Accessories) share the page `surface` with compact padding,
+    so the products fill the section. Editorial and feature sections take
+    a surface that holds in both schemes: black (hero, the drop and
+    Defiance bands, the lookbook), deep brand red (The name, `aa-statement`
+    keeps the light scheme's oxblood), white (the Women's spread) and stone
+    (Hoodies: `surface-sunken` with `aa-scheme-light`). White-background
+    blocks and `aa-scheme-light` are light in both schemes and black ones
+    dark (`adaptive-block-colors.css`), so text, buttons and cards inside
+    resolve the right values. Dark mode therefore keeps a light chapter
+    mid-page instead of black after charcoal. Two same-surface sections
+    that meet (`aa-shop-section` or the closing `aa-page-section`) are
+    divided by a hairline at the wide column's width. Listing-card names
+    are Large (18px), the New Arrivals lead XX-Large; eyebrow-to-heading
+    spacing is 12px in every section header.
+12. The slogan appears once, in the hero. Copy follows
+    [`brand-voice.md`](brand-voice.md). The two brand statements (The
+    name and the closing row) share one Headline scale, a step under the
+    slogan and above the section headings; the red band is compact so it
+    paces the page without outweighing the products beside it.
+13. **One action role per position.** A link beside a section heading
+    (All products, Shop new arrivals, Shop accessories) is the Text button
+    style; a feature's copy column (Featured, Women's, Hoodies) carries a
+    Ghost button, Outline on Dark on the black bands. The filled CTA opens
+    and closes the page (hero, closing row) and appears nowhere between.
+
+**Adopting the homepage on an existing site.** A Blog Home (`home`) template
+customised in the Site Editor is stored in the database and overrides
+`templates/home.html`, so deploying the theme does not change a customised
+homepage. To adopt the new one, reset that template in Site Editor →
+Templates, or insert the Editorial Homepage pattern into it. WordPress caches
+the theme's pattern list per theme version; a release bumps the version, and
+locally `wp eval 'wp_get_theme()->delete_pattern_cache();'` refreshes it.
 
 ## Custom Tokens
 
@@ -94,23 +368,23 @@ Aliases in `src/styles/base/tokens.css` use the `--aa-*` prefix. Status colors c
 
 Registered in `includes/Core/class-theme-support.php`:
 
-| Block                            | Variations                                                                                                     |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `core/button`                    | ghost, cta-ghost, text, small, cta, cta-small, outline-on-dark, cta-outline-on-dark, cta-small-outline-on-dark |
-| `core/group`                     | frosted, surface-card, bordered, frosted-dark                                                                  |
-| `core/heading`                   | display, overflow, text-mask                                                                                   |
-| `core/image`                     | editorial                                                                                                      |
-| `core/cover`                     | cinematic                                                                                                      |
-| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, legal, price                                                       |
-| `core/separator`                 | brand-stripe, subtle                                                                                           |
-| `woocommerce/product-collection` | commerce-grid                                                                                                  |
-| `woocommerce/product-template`   | commerce-cards                                                                                                 |
-| `woocommerce/product-image`      | product-frame                                                                                                  |
-| `woocommerce/product-price`      | commerce-price                                                                                                 |
+| Block                            | Variations                                                                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `core/button`                    | ghost, cta-ghost, text, small, cta, cta-small, outline-on-dark, cta-outline-on-dark, cta-small-outline-on-dark, text-on-dark |
+| `core/group`                     | frosted, surface-card, bordered, frosted-dark                                                                                |
+| `core/heading`                   | display, campaign, headline, overflow, text-mask                                                                             |
+| `core/image`                     | editorial                                                                                                                    |
+| `core/cover`                     | cinematic                                                                                                                    |
+| `core/paragraph`                 | badge, badge-muted, eyebrow, caption, meta, lead, legal, price                                                               |
+| `core/separator`                 | brand-stripe, subtle                                                                                                         |
+| `woocommerce/product-collection` | commerce-grid, editorial-grid                                                                                                |
+| `woocommerce/product-template`   | commerce-cards                                                                                                               |
+| `woocommerce/product-image`      | product-frame                                                                                                                |
+| `woocommerce/product-price`      | commerce-price                                                                                                               |
 
 ### Reusable section styles
 
-Stored as style variations in `styles/*.json` and available for Group, Columns, Media & Text, and Cover blocks:
+Stored as style variations in `styles/*.json` and available for Group, Columns, Media & Text, and Cover blocks. Each applies the `gutter` horizontally and a section rhythm vertically (Surface: `section-compact`; Brand Accent and Editorial Dark: `section-standard`):
 
 | Style                   | Purpose                                                                  |
 | ----------------------- | ------------------------------------------------------------------------ |
@@ -133,7 +407,7 @@ Stored as style variations in `styles/*.json` and available for Group, Columns, 
 4. Use font presets instead of raw `font-size` values unless a pattern genuinely needs a one-off display treatment.
 5. Use Badge / Badge Muted for pills, labels, payment methods, and small metadata chips.
 6. Use `surface-card` or `bordered` for framed content instead of rebuilding card chrome inline.
-7. Use WooCommerce block styles for product grids: Commerce Grid, Commerce Cards, Product Frame, and Commerce Price.
+7. Use WooCommerce block styles for product grids: Commerce Grid (framed cards for utility contexts such as cart upsells) or Editorial Grid (frameless cards matching the Shop archive, for storytelling sections), plus Commerce Cards, Product Frame, and Commerce Price.
 8. Use the Design System Preview pattern after token or primitive changes to visually check the system.
 
 ## UI Consistency Contract
@@ -185,6 +459,7 @@ Do not place two primary buttons beside each other. In quick view and the sticky
 | Link-like action                                | registered `core/button` text style                                                 |
 | Hero or merchandising CTA                       | registered `core/button` CTA / CTA Small styles                                     |
 | CTA over dark media                             | `outline-on-dark`, `cta-outline-on-dark`, or `cta-small-outline-on-dark`            |
+| Text link on a black section                    | `text-on-dark` (white, underlined; the accent red is too dark on black)             |
 | Destructive confirm CTA (delete, remove)        | `.aggressive-apparel-button--danger`                                                |
 | Positive confirm CTA (saved, applied)           | `.aggressive-apparel-button--success`                                               |
 | Low-emphasis action between CTA and text link   | `.aggressive-apparel-button--ghost`                                                 |
@@ -199,7 +474,7 @@ Do not place two primary buttons beside each other. In quick view and the sticky
 | Badges, labels, payment pills                   | registered `core/paragraph` Badge / Badge Muted styles                              |
 | Eyebrow, caption, meta, legal, price copy       | registered `core/paragraph` type-role styles                                        |
 | Commerce state chip                             | Badge style plus `aa-commerce-state-*` class                                        |
-| Product collection grid                         | registered `woocommerce/product-collection` Commerce Grid style                     |
+| Product collection grid                         | registered `woocommerce/product-collection` Commerce Grid or Editorial Grid style   |
 | Product card list item                          | registered `woocommerce/product-template` Commerce Cards style                      |
 | Product media frame                             | registered `woocommerce/product-image` Product Frame style                          |
 | Product price text                              | registered `woocommerce/product-price` Commerce Price style                         |
@@ -218,13 +493,14 @@ Every interactive element should expose the same state language:
 
 1. Primary hover inverts to adaptive foreground with the adaptive accent-on-foreground label.
 2. Secondary hover fills with its border color; tertiary hover changes text color without gaining a background.
-3. Focus preserves the variant’s paint and adds the visible two-layer `--aa-focus-ring`.
+3. Focus preserves the variant’s paint and adds the visible two-layer `--aa-focus-ring`. Four expressions, one per kind of control, and nothing left to the browser or a plugin: controls (buttons, icon actions, choices, steppers, panel toggles) take the ring; text fields colour their left bar with the accent (`--aa-field-bar-focus`; the search pill and select wrappers colour their own edge); checkboxes and radios take a 2px accent outline; inline text links take a 2px `currentColor` outline. The catalog toolbar (filter toggle, sort menu) takes the ring like any other control. WooCommerce controls that ship their own or the browser's outline (cart item remove, coupon panel, address line 2 toggle, Blocks checkboxes, the password reveal) are brought onto these in `woocommerce/blocks.css` and `_account-forms.css`.
 4. Disabled controls are inert, do not react on hover, and use reduced opacity plus `cursor: not-allowed`.
 5. Selected variation controls expose `aria-pressed="true"`; unavailable options remain inert and must not animate on hover.
-6. Primary buttons, icon controls, form controls, PDP choices, steppers, and the filter toggle/swatches/Apply-Clear are at least `44px × 44px`. Secondary dense choices use explicit WCAG-safe targets: catalog-card color swatches (32px/28px) and the filter drawer's size/collection/category chips (`.aa-choice-pill--dense`, 32px).
+6. Primary buttons, icon controls, form controls, PDP choices, steppers, and the filter toggle/swatches/Apply-Clear are at least `44px × 44px`. Secondary dense choices use explicit WCAG-safe targets: catalog-card color swatches (32px/28px; the `xxs` swatch size the archive cards use lowers both to WCAG 2.2 AA's 24px), the filter drawer's size/collection/category chips (`.aa-choice-pill--dense`, 32px) and the size chart's unit toggle (`--aa-control-min-dense`, 32px).
 7. Loading controls use `.is-loading` and `aria-busy="true"` when possible.
 8. Errors use `--aa-color-error`; success uses `--aa-color-success`.
-9. Motion uses `--aa-duration-*` and turns off under `prefers-reduced-motion: reduce`.
+9. Text a person types into reads at 16px (`--aa-field-font-size`) on touch screens, compact steppers included: iOS Safari zooms into a focused field set any smaller. The catalog sort inherits its block's font size, which the theme's catalog templates set to Medium (16px); WooCommerce's default is Small.
+10. Motion uses `--aa-duration-*` and turns off under `prefers-reduced-motion: reduce`. Every interaction transition (hover, press, select, open and close) is timed with the motion tokens, so controls move at one rhythm: `--aa-duration-fast` for colour, opacity and small icon turns, `--aa-duration-normal` for movement and reveals, `--aa-duration-slow` for large surfaces; `--aa-ease-default` for state changes, `--aa-ease-enter` / `--aa-ease-exit` for things arriving and leaving (exits fast), `--aa-ease-spring` for a selection check popping in. Keyframe choreography (loaders, page transitions, scroll reveals) and the merchant-selectable effect presets (card hover-image and swatch animation styles) set their own timing. `css-contracts.test.ts` ("times every transition with the motion tokens") fails on a literal timing anywhere else.
 
 ### Configuration rule
 
@@ -252,21 +528,21 @@ Compose in PHP/HTML:
 
 ```html
 <form
-  class="my-feature__form aggressive-apparel-stack aggressive-apparel-stack--md"
+	class="my-feature__form aggressive-apparel-stack aggressive-apparel-stack--md"
 >
-  <input class="aggressive-apparel-field__input" type="email" />
-  <button
-    class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
-  >
-    Submit
-  </button>
+	<input class="aggressive-apparel-field__input" type="email" />
+	<button
+		class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
+	>
+		Submit
+	</button>
 </form>
 
 <div class="aggressive-apparel-overlay my-feature">
-  <div class="aggressive-apparel-overlay__backdrop"></div>
-  <div
-    class="aggressive-apparel-panel aggressive-apparel-panel--lg my-feature__panel"
-  ></div>
+	<div class="aggressive-apparel-overlay__backdrop"></div>
+	<div
+		class="aggressive-apparel-panel aggressive-apparel-panel--lg my-feature__panel"
+	></div>
 </div>
 ```
 
@@ -274,15 +550,15 @@ Reference migrations: exit-intent, back-in-stock, load-more.
 
 ## Lint Enforcement
 
-| Check                                     | Command                                                 |
-| ----------------------------------------- | ------------------------------------------------------- |
-| Stylelint (theme, block, and editor CSS)  | `pnpm lint:css`                                         |
-| Hex ban in feature CSS and patterns       | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Editor UI chrome literals                 | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Registered `is-style-*` usage in patterns | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| Woo product collections use Commerce Grid | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| High-risk raw CTA sizing in patterns      | `bin/check-design-system-css.sh` (runs with `lint:css`) |
-| BEM class names                           | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Check                                                                                                    | Command                                                 |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Stylelint (theme, block, and editor CSS)                                                                 | `pnpm lint:css`                                         |
+| Hex ban in feature CSS and patterns                                                                      | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Editor UI chrome literals                                                                                | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Registered `is-style-*` usage in patterns (names read from `register_block_style()` and `styles/*.json`) | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Woo product collections use Commerce Grid or Editorial Grid                                              | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| High-risk raw CTA sizing in patterns                                                                     | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| BEM class names                                                                                          | `bin/check-design-system-css.sh` (runs with `lint:css`) |
 
 Hex colors are allowed only in `src/styles/base/tokens.css`, `src/styles/admin/`, and content values like color-picker defaults. Editor control surfaces, borders, radii, help text, and notices should use `src/utils/editor-style-tokens.ts`.
 

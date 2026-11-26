@@ -69,7 +69,7 @@
 		<!-- wp:column {"verticalAlignment":"stretch","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-stretch" style="flex-basis:55%">
 			<!-- wp:cover {"dimRatio":10,"overlayColor":"black","minHeight":90,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--surface-elevated);min-height:90vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-10 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<div class="wp-block-cover is-dark has-background" style="background-color:var(--wp--preset--color--surface-elevated);min-height:90vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-10 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","fontSize":"large"} -->
 				<p class="has-text-align-center has-large-font-size"></p>
 				<!-- /wp:paragraph -->

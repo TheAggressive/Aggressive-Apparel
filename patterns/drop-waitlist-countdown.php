@@ -11,7 +11,7 @@
  */
 
 ?><!-- wp:cover {"dimRatio":80,"overlayColor":"black","isUserOverlayColor":true,"minHeight":80,"minHeightUnit":"vh","contentPosition":"center center","align":"full","isDark":true,"style":{"spacing":{"margin":{"top":"0","bottom":"0"}},"color":{"background":"var:preset|color|black"}}} -->
-<div class="wp-block-cover alignfull is-dark has-black-overlay-color" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;min-height:80vh">
+<div class="wp-block-cover alignfull is-dark has-black-overlay-color has-background" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;min-height:80vh">
 	<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-80 has-background-dim"></span>
 	<div class="wp-block-cover__inner-container">
 		<!-- wp:group {"layout":{"type":"constrained","contentSize":"900px"}} -->

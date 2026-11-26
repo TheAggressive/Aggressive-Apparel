@@ -134,9 +134,9 @@ class Sticky_Add_To_Cart {
 					'redirectingText'        => __( 'Redirecting…', 'aggressive-apparel' ),
 					'viewCartText'           => Feature_Settings::get_view_cart_button_text(),
 					'continueShoppingText'   => Feature_Settings::get_continue_shopping_button_text(),
-					'addedToCartMessage'     => __( 'Added to cart!', 'aggressive-apparel' ),
+					'addedToCartMessage'     => __( 'Added to your cart', 'aggressive-apparel' ),
 					'addedSuccessAnnounce'   => __( 'Added to cart', 'aggressive-apparel' ),
-					'addToCartErrorAnnounce' => __( 'Error adding to cart', 'aggressive-apparel' ),
+					'addToCartErrorAnnounce' => __( 'Couldn’t add this to your cart. Try again.', 'aggressive-apparel' ),
 					'unavailableLabel'       => __( 'Unavailable', 'aggressive-apparel' ),
 				),
 			),
@@ -435,7 +435,7 @@ class Sticky_Add_To_Cart {
 							</svg>
 						</div>
 						<p class="aa-sticky-cart__drawer-success-message">
-							<span data-wp-text="state.addedToCartMessage"><?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?></span>
+							<span data-wp-text="state.addedToCartMessage"><?php esc_html_e( 'Added to your cart', 'aggressive-apparel' ); ?></span>
 						</p>
 						<div class="aa-sticky-cart__drawer-success-product">
 							<img

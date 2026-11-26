@@ -1,0 +1,128 @@
+/**
+ * Editorial category tiles (pattern: editorial-category-showcase).
+ * Partial of blocks.css.
+ *
+ * The category name is the tile's one link, stretched over the whole tile, so
+ * a tile needs no separate button.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* clip, not hidden: a clipping box is not a scroll container, so the 4:5
+   aspect ratio becomes a minimum and the tile can grow when its name band
+   needs more room than the 4:5 leaves (narrow desktop tiles). */
+.aa-editorial-tiles .wc-block-featured-category {
+	position: relative;
+
+	/* A grid item with an aspect ratio does not stretch by default, so a
+	   tile whose name wraps would stand taller than its neighbours. */
+	align-self: stretch;
+	overflow: clip;
+}
+
+/* The photo is a square at the top of the 4:5 tile, whole (the product
+   images are designed square); the name and count share the black band
+   below it, so no type sits on the artwork and no gradient dims it. No
+   hover zoom: a scaled photo would spill into the band. (0,3,0) beats
+   WooCommerce's full-bleed image rule (0,2,0). */
+.aa-editorial-tiles
+	.wc-block-featured-category
+	.wc-block-featured-category__background-image {
+	inset: 0 0 auto;
+	height: auto;
+	aspect-ratio: 1;
+	object-fit: cover;
+}
+
+.aa-editorial-tiles
+	.wc-block-featured-category
+	.wc-block-featured-category__wrapper {
+	/* WooCommerce's wrapper is a wrapping flex row: align-content places the line. */
+	align-content: flex-end;
+	align-items: flex-end;
+
+	/* The name band starts below the square photo (percentage padding is
+	   relative to the tile's width), so the name never sits on the photo;
+	   clip instead of WooCommerce's hidden lets the band's height count. */
+	padding-block-start: 100%;
+	overflow: clip;
+}
+
+.aa-editorial-tiles
+	.wc-block-featured-category
+	.wc-block-featured-category__inner-blocks {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0 var(--wp--preset--spacing--3);
+	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4);
+
+	& > * {
+		margin-block: 0;
+	}
+
+	& .wp-block-heading {
+		line-height: 1;
+	}
+}
+
+/* Phones: a swipe rail of large tiles (the lookbook's rail) instead of a
+   2 x 2 of ~170px tiles; the next tile's edge shows there is more. The
+   lookbook's row of three looks (too few to pin) swipes the same way.
+   Specificity 0,3,0 beats core's grid display. The bleed needs !important:
+   core's constrained layout sets margin-inline auto !important on its
+   children. */
+@media (width < 782px) {
+	.wp-block-group.is-layout-grid:is(.aa-editorial-tiles, .aa-lookbook-row) {
+		display: flex;
+		/* stylelint-disable-next-line declaration-no-important -- beats core constrained-layout margin-inline:auto!important */
+		margin-inline: calc(-1 * var(--wp--preset--spacing--gutter)) !important;
+		padding-inline: var(--wp--preset--spacing--gutter);
+		scroll-padding-inline: var(--wp--preset--spacing--gutter);
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		& > * {
+			flex: 0 0 72%;
+			scroll-snap-align: start;
+		}
+
+		/* Tablets: two and a half tiles, not one 530px tile. */
+		@media (width >= 600px) {
+			& > * {
+				flex-basis: 40%;
+			}
+		}
+	}
+}
+
+.aa-editorial-tiles .wc-block-featured-category .wp-block-heading a {
+	color: inherit;
+	text-decoration: none;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	&:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+
+	&:focus-visible {
+		outline: none;
+	}
+}
+
+.aa-editorial-tiles .wc-block-featured-category:has(a:focus-visible) {
+	box-shadow: var(--aa-focus-ring);
+}

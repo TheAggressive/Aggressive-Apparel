@@ -72,6 +72,11 @@ class Block_Categories {
 				'description' => __( 'Full homepage compositions and hero sections.', 'aggressive-apparel' ),
 			),
 			array(
+				'slug'        => 'aggressive-editorial',
+				'label'       => __( 'Editorial Sections', 'aggressive-apparel' ),
+				'description' => __( 'Spacious editorial homepage sections built on live catalog data.', 'aggressive-apparel' ),
+			),
+			array(
 				'slug'        => 'aggressive-products',
 				'label'       => __( 'Shop & Products', 'aggressive-apparel' ),
 				'description' => __( 'Product grids, collections, and shop-the-look layouts.', 'aggressive-apparel' ),

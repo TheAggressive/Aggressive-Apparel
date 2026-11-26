@@ -9,6 +9,9 @@
 
 @import "./_cart.css";
 @import "./_saved-for-later.css";
+@import "./_editorial-tiles.css";
+@import "./_editorial-grids.css";
+@import "./_listing-price.css";
 
 /* Allow collection headings and their CTA to wrap when text is enlarged. */
 .wp-block-woocommerce-product-collection.is-style-commerce-grid
@@ -30,7 +33,56 @@
    not the viewport. Enables correct stacking when the collection
    is placed in a narrow column or sidebar. */
 .wp-block-woocommerce-product-template {
-	gap: var(--wp--preset--spacing--8);
+	--aa-product-grid-gap: var(--wp--preset--spacing--8);
+
+	gap: var(--aa-product-grid-gap);
+}
+
+/* WooCommerce sizes responsive ("shrink columns") tracks as
+   calc(100% / N - 0.9375em), which only fits N columns with its own 1.25em
+   gap. With the theme's wider gap every grid dropped a column (Columns: 5
+   rendered 4). Re-derive the track minimum from the real gap; the 150px floor
+   is WooCommerce's. Doubled class beats WooCommerce's selector whichever
+   stylesheet prints first. */
+.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-product-grid-columns: 1;
+
+	grid-template-columns: repeat(
+		auto-fill,
+		minmax(
+			max(
+				150px,
+				calc(
+					(
+							100% - (var(--aa-product-grid-columns) - 1) *
+								var(--aa-product-grid-gap)
+						) /
+						var(--aa-product-grid-columns)
+				)
+			),
+			1fr
+		)
+	);
+
+	&.columns-2 {
+		--aa-product-grid-columns: 2;
+	}
+
+	&.columns-3 {
+		--aa-product-grid-columns: 3;
+	}
+
+	&.columns-4 {
+		--aa-product-grid-columns: 4;
+	}
+
+	&.columns-5 {
+		--aa-product-grid-columns: 5;
+	}
+
+	&.columns-6 {
+		--aa-product-grid-columns: 6;
+	}
 }
 
 .wp-block-woocommerce-product-template > li,
@@ -93,7 +145,9 @@
 	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
-/* Square media slot on listing cards — reserves space before images load (CLS). */
+/* Square media slot on every listing card: the product images are designed
+   square. The photo shows whole (contain), never a crop that could cut a
+   sleeve or a print; reserves space before load (CLS). */
 .wp-block-woocommerce-product-template .wp-block-post-featured-image {
 	aspect-ratio: 1;
 	overflow: hidden;
@@ -102,7 +156,7 @@
 .wp-block-woocommerce-product-template .wp-block-post-featured-image img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	object-fit: contain;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -150,6 +204,21 @@
 	.wc-block-grid__product-title a:hover
 ) {
 	color: var(--aa-color-accent);
+}
+
+/* Product names on listing cards are product information, not headlines:
+   the body face, sentence case, product-title weight — condensed display type
+   stays with section and page headings. (0,2,0) beats the global
+   core/post-title style (`:root :where(.wp-block-post-title)`, Bebas); the
+   editor's font-family and font-size preset classes (!important) and inline
+   typography still win. */
+.wp-block-woocommerce-product-template .wp-block-post-title {
+	font-family: var(--wp--preset--font-family--space-grotesk);
+	font-weight: 500;
+	letter-spacing: -0.005em;
+	line-height: 1.3;
+	text-transform: none;
+	text-wrap: pretty;
 }
 
 /* Price language.
@@ -275,6 +344,44 @@
 	box-shadow: var(--aa-focus-ring);
 }
 
+/* The shared ring on the cart and checkout's other controls too: the item's
+   remove (a destructive icon action, so circular like .aa-icon-button), the
+   coupon panel toggle, the address line 2 toggle and the phone checkout's
+   order summary toggle, which otherwise show the browser's default outline. */
+.wc-block-components-panel__button:focus-visible,
+.wc-block-components-checkout-order-summary__title:focus-visible,
+.wc-block-components-address-form__address_2-toggle:focus-visible {
+	outline: 2px solid transparent;
+	box-shadow: var(--aa-focus-ring);
+}
+
+/* WooCommerce's cart table clears the remove link's box-shadow at (0,4,1);
+   the same path plus :focus-visible puts the ring back. */
+table.wc-block-cart-items
+	.wc-block-cart-items__row
+	.wc-block-cart-item__quantity
+	.wc-block-cart-item__remove-link:focus-visible {
+	border-radius: var(--aa-radius-full);
+	outline: 2px solid transparent;
+	box-shadow: var(--aa-focus-ring);
+}
+
+/* Checkboxes: the native checkbox's ring (forms baseline), not WooCommerce's
+   1.5px grey outline; a pointer click shows none, as on native checkboxes.
+   `body` outranks WooCommerce's equal-specificity rule, which loads later. */
+body
+	.wc-block-components-checkbox
+	.wc-block-components-checkbox__input[type="checkbox"]:focus {
+	outline: none;
+}
+
+body
+	.wc-block-components-checkbox
+	.wc-block-components-checkbox__input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--aa-field-bar-focus);
+	outline-offset: 2px;
+}
+
 /* Quantity and form controls. */
 .wc-block-components-text-input input,
 .wc-block-components-combobox .wc-block-components-combobox-control input,
@@ -325,6 +432,12 @@
 		color: inherit;
 		appearance: textfield;
 
+		/* Touch screens zoom into a focused field set under 16px (iOS
+		   Safari); there the number reads at the field size instead. */
+		@media (pointer: coarse) {
+			font-size: var(--aa-field-font-size);
+		}
+
 		&::-webkit-inner-spin-button,
 		&::-webkit-outer-spin-button {
 			appearance: none;
@@ -352,7 +465,8 @@
 		font-size: 0.875rem;
 		line-height: 1;
 		cursor: pointer;
-		transition: background-color 0.15s ease;
+		transition: background-color var(--aa-duration-fast)
+			var(--aa-ease-default);
 
 		/* Subtle currentcolor tint on hover/focus — the shared quantity-button
 		   look used across the product form, cart, checkout, mini-cart drawer,
@@ -674,10 +788,17 @@
 	.wc-block-components-product-name {
 		font-size: var(--wp--preset--font-size--x-small);
 	}
+
+	/* Two-up mobile grids land here (~150–190px); a full-padding pill wraps
+	   "Add to cart" onto two lines. Tighten the inline padding too. */
+	.wp-block-woocommerce-product-button .wp-block-button__link,
+	.wc-block-grid__product-add-to-cart .wp-block-button__link {
+		padding-inline: var(--wp--preset--spacing--3);
+	}
 }
 
-/* Standard slot (200–320px) — compact button, tighter price. */
-@container product-card (200px <= width < 320px) {
+/* Narrow and standard slots (< 320px) — compact button, tighter price. */
+@container product-card (width < 320px) {
 	.wp-block-woocommerce-product-button .wp-block-button__link,
 	.wc-block-grid__product-add-to-cart .wp-block-button__link {
 		padding-block: var(--wp--preset--spacing--2);

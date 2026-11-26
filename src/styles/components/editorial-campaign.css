@@ -1,0 +1,130 @@
+/**
+ * Campaign covers (Editorial_Campaign_Cover): the homepage photographs a
+ * merchant chooses in the Site Editor, each a core Cover block in its own
+ * template part. The opening campaign and the featured drop fill the width
+ * with their copy over the photo's open side; Defiance Division is a 21:9
+ * film still with its copy beneath. On phones every cover stacks, so no
+ * copy ever sits on a garment's artwork.
+ *
+ * Unlayered like editorial-chapters.css: these must outrank core's Cover
+ * CSS. The merchant's choices (photo, focal point, overlay, content
+ * position, alt) all come from the Cover block itself.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Focal points arrive as custom properties (Catalog_Image_Loading), so a
+   phone crop can differ from the desktop one. */
+.wp-block-cover.aa-campaign-cover .wp-block-cover__image-background {
+	object-position: var(--aa-focal, 50% 50%);
+}
+
+/* The garment's name and price: a credit, set apart from the links. */
+.wp-block-cover.aa-campaign-cover--hero .aa-grid-caption {
+	margin-block-start: var(--wp--preset--spacing--8);
+}
+
+/* The <picture> carrying the phone source lays out as its image. */
+.aa-campaign-cover__picture {
+	display: contents;
+}
+
+@media (width >= 782px) {
+	/* Copy aligns with the page's wide column, not the screen edge. */
+	.wp-block-cover.aa-campaign-cover {
+		padding-block: var(--wp--preset--spacing--section-compact);
+		padding-inline: max(
+			var(--wp--preset--spacing--gutter),
+			calc((100% - var(--wp--style--global--wide-size)) / 2)
+		);
+	}
+
+	/* The opening campaign fills the first screen below the header. */
+	.wp-block-cover.aa-campaign-cover--hero {
+		min-height: clamp(36rem, 100svh - 7rem, 64vw);
+
+		& .wp-block-cover__inner-container {
+			max-inline-size: 50%;
+		}
+
+		& .wp-block-heading.is-style-campaign {
+			font-size: clamp(4rem, 11vw, 12rem);
+		}
+	}
+
+	.wp-block-cover.aa-campaign-cover--drop {
+		min-height: clamp(34rem, 88svh, 60vw);
+
+		& .wp-block-cover__inner-container {
+			max-inline-size: 46rem;
+		}
+	}
+
+	.wp-block-cover.aa-campaign-cover--film {
+		aspect-ratio: 21 / 9;
+		min-height: 0;
+		padding: 0;
+	}
+}
+
+@media (width < 782px) {
+	/* Photo, then copy (the opening campaign: copy first, so the slogan and
+	   its links are on the first screen); the photo is a full-width 4:5. */
+	.wp-block-cover.aa-campaign-cover {
+		flex-direction: column;
+		min-height: 0;
+		padding: 0;
+		background-color: var(--wp--preset--color--black);
+
+		& .wp-block-cover__image-background {
+			position: relative;
+			aspect-ratio: 4 / 5;
+			height: auto;
+			object-position: var(--aa-focal-phone, var(--aa-focal, 50% 50%));
+		}
+
+		/* The overlay darkens what copy sits on; stacked, nothing does. */
+		& .wp-block-cover__background {
+			display: none;
+		}
+
+		/* Full width whatever the content position: stacked, a "bottom
+		   left" or "center right" would otherwise push the copy aside. */
+		& .wp-block-cover__inner-container {
+			align-self: stretch;
+			padding: var(--wp--preset--spacing--section-compact)
+				var(--wp--preset--spacing--gutter);
+		}
+	}
+
+	.wp-block-cover.aa-campaign-cover--hero {
+		flex-direction: column-reverse;
+	}
+
+	.wp-block-cover.aa-campaign-cover--film {
+		background-color: transparent;
+
+		& .wp-block-cover__inner-container {
+			display: none;
+		}
+	}
+}
+
+/* The part's own editor (Patterns → Template parts) frames the photo as
+   visitors see it, so the focal point is set against the real crop: wide on
+   desktop, 21:9 for the film still, and a second Cover (the phones' photo)
+   at 4:5. */
+.wp-block-cover.aa-campaign-image {
+	aspect-ratio: 16 / 9;
+	min-height: 0;
+}
+
+.wp-block-cover.aa-campaign-image--film {
+	aspect-ratio: 21 / 9;
+}
+
+.wp-block-cover.aa-campaign-image + .wp-block-cover {
+	max-inline-size: 22rem;
+	aspect-ratio: 4 / 5;
+	min-height: 0;
+}

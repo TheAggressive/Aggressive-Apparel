@@ -24,18 +24,18 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"textAlign":"center"}},"fontSize":"medium"} -->
-<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6)"><?php echo esc_html__( 'Looks like this page has disappeared...', 'aggressive-apparel' ); ?><br><?php echo esc_html__( 'Lets get you back to the good stuff.', 'aggressive-apparel' ); ?></p>
+<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6)"><?php echo esc_html__( 'This page doesn’t exist, or it has moved.', 'aggressive-apparel' ); ?><br><?php echo esc_html__( 'Start again from the shop or the homepage.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:search {"label":"Search","showLabel":false,"placeholder":"Search products, collections...","width":100,"widthUnit":"%","buttonText":"Search","buttonUseIcon":true,"style":{"spacing":{"margin":{"top":"var:preset|spacing|fluid-16"}}}} /-->
 
 <!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|fluid-12"}}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--fluid-12)"><!-- wp:button {"backgroundColor":"black","textColor":"white","className":"is-style-cta"} -->
-<div class="wp-block-button is-style-cta"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php echo esc_html__( 'Browse Shop', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-button is-style-cta"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php echo esc_html__( 'Shop all products', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button -->
 
 <!-- wp:button {"className":"is-style-cta-ghost"} -->
-<div class="wp-block-button is-style-cta-ghost"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html__( 'Go Home', 'aggressive-apparel' ); ?></a></div>
+<div class="wp-block-button is-style-cta-ghost"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html__( 'Back to home', 'aggressive-apparel' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->

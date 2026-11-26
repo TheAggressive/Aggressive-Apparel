@@ -94,7 +94,8 @@ final class Product_Filter_Renderer {
 			esc_attr( $id ),
 		);
 		$html .= sprintf(
-			'<button class="aa-product-filters__bar-trigger aa-choice-pill" data-wp-on--click="actions.toggleDropdown" aria-expanded="false" data-wp-bind--aria-expanded="%s">',
+			'<button class="aa-product-filters__bar-trigger aa-choice-pill" data-wp-on--click="actions.toggleDropdown" aria-expanded="false" aria-controls="%s" data-wp-bind--aria-expanded="%s">',
+			esc_attr( 'aa-filter-dropdown-' . $id ),
 			esc_attr( $state ),
 		);
 		$html .= esc_html( $label );
@@ -108,7 +109,8 @@ final class Product_Filter_Renderer {
 		);
 		$html .= '</button>';
 		$html .= sprintf(
-			'<div data-wp-bind--hidden="!%s">',
+			'<div id="%s" data-wp-bind--hidden="!%s">',
+			esc_attr( 'aa-filter-dropdown-' . $id ),
 			esc_attr( $state ),
 		);
 		$html .= '<div class="aa-product-filters__bar-dropdown">';

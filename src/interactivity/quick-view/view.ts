@@ -91,12 +91,12 @@ export function getStockInfo( product: StoreApiProduct ): StockInfo {
 		return {
 			status: 'outofstock',
 			quantity: 0,
-			label: getLabel( 'outOfStockLabel', 'Out of Stock' ),
+			label: getLabel( 'outOfStockLabel', 'Out of stock' ),
 		};
 	}
 
 	if ( qty !== null && qty !== undefined && qty <= lowThreshold && qty > 0 ) {
-		const template = getLabel( 'onlyNLeft', 'Only %d left!' );
+		const template = getLabel( 'onlyNLeft', 'Only %d left' );
 		return {
 			status: 'lowstock',
 			quantity: qty,
@@ -107,7 +107,7 @@ export function getStockInfo( product: StoreApiProduct ): StockInfo {
 	return {
 		status: 'instock',
 		quantity: qty ?? null,
-		label: getLabel( 'inStockLabel', 'In Stock' ),
+		label: getLabel( 'inStockLabel', 'In stock' ),
 	};
 }
 

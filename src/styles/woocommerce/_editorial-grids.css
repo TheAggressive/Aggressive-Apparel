@@ -1,0 +1,161 @@
+/**
+ * Homepage editorial product grids (Editorial_Product_Grid)
+ *
+ * Imported at the top of blocks.css, so these load BEFORE its responsive
+ * grid column rules (.columns-N, specificity 0,3,0). They use the same
+ * --aa-product-grid-* custom properties and win by specificity, not order.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Homepage editorial grids of 4+ columns go two-up below desktop: not four
+   150px cards. Three-column grids stay three (a two-up would orphan the
+   third card); a one-card lead grid stays one card.
+   Specificity 0,4,0 beats the .columns-N rules that load after it. */
+@media (width < 1024px) {
+	.is-style-editorial-grid
+		.wp-block-woocommerce-product-template.wc-block-product-template__responsive:is(
+			.columns-4,
+			.columns-5,
+			.columns-6
+		) {
+		--aa-product-grid-columns: 2;
+	}
+}
+
+/* A short row under a centred heading (Editorial_Product_Grid `centered`):
+   auto-fit drops the empty tracks and each track keeps its N-column width
+   instead of stretching, so one product sits centred at card size rather
+   than flush left. Full rows lay out exactly as above. */
+.wp-block-woocommerce-product-collection.aa-grid-centered
+	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-product-grid-track: calc(
+		(
+				100% - (var(--aa-product-grid-columns) - 1) *
+					var(--aa-product-grid-gap)
+			) /
+			var(--aa-product-grid-columns)
+	);
+
+	grid-template-columns: repeat(
+		auto-fit,
+		minmax(
+			max(150px, var(--aa-product-grid-track)),
+			var(--aa-product-grid-track)
+		)
+	);
+	justify-content: center;
+}
+
+/* A lead card (Editorial_Product_Grid `lead`, New Arrivals' newest piece) is
+   a step taller than the square cards (1:1.11): beside a 2 x 2 of
+   half-width cards that ends its image level with the second row's images
+   instead of short of them. */
+.aa-grid-lead
+	.wp-block-woocommerce-product-template
+	.wp-block-post-featured-image {
+	aspect-ratio: 1 / 1.11;
+}
+
+/* A rail (Editorial_Product_Grid `rail`): one row that scrolls sideways and
+   shows a fraction of the next card, so a longer range reads as more than a
+   row. Keeps a thin visible scrollbar for mouse users; arrow keys and focus
+   scroll it natively. 0,3,0 beats WooCommerce's grid display. */
+.aa-grid-rail
+	.wp-block-woocommerce-product-template.wc-block-product-template__responsive {
+	--aa-rail-visible: 3.5;
+
+	display: flex;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: thin;
+	padding-block-end: var(--wp--preset--spacing--4);
+
+	/* Runs to the screen's edge (through the section's gutter), so the
+	   next card is cut by the screen, not the column; the last card can
+	   still scroll to the gutter line. */
+	width: calc(100% + var(--wp--preset--spacing--gutter));
+	max-width: none;
+	margin-inline-end: calc(-1 * var(--wp--preset--spacing--gutter));
+	padding-inline-end: var(--wp--preset--spacing--gutter);
+
+	& > li {
+		flex: 0 0
+			calc(
+				(
+						100% - (var(--aa-rail-visible) - 1) *
+							var(--aa-product-grid-gap)
+					) /
+					var(--aa-rail-visible)
+			);
+		scroll-snap-align: start;
+	}
+
+	@media (width < 1024px) {
+		--aa-rail-visible: 2.5;
+	}
+
+	@media (width < 600px) {
+		--aa-rail-visible: 1.6;
+	}
+}
+
+/* Numbered cards (className `aa-grid-numbered`): a large 01, 02, 03 on each
+   card's photo, for a ranking or a short list. Decorative: the alt text
+   after the slash keeps it out of the accessible name. */
+.aa-grid-numbered {
+	& .wp-block-woocommerce-product-template {
+		counter-reset: aa-rank;
+	}
+
+	& .wp-block-woocommerce-product-template > li {
+		position: relative;
+		counter-increment: aa-rank;
+
+		&::before {
+			content: counter(aa-rank, decimal-leading-zero) / "";
+			position: absolute;
+			z-index: 1;
+			inset-block-start: 0.15em;
+			inset-inline-start: 0.25em;
+			font-family: var(--wp--preset--font-family--bebas-neue);
+			font-size: clamp(3.5rem, 2rem + 4vw, 7.5rem);
+			line-height: 1;
+			color: var(--wp--preset--color--accent);
+			pointer-events: none;
+		}
+	}
+}
+
+/* Lineup (className `aa-grid-lineup`): the cards side by side with no gap
+   on one continuous studio band, names centred below, so a range reads as
+   one uniform. */
+.aa-grid-lineup .wp-block-woocommerce-product-template {
+	/* stylelint-disable-next-line length-zero-no-unit -- feeds calc() track sums, which need a length. */
+	--aa-product-grid-gap: 0px;
+
+	padding-block: var(--wp--preset--spacing--5);
+	background-color: var(--aa-product-media-surface);
+	color-scheme: light;
+	color: var(--wp--preset--color--foreground);
+
+	& .aa-editorial-card {
+		padding-inline: var(--wp--preset--spacing--2);
+		text-align: center;
+
+		& .is-layout-flex {
+			justify-content: center;
+		}
+	}
+}
+
+/* Caption only (className `aa-grid-caption`): a product's name and live
+   price beside its own photo, no card. */
+.aa-grid-caption .wp-block-woocommerce-product-template {
+	display: block;
+
+	& .wp-block-post-title {
+		margin: 0;
+	}
+}

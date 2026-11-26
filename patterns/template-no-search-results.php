@@ -12,5 +12,5 @@
 
 ?>
 <!-- wp:paragraph -->
-<p><?php echo esc_html__( 'No results found.', 'aggressive-apparel' ); ?></p>
+<p><?php echo esc_html__( 'Nothing matched that search. Try a different word.', 'aggressive-apparel' ); ?></p>
 <!-- /wp:paragraph -->

@@ -78,7 +78,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.65"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65"><?php echo esc_html__( 'Limited units keep quality high and the drop scarce. No endless restocks by default.', 'aggressive-apparel' ); ?></p>
+			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65"><?php echo esc_html__( '[Say how many pieces you make and whether this design will be restocked. State only what you will honor.]', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

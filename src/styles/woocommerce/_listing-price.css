@@ -1,0 +1,42 @@
+/**
+ * Listing-card price line and the shared "Save" tag. Partial of blocks.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Listing cards: amounts set as figures so prices line up card to card;
+   on a sale the new price carries the weight and the old one steps down. */
+.wp-block-woocommerce-product-template .wp-block-woocommerce-product-price {
+	font-variant-numeric: tabular-nums;
+
+	& del {
+		margin-inline-end: 0.3em;
+		font-size: 0.875em;
+		font-weight: 400;
+	}
+
+	& ins {
+		font-weight: 600;
+	}
+}
+
+/* "Save 20%" (Price_Display::savings_text(), and the same label built in
+   Quick View, the sticky bar, Recently Viewed and the lookbook popover): a
+   small outlined tag that stays in one piece beside the price instead of
+   reading as more price text or breaking across lines. Three quarters of
+   the price, but never under 12px: beside a small listing price that
+   fraction fell to 10px. */
+.aggressive-apparel-price-save {
+	display: inline-block;
+	margin-inline-start: 0.5em;
+	padding: 0.05em 0.4em;
+	border: 1px solid currentcolor;
+	border-radius: var(--aa-radius-sm);
+	color: var(--aa-commerce-sale-text);
+	font-size: max(0.75rem, 0.75em);
+	font-weight: 600;
+	line-height: 1.4;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+	vertical-align: 0.1em;
+}

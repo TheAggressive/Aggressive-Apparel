@@ -113,7 +113,7 @@
 		inset: 0 0 auto;
 		border-block-start: 1px solid var(--wp--preset--color--border);
 		transform-origin: 0 0;
-		transition: scale 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+		transition: scale var(--aa-duration-slow) var(--aa-ease-enter);
 
 		&:dir(rtl) {
 			transform-origin: 100% 0;
@@ -149,9 +149,9 @@
 	& .aa-line-index__name a,
 	& .aa-line-index__thumb {
 		transition:
-			color 0.25s ease,
-			padding 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
-			translate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+			color var(--aa-duration-normal) var(--aa-ease-default),
+			padding var(--aa-duration-slow) var(--aa-ease-enter),
+			translate var(--aa-duration-slow) var(--aa-ease-enter);
 	}
 
 	&:has(a:focus-visible) {

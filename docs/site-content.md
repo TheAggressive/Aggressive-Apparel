@@ -28,7 +28,8 @@ likely has the same set; confirm with the command before editing.
 | `footer`                                  | template part | Trust badge and newsletter copy (below)                                                                                  | Editing in place |
 | `single-product`                          | template      | Adds the **PayPal smart buttons** block; lacks the theme's live free-shipping line under Add to cart                     | Editing in place |
 | `home`                                    | template      | The old customised homepage (hero "CAMO + SKULLS", "For the Unruled"); **draft locally** so the editorial homepage shows | Reset (adopt)    |
-| `checkout-header`, `mini-cart`            | template part | Saved, no copy issues found                                                                                              | Leave            |
+| `mini-cart`                               | template part | An older copy of the theme's part: "Your cart is currently empty!" and none of the shared empty state                    | Reset (adopt)    |
+| `checkout-header`                         | template part | Saved, no copy issues found                                                                                              | Leave            |
 | `simple-product-add-to-cart-with-options` | template part | Saved (two entries locally), no copy issues found                                                                        | Leave            |
 | `page-no-title`                           | template      | Saved, no copy issues found                                                                                              | Leave            |
 
@@ -88,12 +89,16 @@ second run reports "already reconciled".
    columns, gutter padding, the free-shipping line after the purchase
    buttons) always runs; header and footer copy only with `copy`; the
    homepage reset only with `adopt-home` (moves the saved home template to
-   the trash, so the editorial homepage shows):
+   the trash, so the editorial homepage shows); the mini-cart reset only
+   with `adopt-mini-cart`. Compare the saved mini-cart with the theme's
+   `parts/mini-cart.html` first: reset only if the differences are the old
+   title sizes and empty message, not a merchant's own edits:
 
     ```bash
     wp eval-file …/reconcile.php apply            # layout only
     wp eval-file …/reconcile.php apply copy       # + approved copy
     wp eval-file …/reconcile.php apply adopt-home # + editorial homepage
+    wp eval-file …/reconcile.php apply adopt-mini-cart # + theme mini-cart
     ```
 
     Backups land in `./site-content-backup-<time>/<slug>-<ID>.html`. The

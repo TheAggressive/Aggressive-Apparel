@@ -30,8 +30,10 @@ if ( count( $aa_leads ) < 3 ) {
 <!-- /wp:heading --></div>
 <!-- /wp:group -->
 
-<!-- wp:aggressive-blocks/horizontal-scroll {"align":"wide","ariaLabel":"<?php echo esc_attr__( 'How it’s worn', 'aggressive-apparel' ); ?>","itemWidth":"34vw","speed":0.6,"showProgress":true,"showControls":true,"activation":"center","desktopBehavior":"pinned","snapBehavior":"off","swipeHintStyle":"cue","className":"aa-lookbook-scroll"} -->
-<?php foreach ( $aa_leads as $aa_look ) : ?>
+<?php
+ob_start();
+foreach ( $aa_leads as $aa_look ) :
+	?>
 <!-- wp:group {"className":"aa-photo-rail__look","style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"default"}} -->
 <div class="wp-block-group aa-photo-rail__look"><?php echo Editorial_Imagery::image_markup( $aa_look, '1' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup; URLs and alt escaped in image_markup(). ?>
 
@@ -39,6 +41,21 @@ if ( count( $aa_leads ) < 3 ) {
 <p class="aa-photo-rail__caption"><a href="<?php echo esc_url( (string) get_permalink( $aa_look['product'] ) ); ?>"><?php echo esc_html( get_the_title( $aa_look['product'] ) ); ?></a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
-<?php endforeach; ?>
-<!-- /wp:aggressive-blocks/horizontal-scroll --></div>
+	<?php
+endforeach;
+$aa_looks = (string) ob_get_clean();
+
+// Four or more looks run wider than the screen: a pinned rail scrubbed by
+// scroll. Three fit the wide column, so pinning would only add a long empty
+// scroll; they sit side by side (on phones, the tiles' swipe rail).
+if ( count( $aa_leads ) > 3 ) :
+	?>
+<!-- wp:aggressive-blocks/horizontal-scroll {"align":"wide","ariaLabel":"<?php echo esc_attr__( 'How it’s worn', 'aggressive-apparel' ); ?>","itemWidth":"34vw","speed":0.6,"showProgress":true,"showControls":true,"activation":"center","desktopBehavior":"pinned","snapBehavior":"off","swipeHintStyle":"cue","className":"aa-lookbook-scroll"} -->
+	<?php echo $aa_looks; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup built above, escaped there. ?>
+<!-- /wp:aggressive-blocks/horizontal-scroll -->
+<?php else : ?>
+<!-- wp:group {"align":"wide","className":"aa-lookbook-row","style":{"spacing":{"blockGap":"var:preset|spacing|6"}},"layout":{"type":"grid","columnCount":3}} -->
+<div class="wp-block-group alignwide aa-lookbook-row"><?php echo $aa_looks; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block markup built above, escaped there. ?></div>
+<!-- /wp:group -->
+<?php endif; ?></div>
 <!-- /wp:group -->

@@ -356,6 +356,26 @@ class Test_Editorial_Imagery extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Lookbook: three looks fit the wide column, so they sit in a row (a
+	 * pinned rail would add only empty scroll); a fourth makes it the rail.
+	 */
+	public function test_lookbook_pins_only_when_the_looks_overflow(): void {
+		for ( $i = 0; $i < 3; $i++ ) {
+			$this->create_product( array( 'image' => $this->create_image() ) );
+		}
+		$blocks = parse_blocks( $this->render_pattern( 'editorial-featured-looks' ) );
+		$this->assertSame( array(), $this->find_all( $blocks, 'aggressive-blocks/horizontal-scroll' ) );
+		$row = $this->find_block( $blocks, static fn( array $b ): bool => str_contains( (string) ( $b['attrs']['className'] ?? '' ), 'aa-lookbook-row' ) );
+		$this->assertNotNull( $row );
+		$this->assertCount( 3, $row['innerBlocks'] );
+
+		$this->create_product( array( 'image' => $this->create_image() ) );
+		$rails = $this->find_all( parse_blocks( $this->render_pattern( 'editorial-featured-looks' ) ), 'aggressive-blocks/horizontal-scroll' );
+		$this->assertCount( 1, $rails );
+		$this->assertCount( 4, $rails[0]['innerBlocks'] );
+	}
+
+	/**
 	 * Women's: one product is carried by its photo alone; more add a grid of
 	 * two or four beside it, never a single lone card.
 	 */

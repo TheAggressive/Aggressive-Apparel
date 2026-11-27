@@ -305,7 +305,10 @@
 		.wc-block-cart-items__row {
 		display: grid;
 		grid-template-columns: 5rem minmax(0, 1fr) auto;
-		column-gap: 0;
+
+		/* The cells' own padding is reset below (td → grid children), so the
+		   gutter between photo, details and line total comes from here. */
+		column-gap: var(--wp--preset--spacing--4);
 		align-items: start;
 		padding-block: var(--wp--preset--spacing--5);
 		padding-left: 1rem;

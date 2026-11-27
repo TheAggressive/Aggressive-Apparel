@@ -1350,6 +1350,26 @@ describe( 'fixed-scheme editorial sections', () => {
 	} );
 } );
 
+describe( 'mini-cart line items', () => {
+	it( 'keep a gutter between the photo, the details and the line total', async () => {
+		const miniCart = await CompiledCss.load(
+			'src/styles/woocommerce/mini-cart.css'
+		);
+		const gaps = miniCart
+			.all()
+			.filter(
+				( d ) =>
+					d.prop === 'column-gap' &&
+					d.selector.includes( '.wc-block-mini-cart-items' ) &&
+					d.selector.includes( '.wc-block-cart-items__row' )
+			);
+
+		expect( gaps.map( ( d ) => d.value ) ).toEqual( [
+			'var(--wp--preset--spacing--4)',
+		] );
+	} );
+} );
+
 describe( 'motion', () => {
 	/*
 	 * Interaction transitions (hover, press, select, open and close) move on
